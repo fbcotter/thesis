@@ -1,0 +1,34 @@
+\chapter{Front Ends}
+
+This chapter is about having a wavelet transform/scatternet front end to a deep
+learning system.
+
+Previous work including Oyallon and Singh have explored ways in which
+ScatterNets can be improved on for image analysis tasks. This chapter explores
+some alternate methods we have.
+
+\section{Fast GPU Implementation}
+
+\section{Something}
+Where to modify the scatternet? We could look at the difference in training cost
+when we drop the second order coefficients.
+
+Perhaps just doing the wavelet transform and complex magnitude is enough?
+
+Nick wanted me to move the magnitude before mixing the channels. The argument
+being that taking the magnitude means the output becomes shift invariant. I.e.,
+we only need to see that there is energy in a wavelet band, and then we can
+accommodate shifts.
+
+The question is though, how much do we need the phase? Also can we impose some
+priors on the distribution of subbands for CNN activations? We certainly can for
+the image statistics.
+
+\section{Relu Properties}
+What is the effect of the ReLU on the activations? Show that it sparsifies
+things.
+
+\section{Activation Statistics}
+I want to take the DTCWT of activations throughout a neural network and look at
+the pdf over the subband energy.
+

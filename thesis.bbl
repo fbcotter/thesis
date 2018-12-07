@@ -1,0 +1,294 @@
+\begin{thebibliography}{}
+
+\bibitem[Bengio et~al., 2007]{bengio_greedy_2007}
+Bengio, Y., Lamblin, P., Popovici, D., and Larochelle, H. (2007).
+\newblock Greedy {{Layer}}-{{Wise Training}} of {{Deep Networks}}.
+\newblock pages 153--160.
+\newblock 01545.
+
+\bibitem[Field, 1993]{field_scale-invariance_1993}
+Field, D.~J. (1993).
+\newblock Scale-invariance and self-similar `wavelet' transforms: {{An}}
+  analysis of natural scenes and mammalian visual systems.
+\newblock {\em ResearchGate}.
+\newblock 00216.
+
+\bibitem[Field, 1994]{field_what_1994}
+Field, D.~J. (1994).
+\newblock What {{Is}} the {{Goal}} of {{Sensory Coding}}?
+\newblock {\em Neural Computation}, 6(4):559--601.
+\newblock 01262.
+
+\bibitem[Glorot and Bengio, 2010]{glorot_understanding_2010}
+Glorot, X. and Bengio, Y. (2010).
+\newblock Understanding the difficulty of training deep feedforward neural
+  networks.
+\newblock In {\em In {{Proceedings}} of the {{International Conference}} on
+  {{Artificial Intelligence}} and {{Statistics}} ({{AISTATS}}'10). {{Society}}
+  for {{Artificial Intelligence}} and {{Statistics}}}.
+\newblock 00649.
+
+\bibitem[Glorot et~al., 2011]{glorot_deep_2011}
+Glorot, X., Bordes, A., and Bengio, Y. (2011).
+\newblock Deep {{Sparse Rectifier Neural Networks}}.
+\newblock pages 315--323.
+\newblock 00526.
+
+\bibitem[Grun et~al., 2016]{grun_taxonomy_2016}
+Grun, F., Rupprecht, C., Navab, N., and Tombari, F. (2016).
+\newblock A {{Taxonomy}} and {{Library}} for {{Visualizing Learned Features}}
+  in {{Convolutional Neural Networks}}.
+\newblock {\em arXiv:1606.07757 [cs]}.
+\newblock 00000.
+
+\bibitem[Gu et~al., 2015]{gu_recent_2015}
+Gu, J., Wang, Z., Kuen, J., Ma, L., Shahroudy, A., Shuai, B., Liu, T., Wang,
+  X., and Wang, G. (2015).
+\newblock Recent {{Advances}} in {{Convolutional Neural Networks}}.
+\newblock {\em arXiv:1512.07108 [cs]}.
+\newblock 00002.
+
+\bibitem[He et~al., 2015]{he_deep_2015}
+He, K., Zhang, X., Ren, S., and Sun, J. (2015).
+\newblock Deep {{Residual Learning}} for {{Image Recognition}}.
+\newblock {\em arXiv:1512.03385 [cs]}.
+\newblock 00013.
+
+\bibitem[He et~al., 2016]{he_identity_2016}
+He, K., Zhang, X., Ren, S., and Sun, J. (2016).
+\newblock Identity {{Mappings}} in {{Deep Residual Networks}}.
+\newblock {\em arXiv:1603.05027 [cs]}.
+\newblock 00021.
+
+\bibitem[Hinton et~al., 2012]{hinton_improving_2012}
+Hinton, G.~E., Srivastava, N., Krizhevsky, A., Sutskever, I., and
+  Salakhutdinov, R.~R. (2012).
+\newblock Improving neural networks by preventing co-adaptation of feature
+  detectors.
+\newblock {\em arXiv:1207.0580 [cs]}.
+\newblock 01289.
+
+\bibitem[Ioffe and Szegedy, 2015]{ioffe_batch_2015}
+Ioffe, S. and Szegedy, C. (2015).
+\newblock Batch {{Normalization}}: {{Accelerating Deep Network Training}} by
+  {{Reducing Internal Covariate Shift}}.
+\newblock {\em arXiv:1502.03167 [cs]}.
+\newblock 00137.
+
+\bibitem[Jarrett et~al., 2009]{jarrett_what_2009}
+Jarrett, K., Kavukcuoglu, K., Ranzato, M., and LeCun, Y. (2009).
+\newblock What is the best multi-stage architecture for object recognition?
+\newblock In {\em 2009 {{IEEE}} 12th {{International Conference}} on {{Computer
+  Vision}}}, pages 2146--2153.
+\newblock 00640.
+
+\bibitem[Krizhevsky, 2009]{krizhevsky_learning_2009}
+Krizhevsky, A. (2009).
+\newblock Learning {{Multiple Layers}} of {{Features}} from {{Tiny Images}}.
+\newblock Technical report.
+\newblock 00757.
+
+\bibitem[Krizhevsky et~al., 2012]{krizhevsky_imagenet_2012}
+Krizhevsky, A., Sutskever, I., and Hinton, G.~E. (2012).
+\newblock {{ImageNet Classification}} with {{Deep Convolutional Neural
+  Networks}}.
+\newblock In {\em {{NIPS}}}, pages 1097--1105. {Curran Associates, Inc.}
+\newblock 03570.
+
+\bibitem[LeCun et~al., 1989]{lecun_backpropagation_1989}
+LeCun, Y., Boser, B., Denker, J., Henderson, D., Howard, R., Hubbard, W., and
+  Jackel, L. (1989).
+\newblock Backpropagation {{Applied}} to {{Handwritten Zip Code Recognition}}.
+\newblock {\em Neural Computation}, 1(4):541--551.
+\newblock 01508.
+
+\bibitem[Lecun et~al., 1998]{lecun_gradient-based_1998}
+Lecun, Y., Bottou, L., Bengio, Y., and Haffner, P. (1998).
+\newblock Gradient-based learning applied to document recognition.
+\newblock {\em Proceedings of the IEEE}, 86(11):2278--2324.
+\newblock 05502.
+
+\bibitem[LeCun et~al., 2012]{lecun_efficient_2012}
+LeCun, Y.~A., Bottou, L., Orr, G.~B., and M{\"u}ller, K.-R. (2012).
+\newblock Efficient {{BackProp}}.
+\newblock In Montavon, G., Orr, G.~B., and M{\"u}ller, K.-R., editors, {\em
+  Neural {{Networks}}: {{Tricks}} of the {{Trade}}}, number 7700 in Lecture
+  Notes in Computer Science, pages 9--48. {Springer Berlin Heidelberg}.
+\newblock 01085.
+
+\bibitem[Lennie, 2003]{lennie_cost_2003}
+Lennie, P. (2003).
+\newblock The cost of cortical computation.
+\newblock {\em Current biology: CB}, 13(6):493--497.
+\newblock 00627.
+
+\bibitem[Lin et~al., 2014]{lin_microsoft_2014}
+Lin, T.-Y., Maire, M., Belongie, S., Bourdev, L., Girshick, R., Hays, J.,
+  Perona, P., Ramanan, D., Zitnick, C.~L., and Doll{\'a}r, P. (2014).
+\newblock Microsoft {{COCO}}: {{Common Objects}} in {{Context}}.
+\newblock {\em arXiv:1405.0312 [cs]}.
+\newblock 00500.
+
+\bibitem[Lowe, 1999]{lowe_object_1999}
+Lowe, D.~G. (1999).
+\newblock Object recognition from local scale-invariant features.
+\newblock In {\em The {{Proceedings}} of the {{Seventh IEEE International
+  Conference}} on {{Computer Vision}}, 1999}, volume~2, pages 1150--1157 vol.2.
+\newblock 11668.
+
+\bibitem[Lowe, 2004]{lowe_distinctive_2004}
+Lowe, D.~G. (2004).
+\newblock Distinctive {{Image Features}} from {{Scale}}-{{Invariant
+  Keypoints}}.
+\newblock {\em International Journal of Computer Vision}, 60:91--110.
+\newblock 32503.
+
+\bibitem[Mahendran and Vedaldi, 2015]{mahendran_understanding_2015}
+Mahendran, A. and Vedaldi, A. (2015).
+\newblock Understanding {{Deep Image Representations}} by {{Inverting Them}}.
+\newblock {\em Proceedings of the IEEE Conf. on Computer Vision and Pattern
+  Recognition (CVPR)}.
+\newblock 00042.
+
+\bibitem[Mishkin and Matas, 2015]{mishkin_all_2015}
+Mishkin, D. and Matas, J. (2015).
+\newblock All you need is a good init.
+\newblock {\em arXiv:1511.06422 [cs]}.
+\newblock 00012.
+
+\bibitem[Mishkin et~al., 2016]{mishkin_systematic_2016}
+Mishkin, D., Sergievskiy, N., and Matas, J. (2016).
+\newblock Systematic evaluation of {{CNN}} advances on the {{ImageNet}}.
+\newblock {\em arXiv:1606.02228 [cs]}.
+\newblock 00000.
+
+\bibitem[Nair and Hinton, 2010]{nair_rectified_2010}
+Nair, V. and Hinton, G.~E. (2010).
+\newblock Rectified {{Linear Units Improve Restricted Boltzmann Machines}}.
+\newblock pages 807--814.
+\newblock 00861.
+
+\bibitem[Olshausen and Field, 1996]{olshausen_emergence_1996}
+Olshausen, B.~A. and Field, D.~J. (1996).
+\newblock Emergence of simple-cell receptive field properties by learning a
+  sparse code for natural images.
+\newblock {\em Nature}, 381(6583):607--609.
+\newblock 04099.
+
+\bibitem[Olshausen and Field, 1997]{olshausen_sparse_1997}
+Olshausen, B.~A. and Field, D.~J. (1997).
+\newblock Sparse coding with an overcomplete basis set: A strategy employed by
+  {{V1}}?
+\newblock {\em Vision Research}, 37(23):3311--3325.
+\newblock 02433.
+
+\bibitem[Oyallon and Mallat, 2015]{oyallon_deep_2015}
+Oyallon, E. and Mallat, S. (2015).
+\newblock Deep {{Roto}}-{{Translation Scattering}} for {{Object
+  Classification}}.
+\newblock pages 2865--2873.
+\newblock 00011.
+
+\bibitem[Ren et~al., 2015]{ren_object_2015}
+Ren, S., He, K., Girshick, R., Zhang, X., and Sun, J. (2015).
+\newblock Object {{Detection Networks}} on {{Convolutional Feature Maps}}.
+\newblock {\em arXiv:1504.06066 [cs]}.
+\newblock 00008.
+
+\bibitem[Rumelhart et~al., 1986]{rumelhart_parallel_1986}
+Rumelhart, D.~E., Hinton, G.~E., and Williams, R.~J. (1986).
+\newblock Parallel {{Distributed Processing}}: {{Explorations}} in the
+  {{Microstructure}} of {{Cognition}}, {{Vol}}. 1.
+\newblock pages 318--362. {MIT Press}, Cambridge, MA, USA.
+\newblock 00087.
+
+\bibitem[Russakovsky et~al., 2015]{russakovsky_imagenet_2015}
+Russakovsky, O., Deng, J., Su, H., Krause, J., Satheesh, S., Ma, S., Huang, Z.,
+  Karpathy, A., Khosla, A., Bernstein, M., Berg, A.~C., and Fei-Fei, L. (2015).
+\newblock {{ImageNet Large Scale Visual Recognition Challenge}}.
+\newblock {\em International Journal of Computer Vision}, 115(3):211--252.
+\newblock 01188.
+
+\bibitem[Saxe et~al., 2013]{saxe_exact_2013}
+Saxe, A.~M., McClelland, J.~L., and Ganguli, S. (2013).
+\newblock Exact solutions to the nonlinear dynamics of learning in deep linear
+  neural networks.
+\newblock {\em arXiv:1312.6120 [cond-mat, q-bio, stat]}.
+\newblock 00087.
+
+\bibitem[Sifre and Mallat, 2013]{sifre_rotation_2013}
+Sifre, L. and Mallat, S. (2013).
+\newblock Rotation, {{Scaling}} and {{Deformation Invariant Scattering}} for
+  {{Texture Discrimination}}.
+\newblock In {\em 2013 {{IEEE Conference}} on {{Computer Vision}} and {{Pattern
+  Recognition}} ({{CVPR}})}, pages 1233--1240.
+\newblock 00053.
+
+\bibitem[Sifre and Mallat, 2014]{sifre_rigid-motion_2014}
+Sifre, L. and Mallat, S. (2014).
+\newblock Rigid-{{Motion Scattering}} for {{Texture Classification}}.
+\newblock {\em arXiv:1403.1687 [cs]}.
+\newblock 00003.
+
+\bibitem[Simonyan and Zisserman, 2014]{simonyan_very_2014}
+Simonyan, K. and Zisserman, A. (2014).
+\newblock Very {{Deep Convolutional Networks}} for {{Large}}-{{Scale Image
+  Recognition}}.
+\newblock {\em arXiv:1409.1556 [cs]}.
+\newblock 01664.
+
+\bibitem[Springenberg et~al., 2014]{springenberg_striving_2014}
+Springenberg, J.~T., Dosovitskiy, A., Brox, T., and Riedmiller, M. (2014).
+\newblock Striving for {{Simplicity}}: {{The All Convolutional Net}}.
+\newblock {\em arXiv:1412.6806 [cs]}.
+\newblock 00109.
+
+\bibitem[Srivastava et~al., 2014]{srivastava_dropout:_2014}
+Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., and Salakhutdinov,
+  R. (2014).
+\newblock Dropout: {{A Simple Way}} to {{Prevent Neural Networks}} from
+  {{Overfitting}}.
+\newblock {\em Journal of Machine Learning Research}, 15:1929--1958.
+\newblock 00417.
+
+\bibitem[Szegedy et~al., 2016]{szegedy_inception-v4_2016}
+Szegedy, C., Ioffe, S., and Vanhoucke, V. (2016).
+\newblock Inception-v4, {{Inception}}-{{ResNet}} and the {{Impact}} of
+  {{Residual Connections}} on {{Learning}}.
+\newblock {\em arXiv:1602.07261 [cs]}.
+\newblock 00000.
+
+\bibitem[Szegedy et~al., 2015a]{szegedy_going_2015}
+Szegedy, C., Liu, W., Jia, Y., Sermanet, P., Reed, S., Anguelov, D., Erhan, D.,
+  Vanhoucke, V., and Rabinovich, A. (2015a).
+\newblock Going {{Deeper With Convolutions}}.
+\newblock pages 1--9.
+\newblock 00569.
+
+\bibitem[Szegedy et~al., 2015b]{szegedy_rethinking_2015}
+Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., and Wojna, Z. (2015b).
+\newblock Rethinking the {{Inception Architecture}} for {{Computer Vision}}.
+\newblock {\em arXiv:1512.00567 [cs]}.
+\newblock 00047.
+
+\bibitem[Tang, 2013]{tang_deep_2013}
+Tang, Y. (2013).
+\newblock Deep {{Learning}} using {{Linear Support Vector Machines}}.
+\newblock {\em arXiv:1306.0239 [cs, stat]}.
+\newblock 00065.
+
+\bibitem[Tompson et~al., 2015]{tompson_efficient_2015}
+Tompson, J., Goroshin, R., Jain, A., LeCun, Y., and Bregler, C. (2015).
+\newblock Efficient {{Object Localization Using Convolutional Networks}}.
+\newblock {\em CVPR 2015}.
+\newblock 00009.
+
+\bibitem[Zeiler et~al., 2011]{zeiler_adaptive_2011}
+Zeiler, M., Taylor, G., and Fergus, R. (2011).
+\newblock Adaptive deconvolutional networks for mid and high level feature
+  learning.
+\newblock In {\em 2011 {{IEEE International Conference}} on {{Computer Vision}}
+  ({{ICCV}})}, pages 2018--2025.
+\newblock 00138.
+
+\end{thebibliography}

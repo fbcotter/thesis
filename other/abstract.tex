@@ -1,0 +1,37 @@
+% ************************** Thesis Abstract *****************************
+% Use `abstract' as an option in the document class to print only the titlepage and the abstract.
+\begin{abstract}
+  Image understanding has long been a goal for computer vision. It has proved
+  to be an exceptionally difficult task due to the large amounts of variability
+  that are inherent to objects in scene. Recent advances in supervised learning
+  methods, particularly convolutional neural networks (CNNs), have pushed the frontier
+  of what we have been able to train computers to do. 
+
+  Despite their successes, the mechanics of how these networks are able to
+  recognize objects are little understood. Worse still is that we do not yet
+  have methods or procedures that allow us to train these networks. The father
+  of CNNs, Yann LeCun, summed it up as:
+  \begin{quote}
+    There are certain recipes (for building CNNs) that work and certain recipes
+    that don't, and we don't know why.
+  \end{quote}
+
+  We believe that if we can build a well understood and well-defined network
+  that mimicks CNN (i.e., it is able to extract the same features from an image, and able to
+  combine these features to discriminate between classes of objects), then we
+  will gain a huge amount of invaluable insight into what is required in these networks
+  as well as what is learned. 
+  
+  In this paper we explore our attempts so far at trying to achieve this. In
+  particular, we start by examining the previous work on Scatternets by
+  Stephan\'{e} Mallat. These are deep networks that involve successive
+  convolutions with wavelets, a well understood and well-defined topic. We draw
+  parallels between the wavelets that make up the Scatternet and the learned
+  features of a CNN and clarify their differences. We then go on to build a two
+  stage network that replaces the early layers of a CNN with a Scatternet and
+  examine the progresses we have made with it.
+
+  Finally, we lay out our plan for improving this hybrid network, and how we
+  believe we can take the Scatternet to deeper layers.
+
+\end{abstract}

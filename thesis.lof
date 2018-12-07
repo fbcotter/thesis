@@ -1,0 +1,20 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Sample images from ImageNet}}{19}{figure.caption.7}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Sample images from CIFAR-10}}{19}{figure.caption.8}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Principal components learned on natural images}}{20}{figure.caption.9}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Olshausen and Field sparse dictionary basis functions}}{21}{figure.caption.10}
+\contentsline {figure}{\numberline {2.5}{\ignorespaces SIFT descriptor applied to a keypoint}}{22}{figure.caption.11}
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Standard CNN architecture}}{23}{figure.caption.12}
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Tight vs.\ overlapping pooling}}{24}{figure.caption.13}
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Differences in non-linearities}}{25}{figure.caption.14}
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Dropout Neural Net Model}}{32}{figure.caption.21}
+\contentsline {figure}{\numberline {2.10}{\ignorespaces The residual unit from ResNet}}{33}{figure.caption.25}
+\contentsline {figure}{\numberline {2.11}{\ignorespaces Deconvolution Network Block Diagram}}{34}{figure.caption.26}
+\contentsline {figure}{\numberline {2.12}{\ignorespaces Unpooling operation in a deconvnet}}{34}{figure.caption.27}
+\contentsline {figure}{\numberline {2.13}{\ignorespaces Deconvolution by slices}}{35}{figure.caption.28}
+\contentsline {figure}{\numberline {2.14}{\ignorespaces Visualization of deconvolved features}}{35}{figure.caption.29}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Comparison of test accuracy for our network vs a two layer CNN}}{40}{figure.caption.31}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Possible future work with residual mappings}}{43}{figure.caption.33}

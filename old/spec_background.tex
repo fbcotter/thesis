@@ -1,0 +1,31 @@
+\chapter{Wavelets and Scatternets}\label{ch:spec_background}
+Scatternets get their own chapter as they have been a very large influence on
+our work, as well as being quite distinct from the previous discussions on
+learned methods. They were first introduced by Bruna and Mallat in
+\cite{bruna_invariant_2013}. The particularly nice feature of scatternets is
+they are mathematically (fairly) well understood, and give a basis for
+justifying the use of convolutions to build features \emph{cite here}. 
+
+The overall architecture involves cascading complex wavelet transforms, with
+a modulus non-linearity in between layers. We first set the properties of
+the transform that drive our decision choices (in particular, what
+\emph{invariances} we hope to achieve), then introduce the wavelet
+transform that form the core of the scattering transform, and examine the
+effect of the modulus non-linearities that allow us to cascade multiple wavelet
+transforms and how they aide getting second order features. And finally explore the
+results obtained with the simple classifiers that Mallat uses.
+
+\section{Invariances}
+Mallat chooses to have invariance to shifts, scale and (later on) rotation. 
+
+\section{Wavelet Transform}
+Should this be a whole section to a chapter? There are so many things I want to
+talk about with these. In particular in the case of the \DTCWT, the Hilbert
+symmetry property, the simple frequency space work of the wavelet transform,
+a comment on how to efficiently do wavelet transforms - \DTCWT, shift
+invariance properties of hilbert pairs. What the wavelet bases look like. 
+
+\section{Scattering Transform}
+Good for stationary processes. Taking the average is a poor operator. It's
+neither sufficient nor invariant.
+

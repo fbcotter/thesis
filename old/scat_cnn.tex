@@ -1,0 +1,553 @@
+\chapter{Scatternets and Deep Learning}\label{ch:scat_deep}
+  We have already visually seen that the scattering transform looks like the
+  early layers of a CNN, but we must also assess and compare its accuracy and 
+  representational power. This chapter is made up of three parts:
+  \begin{enumerate}
+    \item We first present a reference CNN architecture that is simple, yet
+      powerful. It has two convolutional layers to extract features, two fully
+      connected layers for classifying, and a softmax loss function. It is not
+      a state of the art CNN for \cifar, but it is not far from it while being
+      conceptually and computationally far cheaper.
+    \item We then present our early work, exploring how good a feature extractor
+      the Scatternet is. This work feeds the Scatternet output directly to
+      a linear classifier --- an SVM in our case, although any linear classifier
+      will do. SVMs were chosen as they are well understood and have only a few
+      hyperparameters.
+    \item Finally, we examine our work combining the Scatternet with a CNN\@. In
+      particular, we remove the first layer from our reference architecture and
+      feed it scattered output.
+  \end{enumerate}
+  
+  \subsubsection{Relation to Project Goals}
+  We qualify this chapter by explaining how this work relates to our project goal:
+
+  The work with SVMs and Scatternets aims to determine how comparable
+  a Scatternet is to a CNN\@. They have more in common than it may first seem.
+  Both involve a first layer that either looks like or is a wavelet transform.
+  Both then have non-linearities that aim at building shift invariance (see the
+  section below for an expansion of this), and
+  then both have further convolutions on these outputs. If they both perform
+  similarly well on the same dataset, then we will have gained a lot of insight
+  into CNNs due to how well-defined Scatternets are.
+
+  However, we discover that despite their similarities, Scatternets are missing
+  a key feature --- the ability to add together linear combinations of
+  orientations to build higher order features. CNNs have this implicitly in
+  the fully connected-ness of their deeper convolutional layers. In the third
+  section of this chapter, we combine the two in a hybrid to give the
+  Scatternets this property. Success with this design still lends insight from
+  the well-defined Scatternets while inviting further research into how the
+  orientations of wavelets are summed together to make useful features. 
+
+\subsubsection{Similarity of the ReLU + Max Pooling layers to Complex Modulus}
+  The modulus non-linearity applied to Hilbert symmetric wavelets from the
+
+  Scatternet is conceptually very similar to the ReLU and max pooling seen in
+  a CNN, in that they both attempt to build shift invariance. Consider the
+  previously presented \autoref{fig:dwt_zero_crossing} --- the centre row shows
+  the resulting, highly variable output from a shifted input. The ReLU and max pooling can be
+  thought of a single operation --- max pooling that ensures 0 is the minimum
+  activation passing on. Imagine applying a 1D analogue of max pooling and
+  a ReLU to the Real DWT outputs from \autoref{fig:dwt_zero_crossing} --- it
+  will search for the largest positive activation. The result of this is an 
+  output that varies less with shifts than the input, building some
+  form of shift invariance. This is exactly what the modulus taken on the
+  complex Scatternet wavelets achieves. The row below in the figure shows it
+  does a better job too than the ReLU/max pooling method.
+
+% In this chapter, I first want to talka bout choosing the architecture and the
+% dataset. Why cifar? What are the problems with it. Why cuda convnet? 
+% Describe the architecture in terms of the size of the outputs and of the
+% filters for cuda convnet.
+% The prefiltering stage too
+% I also had bits in here about what it meant to replace just the first layer
+% - fully connected net is a classifier, cnn is a feature extractor. Referenced
+% Amarjots work.
+% 
+% Then made something up about why i still wanted one layer of cnn - to improve
+% the fully connectedness of a scattering transform.
+% 
+% First architecture - should be the 69 slices. I had a ncie table explaining how
+% we got these slices.
+% 
+% Next up, should be the 69 slices with batch normalization.
+% 
+% Need to introduce the deconvolutional architecture too, and descattering
+% transform - maybe the descattering transform can go in the previous chapter.
+% 
+% I think maybe put the descattering and visualization stuff at the end.
+% 
+% So maybe the 69 slices. Then with batch norm. Then random flipping and
+% translations. The 24 slices --- although its
+% worse, it might be because there are things the dataset isn't capturing, like
+% translation invariance. Would be interesting to see how the 24 slices go
+% without the random flipping and shifting.
+% 
+% That's all I think I can write about.
+% 
+% Then visualizations
+% Energy analysis picture from Ben.
+% 
+\section{Reference CNN architecture}\label{sec:reference_cnn}
+  Choosing a reference architecture is a delicate choice. We must balance
+  simplicity with accuracy as ultimately we want to achieve a simplified
+  understanding of what a CNN is learning, but not at the cost of too much
+  representational power.
+
+  We believe that Krizhevsky's Cuda-Convnet design in \cite{krizhevsky_cuda_2014}, based
+  on his state of the art work for ImageNet \cite{krizhevsky_imagenet_2012}
+  achieves this balance. It only has two convolutional layers and three fully
+  connected layers with a softmax function. The exact layout of the diagram is
+  shown in \autoref{fig:cuda_convnet}. This architecture achieves $87\%$
+  accuracy on \cifar, which up until a few years ago, would have been state of
+  the art. Last year, \cite{he_deep_2015} pushed state of the art to $93.5\%$
+  on \cifar\ with their very deep ResNet\footnote{Interestingly, they also tried a 1202
+  layer deep network, which achieved $92.1\%$}. While our ultimate goal would
+  be to compete with these accuracies, we must be content to have a more modest
+  target in the interim, so we choose Cuda-Convnet for our comparisons. 
+  
+  \autoref{fig:tensorflow_filters} shows the first layer
+  filters learned by this architecture. Certainly not as clean as those from
+  AlexNet --- see  \autoref{fig:alexnet_filters}, which is to be expected from
+  a reduced training set size. 
+
+  \begin{figure}
+    \centering
+      \includegraphics[width=\textwidth]{scripts/cudaconvnet.png}
+      \caption[Reference CNN architecture Used]
+              {Reference CNN architecture Used --- based on Krizhevsky's
+              Cuda-Convnet \citep{krizhevsky_cuda_2014}.}
+      \label{fig:cuda_convnet}
+  \end{figure}
+\begin{figure}
+  \centering
+    \includegraphics[width=0.5\textwidth]{images/tensorflow_filters.png}
+    \caption[The first layer filters in the \cifar\ cuda convnet]
+            {The first layer filters in the \cifar\ cuda convnet.}
+    \label{fig:tensorflow_filters}
+\end{figure}
+\subsection{Pre-filtering}
+  While \cifar\ is made up of images which are $32 \x 32 \x 3$ pixels, the first
+  layer of convolution in \autoref{fig:cuda_convnet} is a $24 \x 24 \x 3$
+  input.  The design follows \cite{krizhevsky_imagenet_2012} and uses `data
+  augmentation' through label preserving transforms \cite{simard_best_2003}.
+  During training, a random $24\x24$ window is chosen for each image (and will
+  vary across epochs). During testing time, the image is centre cropped.
+  Having this scheme certainly does help, as we will discuss in
+  \autoref{sec:pre_filtering_effects}.  While the objects in the images in
+  \cifar\ are quite centred, the same technique was also used successfully in
+  the ImageNet design \cite{krizhevsky_imagenet_2012}, which is more generic.
+  After the random cropping, the images are flipped horizontally with
+  probability $p=0.5$. Finally, the images are normalized to have zero mean and
+  unit standard deviation:
+  \begin{equation}
+    \tilde{\bmu{x}}[u_1,u_2,c] =  \frac{\bmu{x}[u_1, u_2, c] - \mu_x}{\sigma_x'}
+  \end{equation}
+  where $u_1$ and $u_2$ again index the horizontal and veritcal coordinates in the
+  image, and $c$ indexes the number of channels ($3$ in this case). The
+  adjusted standard deviation:
+  $$\sigma_x' = \max\left(\sigma_x, \frac{1}{U_1U_2C}\right)$$
+  is used to protect against dividing by 0 for uniform images. Note that as
+  opposed to the normalization from \autoref{eq:normalization}, this is done
+  image by image. 
+  
+  The result of this is that every image will essentially be forced to have the
+  same brightness and contrast. We know from personal
+  experience that this is not a bad estimate. There is certainly some
+  automatic gain control in the human visual system as we adapt to high or low
+  lighting situations, but it is not so strong as seeing everything at the same
+  level.
+
+\subsection{Tracking the Flow of Data}
+  After prefiltering, the $24\x 24\x 3$ image is passed through a convolutional
+  layer, which has 64 filters of size $5 \x 5 \x 3$. These convolutional
+  kernels are all randomly initialized. The output from the convolutional layer
+  is still $24\x 24$ (and 64 deep) as they zero pad at the borders of the
+  image. The activations are then passed through a ReLU and max pooling is then
+  done with the overlapping stride method --- a $3 \x 3$ region with stride
+  $2$. The $12 \x 12 \x 64$ result is normalized with the local response
+  normalization scheme mentioned in \autoref{sec:normalization}. 
+
+  This is then repeated almost exactly, except the next convolutional layer has
+  64 $5\x 5\x 64$ filters (fully connected across all channels). The $6 \x 6 \x
+  64$ result is then unravelled to make a 2304 long vector. This then passes
+  through three fully connected layers, reducing its length from 2304 to 384,
+  then 192 and finally 10 --- one output for each class in \cifar. A softmax
+  loss function is used when backpropagating gradients, together with
+  regularization terms on the learned weights. The loss function has
+  equation:
+
+  \begin{eqnarray*}
+    \mathcal{L} &=& % First the data loss term
+      \underbrace{-\sum_{j=1}^{C}
+        \mathbbm{1}\{y_i=j\} \log p_j}_{\text{misclassification loss}} \\
+      % Then the convolutional weights terms
+     &+& \lambda_{1} \underbrace{\sum_{l=1}^{2}}_{\text{layers 1 \& 2}} 
+        \underbrace{\frac{1}{2}\sum_{u_1} \sum_{u_2} \sum_{c} \sum_{n}
+          {f_l[u_1,u_2,c,n]}^2}_{\text{conv weight reg.}} \\
+     &+& \lambda_{2} \underbrace{\sum_{l=3}^{5}}_{ {\text{layers 3--5}}}
+        \underbrace{\frac{1}{2} \sum_{i} \sum_{j}  {W_l[i,j]}^2}_{%
+          \text{FC weight reg.}}  
+  \end{eqnarray*}
+  Where $\lambda_1$ is the Lagrangian multiplier or `weight decay' parameter  
+  for the convolutional weights (set to $0$ in this case), and $\lambda_2$ 
+  is the multiplier for the fully connected weights (set to $0.04$ in this
+  case). 
+
+  Gradients are calculated per image, but are then averaged across the entire
+  batch and applied after the batch is finished. The learning rate starts at
+  0.1, but decays after 350 epochs. There is no momentum term, so the weight
+  update equation going from batch $i$ to batch $i+1$ is simply:
+
+  \begin{equation}
+    w_{i+1} = w_{i} - \eta \left(\lambda w_i + \left<\frac{\partial\mathcal{L}}{\partial w_i}
+    \right>_{D_i} \right)
+  \end{equation}
+  Where $\left< \cdot \right>_{D_i}$ means averaging over the batch, $\eta$ is
+  the learning rate, and $\lambda$ is the weight decay term for the given
+  weight.
+
+\subsection{Performance}\label{sec:pre_filtering_effects}
+  Before we started our work with Scatternets, we wanted to see how sensitive
+  this architecture was to its hyperparameters. Changing things like removing
+  the local response normalization, changing the learning rate and the number
+  of fully connected nodes. All of these had minor impacts on the performance
+  of the network, reducing the ultimate test accuracy by one or two percent.
+  What was surprisingly the largest impact on performance was what happened
+  when we removed the prefiltering --- the random cropping and flipping. Doing
+  this causes the error rate to increase by $10\%$, and clearly shows
+  overfitting as the training accuracy goes to $100\%$ in a short time.
+  \autoref{fig:standard_architecture} shows the relative performance between
+  the standard design and the design without data augmentation.
+
+  \begin{figure}
+    \centering
+      \makebox[\linewidth][c]{%
+      \subfloat[Standard architecture]{\includegraphics[width=0.65\textwidth]
+        {results/standard/default/net_info.png}}
+      \subfloat[No prefiltering]{\includegraphics[width=0.65\textwidth]
+        {results/standard/no_augmentation/net_info.png}}}
+    \caption[Performance of the reference architecture]
+            {Performance of the reference architecture. The architecture as
+            given in \citep{krizhevsky_cuda_2014} achieves a $13\%$ error rate
+            after several hundred epochs. Removing the data augmentation
+            (random flipping and cropping) significantly hinders this
+            performance --- increasing error rate to $25\%$, 
+            while causing the network to overfit.}
+    \label{fig:standard_architecture}
+  \end{figure}
+
+\section{Scatternets + Linear Classifier}
+  As mentioned, we chose to use a simple Linear SVM classifier to measure how
+  good a feature extractor our Scatternet design is. The architecture we used
+  is shown in \autoref{fig:svm_1}. Outputs were taken from every scale of the
+  Scatternet and unravelled into a $31320$ long vector. These were stacked into
+  a $50000$ row matrix for each training sample in \cifar. Due to the very
+  large size of this training matrix, dual solvers such as those used with
+  kernel methods become infeasible. Instead, we use a primal solver with
+  a linear SVM\@. Even still, training time could be on the order of several hours
+  per SVM\@. This made searching for the optimal penalty parameter difficult. For
+  this reason, we often found the best penalty parameter with a reduced
+  training set size --- typically 10000 samples, before scaling up to the full
+  50000. We used a hinge squared loss function for all our experiments, as this
+  gave the best results.
+
+  Similar to the work of \citet{oyallon_deep_2015} and
+  \citet{singh_multi-resolution_2016}, we experimented with using a log scaling
+  but found it made little difference. Unlike these two works, we do not use
+  any dimensionality reduction techniques such as Orthogonal Least Squares, as
+  we want to keep the feature extraction limited to Scatternet. We did, however,
+  experiment with reducing the size of the training vector by reducing some of
+  the blocks which have many coefficients. In particular, the H4 block has
+  $6^4$ images of size $2\x 2$, and $6^3$ images of size $4\x 4$. Excluding
+  these outputs reduces the size of our training vector by roughly a third,
+  without impacting performance by much.
+
+  Our results are shown in \autoref{tab:scat_svm}. The second column in this
+  table indicates whether the input was first upsampled to $64\x 64\x 3$ before
+  scattering. This would increase the size of the output vector by 4 (and hence
+  training time), but was found to be helpful. However, after much
+  experimentation, we found it difficult to break past $70\%$ test accuracy,
+  let alone reach our target of $87\%$. As we mentioned in the chapter
+  preamble, we believe this failing stems from the lack of the Scatternet's
+  ability to combine differently oriented filters together, from multiple
+  slices.
+  
+  \begin{figure}
+    \centering
+      \makebox[\linewidth][c]{\includegraphics[width=1\textwidth]{images/first_svm.png}}
+      \caption[First SVM attempt]
+              {First SVM attempt. Outputs from the four scales of the
+              multiscale scatter net were unravelled to make a $31320$ long
+              vector. This was done for the entire training dataset, to make
+              a $50000\x 31320$ data matrix.}
+      \label{fig:svm_1}
+  \end{figure}
+
+  \begin{table}
+    \caption{Results for Scatternet + SVM Experiments}
+    \label{tab:scat_svm}
+    \begin{center}
+    \begin{tabular}{cccr}\toprule \Tstrut
+      \textbf{Num Training Data} & \textbf{Input Upsampled?} & \textbf{Blocks
+      Missing} & \textbf{Accuracy} \Bstrut\\ \midrule
+      10000 & No & None & $61.23\%$\Tstrut\\
+      10000 & No & H4   & $61.01\%$\\
+      10000 & No & D4, F4, H4 & $60.90\%$\\
+      10000 & Yes & D4, F4, H4 & $63.29\%$\\
+      50000 & No & None & $68.66\%$\\
+      50000 & No & D4, F4, H4 & $68.51\%$\\
+      50000 & Yes & None & $69.52\%$ \\
+      50000 & Yes & D4, F4, H4 & $69.26\%$\Bstrut 
+    \end{tabular}
+    \end{center}
+  \end{table}
+
+\section{Scatternets and CNN architecture}
+  Designing a hybrid network requires some thought. Unlike with the SVM, we cannot just
+  unravel all the coefficients and feed to a CNN\@. Neither can we easily combine
+  things across multiple scales, as the images need to all be at the same size
+  feeding into a convolutional layer.
+
+  So, to satisfy the necessary requirements, we decide to use a reduced
+  Scatternet design, shown in \autoref{fig:small_scatternet}\footnote{The
+  choice was also inspired by our poor early results with a fourth order
+  Scatternet. We decide to be less ambitious with how far we deviate from
+  a wavelet transform.}. We use only two scales in our Scatternet, but include
+  outputs from the A1, A2, and B2 blocks. Laying these on top of each other we
+  get a 69 deep vector (see \autoref{tab:making_the_vector1}). As for the
+  output resolution, we have two choices. Images that are $16\x16$ or larger,
+  can be downsampled to $8\x 8$, or images that are $8\x 8$ can be upsampled.
+  We choose the latter, as although it comes at slightly more computational
+  cost, it throws away less information.
+
+  As with the reference CNN, the prefiltering stage was very influential on our
+  result. We explore some of the findings we made now.
+
+  \begin{table}
+    \caption{Packing the Scatternet output into a 3D array}
+    \label{tab:making_the_vector1}
+    \begin{center}
+    \begin{tabular}{cccr}\toprule 
+      \textbf{Block} & \textbf{Original Resolution} & \textbf{Modification}
+      & \textbf{Num Slices} \Tstrut\Bstrut\\ \midrule
+      A1 low & $32\x 32\x 3$ & Odd \& Even Sampling & 12\Tstrut\\
+      A1 high & $16\x 16\x 6$ & None & 6\\
+      A2 low & $16\x16\x3$ & None & 3\\
+      A2 high & $8\x8\x6$ & Upsampled & 6\\
+      B2 low & $16\x16\x6$ & None & 6\\
+      B2 high & $8\x8\x36$ & Upsampled & 36\Bstrut\\\midrule
+      & & & Sum$=69$\Tstrut\Bstrut\\\bottomrule
+    \end{tabular}
+    \end{center}
+  \end{table}
+
+
+  \begin{figure}
+    \centering
+      \subfloat[Small Scatternet design]{\makebox[\textwidth][c]
+        {\includegraphics[width=\textwidth]
+        {images/new_scatternet.png}} \label{fig:small_scatternet}}
+      \newline
+      \subfloat[Shallow CNN design]{\makebox[\textwidth][c]
+        {\includegraphics[width=1.1\textwidth]
+        {images/first_cnn.png}}\label{fig:shallow_cnn}}
+      \caption[Hybrid Scatternet and CNN block diagram]
+              {Hybrid Scatternet and CNN block diagram.
+              \subref{fig:small_scatternet} shows the modified, smaller
+              Scatternet. Images that are $8\x8$ are upsampled to be $16\x 16$,
+              and then all are packed together to make a $16\x 16\x 69$ 3D
+              array. \subref{fig:shallow_cnn} shows the shallower CNN\@. Only one
+              convolutional layer before the fully connected layers.}
+      \label{fig:hybrid}
+  \end{figure}
+
+\subsection{Energy Normalization}
+  Our first attempt at prefiltering was simply aimed at keeping the output
+  strictly positive (as is the case with CNNs) while normalizing for the large
+  differences in energy each of the slices of the Scatternet. To
+  achieve this, we calculated a 69 long vector that was the average energy in
+  that given slice. I.e.,\
+  \begin{equation}
+    \nu [d] = \frac{1}{N} \sum_{n=1}^{N} \left(\sum_{u_1} \sum_{u_2}
+      {z[u_1,u_1,d,n]}^2 \right)
+  \end{equation}
+  where $\nu$ is this 69 long energy vector, N is 50000 (train set size) and
+  c indexes the channel. Then
+  at training and testing time, an image is normalized like so:
+  \begin{equation}
+    \tilde{z}^{(i)}[u_1,u_2,d,n] = \frac{z^{(i)} [u_1,u_2,d,n]}{\sqrt{\nu [c]}}
+  \end{equation}
+  The results we got from this were much lower than expected --- shown in
+  \autoref{fig:scat_cnn_energy}. What is more, is that it is clear our network
+  is overfitting, as the train error settles to 0 after 75 epochs.
+
+  \begin{figure}
+    \centering
+      \includegraphics[width=0.8\textwidth]{results/scatternet/energynorm/net_info.png}
+      \caption[Performance of Scat+CNN with energy normalization]
+              {Performance of Scat+CNN with energy normalization. Plot shows
+              test and train errors as well as the loss function. Test error
+              settles at around $23\%$.}
+      \label{fig:scat_cnn_energy}
+  \end{figure}
+
+\subsection{Standard Normalization}
+  The high test error we initially achieved with this was both initially puzzling and
+  disconcerting. It is puzzling because our design did not deviate much from
+  the reference CNN\@. The filters from the A blocks are shown in
+  \autoref{fig:small_scat_filters}, which look slightly different, but like
+  optimal versions of the ones in \autoref{fig:tensorflow_filters}\footnote{We
+  cannot show the filters for the B2 block as these are formed from a cascade
+  of linear and nonlinear functions.}. Remembering our earlier note on
+  sensitivity to prefiltering, we try a different scheme - one akin to the
+  standard normalization described in \autoref{sec:normalization}. I.e., we
+  create a 69 long vector of means, averaged across the entire
+  training data set, and a 69 long vector of standard deviations. Scattered
+  inputs are then scaled:
+  \begin{equation}
+    \tilde{z}^{(i)}[u_1,u_2,d,n] = \frac{z^{(i)} [u_1,u_2,d,n] - \mu[d]}{\sigma
+    [d]}
+  \end{equation}
+  This caused a marked increase in accuracy, up to $80.7\%$ after only 20
+  epochs --- see \autoref{fig:scat_cnn_stdnorm}. Training was stopped early as
+  the loss went from roughtly $0.7$ to a very large number, and then $NaN$ (not
+  a number) in a few short steps. Diverging loss functions are typically a sign of exploding
+  gradients, however we have as of yet been unable to pinpoint the cause of
+  this. Interestingly, repeat runs all diverge at the same point, around 20
+  epochs.
+
+  \begin{figure}
+    \centering
+      \includegraphics[width=0.8\textwidth]{results/scatternet/stdnorm/net_info.png}
+      \caption[Performance of Scat+CNN with energy normalization]
+              {Performance of Scat+CNN with standard normalization. Plot shows
+              test and train errors as well as the loss function. Test error
+              settles at $19.3\%$.}
+      \label{fig:scat_cnn_stdnorm}
+  \end{figure}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/dtcwt_filters_2scales.png}
+    \caption[Filters for the A blocks of the small Scatternet]
+            {Filters for the A blocks of the small Scatternet --- \autoref{fig:small_scatternet}.
+            The filters are fewer in number but not too dissimilar to
+            \autoref{fig:tensorflow_filters}.}
+    \label{fig:small_scat_filters}
+  \end{figure}
+
+\subsection{Importance of the Slices}
+  Despite the issues with overfitting and exploding gradients, our network is
+  starting to approach the accuracy of the reference CNN architecture. In order
+  to assess how important the contribution from the second order scattering
+  coefficients --- the B2 block, we plot the energy in each slice for the 64
+  filters. This is shown in \autoref{fig:filt_energies}.
+
+  These images are calculated from the weights of the second layer
+  convolutional filters after training. Each of the 64 filters is normalized to
+  have unit energy across all of its slices (69 for the Scatternet input, 64
+  for the reference CNN). This is done so that different filter energies do not affect the
+  scale of the plot (as we are concerned with how much energy each slice gets
+  with respect to the other slices in a filter, not the absolute energy it
+  gets). 
+  
+  Then we plot the energy that is in each slice as
+  a heatmap --- these are the columns in \autoref{fig:filt_energies}. If one
+  was to match each pixel in a column to the legend, take the square root of
+  it, and sum up the column, they would get unity. As the Scatternet output 3D
+  array is normalized across all slices, the relative energies of the weights
+  in the convolutional filters give us a rough estimate on the
+  \emph{importance} of each slice. For slices with weights that have small
+  energy compared to others, the input would need to vary from the mean by more
+  standard deviations to get as much of a change in the output.
+
+  \autoref{fig:reference_filt_energies} shows this importance map for the
+  reference CNN --- each slice is of relatively equal importance, when
+  considered across all the filters. This is not true for our design
+  (\autoref{fig:scat1_filt_energies}), as clearly the B2 high slices give less
+  weight to the output from all of the filters.
+
+
+
+\subsection{Reducing the Scatternet Output further}\label{sec:best_scat}
+  Following on from these results, we attempt to see how removing these final
+  36 slices form the B2 high block affect our performance. We also noted a lot
+  of similarity between the 12 A1 low slices. This is expected, as for each RGB
+  channel, there are 4 versions, each within a half pixel shift of each
+  other\footnote{Either shifted by half a pixel horizontally, half a pixel vertically, or
+  both}. Instead of including all 12 of these, we can include only one of
+  these per RGB channel, and the network can simply learn to have weights that are four times
+  larger.
+
+  So our new design uses $69-36-9=24$ slices. 
+  This network certainly trained quicker,
+  due to the reduced number of multiplies required, but it also achieved an
+  improved accuracy. Our results are shown in
+  \autoref{fig:scat_noB2_performance}. We also tested adding in the data
+  augmentation step, this too improved the accuracy but also stopped our network
+  diverging. Both of these designs started to overfit, so we must look more at
+  why this is happening and how to prevent it.
+
+  As a comparison, we also include the filter energies in
+  \autoref{fig:filt_energies2}. Unlike the 69 slice design, all of these slices
+  have similar energy levels, and so we infer that all of these slices have
+  some importance in the classification result.
+
+%%% Some big figures. Put them at the end of the chapter
+  \afterpage{%
+    \thispagestyle{empty}
+    \clearpage
+    \begin{figure}
+    \vspace{-2cm}
+      \centering
+        \subfloat[Reference Architecture]{\makebox[\textwidth][c]
+          {\includegraphics[width=1\textwidth]{results/standard/default/filter_energies.png}
+            \label{fig:reference_filt_energies}}}
+        \newline
+        \subfloat[Two Layer Scatternet]{\makebox[\textwidth][c]
+          {\includegraphics[width=1\textwidth]{results/scatternet/stdnorm/filter_energies.png}
+            \label{fig:scat1_filt_energies}}}
+        \caption[Filter energies by slice for the 64 second layer filters of the
+        initial Scatternet+CNN design.]
+                {Filter energies by slice for the 64 second layer filters of the
+                initial Scatternet+CNN design.
+                \subref{fig:reference_filt_energies} shows that for all 64
+                filters, the slices are all roughly equally important.
+                \subref{fig:scat1_filt_energies} shows for the Scatternet design,
+                the last 36 slices, associated with B2 high all have much lower
+                energy than the first 33.}
+        \label{fig:filt_energies}
+    \end{figure}
+  }
+
+  \afterpage{%
+    \begin{figure}
+      \centering
+        \makebox[\linewidth][c]{%
+        \subfloat[Reduced architecture]{\includegraphics[width=0.6\textwidth]
+          {results/scatternet/smaller_scatternet/no_augmentation/net_info.png}}
+        \subfloat[Reduced architecture + augmentation]{\includegraphics[width=0.6\textwidth]
+          {results/scatternet/smaller_scatternet/flip_crop/net_info.png}}}
+      \caption[Performance of the Scatternet without B2 high]
+              {Performance of the Scatternet without B2 high, with and without
+              data augmentation. Data augmentation improves reduces
+              classification error while making the network more stable.}
+      \label{fig:scat_noB2_performance}
+    \end{figure}
+
+    \begin{figure}
+      \centering
+      \hspace{-0.5cm}
+        \makebox[\textwidth][c]
+          {\includegraphics[width=1.1\textwidth]
+          {results/scatternet/smaller_scatternet/flip_crop/filter_energies.png}}
+        \caption[Filter energies by slice for the reduced Scatternet design.]
+                {Filter energies by slice for the 24 layers of the reduced
+                Scatternet. Comparing these energies to
+                \autoref{fig:scat1_filt_energies} we see that all slices have
+                roughly equal energy.}
+        \label{fig:filt_energies2}
+    \end{figure}
+  }
+
+\clearpage

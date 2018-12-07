@@ -1,0 +1,124 @@
+% Allow latex commands
+\usepackage{ltxcmds}
+\usepackage{listings}
+
+% Allow us to define page borders
+\ifsetCustomMargin\
+  \RequirePackage[left=37mm,right=30mm,top=35mm,bottom=30mm]{geometry}
+  \setFancyHdr\  % To apply fancy header after geometry package is loaded
+\fi
+% Package for displaying algorithms in a document as pseudo code
+\usepackage{algorithm2e} % Replaced the algorithm package
+
+% Package for having multiple figures in one
+\usepackage{subfig}  % replaced the subfigure package
+
+% Have multiple rows per column in a table
+\usepackage{multirow}
+
+% Special bold and uppercase math characters
+\usepackage{mathtools} % Replaced the amsmath package
+\usepackage{amssymb}
+\usepackage{mathptmx} % Replaced the times package
+% Keep the old calligraphic math font
+\DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+
+% Package for having nice bold and uppercase characters
+% in formulae
+% Already loaded by the PHD thesis class
+%\usepackage{mathptmx} % Replaced the times package
+
+% Add colour to your text and images
+% Already loaded by the PHD thesis class
+%\usepackage{color} 
+
+% Allow us to easily customize page setup
+% The fancyhdr package was already defined in the class
+%\usepackage{fancyhdr}
+%\pagestyle{fancyplain}
+%\rfoot{\thepage}
+% This clears old style settings
+%\fancyhead{}
+%\fancyfoot{}
+%\sloppy
+
+% Other misc packages
+%\usepackage{ifpdf}
+\usepackage{afterpage}
+\usepackage[labelfont=bf,textfont=it]{caption}
+\usepackage{pdflscape}
+\usepackage{multicol}
+%\usepackage{babel}  % For multilingual support
+
+%\ifpdf
+%   \usepackage[pdftex]{graphicx}
+%\else
+%   \usepackage{graphicx}
+%\fi
+
+% Set equation numbers <chapter>.<section>.<index>
+\numberwithin{equation}{section} 
+\usepackage{bm,bbm}
+\usepackage{pdflscape}
+\usepackage{multicol}
+\usepackage{booktabs} % for top and bottom rules in tables
+\usepackage{tabularx} % for variable width columns in tables
+\usepackage[table]{xcolor}
+%%%%%%%% Some Table Options %%%%%%%%%%%%%%
+% define "struts", as suggested by Claudio Beccari in
+% %    a piece in TeX and TUG News, Vol. 2, 1993.
+\newcommand\Tstrut{\rule{0pt}{2.6ex}}         % = `top' strut
+\newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}}   % = `bottom' strut
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\usepackage[export]{adjustbox}[2011/08/13]
+% Set equation numbers <chapter>.<section>.<index>
+\numberwithin{equation}{section} 
+% Include tikz
+\usepackage{tikz,pgfplots}
+\usetikzlibrary{matrix,positioning,arrows}
+\usetikzlibrary{decorations.markings}
+%\usetikzlibrary{external}\tikzexternalize         % Allow tikz images to be
+                                                  % compiled once
+% Make examples in your document
+\usepackage{amsthm}
+%\usepackage{shadethm}
+%\theoremstyle{definition}
+%\newshadetheorem{exmp}{Example}[section]
+%\definecolor{shadethmcolor}{HTML}{EDF8FF}
+\usepackage{mdframed}
+\newmdtheoremenv[
+  hidealllines=true,
+  innerleftmargin=8pt,%
+  innerrightmargin=8pt,%
+  innertopmargin=12pt,%
+  innerbottommargin=12pt,%
+  backgroundcolor=blue!10,%
+  skipbelow=\baselineskip,%
+  skipabove=\baselineskip]{exmp}{Example}[section]
+\newmdenv[linecolor=blue!10, backgroundcolor=blue!10,skipbelow=\baselineskip,
+          skipabove=\baselineskip]{goals}
+% Allow hyperlinks in our document. Redefine the section names to use the
+% squigly S
+\usepackage{nameref}
+\usepackage{hyperref}
+%%%%%%%%% Some Hyperref Options %%%%%%%%%%
+\hypersetup{%
+  colorlinks   = true,
+  citecolor    = blue  
+}
+\renewcommand{\sectionautorefname}{\S}
+\renewcommand{\subsectionautorefname}{\S}
+\renewcommand{\subsubsectionautorefname}{\S}
+\renewcommand{\pageautorefname}{p.}
+\renewcommand{\chapterautorefname}{Chapter}
+\newcommand{\subfigureautorefname}{\figureautorefname}
+
+\usepackage{array}
+\newcolumntype{b}{X}
+\newcolumntype{s}{>{\hsize=.5\hsize}X}
+\newcommand{\heading}[1]{\multicolumn{1}{c}{#1}}
+%\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+% \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+% \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}

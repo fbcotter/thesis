@@ -1,0 +1,41 @@
+\chapter{Introduction}\label{ch:intro}
+
+\section{Gradients of Complex Activations}
+\subsection{Cauchy-Riemann Equations}
+None of these will be solved. However, we can still find the partial derivatives \wrt the real and
+imaginary parts.
+
+\subsection{Complex Magntitude}
+Care must be taken when calculating gradients for the complex magnitude, as the
+gradient is undefined at the origin. We take the common approach of setting the
+gradient at the corner point to be 0. 
+
+Let us call the real and imaginary inputs to a magnitude block $x$ and $y$,
+and we define the real output $r$ as:
+
+$$ r = |x + jy| = \sqrt{x^2 + y^2} $$
+
+Then the partial derivatives \wrt the real and imaginary inputs are:
+\begin{eqnarray*}
+  \dydx{r}{x} & = & \frac{x}{\sqrt{x^2 + y^2}} = \frac{x}{r} \\
+  \dydx{r}{y} & = & \frac{y}{\sqrt{x^2 + y^2}} = \frac{y}{r} \\
+\end{eqnarray*}
+
+Except for the singularity at the origin, these partial derivatives are restricted to be in the
+range $[-1, 1]$. The complex magnitude is convex in $x$ and $y$ as:
+
+$$\nabla^2 r(x,y) = \frac{1}{r^3} 
+\begin{bmatrix}
+  y^2 & -xy \\
+  -xy & x^2
+\end{bmatrix}
+ = \frac{1}{r^3} \begin{bmatrix} y \\ -x \end{bmatrix} 
+ \begin{bmatrix} y & -x \end{bmatrix} \geq 0 
+$$
+These partial derivatives are very variable around 0. \textbf{Show a plot of this}. We can smooth it out by
+adding a smoothing term:
+
+$$ r_s = \sqrt{x^2 + y^2 + b} - \sqrt{b} $$
+
+This keeps the magnitude zero for small $x,y$ but does slightly shrink larger values. The gain we
+get however is a new smoother gradient surface \textbf{Plot this}.

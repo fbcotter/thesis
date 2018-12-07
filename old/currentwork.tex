@@ -1,0 +1,64 @@
+\chapter{Current Work}\label{ch:current_work}
+Definitely want to talk about the work that has been done by Amarjot as well as
+Mallat on using Scatternets, and bring refer to my early work there.
+
+Introduce the results on early work with SVMs, and the problems with that. In
+particular the depth of the learning networks (will need to cite that these are
+important to improve learning --- do I have a paper that discusses this?). The
+size of the feature vectors is too large. For a linear SVM, we were even
+getting very strange results.
+
+\section{DTCWT mulitscale Scatternet}
+\begin{figure}
+  \centering
+    \resizebox{1.1\textwidth}{!}{\input{tikz/M-ScatNetBlkDTCW}}
+\end{figure}
+\subsection{Analysing how it works}
+Want to look at how the DTCWT Scatternet works, might be good to talk about
+energy splitting of the DTCWT.
+
+\section{SVM classifiers}
+
+\section{CNNs}
+Refer back to how CNNs work, and make many comments about the problems we feel
+are currently present in them.
+\subsection{Base Architecture}
+For equivalent comparison, we first must choose a simple CNN that performs
+relatively well in the \cifar challenge. CUDA-convnet\cite{CUDA}, an adaptation
+of the \lenet \cite{LeNet} architecture for \cifar meets these requirements. It
+only has two convolutional layers, two fully connected layers and a softmax
+layer, and can get an accuracy of around 86\% after \emph{how many??} epochs.
+Compared to the current state of the art networks for CNNs \cite{ResNET} cifar, 
+this is very shallow \emph{how many layers does this have?}. We describe the
+shape and purpose of each layers here.
+\begin{quote}
+Include a diagram of LeNet
+\end{quote}
+
+\subsubsection{Preprocessing}
+Before any learning is done, \lenet crops the $32\times 32 \times 3$ image to
+$24 \times 24 \times 3$ using random cropping (choosing any $24 \times 24$ area
+inside the range of the image) in training, and centre-based cropping at test
+time. It also randomly flips \emph{and rotates?} the image. This is a data
+augmentation technique to prevent overfitting \cite{data_augmentation}. 
+
+In addition to this, to `aid learning', the input is normalized by subtracting its
+mean, and dividing by its standard deviation across the image.
+
+\subsubsection{Convolutional Layers}
+
+
+\begin{quote}
+Should I be talking about how max pooling is no longer seen as important as
+subsampling? If that's the case, then how can I seamlessly link this to wavelet
+inherent subsampling? Should I be setting up examples of CNNs first in one
+chapter, then Scatternets in the next?
+\end{quote}
+ 
+\section{Deconvnets for visualization}
+Benefit of using deconvolution for understanding what we want to see in our
+deeper layers. How it works, explain the algorithem for the CNN case and for
+the Scatternet+CNN case. Then talk about using it for future work to see how
+the second layer features are formed to start being able handcraft these.
+Some SVM papers:
+

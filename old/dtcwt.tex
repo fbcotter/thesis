@@ -1,0 +1,402 @@
+\chapter{\DTCWT\ Scatternets}\label{ch:dtcwt_scatternets}
+As covered by \autoref{ch:freq_analysis}, the choice of wavelet for a wavelet
+transform is a delicate choice. Mallat's work on Scatternets has been both
+inspiring and successful. We choose to develop on his design by rethinking and
+reassessing:
+\begin{enumerate}
+  \item the core of Scatternets, 
+  \item the shape of the Scatternet, 
+  \item and container to use Scatternets in.
+\end{enumerate}
+
+This chapter addresses the first two of these novel ideas; the third is
+explored in \autoref{ch:scat_deep}.
+
+\section{Changing the Core of the Scatternet}
+  Both the translation and the roto-translation Scatternets are built on applying
+  successive wavelet transforms, just across different variables.
+  \autoref{ch:freq_analysis} gave a thorough comparison of the wavelet transform
+  used by Mallat's group, to the \DTCWT\@. The two have very similar looking
+  spatial wavelets, with not too dissimilar power spectra. The key differences
+  being that the Morlet based transform is more flexible over the choice of the
+  number and width of the oriented wavelets, paying a large computational cost
+  for it, and making it difficult to go back from wavelet coefficients to the
+  input space. 
+
+  % It is interesting to note that the tested and preferred structure by Mallat has
+  % eight oriented bandpass filters, compared to the six of the \DTCWT\@. This opens up
+  % the opportunity to make use of the speed up and improved invertibility of the
+  % \DTCWT\@.
+
+  It was calculated in \autoref{sec:dtcwt_efficiency} that for images
+  $32\x 32$ pixels, the \DTCWT\ was about 3--4 times faster \emph{per channel}.
+  \autoref{sec:datasets} covered the limitations of \cifar, a dataset we want to
+  continue to use only until we devise promising models that we are ready to
+  scale, at which point, the time gained from the speed up introduced by using
+  the \DTCWT\ is only going to become larger.
+
+  It is important to reassure ourselves that making this improvement does not
+  come with other shortcomings, most notably in the representational power of
+  our Scatternet. This is a difficult thing to measure, as the Scatternet is
+  only one stage in the image understanding process. Experiments
+  by \citet{singh_multi-resolution_2016} design a very similar pipeline to the
+  one used by \citet{oyallon_deep_2015}, and achieve equal or better results on
+  the MNIST\citep{lecun_gradient-based_1998}, USPS \citep{hull_database_1994}, Isolet, 
+  Yeast and Glass datasets\citep{lichman_uci_2013}. In another, unpublished
+  work, they have also achieved marginally better results on \cifar.
+
+\subsection{Translation Invariant \DTCWT\ Scatternet}
+  Naturally, the first iteration of \DTCWT-Scatternets was aimed at changing as
+  little as possible, just the wavelet transform used to do the scattering. It
+  was based on the translation-invariant network used in
+  \cite{bruna_invariant_2013}. A block diagram of this is
+  shown in \autoref{fig:dtcwt_scatnet_1}. 
+
+  \begin{figure}
+    \vspace{1cm}
+    \centering
+      \makebox[\textwidth][c]{%
+        \hspace{1cm}
+        \resizebox{1.1\textwidth}{!}{\input{tikz/ScatNetBlkDTCW}}
+      }
+      \caption{First \DTCWT-Scatternet design}\label{fig:dtcwt_scatnet_1}
+  \end{figure}
+
+ The first, second and third order scatter coefficients, $S_m$, in this system are
+  given by:
+  \begin{equation}
+    \left( \begin{array}{c}
+      S_0x \\
+      S_1x \\
+      S_2x
+    \end{array} \right) = 
+    \left( \begin{array}{c}
+      x \ast \phi_J \\
+      \{ |x \ast \psi_{\lambda_1}| \ast \phi_J\}_{\lambda_1} \\
+      \{ ||x \ast \psi_{\lambda_1} | \ast
+        \psi_{\lambda_2} | \ast \phi_J \}_{\lambda_1,
+        \lambda_2}
+      \end{array} \right)
+  \end{equation}
+
+  Where the $\{\cdot\}_{\lambda}$ notation denotes the set contatining this
+  operation for all valid $\lambda = (j, \theta)$. For $m=1$, $j \in
+  \{1,2,3,4\}$ and $\theta \in \{15\degs, 45\degs, 75\degs, 105\degs, 135\degs,
+  165\degs\}$. For $m=2$, the set of valid $j$'s is reduced to $\{2,3,4\}$,
+  but the set of valid $\theta$ remains the same.
+ 
+
+  This is the current architecture being used by
+  \citet{singh_multi-resolution_2016}. In this work, they use some some 
+  further processing and feature extraction on the scattering 
+  coefficients before applying the result to a Gaussian-kernel Support Vector
+  Machine.
+
+\section{Changing the Structure of the Scatternet}
+  One issue with the previous design is in the way that the coefficients are
+  grouped --- you have multiple images of different resolutions grouped together.
+  This is not a serious issue, but we can clarify the design by redrawing the
+  Scatternet as a mutli-scale architecture, as in
+  \autoref{fig:dtcwt_scatnet_2}. Interestingly, a similar design was also
+  developed independently by Mallat's group, and was used in
+  \citep{oyallon_deep_2015}.
+
+  \begin{figure}
+    \centering
+      \vspace{1cm}
+      \makebox[\textwidth][c]{%
+        \resizebox{1.1\textwidth}{!}{\input{tikz/M-ScatNetBlkDTCW}}
+      }
+      \vspace{0.3cm}
+      \caption[Multiscale Scatternet architecture]
+              {Multiscale Scatternet architecture. The block letters in $A1 - A4$
+              correspond to the $A$ block in \autoref{fig:dtcwt_scatnet_1}, and the
+              numbers indicate the scale of the output from this tranform. Notice
+              that only the $A$ block has scale 1. The coefficients $S_1 --
+              S_4$ represent the new multiscale scattering coefficients. $S_1$
+              has 10 $128\x 128$ images --- six for the orientation, and one
+              low pass image at double resolution, equivalent to four $128\x
+              128$ images. $S_2$ has 70 equivalent $64\x 64$ coefficients,
+              $S_3$ has 490 $32\x 32$ images, and $S_4$ has 3430 $16\x 16$
+              images.}
+      \label{fig:dtcwt_scatnet_2}
+  \end{figure}
+  
+\subsection{Multiscale Scatternet}
+  The layers of this multiscale Scatternet are now index by their scale
+  coordinate, $j$ rather than their scattering order $m$ --- i.e.,\ $S_j$ rather
+  than $S_m$.  To avoid confusion when referring to scattering coefficients
+  from the two scattering designs, we make it clear that from this point on,
+  $S_1$ will refer to $\left. S_j \right|_{j=1}$ rather than $\left. S_m
+  \right|_{m=1}$\footnote{We mostly work with the multiscale Scatternet, so
+  there will not be too much need to refer back to the previous design.}.
+
+  If we define $S_0x = x$, then the multiscale Scatternet can be defined
+  recursively as:
+  \begin{equation}
+    S_jx = \left(\begin{array}{c}
+      S_{j-1}x \ast \phi_j \\
+      \{|S_{j-1}x \ast \psi_{j, \theta_j}| \}_{\theta_j}
+    \end{array} \right)
+  \end{equation}
+  The $j$ subscript on $\theta_j$ reminds us that we choose a new angle for
+  every scale.
+  This vector of scattering coefficients doubles in rows as $j$ increases,
+  which can be seen by the growth of the number of blocks in
+  \autoref{fig:dtcwt_scatnet_2}. For a two layer multiscale Scatternet, the
+  output of the first layer would be:
+  \begin{equation}
+    S_1x = \left( \begin{array}{c}
+      x \ast \phi_{j=1} \\
+      \{|x \ast \psi_{j=1, \theta_1}| \}_{\theta_1}
+    \end{array} \right)
+    = \left( \begin{array}{c}
+      \mbox{A1 low} \\
+      \mbox{A1 high}
+    \end{array} \right)
+    \label{eq:mutliscale_layer1_out}
+  \end{equation}
+  and the output of the second layer would be:
+  \begin{equation}
+    S_2x = \left( \begin{array}{c}
+      x \ast \phi_{j=1} \ast \phi_{j=2} \\
+      \{|x \ast \phi_{j=1} \ast \psi_{j=2,\theta_2}|\}_{\theta_2} \\
+      \{|x \ast \psi_{j=1, \theta_1}| \ast \phi_{j=2} \}_{\theta_1} \\
+      \{||x \ast \psi_{j=1,\theta_1} | \ast \psi_{j=2, \theta_2}
+      | \}_{\theta_1, \theta_2} 
+    \end{array} \right)
+    = \left( \begin{array}{c}
+      \mbox{A2 low} \\
+      \mbox{A2 high} \\
+      \mbox{B2 low} \\
+      \mbox{B2 high}
+    \end{array} \right)
+    \label{eq:multiscale_layer2_out}
+  \end{equation}
+
+  As for the number of coefficients, we follow the propagation of a $256\x 256$
+  pixel image through the Scatternet as shown in \autoref{fig:dtcwt_scatnet_2}.
+  $S_1$ has 10 $128\x 128$ scatter coefficients, an increase
+  of $5/2$. The second layer has 70 $64\x 64$ coefficients, which is a factor
+  of $7/4$ increase, the same increase that is seen for subsequent layers.
+  Therefore
+  \begin{equation}
+    \F{size}(S_{j} x) = \F{size}(x) \x \frac{5}{2} \x \prod_{i=1}^{j} 
+      \left(\frac{7}{4}\right)^{i-1}
+  \end{equation}
+  Where $\F{size}(S_{j}x)$ is the cardinality or number of elements in the set
+  $S_{j}x$.
+
+\subsection{Properties of the Multiscale Scatterent}
+\subsubsection{Energy Preservation and Energy Propagation}
+  Each layer of the multiscale Scatternet has the same energy as the input. 
+  \begin{equation}
+    \norm{S_{j} x} = \norm{x}
+  \end{equation}
+  We used this in early experiments to see how white noise would spread throughout
+  the Scatternet, and to see if we could use this to assess signal to noise
+  ratio of scattering coefficients. See \autoref{fig:white_noise_scat}.
+  
+  We have not yet been able to make use of these experiments. One of the main
+  difficulty in analysing energy propagation is the signals do not have zero
+  mean. Even if we enforce it at the input stage, the blocks that are
+  downstream of the high frequency components become strictly positive due to
+  the modulus non-linearity.
+
+	 \begin{figure}
+    \centering
+     \captionsetup{captionskip=12pt,farskip=8pt}
+     \subfloat[Energy of Lena scatter coefficients]{%
+      \makebox[\textwidth][c]{%
+        \vspace{1cm}
+        \resizebox{\textwidth}{!}{\input{tikz/lena_energy}}
+      }}
+      \newline
+      \vspace{1.2cm}
+      \subfloat[Energy of white noise scatter coefficients]{%
+      \makebox[\textwidth][c]{%
+        \vspace{1cm}
+        \resizebox{\textwidth}{!}{\input{tikz/noise_energy}}
+      }}
+     \vspace{0.3cm}
+			\caption[The energy propagation of Lena and white noise in the
+      Scatternet]
+              {The energy propagation of Lena and white noise in the
+              Scatternet. The energies of the scatter coefficients shown in
+              red. For Lena, most of the energy ends up in the low pass
+              coefficients, as expected for a real image. For white noise, most
+              of the energy ends up in the B blocks due to the DC offset
+              added by the modulus taken on the A1 high component.}
+      \label{fig:white_noise_scat}
+  \end{figure}
+
+\subsubsection{Sparsity of Scatter Coefficients}
+  \autoref{fig:lena_layer1_coeffs} shows what the scattering coefficients like
+  for $S_1x$. Deeper layers have many more coefficients, but all of the high,
+  and many of the low, are similarly sparse. We include the B2 coefficients in
+  \autoref{fig:lena_b2_coeffs} for completeness.
+
+  \begin{figure}
+    \vspace{-2cm}
+    \centering
+    \subfloat{\makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{scripts/lena_layer1.png}}}
+    \newline
+    \subfloat{\includegraphics[width=\textwidth]{scripts/lena_layer1_hist.png}}
+    \caption[First layer scattering coefficients and their historgrams]
+            {First layer scattering coefficients and their histogram.
+            \textbf{Top:} A1 Low output (left) and the six A1 high outputs
+            (right) for Lena. The images are plotted on a log scale. The wavelet
+            angle for the top left image is $15\degs$. They increase by $30\degs$
+            for each image in a clockwise path, until $165\degs$ for the bottom
+            left image. \textbf{Bottom:} The histogram of coefficients for the six
+            oriented scattering coefficients. These are all heavy tailed.}
+    \label{fig:lena_layer1_coeffs}
+  \end{figure}
+
+  \begin{figure}
+    \centering
+    \subfloat{\makebox[\textwidth][c]{%
+      \hspace{0.5cm}
+      \includegraphics[width=1.0\textwidth]{scripts/lena_B2.png}
+    }}
+    \newline
+    \subfloat{\makebox[\textwidth][c]{%
+      \includegraphics[width=1.0\textwidth]{scripts/lena_B2_hist.png}
+    }}
+    \caption[Second layer (B2) scattering coefficients and their histograms]
+            {Second layer (B2) scattering coefficients (top) and their sparse
+            histograms (bottom).}
+    \label{fig:lena_b2_coeffs}
+  \end{figure}
+
+\subsection{Handling Colour Images}\label{sec:colour_images}
+  Thought must be given as to how to handle colour inputs, as the \DTCWT\ is
+  designed for greyscale images. A possible option (one that is used by
+  \citeauthor{oyallon_deep_2015} in their Scatternet design for handling CIFAR-10
+  data) is to scatter the three channels independently, and concatenate the
+  output. While this is simple and effective, it is overkill. The output 
+  vector will be three times as large for each image, which will slow down
+  learning by requiring many unnecessary multiplications. 
+
+  Instead, we can take inspiration from the human visual system, which is much
+  less sensitive to frequency changes in colour than in luminance (see
+  \autoref{fig:colour_vision}). In our scattering architecture, we encode
+  three colour channels for the low frequency information, and combine them in
+  in the wavelet coefficients when we take the modulus operator:
+  \begin{eqnarray*}
+    U_{\theta, j}\bmu{x} = |\bmu{x} \ast \psi_{\theta, j}| &=&  
+      \sqrt{\Re(x_R \ast \psi_{\theta, j})^2 + \Im(x_R \ast \psi_{\theta, j})^2+} \\
+    && \overline{ \Re(x_G \ast \psi_{\theta, j})^2 + \Im(x_G \ast
+     \psi_{\theta, j})^2 +} \\
+    &&  \overline{\Re(x_B \ast \psi_{\theta, j})^2 + \Im(x_b \ast \psi_{\theta, j})^2}
+  \end{eqnarray*}
+  In this way, we maintain sufficient colour information but at the cost of only a few extra
+  coefficients. 
+
+  This design somewhat aligns with the learned filters of AlexNet in
+  \autoref{fig:alexnet_filters}. Half of the filters are low frequency colour
+  images, and the other half are all high frequency greyscale filters.
+
+  \begin{figure}
+    \centering
+      \subfloat[]{%
+        \includegraphics[width=0.80\textwidth]{images/luminance_chrominance_sensitivity.png}
+        \label{fig:colour_vision_graph}
+      }
+      \newline
+      \subfloat[]{%
+        \includegraphics[width=0.80\textwidth]{images/DEMO1C.png}
+        \label{fig:colour_vision_pic}
+      }
+      \caption[Sensitivity of the human eye to colour vs intensity changes]
+              {Sensitivity of the human eye to colour vs intensity changes.
+              \subref{fig:colour_vision_graph} shows that peak colour frequency
+              sensitivity is about 10 times lower than for luminance \cite{mullen_contrast_1985}.
+              \subref{fig:colour_vision_pic} an example of this, where colour was
+              sampled at 16 times lower frequency (4 in each direction) than 
+              chrominance, with little change noticeable. Taken from
+              \cite{nick_kingsbury_4f8_2015}}
+      \label{fig:colour_vision}
+  \end{figure}
+
+
+\section{Inverse Scattering}
+  It is important to be able to have an approximately
+  invertible operator so that we can visualize network activations. In
+  \citep{zeiler_visualizing_compact_2014} they get good representations by
+  saving `switches', which store the location of the max pooled
+  representations. We can do a similar operation in the Scatternet, by saving
+  the \emph{phase} of the complex wavelets when we do the modulus
+  operation\footnote{\citep{waldspurger_phase_2012} prove that the input can be
+  recovered from the magnitude of the scattering coefficients alone, without
+  having to save the phase, but this process is difficult.}
+  
+  Storing this extra information allows us to perfectly reconstruct the input
+  signal. We show an example of this in \autoref{fig:inv_scat}. The best way to
+  illustrate how inverse scattering is to follow an example --- see 
+  Example~\ref{ex:inverse} which uses a three
+  scale Scatternet. It is helpful to see the block diagram when trying to
+  follow the example, so we include it again here in
+  \autoref{fig:three_layer_scat}.
+
+  % A figure that belongs to the next section
+  \begin{figure}[ht]
+    \centering
+    \subfloat[Reconstruction from top 128 activations in Layer 2]{%
+      \includegraphics[width=0.33\textwidth]{scripts/inv_layer2_activity.png}
+      \includegraphics[width=0.33\textwidth]{scripts/inv_layer2_mask.png}
+      \includegraphics[width=0.33\textwidth]{scripts/inv_layer2_recons.png}
+      \label{fig:layer2_recon}}
+    \newline
+    \vspace{1cm}
+    \subfloat[Reconstruction from top 32 activations in layer 4]{%
+      \includegraphics[width=0.33\textwidth]{scripts/inv_layer4_activity.png}
+      \includegraphics[width=0.33\textwidth]{scripts/inv_layer4_mask.png}
+      \includegraphics[width=0.33\textwidth]{scripts/inv_layer4_recons.png}
+      \label{fig:layer4_recon}}
+    \caption[Some reconstructions from the Scatter coefficients]
+            {Some reconstructions from the Scatter coefficients. To make these
+            images, only the \emph{high} outputs from the blocks in layers 2 and
+            4 were used. The mask in the centre was applied to the high outputs
+            from each block in the layer, setting a lot of the coefficients to 0. The phase
+            was then reinserted and the coefficients were taken back to the input
+            domain. The result is displayed on the right.}
+    \label{fig:inv_scat}
+  \end{figure}
+  \begin{figure}
+
+  \begin{exmp}\label{ex:inverse}
+    On the forward pass, when we take the magnitude of $|S_{j-1}x \ast
+      \psi_{j,\theta_j}|$, we also save $\angle (S_{j-1}x \ast
+      \psi_{j,\theta_j})$. We save the phases before \emph{each}
+      application of the modulus operation.
+    
+    The backwards pass starts at the highest letter, in this case, D. The phase
+    is reinserted for the D3 outputs, and an inverse wavelet transform is done.
+    In this case, it will only be one scale. This gives the B2 high outputs.
+
+    We then move onto the C block. The phase is reinserted and another inverse
+    wavelet transform is performed, again only one scale, giving the A2 high
+    outputs..
+
+    There are two B blocks, though, so we reinsert the phase for both B3, and
+    the B2 outputs (using the result from the D3 inverse wavelet transform).
+    Now a two scale inverse wavelet transform is done to give us the A1 high
+    outputs.
+
+    We reinsert the phase for all 3 A high outputs, using the result from the
+    B inverse and the C inverse for the first and second scales. Then a three
+    scale inverse wavelet transform is done, giving us our reconstructed image,
+    x.
+  \end{exmp}
+    \vspace{2cm}
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/three_layer_scatternet.png}
+    \caption{Three layer Scatternet figure, included as a visual aid for
+    Example~\ref{ex:inverse}.}
+    \label{fig:three_layer_scat}
+  \end{figure}
+
+  
+
+  

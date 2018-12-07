@@ -1,0 +1,56 @@
+\thispagestyle {empty}
+\contentsline {chapter}{List of figures}{11}{chapter*.5}
+\contentsline {chapter}{List of tables}{13}{chapter*.6}
+\contentsline {chapter}{\numberline {1}Introduction}{15}{chapter.1}
+\contentsline {section}{\numberline {1.1}Gradients of Complex Activations}{15}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Cauchy-Riemann Equations}{15}{subsection.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}Complex Magntitude}{15}{subsection.1.1.2}
+\contentsline {chapter}{\numberline {2}Image Recognition Review}{17}{chapter.2}
+\contentsline {section}{\numberline {2.1}Notation}{17}{section.2.1}
+\contentsline {section}{\numberline {2.2}Datasets}{18}{section.2.2}
+\contentsline {section}{\numberline {2.3}Sparse Dictionary Learning}{20}{section.2.3}
+\contentsline {section}{\numberline {2.4}SIFT Detectors}{21}{section.2.4}
+\contentsline {section}{\numberline {2.5}Convolutional Neural Networks}{22}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}Input Layer}{23}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}Convolutional Layers}{23}{subsection.2.5.2}
+\contentsline {subsection}{\numberline {2.5.3}Pooling Layers}{24}{subsection.2.5.3}
+\contentsline {subsection}{\numberline {2.5.4}Activation Functions}{24}{subsection.2.5.4}
+\contentsline {subsection}{\numberline {2.5.5}Fully Connected Layers}{25}{subsection.2.5.5}
+\contentsline {subsection}{\numberline {2.5.6}Loss Function}{25}{subsection.2.5.6}
+\contentsline {subsubsection}{Regularization}{26}{section*.15}
+\contentsline {subsubsection}{Empirical Risk vs Expected Risk}{26}{section*.16}
+\contentsline {subsection}{\numberline {2.5.7}Gradient descent vs Stochastic Gradient Descent vs Mini-Batches}{27}{subsection.2.5.7}
+\contentsline {subsection}{\numberline {2.5.8}Backpropagation and the Chain Rule}{28}{subsection.2.5.8}
+\contentsline {subsection}{\numberline {2.5.9}Normalization}{28}{subsection.2.5.9}
+\contentsline {subsubsection}{Standard Normalization}{29}{section*.17}
+\contentsline {subsubsection}{Local Response Normalization}{29}{section*.18}
+\contentsline {subsubsection}{Batch Normalization}{30}{section*.19}
+\contentsline {subsection}{\numberline {2.5.10}Other Layers and Trends}{32}{subsection.2.5.10}
+\contentsline {subsubsection}{Batch Normalization instead of Dropout}{32}{section*.20}
+\contentsline {subsubsection}{No More Max Pooling}{32}{section*.22}
+\contentsline {subsubsection}{Improved Initialization}{32}{section*.23}
+\contentsline {subsubsection}{Residual Layers}{33}{section*.24}
+\contentsline {section}{\numberline {2.6}Visualization Schemes}{33}{section.2.6}
+\contentsline {chapter}{\numberline {3}Front Ends}{37}{chapter.3}
+\contentsline {section}{\numberline {3.1}Fast GPU Implementation}{37}{section.3.1}
+\contentsline {section}{\numberline {3.2}Something}{37}{section.3.2}
+\contentsline {section}{\numberline {3.3}Relu Properties}{37}{section.3.3}
+\contentsline {section}{\numberline {3.4}Activation Statistics}{38}{section.3.4}
+\contentsline {chapter}{\numberline {4}Conclusion}{39}{chapter.4}
+\contentsline {section}{\numberline {4.1}Discussion of Attempts so Far}{39}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Multiscale Scatternets + SVM}{39}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Reduced Multiscale Scatternets and CNNs}{40}{subsection.4.1.2}
+\contentsline {subsubsection}{Quicker Training Time}{40}{section*.30}
+\contentsline {subsubsection}{Data Augmentation}{40}{section*.32}
+\contentsline {subsection}{\numberline {4.1.3}Improved Analysis Methods}{41}{subsection.4.1.3}
+\contentsline {section}{\numberline {4.2}Future Work}{41}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Closing the Gap}{41}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Moving to a new Dataset}{42}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}Improved Visualizations}{42}{subsection.4.2.3}
+\contentsline {subsection}{\numberline {4.2.4}Going Deeper}{42}{subsection.4.2.4}
+\contentsline {subsection}{\numberline {4.2.5}Resiudal Scattering Layers}{42}{subsection.4.2.5}
+\contentsline {subsection}{\numberline {4.2.6}Exploring the Scope of Scatternets}{43}{subsection.4.2.6}
+\contentsline {subsection}{\numberline {4.2.7}Analysing Newer CNN Layers}{43}{subsection.4.2.7}
+\contentsline {subsection}{\numberline {4.2.8}Revisiting Greedy Layer-Wise Training}{43}{subsection.4.2.8}
+\contentsline {section}{\numberline {4.3}Timeline}{44}{section.4.3}
+\contentsline {chapter}{Bibliography}{47}{chapter*.35}

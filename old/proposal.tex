@@ -1,0 +1,340 @@
+%\documentclass[dvips,12pt]{article}
+
+% Any percent sign marks a comment to the end of the line
+
+% Every latex document starts with a documentclass declaration like this
+% The option dvips allows for graphics, 12pt is the font size, and article
+%   is the style
+\documentclass[12pt, a4paper, oneside, english]{article}
+
+
+%---Begin Nelson's preamble----------------------------
+\usepackage{algorithm2e}
+\usepackage{stmaryrd}
+\usepackage{subfigure}
+\usepackage{color}
+
+\newcommand{\F}[1]{\ensuremath{\mathrm{#1}}\xspace}
+\newcommand{\sgn}{\F{sgn}}
+\newcommand{\tr}{\F{trace}}
+\newcommand{\diag}{\F{diag}}
+
+\def\diag{\mathop{\rm diag}\limits}
+\def\Diag{\mathop{\rm Diag}\limits}
+\def\span{\mathop{\rm span}\nolimits}
+\def\supp{\mathop{\rm supp}\nolimits}
+\def\sinc{\mathop{\rm sinc}\nolimits}
+\def\var{\mathop{\rm var}\nolimits}
+\def\cov{\mathop{\rm cov}\nolimits}
+\def\argmin{\mathop{\rm argmin}}
+\def\argmax{\mathop{\rm argmax}}
+\def\mean{\mathop{\rm mean}}
+\def\bfA{{\bf A}} \def\bfa{{\bf a}}
+\def\bfB{{\bf B}} \def\bfb{{\bf b}}
+\def\bfP{{\bf P}} \def\bfw{{\bf w}}
+\def\bfW{{\bf W}} \def\bfI{{\bf I}}
+\def\bfJ{{\bf J}} \def\bfh{{\bf h}}
+\def\bfx{{\bf x}} \def\bff{{\bf f}}
+\def\bfg{{\bf g}} \def\bfn{{\bf n}}
+\def\bfh{{\bf h}}
+\def\bfp{{\bf p}}
+\def\bfr{{\bf r}}
+\def\bfL{{\bf L}}
+\def\bfepsilon{{\boldsymbol \epsilon}}
+\def\bfphi{{\boldsymbol \phi}}
+\def\bfdelta{{\boldsymbol \delta}}
+\def\bfxi{{\boldsymbol \xi}}
+\def\bfomega{{\boldsymbol \omega}}
+\def\bfI{{\bf I}}
+
+\def\x{{\mathbf x}}
+\def\y{{\mathbf y}}
+\def\z{{\mathbf z}}
+\def\n{{\mathbf n}}
+\def\A{{\mathbf A}}
+\def\Hb{{\mathbf H}}
+\def\R{{\mathbf R}}
+\def\Rh{{\mathbf{\widehat{R}}}}
+\def\xh{{\mathbf{\widehat{x}}}}
+\def\yh{{\mathbf{\widehat{y}}}}
+\def\U{{\mathbf U}}
+\def\I{{\mathbf I}}
+\def\M{{\mathbf M}}
+\def\W{{\mathbf W}}
+
+\def\Ss{{\mathcal S}}
+\def\So{{\mathcal{S}^{\perp}}}
+\def\Ps{{\mathbf{P}^{\mathcal S}}}
+\def\Po{{\mathbf{P}^{\perp}}}
+
+\def\e{{\mathbf e}}
+\def\w{{\mathbf w}}
+\def\d{{\mathbf d}}
+\def\ds{{\mathbf{d}^{\mathcal S}}}
+\def\dpp{{\mathbf{d}^{\perp}}}
+\def\Re{\mathit{Re}}
+
+\def\f{{\mathbf f}}
+\def\g{{\mathbf g}}
+\def\m{{\mathbf m}}
+
+
+
+\newcommand{\bmat}{\left[\!\!\begin{array}}
+\newcommand{\emat}{\end{array}\!\!\right]}
+\newcommand{\fracd}[2]{\displaystyle \frac{#1}{#2}}
+\newcommand{\fract}[2]{\textstyle \frac{#1}{#2}}
+\newcommand{\beann}{\begin{eqnarray*}}
+\newcommand{\eeann}{\end{eqnarray*}}
+\newcommand{\CWT}{{\ensuremath{\mathbb{C}}WT}}
+\renewcommand{\em}{\color{blue} \bf}
+
+%---End Nelson's preamble----------------------------
+
+\usepackage{fancyhdr, ifpdf}
+\usepackage{multirow}
+\usepackage{times}
+\usepackage{babel}
+\pagestyle{fancyplain}
+\usepackage[labelfont=bf,textfont=it]{caption}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{pdflscape}
+\usepackage{multicol}
+\usepackage[a4paper,margin = 0.5in]{geometry}
+\usepackage{amsthm}
+
+% This clears old style settings
+\fancyhead{}
+\fancyfoot{}
+\sloppy
+%\usepackage{ amsthm, amscd, amsfonts, amssymb, graphicx,tikz, color, environ}
+%\usepackage{hyperref}
+
+
+\definecolor{myvlightblue}{rgb}{.85,.95,1}
+\definecolor{mydarkred}{rgb}{.6,0,0}
+\definecolor{blue}{rgb}{0,0,.6}
+%\setbeamercolor{block title}{bg=gray!10,fg=mydarkred}
+%\setbeamercolor{frametitle}{fg=mydarkred}
+% \setbeamercolor{normal text}{bg=myvlightblue}
+%\setbeamercolor{background canvas}{bg=myvlightblue}
+
+
+\begin{document}
+
+\title{Wavelet-based Convolution Networks for Image Understanding with Rapid Learning}
+\date{\today}
+\author{Fergal Cotter - Signal Processing Group\\
+Department of Engineering, University of Cambridge}
+% \author{\begin{tabular}{r@{ }l} 
+% Fergal Cotter:     &  Signal Processing Group\\
+% & Department of Engineering, University of Cambridge\\
+% Supervisor: & Nick Kingsbury
+% \end{tabular}}
+%\author{Fergal Cotter}
+
+\maketitle
+\begin{abstract}
+\noindent Convolutional Neural Networks have steadily been improving in performance, but also in size and time to train. We aim to take what we know about the directionality of the initial image processing cells in the V1 visual cortex and use it as an initial stage to set the learning of the deep networks off at a faster rate. This should also allow greater generalisation, as there will be less risk of overfitting with fewer parameters to fit. \\\\To build our model, we extend on previous promising work done with Scattering Transforms as initial layers to a classifier by using the Dual Tree Complex Wavelet Transform. With suitable post-processing, this has been shown to be approximately invariant to local shifts, deformations and rotations. Its invertibility properties also work perfectly with deconvolutional networks, which aim to improve future development of convolutional networks by understanding what is happening in the deeper layers. Using this with the recent developments in state of the art Convolutional Neural Networks we endeavour to make image understanding faster, more accurate and more accessible for a range of problems.
+\end{abstract}
+
+%\noindent \textbf{Keywords.} Object Classification; Deep Networks; Convolutional Networks; Scatternets; Fast Learning
+
+\section{Introduction}
+Convolutional Neural Networks (CNNs) have become very popular and very successful in image classification tasks \cite{krizhevsky_imagenet_2012}, Object Detection \cite{ren_object_2015} and Human Pose Estimation \cite{tompson_efficient_2015}. In the past few years, improved performance has been impressive and significant, but at the cost of significant compute power, requiring multiple GPUs and several days to train. Since CNNs have become so good at solving more and more problems, more attention recently has been given to making them work in real world applications with limited resources. \\
+Most designs acknowledge the need to reduce the sensitivity to non-informative intra-class variations, in particular translation and rotation. Building adaptive invariants to such transformations is usually considered as a first necessary step for classification \cite{poggio_computational_2012}. Recent work by Mallat et al. \cite{sifre_rotation_2013, sifre_rigid-motion_2014} has shown that wavelet filters (in the form of a Scatternet) are able to remove variations from shifts, rotations and reduce the variation from deformations without needing to learn. Putting a classification Support Vector Machine on the output of just two scattering layers showed significant results in texture, digit and image classification \cite{bruna_invariant_2013, oyallon_generic_2013}. Not having to learn the first layers of a convolutional network can mean we can start with faster update rates for our stochastic gradient descent.\\
+Finally, there have been increased efforts to intuit what is going on past the first convolutional layer of a deep network \cite{simonyan_deep_2014, mahendran_understanding_2015, zeiler_visualizing_compact_2014}. Up until recently, the design choices of the number of layers, the choice of non-linearity, the number of neurons etc. haven't been well understood. The scattering design allows us to understand what our network is doing past the first few layers, an invaluable asset if we want to continue to direct the improvement of these networks.
+
+\section{Goals}
+We aim to expand on Bruna et al's Scatternet design using the DTCWT (Dual Tree Complex Wavelet Transform) for the front before building a deep convolutional network. We believe this will be able to improve image understanding networks as a whole by:
+%a few key points here
+\begin{enumerate}
+\item Developing a system that learns quickly
+\item Developing a system that can generalise well
+\item Developing a system that requires fewer learned parameters to reduce GPU requirements
+\item Developing a system that gives us more intuition about what happens past the first layer
+\end{enumerate}
+
+\section{Recent Developments in Convolutional Networks}
+There have been two key recent developments that have shown the opportunity for the use of our proposed methods in achieving improvements in performance and knowledge of image understanding designs. We introduce them here and explain in the next section how we believe we can build on these developments and take network design further in image understanding tasks.
+%------------------
+% Scatternets
+\subsection{The Scattering Transform}
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{Scatternetformat.png}
+\caption{Scatternet format. Computed by successively calculating the modulus of wavelet coefficients with $|W_1|, |W_2|$, followed by an average pooling $\phi_J$. Image from \cite{oyallon_generic_2013}}
+\label{ScatterNetFormat}
+\end{figure}
+Building adaptive invariants to intra-class rotation and translation transformations is usually considered as a first necessary step for classification \cite{poggio_computational_2012}. Recent work by St\'{e}phane Mallat's group in their design of the Scattering Transform \cite{sifre_rotation_2013, sifre_rigid-motion_2014} aims to normalize the effects of these variances before any learning is done. They also show that their design is Lipschitz continuous to deformations, adding another stabilizing factor to reduce the difficulties of uninformative variations. \\
+Using this design, they show \cite{bruna_invariant_2013, oyallon_generic_2013} that applying shallow discrimination networks such as a discriminant SVM or Restricted Boltzmann machine can get comparable results for the Caltech-101 and Caltech-256 datasets compared to convolutional nets of similar depth, and better than state of the art for texture classification in CUReT, and digit classification in MNIST. This is a very promising start for the scattering transform, and we believe that continuing work on it and developing deeper CNNs will yield impressive results.\\\\
+Scattering coefficients are calculated by cascading wavelet transforms and taking modulus non-linearities (in this way, a resemblance can be seen to learned convolutional nets). The first wavelet transform $W_1$ filters the image $x$ with a low-pass filter and complex wavelets which are scaled and rotated. The low-pass filter outputs an averaged image $S_{0}x$ and the modulus of each complex coefficient defines the first scattering layer $U_{1}x$. A second wavelet transform $W_2$ applied to $U_{1}x$ computes an average $S_{1}x$ and the next layer $U_{2}x$. A final averaging computes second order scattering coefficients $S_{2}x$, as illustrated in Figure~\ref{ScatterNetFormat} \cite{oyallon_generic_2013}. The averaging function is done with a Gaussian. It can be seen as a pooling operation and achieves the shift invariance similar to the max pooling of convnets. \\\\
+Figure~\ref{ScatterNet} shows the resulting first and second order scatter coefficients for two different input images. The rings in (c) and (d) show the coefficients plotted with respect to their corresponding region in the frequency domain, from the scale (radius) and angle chosen. We can see from this figure that images with the same first order spectra may be discriminated with higher order spectra.
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{ScatterNetTwoProcesses.png}
+\caption{(a) Realizations of two stationary processes. (b) The power spectrum estimated from each realization is nearly the same. (c) First-order scattering coefficients $S[p]X$ (d) Second-order scattering coefficients $S[p]X$ are clearly different. Image from \cite{bruna_invariant_2013} }
+\label{ScatterNet}
+\end{figure}
+%------------------
+% Deconv networks
+\subsection{Deconvolutional Networks}
+The recent development of Deconvnets by Zeiler, Fergus et al. \cite{zeiler_adaptive_2011, zeiler_visualizing_compact_2014} have allowed us to now visualize the effect of the different layers of a deep convolutional network. \\\\
+The deconvnet approximates well the inversion of the convolutional and rectification stage by using transposed versions of the convnet filters \cite{zeiler_visualizing_compact_2014}. The tricky part comes in the inversion of the max pooling non-linearities, for which they use a special set of switches and pool maps. To invert the pooling operation, they use the switches to put the pool map values into the correct location, setting all other pixels to 0 \cite{zeiler_adaptive_2011}. This allows them to get a fair approximation going back through the network.\\\\
+Figure~\ref{DeconvNet} shows the result of running their deconvnet on the design by Krizhevsky in \cite{krizhevsky_imagenet_2012}. They show that a good convolutional net progressively builds invariances through its layers, from simpler invariances in the early layers to more complex ones later. This property is important for understanding where to take the development of image understanding networks.
+
+%Replicating units in this way allows for features to be detected regardless of their position in the visual field. Additionally, weight sharing increases learning efficiency by greatly reducing the number of free parameters being learnt. The constraints on the model enable CNNs to achieve better generalization on vision problems.\\\\
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{Deconvnets.png}
+\caption{Visualization of features in a model. Top 9 activations in the corresponding layer of the network are projected down to pixel space using the deconvnet \cite{zeiler_visualizing_compact_2014}. The first two layers have learned oriented edge and somewhat complex shape detection.}
+\label{DeconvNet}
+\end{figure}
+
+\section{Methodology}
+%layout of the proposed system
+We believe that we can tie together both of these recent developments and build on them using the DTCWT. In particular, we want to use DTCWT based scatternets as the initial layer of deep learned network, This will fit in well with the current development of CNNs because:
+\begin{itemize}
+\item The wavelet itself is approximately shift invariant \cite{kingsbury_rotation-invariant_2006}. Taking the complex magnitude of the real and imaginary Hilbert pair wavelets achieves pooling properties \cite{kingsbury_dual-tree_2000}).
+\item Not having to learn initial layers should permit a faster learning rate and greater generalization
+\item The DTCWT can be invertible, and hence can be used with deconvnets to understand and improve deeper CNNs
+\end{itemize}
+Further, the DTCWT has several advantages over the Morlet filters used in \cite{sifre_rotation_2013, sifre_rigid-motion_2014, bruna_invariant_2013, oyallon_generic_2013}. In particular its ability to be realized in the spatial domain rather than taking it into the frequency domain makes it (i) faster to realize and (ii) able to use edge assumptions like symmetric extension - Fourier analysis assumes cyclic extension which will generate unwanted discontinuities at image edges.\\\\
+A four layer scatternet is shown in Figure~\ref{ScatNetBlkDTCW}, along with the energies of the coefficients at each stage. We can easily visualize an example where the scattering of energies is beneficial: If we assume that a typical image has say a 30dB SNR for its pixels under moderate lighting levels, then we can analyse the energies of the image and the noise separately in each type of sub-band of the scatternet. The noise energies will spread more evenly among the sub-bands than the image energies because the noise pixels are uncorrelated spatially.  Hence some sub-bands with low image energies will have very poor SNRs and so there will be little point in trying to use these for object classification and they can be discarded. This reflects back to what we saw earlier in Figure~\ref{ScatterNet}.\\\\
+In our design 10 coefficients are generated for every 2x2 area in the image at layer 1, and 70 for each 4x4 area at layer 2, growing at a $\frac{7}{4}$ rate per extra layer. This means that we would initially increase the size of our input vector to a learned deep network, which should make it easier to fit a hyperplane to classify data. The downside to this would be that we need to have a more complex CNN with more coefficients, but this is balanced by removing the need to learn earlier layers.\\\\
+Developing and designing the CNN to run on scattered coefficients is no easy task. However, several research groups here at Cambridge are already developing CNNs and other deep networks for image understanding and other tasks. Most notably Roberto Cipolla's group will be indispensable based on their work on CNNs \cite{kendall_posenet:_2015, ioannou_training_2015}, and Zoubin Ghahramani's group for their work on machine learning tasks as a whole. Collaborating with these groups we hope to gain significant improvements in image understanding networks. 
+\begin{figure}
+\centering
+\input{M-ScatNetBlkDTCW-engy}
+\vspace{5mm}
+\caption{Multi-scale Scatter-Net based on the DTCWT with \% energies in red}
+\label{ScatNetBlkDTCW}
+\end{figure}
+\section{Conclusion and Project Aims}
+50 years ago, work by Hubel and Wiesel on the V1-cortex in cats showed that the brain processes images first through simple cells and then complex cells, developing invariance to location and rotation \cite{hubel_receptive_1962}. This has been the inspiration for significant effort to emulate these properties in the form of wavelet design.\\
+Although recent developments in convolutional neural networks have been achieving good results from fully learned filters, the recent work by Mallat in showing Scatternets with Morlet wavelets can outperform state of the art learned networks for the MNIST and texture database shows that wavelet filters with the right properties can help by setting the learning stage off in the right direction.\\
+Having a non-learned initial layer should allow us to have a higher update rate in learning, speeding up the process, while also generalizing well.\\
+The invertibility of the DTCWT allows it to be used with any deconvnet and help direct the improvements of learned layer design.\\\\
+My current position at Cambridge in the Signal Processing under Prof. Kingsbury gives me the perfect nursery and access to wisdom on the application of the DTCWT, as well as other wavelets, and their usefulness. In addition to this, I have access to and have already begun to build connections with many other researchers in the Computer Vision Lab led by Roberto Cipolla, as well as researchers in the Computational Biology Lab under Zoubin Ghahramani. The Computer Vision Lab is also working on and developing some impressive CNNs which compete with GoogLeNet in terms of accuracy vs number of operations and number of parameters \cite{ioannou_training_2015}, while the Computational Biology Lab are expert at the larger field of Machine Learning.
+\\\\
+For past 3 years, from finishing my honours and beginning this PhD, I have worked professionally as an engineer. Having this kind of experience will be a great benefit for me in doing my PhD, as I am now accustomed to regular documentation, project timelines and milestones, as well as coordinating with others (see Resume).\\\\
+Looking forward to the next 3 years (doing my PhD), my goals are as follows: \\
+Initially, we want to modify and train the current deeper layers of state of the art CNNs to classify scattered data. Once we have done this, we want to build a higher level of understanding of the slight variations between training on scattered coefficients and raw image data, and use this to fine tune the design parameters of the deeper layers. Ultimately, we aim to bring this design to the forefront of ImageNet classification networks, either with our own designed system, or by collaborating with other designers, such as the GoogLeNet team.
+%\textbf{Introduce DTCWT. Using the theories from Scatternets but modifying them to fit with DTCWT and the benefits of this (can be done in spatial domain, quicker, easier to introduce spatial variation), we propose the desing in Figure~\ref{ScatNetBlkDTCW}. Note that the \% of energies decays rapidly. What was important about this?}
+%
+%\textbf{Not sure how much detail should go into with current convolutional network architectures. What about deconvnets? Should I talk about them here as they will be important to note that we can now see back through the first few convolutional layers after our scatternet, as well as through our scatternet?}
+%Don't worry too much about different architectures, but it would be good to discuss deconv-nets as they are pretty new.  In particular mention the need to invert the pooling operations and how easy this is for wavelet-magnitudes by re-inserting the phases.
+%%Another important concept of CNNs is max-pooling, which is a form of non-linear down-sampling. Max-pooling partitions the input image into a set of non-overlapping rectangles and, for each such sub-region, outputs the maximum value.
+%
+%Max-pooling is useful in vision for two reasons:
+%By eliminating non-maximal values, it reduces computation for upper layers.
+%
+%It provides a form of translation invariance. Imagine cascading a max-pooling layer with a convolutional layer. There are 8 directions in which one can translate the input image by a single pixel. If max-pooling is done over a 2x2 region, 3 out of these 8 possible configurations will produce exactly the same output at the convolutional layer. For max-pooling over a 3x3 window, this jumps to 5/8.
+%
+%Since it provides additional robustness to position, max-pooling is a “smart” way of reducing the dimensionality of intermediate representations.
+%
+%There has been much previous work on increasing the test-time efficiency of CNNs. Some promising
+%approaches work by making use of more hardware-efficient representations. For example Gupta
+%et al. (2015) and Vanhoucke et al. (2011) achieve training- and test-time compute savings by further
+%quantization of network weights that were originally represented as 32 bit floating point numbers.
+%However, more relevant to our work are approaches that depend on new network connection structures,
+%efficient approximations of previously trained networks, and learning low rank filters
+%
+%
+%Since their introduction by LeCun et al. [20] in the early 1990’s, Convolutional
+%Networks (convnets) have demonstrated excellent performance at tasks such as
+%hand-written digit classification and face detection. In the last 18 months, several
+%papers have shown that they can also deliver outstanding performance on
+%more challenging visual classification tasks. Ciresan et al. [4] demonstrate state-ofthe-
+%art performance on NORB and CIFAR-10 datasets.Most notably, Krizhevsky
+%et al. [18] show record beating performance on the ImageNet 2012 classification
+%benchmark, with their convnet model achieving an error rate of 16.4%, compared
+%to the 2nd place result of 26.1%. Following on from this work, Girshick et al. [10]
+%have shown leading detection performance on the PASCAL VOC dataset. Several
+%factors are responsible for this dramatic improvement in performance: (i) the
+%availability of much larger training sets, with millions of labeled examples; (ii)
+%powerful GPU implementations, making the training of very large models practical
+%and (iii) better model regularization strategies, such as Dropout [14].
+%
+%
+%Rather, they show many intuitively desirable properties
+%such as compositionality, increasing invariance and class discrimination as we
+%ascend the layers. We also show how these visualization can be used to identify
+%problems with the model and so obtain better results, for example improving
+%on Krizhevsky et al. ’s [18] impressive ImageNet 2012 result. We then demonstrated
+%through a series of occlusion experiments that the model, while trained
+%for classification, is highly sensitive to local structure in the image and is not
+%just using broad scene context. An ablation study on the model revealed that
+%having a minimum depth to the network, rather than any individual section, is
+%vital to the model’s performance.
+%Finally, we showed how the ImageNet
+%\cite{zeiler_visualizing_2014}
+
+
+
+%For classification applications, besides computing a rich
+%set of invariants, the most important property of a scattering
+%transform is its Lipschitz continuity to deformations.
+%Indeed, wavelets are stable to deformations and the
+%modulus commutes with deformations.\\
+%A scattering transform eliminates the image variability
+%due to translations and linearizes small deformations.
+%Classification is studied with linear generative models
+%computed with a PCA, and with discriminant SVM
+%classifiers.\\
+%If the training dataset is
+%not augmented with deformations, the state of the art was
+%achieved by deep-learning convolution networks [30],
+%deformation models [17], [3], and dictionary learning [27].
+%These results are improved by a scattering classifier.
+%
+%A scattering transform is implemented by a deep convolution
+%network. It computes a translation invariant representation
+%which is Lipschitz continuous to deformations, with
+%wavelet filters and a modulus pooling nonlinearity.
+%
+%In complex image databases such as CalTech256 or
+%Pascal, important sources of image variability do not result
+%from the action of a known group. Unsupervised learning is
+%then necessary to take into account this unknown variability.
+%For deep convolution networks, it involves learning
+%filters from data [20]. A wavelet scattering transform can
+%then provide the first two layers of such networks. It
+%eliminates translation or rotation variability, which can help
+%in learning the next layers. Similarly, scattering coefficients
+%can replace SIFT vectors for bag-of-feature clustering
+%algorithms [8]. Indeed, we showed that second layer
+%scattering coefficients provide important complementary
+%information, with a small computational and memory cost.
+
+
+
+%Simple learning with few parameters to be trained.
+%Designed-in invariances to shifts, lighting changes and moderate
+%deformations.
+%Efficient computation especially when implemented with dual-tree
+%wavelet transforms and complex magnitude non-linear pooling
+%functions.
+%Visualization is easy using methods of Zeiler and Fergus, but with
+%wavelet phase replacing max-pooling-switches in the deconvolution
+%process. Visualization shows strong similarities with patterns learnt by
+%deep CNNs.
+
+
+
+% Want to talk about slow learning rate of deep networks
+% Huge amount of memory required for the number of parameters needed
+% No intuition of underlying meaning of the weights. Now the first few layers would be 
+
+ 
+\bibliographystyle{plain}
+\thispagestyle{empty} 
+\bibliography{MyLibrary}
+
+
+
+
+\end{document}
