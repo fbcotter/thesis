@@ -4,17 +4,17 @@
 %%                                                                            %%
 %% A PhD thesis LaTeX template for Cambridge University Engineering Department%%
 %%                                                                            %%
-%% Version: v2.2                                                              %%
+%% Version: v2.3.1                                                             %%
 %% Authors: Krishna Kumar                                                     %%
 %% License: MIT License (c) 2016 Krishna Kumar                                %%
 %% GitHub Repo: https://github.com/kks32/phd-thesis-template/                 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % ************************** Class Identification ******************************
-\newcommand\fileversion{2.2}
-\newcommand\filedate{2016/07/04}
+\newcommand\fileversion{2.3.1}
+\newcommand\filedate{2016/04/23}
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{PhDThesisPSnPDF}[\filedate\space A PhD thesis class file
+\ProvidesClass{Classes/PhDThesisPSnPDF}[\filedate\space A PhD thesis class file
  by Krishna Kumar (v\fileversion)]
 \typeout{https://github.com/kks32/phd-thesis-template/}
 
@@ -27,13 +27,13 @@
 \newif\if@print\@printfalse
 \DeclareOption{print}{\@printtrue}
 
-% ****************************** Draft Option **********************************
-\newif\ifsetDraft\setDraftfalse
-\newif\ifsetDraftClassic\setDraftClassicfalse
-
 % ****************************** Define index **********************************
 \newif\ifPHD@index\PHD@indexfalse
 \DeclareOption{index}{\PHD@indextrue}
+
+% ***************************** PDF1/A Support *********************************
+\newif\if@pdfa\@pdfafalse
+\DeclareOption{pdfa}{\@pdfatrue}
 
 % ******************************* Font Option **********************************
 \newif\ifsetFont\setFontfalse                 % Font is not set
@@ -174,23 +174,16 @@
     and recompile. Good luck with your writing!}
 }
 
-\ProcessOptions\relax%
-
 % *************************** Pre-defined Options ******************************
-
 % Font Size
-\newcommand\PHD@ptsize{12pt} %Set Default Size as 12
-
 \DeclareOption{10pt}{
   \ClassWarning{PhDThesisPSnPDF}{The University of Cambridge PhD thesis guidelines
 recommend using a minimum font size of 11pt (12pt is preferred) and 10pt for
 footnotes.}
-  \renewcommand\PHD@ptsize{10pt}
+  \PassOptionsToClass{10pt}{book}%
 }
-\DeclareOption{11pt}{\renewcommand\PHD@ptsize{11pt}}%
-\DeclareOption{12pt}{\renewcommand\PHD@ptsize{12pt}}%
-\PassOptionsToClass{\PHD@ptsize}{book}%
-\message{PhDThesisPSnPDF: Font size is set as \PHD@ptsize}
+\DeclareOption{11pt}{\PassOptionsToClass{11pt}{book}}%
+\DeclareOption{12pt}{\PassOptionsToClass{12pt}{book}}%
 
 % Page Size
 \newcommand\PHD@papersize{a4paper} % Set Default as a4paper
@@ -210,8 +203,10 @@ footnotes.}
 \DeclareOption{oneside}{\PassOptionsToClass{\CurrentOption}{book}\@onesidetrue}%
 \DeclareOption{twoside}{\PassOptionsToClass{\CurrentOption}{book}}%
 
+% ****************************** Draft Option **********************************
+\newif\ifsetDraft\setDraftfalse
+\newif\ifsetDraftClassic\setDraftClassicfalse
 % Draft Mode
-
 \DeclareOption{draftclassic}{\PassOptionsToClass{draft}{book}
   \setDraftClassictrue
   \ClassWarning{PhDThesisPSnPDF}{Draft is ON. Don't forget to turn it
@@ -226,14 +221,6 @@ footnotes.}
     with timestamp, line numbering, and version number. Use `draftclassic'
     if you prefer the \cite{} lassic draft mode. To tweak options see
     `preamble.tex'}}%
-
-
-% Deprecated option - use draft instead
-\DeclareOption{draftmode}{
-\ClassError{PhDThesisPSnPDF}{This option is deprecated. Use `draft' 
-  instead this option replaces `draftmode'. To use the classic version
-  of draft use `draftclassic`}
-\stop}% 
 
 
 % Line Numbers
@@ -251,40 +238,31 @@ supported!}
   \PassOptionsToClass{\CurrentOption}{book}
 }
 
-% Determine whether to run pdftex or dvips
+% Process options and load class
 \ProcessOptions\relax%
-\newif\ifsetDVI\setDVIfalse
-\ifx\pdfoutput\undefined
-  % we are not running PDFLaTeX
-  \setDVItrue
-  \LoadClass[dvips,fleqn,openright]{book}%
-\else % we are running PDFLaTeX
-  \ifnum \pdfoutput>0
-    %PDF-Output
-    \setDVIfalse
-    % Commented to out. Don't want flush left equations
-    %\LoadClass[pdftex,fleqn,openright]{book}%
-    \LoadClass[pdftex,openright]{book}%
-  \else
-    %DVI-output
-    \setDVItrue
-    \LoadClass[fleqn,openright]{book}%
-  \fi
-\fi
+\LoadClass{book}%
 
 % ******************************************************************************
 % ******************************** Packages ************************************
 % ******************************************************************************
-% ************************** Layout and Formatting *****************************
-
-\RequirePackage{lscape}   % Supports Landscape Layout
-\RequirePackage{setspace} % Define line spacing in paragraph
-\RequirePackage{calc}     % calculate vertical spacing
 
 % ************************* Conditional Statements *****************************
 \RequirePackage{ifthen}   % Conditional statements
 \RequirePackage{ifpdf}    % Check for pdfLaTeX
 \RequirePackage{ifxetex}  % XeLaTeX
+% ************************** Layout and Formatting *****************************
+
+\ifpdf
+  \if@print
+    \RequirePackage{lscape}   % Supports Landscape Layout
+  \else
+    \RequirePackage{pdflscape}   % Supports Landscape Layout (PDF)
+  \fi
+\else
+\RequirePackage{lscape}   % Supports Landscape Layout
+\fi
+\RequirePackage{setspace} % Define line spacing in paragraph
+\RequirePackage{calc}     % calculate vertical spacing
 
 % *********************** Table of Contents & Appendices ***********************
 % add Bibliography, List of figures and tables to contents
@@ -352,21 +330,39 @@ supported!}
 
 % Classic Draft Mode
 \ifsetDraftClassic
-% Disable figures in `draftmode'\
+% Disable figures in `draft'\
 \setkeys{Gin}{draft=true}
 \fi
 
 % If Draft Mode is active
 \ifsetDraft
-% Disable figures in `draftmode'\
+% Disable figures in `draft'\
 \setkeys{Gin}{draft=false}
 
 % Line numbering (can be switched off)
 \ifPHD@lineno
 \RequirePackage[switch,pagewise,mathlines]{lineno}
-\renewcommand{\frontmatter}{\nolinenumbers}
-\renewcommand{\mainmatter}{\linenumbers}
-\renewcommand{\backmatter}{\linenumbers}
+\renewcommand{\frontmatter}{%
+  \cleardoublepage
+  \@mainmatterfalse
+  \pagenumbering{roman}
+  \nolinenumbers
+}
+\renewcommand{\mainmatter}{%
+  \cleardoublepage
+  \@mainmattertrue
+  \pagenumbering{arabic}
+  \linenumbers
+}
+\renewcommand{\backmatter}{%
+  \if@openright
+    \cleardoublepage
+  \else
+    \clearpage
+  \fi
+  \@mainmatterfalse
+  \linenumbers
+}
 
 % Fix display lineno issue in mathmode
 \newcommand*\patchAmsMathEnvironmentForLineno[1]{%
@@ -454,23 +450,23 @@ supported!}
   }
 }
 
-% If NOT Draft Mode
+% If NOT Draft
 \else 
 
-\renewcommand\SetDraftText[1]{\ClassWarning{PhDThesisPSnPDF}{DraftMode is
-    inactive, to use SetDraftText include `draftmode' in the document 
+\renewcommand\SetDraftText[1]{\ClassWarning{PhDThesisPSnPDF}{Draft is
+    inactive, to use SetDraftText include `draft' in the document 
     class options.}}
 % Draft Version
-\renewcommand\SetDraftVersion[1]{\ClassWarning{PhDThesisPSnPDF}{DraftMode is
-    inactive, to use SetDraftVersion include `draftmode' in the document
+\renewcommand\SetDraftVersion[1]{\ClassWarning{PhDThesisPSnPDF}{Draft is
+    inactive, to use SetDraftVersion include `draft' in the document
     class options.}}
 % Draft Content
-\renewcommand\SetDraftWMPosition[1]{\ClassWarning{PhDThesisPSnPDF}{DraftMode
-    is inactive, to use SetDraftWMPosition include `draftmode' in the document
+\renewcommand\SetDraftWMPosition[1]{\ClassWarning{PhDThesisPSnPDF}{Draft
+    is inactive, to use SetDraftWMPosition include `draft' in the document
     class options.}}
 
-\renewcommand\SetDraftGrayScale[1]{\ClassWarning{PhDThesisPSnPDF}{DraftMode is
-    inactive, to use SetDraftWMPosition include `draftmode' in the document
+\renewcommand\SetDraftGrayScale[1]{\ClassWarning{PhDThesisPSnPDF}{Draft is
+    inactive, to use SetDraftWMPosition include `draft' in the document
     class options.}}
 \fi
 
@@ -528,8 +524,90 @@ supported!}
   biblatex package with required style in the Preamble.tex file}
 \fi
 
+%******************************* Print / Online ********************************
+% Defines a print / online version to define page-layout and hyperrefering
+
+% Moved below other usepackage definitions to fix PDFLaTeX footnote warning
+% Based on the suggestion by John Plaice
+
+% from https://github.com/holgern/TUB_PhDThesisTemplate/blob/master/Classes/PhDthesisTUB.cls
+%:-------------------------- Enable pdfa-1b generation -----------------------
+\if@pdfa
+  \RequirePackage{xmpincl}
+  \RequirePackage[utf8]{inputenc}
+  \RequirePackage[a-1b]{pdfx}
+  \hypersetup{
+    unicode=true,
+  }
+  \message{PhDThesisPSnPDF: Using PDF/A-1b support}
+\else
+  \RequirePackage[unicode=true]{hyperref}
+  \message{PhDThesisPSnPDF: Not using PDF/A-1b support!}
+\fi
+%: ----------------------------------------------------------------------------
+
+\if@print
+  % For Print version
+  \hypersetup{
+    final=true,
+    plainpages=false,
+    pdfstartview=FitV,
+    pdftoolbar=true,
+    pdfmenubar=true,
+    bookmarksopen=true,
+    bookmarksnumbered=true,
+    breaklinks=true,
+    linktocpage,
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    citecolor=black,
+    anchorcolor=black
+  }
+  \ifsetCustomMargin
+  % Margin to be define in preamble using geometry package
+  \else
+    \RequirePackage[paper=\PHD@papersize,hmarginratio=1:1,
+      vmarginratio=1:1,scale=0.75,bindingoffset=5mm]{geometry}
+  \fi
+
+  \if@twoside
+    \hypersetup{pdfpagelayout=TwoPageRight}
+  \else
+    \hypersetup{pdfpagelayout=OneColumn}
+  \fi
+
+\else
+  % For PDF Online version
+  \hypersetup{
+    final=true,
+    plainpages=false,
+    pdfstartview=FitV,
+    pdftoolbar=true,
+    pdfmenubar=true,
+    bookmarksopen=true,
+    bookmarksnumbered=true,
+    breaklinks=true,
+    linktocpage,
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue,
+    anchorcolor=green
+  }
+
+  \ifsetCustomMargin
+    % Margin to be define in preamble using geometry package
+    \else
+      % No Margin staggering on Odd and Even side
+      \RequirePackage[paper=\PHD@papersize,hmarginratio=1:1,
+        vmarginratio=1:1,scale=0.75]{geometry} % dvips
+    \fi
+    \hypersetup{pdfpagelayout=OneColumn}
+\fi
+
 % ********************************** Fonts **********************************
-\RequirePackage{textcomp}
+\RequirePackage[full]{textcomp}
 % Font Selection
 \ifPHD@times
   \ifxetex
@@ -609,100 +687,6 @@ supported!}
 \clubpenalty=10000
 \widowpenalty=10000
 
-%******************************* Print / Online ********************************
-% Defines a print / online version to define page-layout and hyperrefering
-
-% Moved below other usepackage definitions to fix PDFLaTeX footnote warning
-% Based on the suggestion by John Plaice
-
-\ifsetDVI
-  \special{papersize=\the\paperwidth,\the\paperheight}
-  \RequirePackage[unicode=true]{hyperref}  % extra option dvips
-\else
-  \RequirePackage[unicode=true]{hyperref}
-  \pdfpagewidth=\the\paperwidth
-  \pdfpageheight=\the\paperheight
-\fi
-
-\if@print
-  % For Print version
-  \hypersetup{
-    final=true,
-    plainpages=false,
-    pdfstartview=FitV,
-    pdftoolbar=true,
-    pdfmenubar=true,
-    bookmarksopen=true,
-    bookmarksnumbered=true,
-    breaklinks=true,
-    linktocpage,
-    colorlinks=true,
-    linkcolor=black,
-    urlcolor=black,
-    citecolor=black,
-    anchorcolor=black
-  }
-  \ifsetCustomMargin
-  % Margin to be define in preamble using geometry package
-  \else
-    \ifsetDVI
-      % Odd and Even side Margin for binding and set viewmode for PDF
-      \RequirePackage[dvips,paper=\PHD@papersize,hmarginratio=1:1,
-        vmarginratio=1:1,scale=0.75,bindingoffset=5mm]{geometry}
-    \else
-      \RequirePackage[pdftex,paper=\PHD@papersize,hmarginratio=1:1,
-        vmarginratio=1:1,scale=0.75,bindingoffset=5mm]{geometry}
-    \fi
-  \fi
-
-  \if@twoside
-    \hypersetup{pdfpagelayout=TwoPageRight}
-  \else
-    \hypersetup{pdfpagelayout=OneColumn}
-  \fi
-
-\else
-  % For PDF Online version
-  \hypersetup{
-    final=true,
-    plainpages=false,
-    pdfstartview=FitV,
-    pdftoolbar=true,
-    pdfmenubar=true,
-    bookmarksopen=true,
-    bookmarksnumbered=true,
-    breaklinks=true,
-    linktocpage,
-    colorlinks=true,
-    linkcolor=blue,
-    urlcolor=blue,
-    citecolor=blue,
-    anchorcolor=green
-  }
-
-  \ifsetCustomMargin
-    % Margin to be define in preamble using geometry package
-    \else
-      % No Margin staggering on Odd and Even side
-      \ifsetDVI
-        \RequirePackage[paper=\PHD@papersize,hmarginratio=1:1,
-          vmarginratio=1:1,scale=0.75]{geometry} % dvips
-      \else
-        \RequirePackage[pdftex,paper=\PHD@papersize,hmarginratio=1:1,
-          vmarginratio=1:1,scale=0.75]{geometry}
-      \fi
-    \fi
-
-    \hypersetup{pdfpagelayout=OneColumn}
-\fi
-
-% Backward compatibility - setMargin is now replaced with customMargin
-\ifsetCustomMargin
-  \setMarginfalse
-\else
-  \setMargintrue
-\fi
-
 % ************************ URL Package and Definition **************************
 \RequirePackage{url}
 % Redefining urlstyle to use smaller fontsize in References with URLs
@@ -712,15 +696,13 @@ supported!}
 \urlstyle{leo}
 
 % option to split urls over multiple lines for latex >> DVIPS >> PDF option
-% PDFLaTeX does it automatically.
-
-\ifxetex % XeTeX doesn't require breakurl only dvi requires break url
+\ifpdf
+  % PDFLaTeX does it automatically.
 \else
-  \ifsetDVI
-    \RequirePackage{breakurl} % to split the url over multiple lines
-  \fi
-\fi  
-
+  % dvips
+  \RequirePackage{breakurl} % to split the url over multiple lines
+\fi
+  
 % ******************************************************************************
 % **************************** Pre-defined Settings ****************************
 % ******************************************************************************
@@ -773,43 +755,53 @@ wish to left align your text}
 
 \RequirePackage{fancyhdr} % Define custom header
 
+% Style 1: Sets Page Number at the Top and Chapter/Section Name on LE/RO
+\fancypagestyle{PageStyleI}{
+  \renewcommand{\chaptermark}[1]{\markboth{##1}{}}
+  \renewcommand{\sectionmark}[1]{\markright{\thesection\ ##1\ }}
+  \fancyhf{}
+  \fancyhead[RO]{\nouppercase \rightmark\hspace{0.25em} | 
+    \hspace{0.25em} \bfseries{\thepage}}
+  \fancyhead[LE]{ {\bfseries\thepage} \hspace{0.25em} | 
+    \hspace{0.25em} \nouppercase \leftmark}
+}
+
+% Style 2: Sets Page Number at the Bottom with Chapter/Section Name on LO/RE
+\fancypagestyle{PageStyleII}{
+  \renewcommand{\chaptermark}[1]{\markboth{##1}{}}
+  \renewcommand{\sectionmark}[1]{\markright{\thesection\ ##1}}
+  \fancyhf{}
+  \fancyhead[RO]{\bfseries\nouppercase \rightmark}
+  \fancyhead[LE]{\bfseries \nouppercase \leftmark}
+  \fancyfoot[C]{\thepage}
+}
+
+
 % Set Fancy Header Command is defined to Load FancyHdr after Geometry is defined
 \newcommand{\setFancyHdr}{
 
 \pagestyle{fancy}
+
 \ifPHD@pageStyleI
-% Style 1: Sets Page Number at the Top and Chapter/Section Name on LE/RO
-\renewcommand{\chaptermark}[1]{\markboth{##1}{}}
-\renewcommand{\sectionmark}[1]{\markright{\thesection\ ##1\ }}
-\fancyhf{}
-\fancyhead[RO]{\nouppercase \rightmark\hspace{0.25em} | 
-  \hspace{0.25em} \bfseries{\thepage}}
-\fancyhead[LE]{ {\bfseries\thepage} \hspace{0.25em} | 
-  \hspace{0.25em} \nouppercase \leftmark}
-
+  % Style 1: Sets Page Number at the Top and Chapter/Section Name on LE/RO
+  \pagestyle{PageStyleI}
 
 \else
-\ifPHD@pageStyleII
-% Style 2: Sets Page Number at the Bottom with Chapter/Section Name on LO/RE
-\renewcommand{\chaptermark}[1]{\markboth{##1}{}}
-\renewcommand{\sectionmark}[1]{\markright{\thesection\ ##1}}
-\fancyhf{}
-\fancyhead[RO]{\bfseries\nouppercase \rightmark}
-\fancyhead[LE]{\bfseries \nouppercase \leftmark}
-\fancyfoot[C]{\thepage}
+  \ifPHD@pageStyleII
 
+  % Style 2: Sets Page Number at the Bottom with Chapter/Section Name on LO/RE
+  \pagestyle{PageStyleII}
 
-\else
-% Default Style: Sets Page Number at the Top (LE/RO) with Chapter/Section Name
-% on LO/RE and an empty footer
-\renewcommand{\chaptermark}[1]{\markboth {##1}{}}
-\renewcommand{\sectionmark}[1]{\markright{\thesection\ ##1}}
-\fancyhf{}
-\fancyhead[LO]{\nouppercase \rightmark}
-\fancyhead[LE,RO]{\bfseries\thepage}
-\fancyhead[RE]{\nouppercase \leftmark}
-\fi
-
+  \else
+  % Default Style: Sets Page Number at the Top (LE/RO) with Chapter/Section Name
+  % on LO/RE and an empty footer
+    \renewcommand{\chaptermark}[1]{\markboth {##1}{}}
+    \renewcommand{\sectionmark}[1]{\markright{\thesection\ ##1}}
+    \fancyhf{}
+    \fancyhead[LO]{\nouppercase \rightmark}
+    \fancyhead[LE,RO]{\bfseries\thepage}
+    \fancyhead[RE]{\nouppercase \leftmark}
+  \fi
 \fi
 }
 
@@ -887,6 +879,10 @@ wish to left align your text}
 \newcommand{\@supervisorrole}{Supervisor: }
 \newcommand{\supervisorrole}[1]{\renewcommand{\@supervisorrole}{#1}}
 
+% Supervisor width to align
+\newcommand{\@supervisorlinewidth}{0.35\textwidth}
+\newcommand{\supervisorlinewidth}[1]{\renewcommand{\@supervisorlinewidth}{#1}}
+
 % Advisor
 \newif\ifPHD@advisor\PHD@advisorfalse
 \newcommand{\@advisor}{}
@@ -895,6 +891,10 @@ wish to left align your text}
 % Advisor Title (Advisor - Default, can be changed)
 \newcommand{\@advisorrole}{Advisor: }
 \newcommand{\advisorrole}[1]{\renewcommand{\@advisorrole}{#1}}
+
+% Advisor width to align
+\newcommand{\@advisorlinewidth}{0.25\textwidth}
+\newcommand{\advisorlinewidth}[1]{\renewcommand{\@advisorlinewidth}{#1}}
 
 % Submission Text
 \newcommand{\submissiontext}{This dissertation is submitted for the degree of }
@@ -1075,13 +1075,15 @@ wish to left align your text}
 
 % ***************************** Create the index *******************************
 \ifPHD@index
-    \RequirePackage{makeidx}
+    %\RequirePackage{makeidx}
+    \RequirePackage[toc=true,acronym,symbols,index,numberedsection=nameref]{glossaries-extra}
     \makeindex
     \newcommand{\printthesisindex}{
         \cleardoublepage
         \phantomsection
         \printindex}
 \else
+    \RequirePackage[toc=true,acronym,symbols,numberedsection=nameref]{glossaries-extra}
     \newcommand{\printthesisindex}{}
 \fi
 
@@ -1117,6 +1119,8 @@ wish to left align your text}
     \renewcommand{\listoftables}{}
     \renewcommand{\printnomencl}{}
     \renewcommand{\printnomencl}[1][2]{}
+    \renewcommand{\printnoidxglossaries}[1][]{}
+    \renewcommand{\printnoidxglossary}[1][]{}
     \renewcommand{\printthesisindex}{}
     \renewcommand{\bibname}{}
     \renewcommand{\bibliography}[1]{\thispagestyle{empty}}
@@ -1196,7 +1200,12 @@ wish to left align your text}
     \ifthenelse{\equal{\@supervisor}{}}{
       % supervisor is not defined
     }{
-      \centering \Large {\@supervisorrole \parbox[t]{0.4\textwidth}{\@supervisor}}
+      \begin{center}
+        \makebox[\widthof{supervisorrole} + \@supervisorlinewidth][c]{
+          \Large
+          \@supervisorrole \parbox[t]{\@supervisorlinewidth}{\@supervisor}
+        }
+      \end{center}
       \vspace{0.5em}
     } % supervisor is defined
   \end{minipage}
@@ -1209,7 +1218,12 @@ wish to left align your text}
     \ifthenelse{\equal{\@advisor}{}}{
       % advisor is not defined
     }{
-      \centering \Large {\@advisorrole \parbox[t]{0.3\textwidth}{\@advisor}}
+      \begin{center}
+        \makebox[\widthof{advisorrole} + \@advisorlinewidth][c]{
+          \Large
+          \@advisorrole \parbox[t]{\@advisorlinewidth}{\@advisor}
+        }
+      \end{center}
       \vspace{0.5em}
     } % advisor is defined
   \end{minipage}
