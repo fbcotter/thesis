@@ -10,7 +10,7 @@
   multiscale Scatternet. It was found that the \DTCWT\ based Scatternets are
   much faster than the Mallat based Scatternets (3--4 times faster for tiny
   images, and 10--15 times faster for medium resolution images).
-  Work by a colleague --- \citet{singh_multi-resolution_2016} showed that this
+  Work by a colleague --- \citet{singh_multi-resolution_2017} showed that this
   came at the cost of no appreciable loss of performance.
 
   Attempts to use the four layer multiscale Scatternet with linear SVMs on
@@ -20,7 +20,7 @@
   of the coefficients. Nonetheless, it was difficult to improve this accuracy
   past $70\%$ without making use of further feature extraction methods
   (orthogonal least squares was used in both \citep{oyallon_deep_2015} and
-  \citep{singh_multi-resolution_2016}).
+  \citep{singh_multi-resolution_2017}).
 
   This shows the multiscale Scatternet alone is not achieving
   the same quality of feature extraction  as
@@ -100,7 +100,7 @@
   Unfortunately, we have not yet fine tuned our visualizations. The figures in
   \autoref{fig:inv_scat} are only toy examples at this stage. They show that
   it is possible to get images like those from the work of
-  \citet{zeiler_visualizing_compact_2014} from a subset of Scatternet
+  \citet{zeiler_visualizing_2014} from a subset of Scatternet
   coefficients. 
 
 \section{Future Work}\label{sec:future_work}
@@ -152,7 +152,7 @@
   further work needs to be done. In particular, a recent paper by
   \citet{grun_taxonomy_2016} has given a detailed comparison and analysis of
   how visualizations have developed since the work of
-  \citet{zeiler_visualizing_compact_2014}. We must spend time to study these
+  \citet{zeiler_visualizing_2014}. We must spend time to study these
   works and use them to improve our visualizations method with Scatternets.
 
 \subsection{Going Deeper}\label{sec:going_deeper}
