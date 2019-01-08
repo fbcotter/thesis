@@ -1,0 +1,413 @@
+\section{Neural Networks}\label{sec:cnns}
+\subsection{The Neuron and Single Layer Neural Networks}
+Single hidden layer neural networks are universal function approximators
+
+\subsection{Backpropagation}
+  With a deep network like most CNNs, calculating $\dydx{L}{w}$ may not seem
+  particularly obvious if $w$ is a weight in one of the lower layers.  Say we
+  have a deep network, with $L$ layers. We need to define a rule for updating
+  the weights in all $L$ layers of the network, however, only the weights $w_L$
+  are connected to the loss function, $\loss$. We assume for whatever function
+  the last layer is that we can write down the derivative of the output with
+  respect to the weights $\dydx{z_{L}}{w_{L}}$. We can then write down the
+  weight-update gradient, $\dydx{\loss}{w_L}$ with application of the chain rule:
+  \begin{equation}
+    \dydx{\loss}{w_L} = \dydx{\loss}{z_L} \dydx{z_L}{w_L} + \underbrace{\lambda
+    w}_{\text{from the reg.\ loss}}
+  \end{equation}
+  $\dydx{\loss}{z_L}$ can be done simply from the equation of the loss function
+  used. Typically this is parameterless.
+
+  Since all of the layers in a CNN are well-defined and
+  differentiable\footnote{The ReLU is not differentiable at its corner, but
+  backpropagation can still be done easily by simply looking at the sign of the
+  input.} we assume that we can also write down what $\dydx{z_L}{z_{L-1}}$ is.
+  Repeating this process for the next layer down, we have:
+  \begin{equation}
+    \dydx{\loss}{w_{L-1}}
+    = \dydx{\loss}{z_L}\dydx{z_L}{z_{L-1}}\dydx{z_{L-1}}{w_{L-1}}
+  \end{equation}
+  We can generalize this easily like so:
+  \begin{equation}
+    \dydx{\loss}{w_{l}}
+    = \dydx{\loss}{z_L} \underbrace{\prod_{i=L}^{l+1}
+    \dydx{z_i}{z_{i-1}}}_{\text{product to $l$'s output}} 
+    \dydx{z_{l}}{w_{l}}
+  \end{equation}
+
+  So far we have defined the loss function for a given data point $(x^{(i)},
+  y^{(i)})$. Typically, we want our network to be able to generalize to the
+  true real world joint distribution $P(x,y)$, minimizing the expected risk ($R_E$) of
+  loss:
+  \begin{equation}
+    R_E(f(x,w)) = \int \loss(y,f(x,w)) dP(x,y)
+  \end{equation}
+  Instead, we are limited to the training set, so we must settle for the
+  empirical risk ($R_{EMP}$):
+  \begin{equation}
+    R_{EMP}(f(x,w)) = \frac{1}{N} \sum_{i=1}^{N} \loss( y^{(i)},f(x^{(i)}, w))
+    \label{eq:empirical_risk}
+  \end{equation}
+
+\subsection{Gradient descent vs Stochastic Gradient Descent vs Mini-Batches}
+  We can minimize \autoref{eq:empirical_risk} with \emph{gradient descent}
+  \citep{rumelhart_parallel_1986}. Updates can be made on a generic network
+  parameter $w$ with:
+  \begin{equation}
+    w_{t+1} = w_{t} - \eta \dydx{E_n}{w}
+  \end{equation}
+  where $\eta$ is caleld the learning rate. Calculating the gradient
+  $\dydx{E_n}{w}$ is done by averaging the individual gradients
+  $\dydx{\loss}{w}$ over the entire training dataset. This can be very slow,
+  particularly for large training sets.
+  
+  Instead, we can learn far more quickly by using a single estimate for the
+  weight update equation, i.e., 
+  \begin{equation}
+    w_{t+1} = w_{t} - \eta \dydx{\loss}{w}
+  \end{equation}
+  This is called \emph{stochastic gradient descent}. Each weight update now
+  uses a noisy estimate of the true gradient $\dydx{E_n}{w}$. Carefully
+  choosing the learning rate $\eta$ update scheme can ensure that the network
+  converges to a local minimum, but the process may not be smooth (the
+  empirical risk may fluctuate, which could be interpreted as the network
+  diverging).
+
+  An often used trade off between these two schemes is called \emph{mini-batch
+  gradient descent}. Here, the variance of the estimate of $\dydx{E_n}{w}$ is
+  reduced by averaging out the point estimate $\dydx{L}{w}$ over a mini-batch
+  of samples, size $N_B$. Typically $1 << N_B << N$, with $N_B$ usually being
+  around 128. This number gives a clue to another benefit that has seen the use
+  of mini-batches become standard --- they can make use of parallel processing.
+  Instead of having to wait until the gradient from the previous data point was
+  calculated and the network weights are updated, a network can now process
+  $N_B$ samples in parallel, calculating gradients for each point with the same
+  weights, average all these gradients in one quick step, update the weights,
+  and continue on with the next $N_B$ samples. The update equation is now:
+  \begin{equation}
+    w_{t+1} = w_{t} - \eta \sum_{n=1}^{N_B} \dydx{\loss}{w}
+  \end{equation}
+
+\subsubsection{Loss Functions}
+  For a given sample $q=(x, y)$, the loss
+  function is used to measure the cost of predicting $\hat{y}$ when the
+  true label was $y$. We define a loss function $\loss (y, \hat{y})$. 
+  A CNN is a deterministic
+  function of its weights and inputs, $f(x,w)$ so this can be written as $\loss
+  (y, f(x,w))$, or simply $\loss(y, x, w)$.
+  
+  It is important to remember that we can choose
+  to penalize errors however we please, although for CNNs, the vast majority of
+  networks use the same loss function --- the softmax loss. Some networks have
+  experimented with using the hinge loss function (or `SVM loss'), stating they
+  could achieve improved results \citep{gu_recent_2015,tang_deep_2013}. 
+  \begin{enumerate}
+
+  \item \emph{Softmax Loss:} The more common of the two, the softmax turns
+    predictions into non-negative, unit summing values, giving the sense of
+    outputting a probability distribution. The softmax function is applied to
+    the $C$ outputs of the network (one for each class):
+    \begin{equation}
+      p_j = \frac{e^{(f(x, w))(j)}}{\sum\limits_{k=1}^{C}e^{(f(x,w))(k)}}
+    \end{equation}
+    where we have indexed the $c$-th element of the output vector $f(x,w)$ with
+      $(f(x,w))(c)$. The softmax \emph{loss} is then defined as:
+    \begin{equation}
+      \loss (y_i, x, w)
+      = \sum_{j=1}^{C} \mathbbm{1}\{y_i=j\} \log p_j
+    \end{equation}
+    Where $\mathbbm{1}$ is the indicator function, and $y_i$ is the true label
+    for input $i$.
+
+  \item \emph{Hinge Loss:} The same loss function from Support Vector
+    Machines (SVMs) can be used to train a large margin classifier in a CNN:
+    \begin{equation}
+      \loss(y,x,w) = \sum_{l=1}^{C} 
+        {\left[ \max(0, 1 - \delta(y_i,l) w^{T}x_{i}) \right]}^p \label{eq:nn_hinge_loss}
+    \end{equation}
+    Using a hinge loss like this introduces extra parameters, which would
+    typically replace the final fully connected layer. The $p$ parameter in
+    \autoref{eq:nn_hinge_loss} can be used to choose $\ell^1$ Hinge-Loss, or
+    $\ell^2$ Squared Hinge-Loss. 
+
+  \end{enumerate}
+  
+
+\subsubsection{Regularization}
+  Weight regularization, such as an $\ell^2$ penalty is often given to the
+  learned parameters of a system. This applies to the parameters of the fully
+  connected, as well as the convolutional layers in a CNN\@. These are added to
+  the loss function. Often the two loss components are differentiated between by
+  their monikers - `data loss' and `regularization loss'. The above 
+  equation then becomes:
+  \begin{equation}
+    \mathcal{L} = \mathcal{L}_{data} + \underbrace{\frac{1}{2}\lambda_{fc}
+    \sum_{i=1}^{L_{fc}} \sum_{j} \sum_{k} {(w_{i}[j,k])}^2}_{\text{fully connected
+    loss}} +
+    \underbrace{\frac{1}{2}\lambda_{c} \sum_{i=1}^{L_c} \sum_{u_1} \sum_{u_2} \sum_{d}
+    \sum_{n} \left(f_i[u_1,u_2,d,n]\right)^2}_{\text{convolutional loss}}
+  \end{equation}
+
+  Where $\lambda_{fc}$ and $\lambda_{c}$ control the regularization parameters
+  for the network. These are often also called `weight decay' parameters.
+
+  The choice to split the $\lambda$'s between fully connected and convolutional
+  layers was relatively arbitrary. More advanced networks can make $\lambda$
+  a function of the layer. 
+
+
+\subsection{Learning}
+
+\subsection{Optimization}
+
+\subsection{Extending to multiple layers and different block types}
+\begin{figure}
+  \centering
+  \input{litreview/images/deeplearn_block}
+\end{figure}
+
+\subsubsection{Convolutional Layers}
+  The image/layer of features is convolved by a set of filters.
+  The filters are typically small, ranging from $3\x 3$ in ResNet and VGG
+  to $11\x 11$ in AlexNet. We have quoted only spatial size
+  here, as the filters in a CNN are always \emph{fully connected in depth} ---
+  i.e.,\ they will match the number of channels their input has.
+
+  For an input $\bmu{x} \in \mathbb{R}^{H\x W\x D}$, and filters 
+  $\bmu{f} \in \mathbb{R}^{H'\x W'  \x D \x D''}$ ($D''$ is the 
+  number of filters), our output $\bmu{z} \in
+  \mathbb{R}^{H''\x W'' \x D''}$ will be given by:
+  \begin{equation}
+    z[u_1, u_2, d''] = b[d''] + \sum_{i=-\frac{H'}{2}}^{\frac{H'}{2}-1}
+                       \sum_{j=-\frac{W'}{2}}^{\frac{W'}{2}-1}  \sum_{k=0}^{D-1}  
+                        f[i, j, k, d''] x[u_1-i, u_2-j, k]
+  \end{equation}
+
+\subsubsection{ReLUs}
+  Activation functions, neurons, or non-linearities, are the core of a neural networks
+  expressibility. Historically, they were sigmoid or tanh functions, but these
+  have been replaced recently by the Rectified Linear Unit (ReLU), which has
+  equation $g(x) = \max(0,x)$. A ReLU
+  non-linearity has two main advantages over its smoother predecessors~\citep{%
+  glorot_deep_2011, nair_rectified_2010}.
+  \begin{enumerate}
+  \item It is less sensitive to initial conditions as the gradients that
+    backpropagate through it will be large even if $x$ is large. A common
+    observation of sigmoid and tanh non-linearities was that their learning would
+    be slow for quite some time until the neurons came out of saturation, and then
+    their accuracy would increase rapidly before levelling out again at
+    a minimum~\citep{glorot_understanding_2010}. The ReLU, on the other hand, has
+    constant gradient.
+  \item It promotes sparsity in outputs, by setting them to a hard 0. Studies
+    on brain energy expenditure suggest that neurons encode information in
+    a sparse manner. \citet{lennie_cost_2003} estimates the percentage of
+    neurons active at the same time to be between 1 and 4\%. Sigmoid and tanh
+    functions will typically have \emph{all} neurons firing, while 
+    the ReLU can allow neurons to fully turn off.
+  \end{enumerate}
+
+  \begin{figure}
+    \centering
+      % \input{tikz/nonlinearities.tex}
+      \caption[Differences in non-linearities]
+              {Differences in non-linearities. Green --- the \emph{sigmoid} function, 
+               Blue --- the \emph{tanh} function, and Red --- the \emph{ReLU}. The ReLU
+               solves the problem of small gradients outside of the activation
+               region (around $x=0$) as well as promoting sparsity.}\label{fig:nonlinearities}
+  \end{figure}
+
+
+\subsubsection{Pooling}
+  Typically following a convolutional layer (but not strictly), activations are subsampled with
+  max pooling. Pooling adds some invariance to shifts smaller than the pooling
+  size at the cost of information loss. For this reason, small pooling is
+  typically done often $2\x 2$ or $3\x 3$, and the invariance to larger shifts
+  comes after multiple pooling (and convolutional) layers.
+  
+  While initial designs of max pooling would do it in non-overlapping regions, 
+  AlexNet used $3\x 3$ pooling with stride 2 in their breakthrough design,
+  quoting that it gave them an increase in accuracy of roughly $0.5\%$ and
+  helped prevent their network from `overfitting'. More recent networks will
+  typically employ either this or the original $2\x 2$ pooling with stride 2,
+  see \autoref{fig:maxpool}. A review of pooling methods in
+  \citep{mishkin_systematic_2016} found them both to perform equally well.
+  
+  \begin{figure}
+    \centering
+    % \subfloat[]{%
+        % \input{tikz/maxpool.tex}\label{fig:maxpool_tight}
+    % }
+%    \newline
+    \centering
+    % \subfloat[]{%
+        % \input{tikz/maxpool_overlap.tex}\label{fig:maxpool_overlap}
+    % }
+    \caption[Tight vs.\ overlapping pooling]
+            {\subref{fig:maxpool_tight} Tight $2\x 2$ pooling with stride 2, vs
+            \subref{fig:maxpool_overlap} overlapping $3\x 3$ pooling with
+            stride 2. Overlapping pooling has the possibility of having one
+            large activation copied to two positions in the reduced size
+            feature map, which places more emphasis on the odd columns.}
+    \label{fig:maxpool}
+  \end{figure}
+
+\subsubsection{Batch Normalization}
+      Batch normalization proposed only very recently in
+      \citep{ioffe_batch_2015} is a conceptually simpler technique. Despite
+      that, it has become quite popular and has been found to be very useful.
+      At its core, it is doing what standard normalization is doing, but also
+      introduces two learnable parameters --- scale ($\gamma$) and offset
+      ($\beta$).
+      \autoref{eq:normalization} becomes:
+      \begin{equation}
+        \tilde{z}(u_1,u_2,d) = \gamma\frac{z-E[z]}{\sqrt{Var[z]}} + \beta 
+				\label{eq:batch_normalization}
+      \end{equation}
+      These added parameters make it a \emph{renormalization} scheme, as instead of
+      centring the data around zero with unit variance, it can be centred
+      around an arbitrary value with arbitrary variance. S etting
+      $\gamma = \sqrt{Var[z]}$ and $\beta = E[z]$, we would get the identity
+      transform. Alternatively, setting $\gamma = 1$ and $\beta = 0$ (the
+      initial conditions for these learnable parameters), we get standard
+      normalization.
+      
+      The parameters $\gamma$ and $\beta$ are learned through backpropagation.
+      As data are usually processed in batches, the gradients for $\gamma$ and
+      $\beta$ are calculated per sample, and then averaged over the whole
+      batch.
+
+      From \autoref{eq:batch_normalization}, let us briefly use the hat
+      notation to represent the standard normalized input:
+      $\hat{z} = (z-E[z])/\sqrt{Var[z]}$, then:
+      \begin{eqnarray}
+        \tilde{z}^{(i)} & = & \gamma \hat{z}^{(i)} + \beta \nonumber\\
+        \frac{\partial \mathcal{L}}{\partial \gamma}& =&
+        \frac{1}{N}\sum_{i=1}^{N} \frac{\partial
+        \mathcal{L}^{(i)}}{\partial \tilde{z}^{(i)}} \cdot \hat{z}^{(i)} \\
+        \frac{\partial \mathcal{L}}{\partial \beta}& =&
+        \frac{1}{N}\sum_{i=1}^{N} \frac{\partial
+        \mathcal{L}^{(i)}}{\partial \tilde{z}^{(i)}} 
+      \end{eqnarray}
+
+      Batch normalization layers are typically placed \emph{between} convolutional layers
+      and non-linearities. I.e.,\ if $Wu+b$ is the output of a convolutional
+      layer, and $z=g(Wu+b)$ is the output of the non-linearity, then with the
+      batch normalization step, we have:
+      \begin{eqnarray}
+        z &=& g(BN(Wu+b)) \nonumber\\
+          &=& g(BN(Wu))
+      \end{eqnarray}
+      Where the bias term was ignored in the convolutional layer, as it can be
+      fully merged with the `offset' parameter $\beta$.
+
+      This has particular benefit of removing the sensitivity of our network to
+      our initial weight scale, as for scalar $a$,
+      \begin{equation}
+        BN(Wu) = BN((aW)u)
+      \end{equation}
+      It is also particularly useful for backpropagation, as an increase in
+      weights leads to \emph{smaller} gradients \citep{ioffe_batch_2015}, making
+      the network far more resilient to the problems of vanishing and exploding
+      gradients:
+      \begin{eqnarray}
+        \frac{\partial BN((aW)u)}{\partial u} & = & \frac{\partial
+        BN(Wu)}{\partial u} \nonumber\\
+        \frac{\partial BN((aW)u)}{\partial (aW)} & = & \frac{1}{a} \cdot \frac{\partial
+        BN(Wu)}{\partial W} 
+      \end{eqnarray}
+
+
+\section{Relevant Architectures}
+
+\subsection{LeNet}
+\subsection{AlexNet}
+\subsection{VGG}
+\subsection{Residual Networks}
+  The current state of the art design introduced a clever novel feature called
+  a residual unit\citep{he_deep_2015,he_identity_2016}. The inspiration for their design came from the difficulties
+  experienced in training deeper networks. Often, adding an extra layer would
+  \emph{decrease} network performance. This is counter-intuitive as the deeper
+  layers could simply learn the identity mapping, and achieve the same
+  performance.
+
+  To promote the chance of learning the identity mapping, they define
+  a residual unit, shown in \autoref{fig:residual_unit}. If a desired mapping
+  is denoted $\mathcal{H}(x)$, instead of trying to learn this, they instead
+  learn $\mathcal{F}(x) = \mathcal{H}(x) - x$. 
+  \begin{figure}
+    \centering
+    % \includegraphics[width=0.5\textwidth]{images/residual_unit.png}
+    \caption[The residual unit from ResNet]
+          {A residual unit. The identity mapping is always present, and the
+            network learns the difference from the identity mapping, $\mathcal{F}(x)$.
+            Taken from \citep{he_deep_2015}.}
+      \label{fig:residual_unit}
+  \end{figure}
+
+
+\subsection{old}
+  Convolutional Neural Networks (CNNs) were initially introduced by \citet{lecun_backpropagation_1989} in
+  \citep{lecun_backpropagation_1989}. Due to the difficulty of training and
+  initializing them, they failed to be popular for more than two decades.  This
+  changed in 2012, when advancements in pre-training with unsupervised networks
+  \citep{bengio_greedy_2007}, the use of an improved non-linearity --- the Rectified Linear
+  Unit, or ReLU, new regularization methods\citep{hinton_improving_2012}, and
+  access to more powerful computers in graphics cards, or GPUs, allowed
+  Krizhevsky, Sutskever and Hinton  to develop
+  AlexNet\citep{krizhevsky_imagenet_2012}. This network nearly halved the
+  previous state of the art's error rate.  Since then, interest in them has
+  expanded very rapidly, and they have been successfully applied to object
+  detection~\citep{ren_object_2015} and human pose estimation
+  \citep{tompson_efficient_2015}. It would take a considerable amount of effort
+  to document the details of all the current enhancements and tricks many
+  researches are using to squeeze extra accuracy, so for the purposes of this
+  report we restrict ourselves to their generic design, with some time spent
+  describing some of the more promising enhancements. 
+  
+  We would like to make note of some of the key architectures
+  in the history of CNNs, which we, unfortunately, do not have space to describe:
+  \begin{itemize}
+    \item Yann LeCun's LeNet-5~\citep{lecun_gradient-based_1998}, the state of the art
+      design for postal digit recognition on the MNIST dataset.
+    \item Google's GoogLeNet~\citep{szegedy_going_2015} achieved $6.67\%$ top-5
+      error on ILSVRC2014, introducing the new `inception' architecture, which
+      uses combinations of $1\x 1$, $3\x 3$ and $5\x 5$ convolutions.
+    \item Oxford's VGG~\citep{simonyan_very_2014} --- $6.8\%$ and runner up in
+      ILSVRC2014. The VGG design is very similar to AlexNet but was roughly
+      twice as deep. More convolutional layers were used, but with smaller
+      support --- only $3\x 3$. These were often stacked directly on top of
+      each other without a non-linearity in between, to give the effective
+      support of a $5\x 5$ filter.
+    \item Microsoft Research's ResNet~\citep{he_deep_2015} achieved $4.5\%$ top-5 
+      error and was the winner of ILSVRC2015. This network we will talk briefly
+      about, as it introduced a very nice novel layer --- the residual layer.
+  \end{itemize}
+
+  Despite the many variations of CNN architectures currently being used, most
+  follow roughly the same recipe (shown in \autoref{fig:cnn_generic}):
+  \begin{figure}
+    \centering
+      % \includegraphics[width=\textwidth]{images/cnns.png}
+      \caption[Standard CNN architecture]
+              {Standard CNN architecture. Taken
+              from~\citep{lecun_gradient-based_1998}}\label{fig:cnn_generic}
+  \end{figure}
+
+\subsection{Fully Connected Layers}\label{sec:cnn_fullyconnected}
+  The convolution, pooling, and activation layers all
+  conceptually form part of the \emph{feature extraction} stage of a CNN. One
+  or more fully connected layers are usually placed after these layers to form
+  the \emph{classifier}. One of the most elegant and indeed most powerful
+  features of CNNs is this seamless connection between the \emph{feature
+  extraction} and \emph{classifier} sub-networks, allowing the backpropagation
+  of gradients through all layers of the entire network.
+
+  The fully connected layers in a CNN are the same as those in a classical
+  Neural Network (NN), in that they compute a dot product between their input
+  vector and a weight vector:
+  \begin{equation}
+    z_i = \sum_{j} W_{ij}x_j
+  \end{equation}
+  The final output of the Fully Connected layer typically has the same number
+  of outputs as the number of classes $C$ in the classification problem.
+

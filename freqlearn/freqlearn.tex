@@ -5,6 +5,8 @@ I wonder how my layers that learn in the frequency domain would compare to anoth
 network on texture classification.
 }
 
+\input{freqlearn/gradients}
+
 \section{Introduction}\label{sec:intro}
 Using wavelet based methods with deep learning is nascent but not novel. Wavelets have been applied 
 to texture classification \cite{fujieda_wavelet_2017, sifre_combined_2012}, super-resolution
@@ -49,18 +51,18 @@ us to modify the wavelet coefficients and still have minimal aliasing terms when
 \begin{figure}
   \centering
   \subfloat[]{%
-    % \includegraphics[height=6cm]{subbands.png}
+    \includegraphics[height=6cm]{freqlearn/images/subbands.png}
     \label{fig:dtcwt_bands_freq}
   }
   \hspace{1cm}
 %    \newline
   \subfloat[]{%
-    % \includegraphics[height=5.7cm]{impulses.png}
+    \includegraphics[height=5.7cm]{freqlearn/images/impulses.png}
     \label{fig:dtcwt_bands_impulse}
   }
   \newline
   \subfloat[]{%
-    % \includegraphics[width=.8\textwidth]{examples_scale2.png}
+    \includegraphics[width=.8\textwidth]{freqlearn/images/examples_scale2.png}
     \label{fig:example_impulses}
   }
   \caption[Contour Plots]{\subref{fig:dtcwt_bands_freq} Contour plots at -1dB and -3dB showing the support in the
@@ -106,19 +108,19 @@ the effective size is about $5\x 5$ pixels, for the second scale it is about $15
 
 \begin{figure}[ht]
   \centering
-  \subfloat[]{%
-    % \includegraphics[width=.85\textwidth]{top_block.png}
-    \label{fig:fwd_pass}
-  }
-   \newline
-  \subfloat[]{%
-    % \includegraphics[width=.85\textwidth]{bottom_block.png}
-    \label{fig:bwd_pass}
-  }
-  % \makebox[\textwidth][c]{%
-    % \resizebox{1.1\textwidth}{!}{\input{gain_layer}}
+  % \subfloat[]{%
+    % \includegraphics[width=.85\textwidth]{freqlearn/images/top_block.png}
+    % \label{fig:fwd_pass}
   % }
-  \caption[Contour Plots]{\subref{fig:fwd_pass} Forward and \subref{fig:bwd_pass} backward pass of our system, based on Figure~4 in
+   % \newline
+  % \subfloat[]{%
+    % \includegraphics[width=.85\textwidth]{freqlearn/images/bottom_block.png}
+    % \label{fig:bwd_pass}
+  % }
+  \makebox[\textwidth][c]{%
+    \resizebox{1.1\textwidth}{!}{\input{freqlearn/images/gain_layer}}
+  }
+  \mycaption{Forward and backward block diagrams for dtcwt gain layer}{Based on Figure~4 in
   \cite{kingsbury_complex_2001}. Ignoring the $G$ gains, the top and bottom paths (through $A, C$
   and $B, D$ respectively) make up the the real and imaginary parts for \emph{one subband} of the dual tree system.
   Combined, $A+jB$ and $C-jD$ make the complex filters necessary to have support on one side of the

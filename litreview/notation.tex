@@ -10,53 +10,30 @@ introduced yet, so may be unclear until later.
     specify the coordinates explicitly. $u_1$ indexes rows from top to bottom
     of an image, and $u_2$ indexes columns from left to right. We typically use
     $H\x W$ for the size of the image, (but this is less strict). I.e.,\ 
-    $u_1 \in \{0, 1, \ldots H-1\}$ and $u_2 \in {0, 1, \ldots W-1}$. An image
-    can be either referenced by $x[\bmu{u}]$ or $I[\bmu{u}]$.
+    $u_1 \in \{0, 1, \ldots H-1\}$ and $u_2 \in {0, 1, \ldots W-1}$. 
 
   \item \textbf{Convolutional networks}\\
-    The input is $x[\bmu{u}, d]$, with true label $y$. Intermediate
-    feature maps are $z[\bmu{u}, d]$ and the output vector is $\hat{y}[c]$, where $d$
-    indexes the \emph{depth} of the image/feature map (usually 1 or 3 for $x$,
-    but arbitrary for $z$) and $c$ indexes the number of classes. The
-    convolutional kernels are $f[\bmu{u}, d, n]$ and the fully connected weight
-    matrices are $W_{ij}$, where the new index, $n$ indexes the number of
-    kernels in a layer. The biases for both these layer types are contained
-    within the vectors $b$. 
-    
+    Image convolutional neural networks often work with 4-dimensional arrays. In particular,
+    mini-batches of images with multiple channels. When we need to, we index over the 
+    minibatch with the variable $n$ and over the channel dimension with $c$. For example, we can
+    index an activation $\bmu{x}$ by $\bmu{x}[n, c, u_1, u_2]$.
+
     To distinguish between features, filters, weights and biases of different
-    levels in a deep network, we add a layer subscript, or $l$ for the
-    general case, i.e.,\ $z_l[\bmu{u}, d]$ indexes the feature map at the $l$-th
+    levels in a deep network, we may add a layer subscript, or $l$ for the
+    general case, i.e.,\ $\bmu{z}_l[n, c, \bmu{u}]$ indexes the feature map at the $l$-th
     layer of a deep network. 
     
-    In cases where we need to index a particular sample in a dataset, we use
-    the standard machine learning notation of adding a $(i)$ superscript to
-    the term, i.e., $x^{(i)}$ refers to the $i$-th input. 
-
-    It is difficult to adhere strictly to this notation, particularly when
-    including images from other works. Where the notation deviates in
-    a non-obvious way, we will make it clear.
-
-  \item \textbf{Fourier transforms and wavelets}\\
+  \item \textbf{Fourier transforms}\\
     When referring to the Fourier transform of a function, $f$, we typically
     adopt the overbar notation: i.e., $\mathcal{F}\{f\} = \bar{f}$. 
 
-    For wavelets, a slight variation on the standard notation is used. The
-    reason for the modification will become clearer when we introduce the
-    \DTCWT, which has two filter bank trees, so needs double the notation. The scaling
-    function is still $\phi$, the wavelet function is $\psi$ but the filter banks are
-    $h_0, g_0$ for low pass analysis, $h_1, g_1$ for high-pass analysis,
-    $\tilde{h}_0, \tilde{g}_0$ for low pass synthesis and $\tilde{h}_1,
-    \tilde{g}_1$ for high-pass synthesis. 
-    
-    In a multiscale environment, $j$ indexes
-    scale from $\{1,2, \ldots, J\}$. For 2D complex wavelets, $\theta$ indexes the
-    orientation at which the wavelet has the largest response, i.e.,\ $\psi_{\theta, j}$
-    refers to the wavelet at orientation $\theta$ at the $j$-th scale.
+  \item \textbf{Wavelet Filter Banks}\\
+    Using standard notation, we define the scaling function as $\phi$ and the wavelet function 
+    as $\psi$. For a filter bank implementation of a wavelet transform, we use $h$ for analysis and
+    $g$ for synthesis filters.    
 
-  \item \textbf{Other}\\
-    A reconstructed signal is deonted with the hat notation: $\hat{f} \approx
-    f$, and normalized signals are denoted with a tilde, e.g.
-    $$\tilde{z} = \frac{z-\mu}{\sigma}$$
-    
+    In a multiscale environment, $j$ indexes scale from $\{1,2, \ldots, J\}$. For 2D complex
+    wavelets, $\theta$ indexes the orientation at which the wavelet has the largest response, i.e.,\
+    $\psi_{\theta, j}$ refers to the wavelet at orientation $\theta$ at the $j$-th scale.
 
 \end{itemize}

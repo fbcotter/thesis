@@ -3,10 +3,10 @@
 \usepackage{listings}
 
 % Allow us to define page borders
-\ifsetCustomMargin\
-  \RequirePackage[left=37mm,right=30mm,top=35mm,bottom=30mm]{geometry}
-  \setFancyHdr\  % To apply fancy header after geometry package is loaded
-\fi
+% \ifsetCustomMargin\
+  % \RequirePackage[left=37mm,right=30mm,top=35mm,bottom=30mm]{geometry}
+  % \setFancyHdr\  % To apply fancy header after geometry package is loaded
+% \fi
 % Package for displaying algorithms in a document as pseudo code
 \usepackage{algorithm2e} % Replaced the algorithm package
 
@@ -136,12 +136,12 @@
   % colorlinks   = true,
   % citecolor    = blue  
 % }
-\renewcommand{\sectionautorefname}{\S}
-\renewcommand{\subsectionautorefname}{\S}
-\renewcommand{\subsubsectionautorefname}{\S}
-\renewcommand{\pageautorefname}{p.}
-\renewcommand{\chapterautorefname}{Chapter}
-\newcommand{\subfigureautorefname}{\figureautorefname}
+% \renewcommand{\sectionautorefname}{\S}
+% \renewcommand{\subsectionautorefname}{\S}
+% \renewcommand{\subsubsectionautorefname}{\S}
+% \renewcommand{\pageautorefname}{p.}
+% \renewcommand{\chapterautorefname}{Chapter}
+% \newcommand{\subfigureautorefname}{\figureautorefname}
 
 \usepackage{array}
 \newcolumntype{b}{X}
@@ -150,3 +150,8 @@
 %\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\makeatletter
+% \def\fullpath{\begingroup\everyeof{\noexpand}\@sanitize
+  % \edef\x{\@@input|"find `pwd` -name \jobname.tex" }%
+  % \edef\x{\endgroup\noexpand\zap@space\x\noexpand\@empty}\x}
+% \makeatother
