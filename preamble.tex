@@ -130,12 +130,12 @@
 % Allow hyperlinks in our document. Redefine the section names to use the
 % squigly S
 \usepackage{nameref}
-% \usepackage{hyperref}
+\usepackage{hyperref}
 %%%%%%%%% Some Hyperref Options %%%%%%%%%%
-% \hypersetup{%
-  % colorlinks   = true,
-  % citecolor    = blue  
-% }
+\hypersetup{%
+  colorlinks   = true,
+  citecolor    = blue  
+}
 % \renewcommand{\sectionautorefname}{\S}
 % \renewcommand{\subsectionautorefname}{\S}
 % \renewcommand{\subsubsectionautorefname}{\S}
@@ -150,8 +150,3 @@
 %\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-\makeatletter
-% \def\fullpath{\begingroup\everyeof{\noexpand}\@sanitize
-  % \edef\x{\@@input|"find `pwd` -name \jobname.tex" }%
-  % \edef\x{\endgroup\noexpand\zap@space\x\noexpand\@empty}\x}
-% \makeatother

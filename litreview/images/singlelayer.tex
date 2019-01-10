@@ -1,0 +1,34 @@
+\pagestyle{empty}
+
+\def\layersep{2.5cm}
+
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+    \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+    \tikzstyle{neuron}=[circle,draw=black,minimum size=17pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron];
+    \tikzstyle{annot} = [text width=4em, text centered]
+
+    % Draw the input layer nodes
+    \foreach \name / \y in {0,...,4}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron,pin=left:$x_\y$] (I-\name) at (0,-\y) {};
+    \node[input neuron,pin=left:1] (I-5) at (0,-5) {};
+
+    % Draw the output layer node
+    \node[hidden neuron,pin={[pin edge={->}]right:$y$}] (O) at (\layersep, -2.5) {};
+
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    % \foreach \source in {1,...,5}
+        % \draw(I-\source) edge (O) node[above, midway] {$w_\source$};
+    \foreach \source in {0,...,4}
+        \draw[->] (I-\source) -- (O) node[above,midway] {$w_\source$};
+    \draw[->] (I-5) -- (O) node[above,midway] {$b$};
+
+    % Annotate the layers
+    % \node[annot,above of=I-1, node distance=1cm] (il) {Input Layer};
+    % \node[annot,right of=hl] {Output layer};
+\end{tikzpicture}
+% End of code

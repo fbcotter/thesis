@@ -1,6 +1,38 @@
 \section{Neural Networks}\label{sec:cnns}
 \subsection{The Neuron and Single Layer Neural Networks}
-Single hidden layer neural networks are universal function approximators
+The neuron, shown in \autoref{fig:singlelayer} is the core building block of Neural Networks. It
+takes the dot product between an  input vector $\vec{x} \in \reals[N]$ and a weight vector $\vec{b}$, before 
+applying a chosen nonlinearity, $f$. I.e.
+$$y = f(\langle\vec{x}, \vec{w}\rangle) = f\left(\sum_{i=0}^{N} x_i w_i \right) $$
+where we have used the shorthand $b=w_0$ and $x_0 =
+1$. Note that if $\langle\vec{w}, \vec{w}\rangle = 1$ then $\langle\vec{x}, \vec{w}\rangle$ is the
+distance from the point $\vec{x}$ to the hyperplane with normal $\vec{w}$. With general $\vec{w}$
+this can be thought of as a scaled distance.  
+
+Typical nonlinear functions $f$ are the sigmoid function: (\textbf{include figure})
+$$\sigma(x) = \frac{1}{1+e^{-x}}$$
+tanh function:
+$$\F{tanh}(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}}$$
+or ReLU:
+$$\F{ReLU}(x) = \max (x, 0)$$
+The weight vector $\vec{w}$ defines a hyperplane in $\reals[N]$ which splits the space into two. The
+choice of nonlinearity then affects how points on each side of the plane are treated. For a
+sigmoid, points far below the plane get mapped to 0 and points far above the plane get
+mapped to 1 (with points near the plane having a value of 0.5). For tanh nonlinearities, these
+points get mapped to -1 and 1. For ReLU nonlinearities, every point below the plane ($\langle\vec{x},
+\vec{w}\rangle < 0$) gets mapped to zero and every point above the plane keeps its inner product value.
+\begin{figure}
+  \centering
+  \input{litreview/images/singlelayer}\label{fig:singlelayer}
+  \mycaption{A single neuron}{The neuron is composed of inputs $x_i$, weights $w_i$ (and a bias term),
+  as well as an activation function. Typical activation functions include the sigmoid function, tanh
+  function and the ReLU}
+\end{figure}
+
+Consider a single neuron acting as logistic regressor. I.e. we have $\mathcal{D} = \{\vec{x}_i,
+y_i\}$ where $y_i \in \{0, 1\}$. We can easily find the maximum likelihood estimates for $\vec{w}$
+by minimizing the loss
+\subsection{Loss or Error Term}
 
 \subsection{Backpropagation}
   With a deep network like most CNNs, calculating $\dydx{L}{w}$ may not seem
