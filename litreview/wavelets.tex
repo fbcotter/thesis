@@ -788,46 +788,46 @@
             support.}
     \label{fig:wavelet_freq_resp}
   \end{figure}
-\begin{table}[h]
-  \caption{A comparison of wavelet transform methods}
-  \label{tab:dtcwt_vs_dwt_vs_mallat}
-  \begin{center}
+% \begin{table}[h]
+  % \caption{A comparison of wavelet transform methods}
+  % \label{tab:dtcwt_vs_dwt_vs_mallat}
+  % \begin{center}
 
-  \begin{tabularx}{\textwidth}[t]{X|X|X} \toprule
-      DWT & \DTCWT\ & FFT-based\\ \hline
+  % \begin{tabularx}{\textwidth}[t]{X|X|X} \toprule
+      % DWT & \DTCWT\ & FFT-based\\ \hline
       
-      \cellcolor{green!25} Efficient filter bank implementation & 
-        \cellcolor{green!25 }Efficient filter bank implementation &
-        \cellcolor{red!25} Convolutions done in the frequency domain \\ \hline
-      \cellcolor{green!25}$O(N)$ & 
-        \cellcolor{green!25}$O(N)$ & 
-        \cellcolor{red!25}$O(N\log N)$ \\ \hline
-      \cellcolor{green!25}Perfect reconstruction inherent to the design & 
-        \cellcolor{green!25}Perfect reconstruction inherent to the design & 
-        \cellcolor{red!25}Perfect reconstruction possible, but not inherent \\ \hline
-      \cellcolor{green!25}Energy preserving & 
-        \cellcolor{green!25}Energy preserving & 
-        \cellcolor{green!25}Energy preserving \\ \hline
-      \cellcolor{green!25}Critically sampled & 
-        \cellcolor{red!25}Tight frame, with $4:1$ redundancy & 
-        \cellcolor{red!25}Tight frame, with variable redundancy (often around
-        $4:1$ in implenetations by \Mallat) \\ \hline
-      \cellcolor{red!25}Purely real wavelets & 
-        \cellcolor{green!25}Complex, analytic wavelets & 
-        \cellcolor{green!25}Complex, analytic wavelets \\ \hline
-      \cellcolor{red!25}Poorly Oriented & 
-        \cellcolor{green!25}Well oriented & 
-        \cellcolor{green!25}Well oriented \\ \hline
-      \cellcolor{red!25}Fixed number of bandpass wavelets & 
-        \cellcolor{red!25}Fixed number of bandpass wavelets & 
-        \cellcolor{green!25}Flexible number of bandpass wavelets \\ \hline
-      \cellcolor{red!25}Oversampling costly (at odds with the algorithm) & 
-        \cellcolor{red!25}Oversampling costly (at odds with the design) & 
-        \cellcolor{green!25}Oversampling only linearly more expensive \\
-      \cellcolor{green!25}Can use symmetric extension for the edges of images &
-        \cellcolor{green!25}Can use symmetric extension for the edges of images &
-        \cellcolor{red!25}Assumes periodic extension of signals \\
-      \bottomrule
-  \end{tabularx}
-  \end{center}
-\end{table}
+      % \cellcolor{green!25} Efficient filter bank implementation & 
+        % \cellcolor{green!25 }Efficient filter bank implementation &
+        % \cellcolor{red!25} Convolutions done in the frequency domain \\ \hline
+      % \cellcolor{green!25}$O(N)$ & 
+        % \cellcolor{green!25}$O(N)$ & 
+        % \cellcolor{red!25}$O(N\log N)$ \\ \hline
+      % \cellcolor{green!25}Perfect reconstruction inherent to the design & 
+        % \cellcolor{green!25}Perfect reconstruction inherent to the design & 
+        % \cellcolor{red!25}Perfect reconstruction possible, but not inherent \\ \hline
+      % \cellcolor{green!25}Energy preserving & 
+        % \cellcolor{green!25}Energy preserving & 
+        % \cellcolor{green!25}Energy preserving \\ \hline
+      % \cellcolor{green!25}Critically sampled & 
+        % \cellcolor{red!25}Tight frame, with $4:1$ redundancy & 
+        % \cellcolor{red!25}Tight frame, with variable redundancy (often around
+        % $4:1$ in implenetations by \Mallat) \\ \hline
+      % \cellcolor{red!25}Purely real wavelets & 
+        % \cellcolor{green!25}Complex, analytic wavelets & 
+        % \cellcolor{green!25}Complex, analytic wavelets \\ \hline
+      % \cellcolor{red!25}Poorly Oriented & 
+        % \cellcolor{green!25}Well oriented & 
+        % \cellcolor{green!25}Well oriented \\ \hline
+      % \cellcolor{red!25}Fixed number of bandpass wavelets & 
+        % \cellcolor{red!25}Fixed number of bandpass wavelets & 
+        % \cellcolor{green!25}Flexible number of bandpass wavelets \\ \hline
+      % \cellcolor{red!25}Oversampling costly (at odds with the algorithm) & 
+        % \cellcolor{red!25}Oversampling costly (at odds with the design) & 
+        % \cellcolor{green!25}Oversampling only linearly more expensive \\
+      % \cellcolor{green!25}Can use symmetric extension for the edges of images &
+        % \cellcolor{green!25}Can use symmetric extension for the edges of images &
+        % \cellcolor{red!25}Assumes periodic extension of signals \\
+      % \bottomrule
+  % \end{tabularx}
+  % \end{center}
+% \end{table}

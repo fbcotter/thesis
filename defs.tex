@@ -28,13 +28,15 @@
 % Define a new command for the euclidean norm of an expression
 \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
 \newcommand{\lnorm}[2]{{\left\lVert #1 \right\rVert}_{#2}}
-\newcommand{\loss}{l}
+\newcommand{\loss}{L}
 \newcommand{\logloss}{\mathcal{L}}
 \newcommand{\dydx}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\conj}[1]{\bar{#1}}
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\expected}[2][]{\ensuremath{{\mathbb{E}_{#1}\left[#2\right]}}\xspace}
 \newcommand{\drawnfrom}{\ensuremath{\sim}\xspace}
+\newcommand{\real}[1]{\F{Re}\left(#1\right)}
+\newcommand{\imag}[1]{\F{Im}\left(#1\right)}
 
 % Some vector spaces. These can often be used outside of equations so we will
 % add in the ensure math mode. These all have optional arguments which are the

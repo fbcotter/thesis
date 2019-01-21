@@ -1,0 +1,30 @@
+\subfloat{%
+	\begin{tikzpicture}[>=latex,scale=0.6]
+	\draw[style=help lines, color=gray!30, dashed] (-4.9,-4.9) grid[step=1cm] (4.9,4.9);
+	\draw[->,ultra thick] (-5,0)--(5,0) node[right]{$x$};
+	\draw[->,ultra thick] (0,-5)--(0,5) node[above]{$y$};
+
+	\coordinate (z) at (20:4); % Define some complex numbers
+	\coordinate (dz) at (100:1); % with r*exp(i \theta) form
+
+	\draw[->,thick,blue] (0,0) -- (z) node[near end,below=-0.05] {$z$};
+	\draw[->,thick,red] (z)  -- ++(dz) node[near end,right] {$\Delta z$};
+	\draw[->,thick,green] (0,0) -- ($(z) + (dz)$) node[near end,above left] {$z+\Delta z$};
+	\node[above,font=\large] at (current bounding box.north) {z-plane};
+	\end{tikzpicture}
+}
+\subfloat{%
+	\begin{tikzpicture}[>=latex,scale=0.6]
+	\draw[style=help lines, color=gray!30, dashed] (-4.9,-4.9) grid[step=1cm] (4.9,4.9);
+	\draw[->,ultra thick] (-5,0)--(5,0) node[right]{$x$};
+	\draw[->,ultra thick] (0,-5)--(0,5) node[above]{$y$};
+
+	\coordinate (w) at (-30:4); % Define some complex numbers
+	\coordinate (dw) at (20:1); % with r*exp(i \theta) form
+
+	\draw[->,thick,blue] (0,0) -- (w) node[near end,below] {$w$};
+	\draw[->,thick,red] (w) -- ++(dw) node[near end,below] {$\Delta w$};
+	\draw[->,thick,green] (0,0) -- ($(w) + (dw)$) node[near end, above=0.1] {$w+\Delta w$};
+	\node[above,font=\large] at (current bounding box.north) {w-plane};
+	\end{tikzpicture}
+}

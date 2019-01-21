@@ -1,0 +1,8 @@
+\begin{tikzpicture}[scale=0.6]
+  \draw[->] (-4,0) -- (4,0) node[right] {$x$};
+  \draw[->] (0,-4) -- (0,4) node[above] {$y$};
+   \draw[domain=-4:-0.1,smooth,variable=\x,blue] 
+     plot ({\x},{1/(pi*\x)});
+   \draw[domain=0.1:4,smooth,variable=\x,blue] 
+     plot ({\x},{1/(pi*\x)});
+\end{tikzpicture}

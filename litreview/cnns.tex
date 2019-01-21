@@ -1,85 +1,111 @@
 \section{Neural Networks}\label{sec:cnns}
+
 \subsection{The Neuron and Single Layer Neural Networks}
-The neuron, shown in \autoref{fig:singlelayer} is the core building block of Neural Networks. It
-takes the dot product between an  input vector $\vec{x} \in \reals[N]$ and a weight vector $\vec{b}$, before 
-applying a chosen nonlinearity, $f$. I.e.
+
+The neuron, shown in \autoref{fig:singlelayer} is the core building block of
+Neural Networks. It takes the dot product between an  input vector $\vec{x} \in
+\reals[N]$ and a weight vector $\vec{b}$, before applying a chosen nonlinearity,
+$f$. I.e.
+
 $$y = f(\langle\vec{x}, \vec{w}\rangle) = f\left(\sum_{i=0}^{N} x_i w_i \right) $$
-where we have used the shorthand $b=w_0$ and $x_0 =
-1$. Note that if $\langle\vec{w}, \vec{w}\rangle = 1$ then $\langle\vec{x}, \vec{w}\rangle$ is the
-distance from the point $\vec{x}$ to the hyperplane with normal $\vec{w}$. With general $\vec{w}$
-this can be thought of as a scaled distance.  
+
+where we have used the shorthand $b=w_0$ and $x_0 = 1$. 
+Note that if $\langle\vec{w}, \vec{w}\rangle = 1$ then $\langle\vec{x},
+\vec{w}\rangle$ is the distance from the point $\vec{x}$ to the hyperplane with
+normal $\vec{w}$. With general $\vec{w}$ this can be thought of as a scaled
+distance.  
 
 Typical nonlinear functions $f$ are the sigmoid function: (\textbf{include figure})
+
 $$\sigma(x) = \frac{1}{1+e^{-x}}$$
+
 tanh function:
+
 $$\F{tanh}(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}}$$
+
 or ReLU:
+
 $$\F{ReLU}(x) = \max (x, 0)$$
-The weight vector $\vec{w}$ defines a hyperplane in $\reals[N]$ which splits the space into two. The
-choice of nonlinearity then affects how points on each side of the plane are treated. For a
-sigmoid, points far below the plane get mapped to 0 and points far above the plane get
-mapped to 1 (with points near the plane having a value of 0.5). For tanh nonlinearities, these
-points get mapped to -1 and 1. For ReLU nonlinearities, every point below the plane ($\langle\vec{x},
-\vec{w}\rangle < 0$) gets mapped to zero and every point above the plane keeps its inner product value.
+
+The weight vector $\vec{w}$ defines a hyperplane in $\reals[N]$ which splits the
+space into two. The choice of nonlinearity then affects how points on each side
+of the plane are treated. For a sigmoid, points far below the plane get mapped
+to 0 and points far above the plane get mapped to 1 (with points near the plane
+having a value of 0.5). For tanh nonlinearities, these points get mapped to -1
+and 1. For ReLU nonlinearities, every point below the plane ($\langle\vec{x},
+\vec{w}\rangle < 0$) gets mapped to zero and every point above the plane keeps
+its inner product value.
+
 \begin{figure}
   \centering
   \input{litreview/images/singlelayer}\label{fig:singlelayer}
-  \mycaption{A single neuron}{The neuron is composed of inputs $x_i$, weights $w_i$ (and a bias term),
-  as well as an activation function. Typical activation functions include the sigmoid function, tanh
-  function and the ReLU}
+  \mycaption{A single neuron}{The neuron is composed of inputs $x_i$, weights
+    $w_i$ (and a bias term), as well as an activation function. Typical activation
+    functions include the sigmoid function, tanh function and the ReLU}
 \end{figure}
 
-Consider a single neuron acting as logistic regressor. I.e. we have $\mathcal{D} = \{\vec{x}_i,
-y_i\}$ where $y_i \in \{0, 1\}$. We can easily find the maximum likelihood estimates for $\vec{w}$
-by minimizing the loss
+Consider a single neuron acting as logistic regressor. I.e.\ we have 
+$\mathcal{D} = \{\vec{x}_i, y_i\}$ where $y_i \in \{0, 1\}$. 
+We can easily find the maximum likelihood estimates for $\vec{w}$ by minimizing
+the loss
+
 \subsection{Loss or Error Term}
 
 \subsection{Backpropagation}
-  With a deep network like most CNNs, calculating $\dydx{L}{w}$ may not seem
-  particularly obvious if $w$ is a weight in one of the lower layers.  Say we
-  have a deep network, with $L$ layers. We need to define a rule for updating
-  the weights in all $L$ layers of the network, however, only the weights $w_L$
-  are connected to the loss function, $\loss$. We assume for whatever function
-  the last layer is that we can write down the derivative of the output with
-  respect to the weights $\dydx{z_{L}}{w_{L}}$. We can then write down the
-  weight-update gradient, $\dydx{\loss}{w_L}$ with application of the chain rule:
-  \begin{equation}
-    \dydx{\loss}{w_L} = \dydx{\loss}{z_L} \dydx{z_L}{w_L} + \underbrace{\lambda
-    w}_{\text{from the reg.\ loss}}
-  \end{equation}
-  $\dydx{\loss}{z_L}$ can be done simply from the equation of the loss function
-  used. Typically this is parameterless.
 
-  Since all of the layers in a CNN are well-defined and
-  differentiable\footnote{The ReLU is not differentiable at its corner, but
-  backpropagation can still be done easily by simply looking at the sign of the
-  input.} we assume that we can also write down what $\dydx{z_L}{z_{L-1}}$ is.
-  Repeating this process for the next layer down, we have:
-  \begin{equation}
-    \dydx{\loss}{w_{L-1}}
-    = \dydx{\loss}{z_L}\dydx{z_L}{z_{L-1}}\dydx{z_{L-1}}{w_{L-1}}
-  \end{equation}
-  We can generalize this easily like so:
-  \begin{equation}
-    \dydx{\loss}{w_{l}}
-    = \dydx{\loss}{z_L} \underbrace{\prod_{i=L}^{l+1}
-    \dydx{z_i}{z_{i-1}}}_{\text{product to $l$'s output}} 
-    \dydx{z_{l}}{w_{l}}
-  \end{equation}
+With a deep network like most CNNs, calculating $\dydx{L}{w}$ may not seem
+particularly obvious if $w$ is a weight in one of the lower layers.  Say we have
+a deep network, with $L$ layers. We need to define a rule for updating the
+weights in all $L$ layers of the network, however, only the weights $w_L$ are
+connected to the loss function, $\loss$. We assume for whatever function the
+last layer is that we can write down the derivative of the output with respect
+to the weights $\dydx{z_{L}}{w_{L}}$. We can then write down the weight-update
+gradient, $\dydx{\loss}{w_L}$ with application of the chain rule:
 
-  So far we have defined the loss function for a given data point $(x^{(i)},
-  y^{(i)})$. Typically, we want our network to be able to generalize to the
-  true real world joint distribution $P(x,y)$, minimizing the expected risk ($R_E$) of
-  loss:
-  \begin{equation}
-    R_E(f(x,w)) = \int \loss(y,f(x,w)) dP(x,y)
-  \end{equation}
-  Instead, we are limited to the training set, so we must settle for the
-  empirical risk ($R_{EMP}$):
-  \begin{equation}
-    R_{EMP}(f(x,w)) = \frac{1}{N} \sum_{i=1}^{N} \loss( y^{(i)},f(x^{(i)}, w))
-    \label{eq:empirical_risk}
-  \end{equation}
+\begin{equation}
+  \dydx{\loss}{w_L} = \dydx{\loss}{z_L} \dydx{z_L}{w_L} + \underbrace{\lambda
+  w}_{\text{from the reg.\ loss}}
+\end{equation}
+
+$\dydx{\loss}{z_L}$ can be done simply from the equation of the loss function
+used. Typically this is parameterless.
+
+Since all of the layers in a CNN are well-defined and
+differentiable\footnote{The ReLU is not differentiable at its corner, but
+backpropagation can still be done easily by simply looking at the sign of the
+input.} we assume that we can also write down what $\dydx{z_L}{z_{L-1}}$ is.
+Repeating this process for the next layer down, we have:
+
+\begin{equation}
+  \dydx{\loss}{w_{L-1}}
+  = \dydx{\loss}{z_L}\dydx{z_L}{z_{L-1}}\dydx{z_{L-1}}{w_{L-1}}
+\end{equation}
+
+We can generalize this easily like so:
+
+\begin{equation}
+  \dydx{\loss}{w_{l}}
+  = \dydx{\loss}{z_L} \underbrace{\prod_{i=L}^{l+1}
+  \dydx{z_i}{z_{i-1}}}_{\text{product to $l$'s output}} 
+  \dydx{z_{l}}{w_{l}}
+\end{equation}
+
+So far we have defined the loss function for a given data point $(x^{(i)},
+y^{(i)})$. Typically, we want our network to be able to generalize to the true
+real world joint distribution $P(x,y)$, minimizing the expected risk ($R_E$) of
+loss:
+
+\begin{equation}
+  R_E(f(x,w)) = \int \loss(y,f(x,w)) dP(x,y)
+\end{equation}
+
+Instead, we are limited to the training set, so we must settle for the
+empirical risk ($R_{EMP}$):
+
+\begin{equation}
+  R_{EMP}(f(x,w)) = \frac{1}{N} \sum_{i=1}^{N} \loss( y^{(i)},f(x^{(i)}, w))
+  \label{eq:empirical_risk}
+\end{equation}
 
 \subsection{Gradient descent vs Stochastic Gradient Descent vs Mini-Batches}
   We can minimize \autoref{eq:empirical_risk} with \emph{gradient descent}
