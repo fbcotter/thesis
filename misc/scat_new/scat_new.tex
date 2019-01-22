@@ -1,0 +1,156 @@
+\def \path {misc/scat_new}
+\def \imgpath {\path/images}
+
+\section{Properties of a Scatternet}
+Adversarial attacks are of the form of additive noise. One of the nice properties of Scattering
+transforms is that 
+
+$$ \norm{ \Phi(x) - \Phi(x+\epsilon) } \leq \epsilon$$
+
+Other transformations such as camera warping come under the scope of diffeomorphisms:
+
+$$L_{\tau} x(u) = x(u-\tau(u))$$
+
+We can define the largest displacement of this field as 
+
+$$\norm{\tau}_{\infty} = \sup_{u \in \reals[2]} |\tau(u)|$$
+
+Deformations not only change $u$, but they change $x$ as well. A Taylor series
+expansion around $u$ shows this: $$u+v - \tau(u+v) \approx u + v - \nabla
+\tau(u)v = u - \tau(u) + (1-\nabla\tau(u))v$$ This can be summarised by noting
+that in the neighbourhood of $u$, $\tau$ introduces a translation by $\tau(u)$
+and a warping that differes from 1 by $\nabla \tau(u)$. This warping can be
+quantified as 
+
+$$\norm{\nabla \tau}_{\infty} = \sup_{u\in \reals[2]} \norm{\nabla \tau(u)}$$
+
+A representation is stable to deformations if we can define to small constants,
+$C_1, C_2$ such that for all $x\in L^2(\reals[2]$:
+
+$$ \norm{ \Phi L_\tau x - \Phi x } \leq (C_1 \norm{\tau}_\infty + C_2 \norm{ \nabla \tau }_\infty) \lnrom{x}$$
+
+Note that if $C_1 =0$ then we have full translation invariance (translation is
+when $\tau(u) = C$, $\nabla \tau(u) = 0$). Full translation invariance does not
+imply stability to transformations.  E.g.\ the Fourier modulus has full
+translation invariance. If we introduce a warping:
+
+$$\tau(u) = \epsilon u, \epsilon > 0$$
+
+Then a sine wave with frequency $\omega$ will get shifted to
+$\frac{w}{1-\epsilon}$ and $\norm{\Phi L_\tau x - \Phi x } = 2$ even when
+$\norm{\nabla \tau}_\infty = \epsilon$ is made arbitrarily small.
+
+Is it possible to maintain these properties if I modify the Scattering
+Transform? So the translation invariance property isn't really invariance. Well
+it is is invariant to sub-pixel and to an extent pixel shifts.
+
+\subsection{Nonlinearities}
+The wavelet operator 
+
+$$ W[\lambda] x = x \conv \psi_\lambda $$
+
+commutes with translations but
+
+$$ \int W[\lambda] x(u) du = 0 $$
+
+because $\int \psi(u) du = 0$. To get a non-zero invariant, need to
+`demodulate', mapping $W[\lambda]x$ to a lower frequency with a 
+non-zero integral. Recall a simple Morlet wavelet has form:
+
+$$ \psi(u) = e^{j \eta u} \phi(u) $$
+
+(first term is the modulation and second term is low pass). Then 
+
+$$ \psi_{\lambda}(u) = e^{j\lambda \eta u} \phi_\lambda (u) $$
+and
+
+$$ W[\lambda] x(u) =  e^{j\lambda \eta u} \left( x^{\lambda} \conv \phi_\lambda (u) \right) $$
+
+with $x^\lambda (u) = e^{-j\lambda \eta u} x(u)$. A simple non-linearity would
+be to cancel the wavelet and the signals modulating term, i.e.
+
+$$  M[\lambda] h(x) & = & e^{-j\lambda \etau} e^{-j\Phi( \hat{h}(\lambda \eta))} h(x) $$
+
+where $\Phi (\hat{h} (\lambda \eta ))$ is the complex phase of 
+$\hat{h}(\lambda \eta)$. Then 
+
+\begin{eqnarray*}
+  M[\lambda]W[\lambda] x(u) du & = & 
+    \int e^{-j\lambda \eta u} e^{-j \Phi(\hat{h}(\lambda \eta))} 
+    \left( e^{j\lambda \eta u} \left( x^{\lambda} \conv \Phi_\lambda (u) \right) \right) du \\
+    & = & \int e^{-j \Phi(\hat{h}(\lambda \eta))} \frac{1}{2\pi}
+    \int_{-\infty}^{\infty} e^{j\Phi(\hat{h}(\lambda \eta)} 
+      |\hat{x} (\lambda \eta)| |\hat{\Phi}(0)| e^{2\pi j \omega u} d\omega du \\
+    & = &  |\hat{x} (\lambda \eta)| |\hat{\Phi}(0)| 
+\end{eqnarray*}
+
+This just gives us the the fourier modulus, which we saw earlier was a poor
+choice as it is not stable to diffeomorphisms. This implies that demodulation is
+not the greatest thing to do.
+
+\section{Enter DCFNet}
+
+This was an idea I'd had as well, but \cite{qiu_dcfnet:_2018} does a good job at
+formalizing the properties. The idea is to compose a regular CNN filter as: 
+
+$$ \cnnfilt{l}{f}{c}{\xy} = \sum_{k=1}^K a_{f}(c, k) \psi_k (\xy) $$
+
+where $\cnnfilt{l}{f}{c}{\xy}$ is the $f$-th filter in the $l$-th layer with channel
+coordinate $c$ and spatial coordinates $\xy$, $\psi_k$ are predefined basis
+functions and $a_{f}(c, k)$ are the learned expansion coefficients combining the
+$k$ different bases for each input channel.
+
+
+Consider a spatial deformation denoted by 
+$D_\tau : \reals[2] \rightarrow \reals[2]$ given by:
+
+$$D_{\tau} \cnnact{x}{c}{\xy} = \cnnact{x}{c}{\xy - \tau(\xy)} = \cnnact{x}{c}{\rho(\xy)}, \quad \forall \xy, c $$
+
+recall that $c$ indexes the channel domain, so we are assuming that the
+same diffeomorphism applies to all channels equally. Assume that the distortion
+is bounded, specifically:
+
+$$ |\nabla \tau|_{\infty} = \sup_{u} \norm{\nabla \tau(u) } < C $$
+
+The boundedness implies $\rho^{-1}$ exists locally. We want to control
+
+$$ \norm{ x^{(L)} \left[ D_\tau x^{(0)} \right] - x^{(L)} \left[ x^{(0)} \right]} $$
+
+so that when the input undergoes a deformation the output at the $L$-th layer is
+not severely changed. They show in their network that 
+$ \norm{ x^{(L)} \left[ D_\tau x^{(0)} \right] - x^{(L)} \left[ x^{(0)} \right]} $
+is bounded by the magnitude of the deformation up to a constant proportional to
+the norm of the signal.
+
+Define the $L^1$ and $L^2$ norms and the average energy of $\cnnact{x}{c}{\xy}$ to be:
+
+\begin{eqnarray}
+  & \norm{x}_1 &=& \sum_{c = 1}^{C} \int_{\reals[2]} |\cnnact{x}{c}{\xy}| d\xy \\
+  & \norm{x}_2^{2} &=& \sum_{c = 1}^{C} \int_{\reals[2]} |\cnnact{x}{c}{\xy}|^2 d\xy  \\
+  & \norm{x}^2_{av} &=& \frac{1}{C |\Omega|} \norm{x}^2 
+\end{eqnarray}
+
+Let the number of channels at layer $l$ be $M_l$, the largest filter norm is:
+
+\begin{eqnarray}
+  A_l & = &  \sup_{f} \sum_{c=1}^{M_{l-1}} \norm{ \cnnfilt{l}{f}{c}{\xy} }_1 \\
+  B_l & = & \sup_{c} \frac{M_{l-1}}{M_l} \sum_{f=1}^{M_l} \norm{ \cnnfilt{l}{f}{c}{\xy} }_1 \\
+  C_l & = & \max \{ A_l, B_l \} \\
+
+\end{eqnarray}
+Consider the largest filter norm over the $f$ filters at layer $l$:
+
+$f: X \rightarrow Y$ is Lipschitz continuous if there exists a real constant $K \geq 0$
+such that for all $x_1, x_2 \in X$:
+
+$$ d_{Y} (f(x_{1}),f(x_{2})) \leq K d_{X}(x_{1}, x_{2}) $$
+
+It is clear that the complex magnitude is Lipschitz continuous with constant
+$K=1$ as:
+
+\begin{eqnarray*}
+  d_{Y} (f(x_{1}),f(x_{2})) &=& ||w| - |z|| \\
+                            & \leq & |w - z| \\
+                            & = & d_X(x_1, x_2)
+\end{eqnarray*}
+Where the second line holds by the reverse triangle inequality.

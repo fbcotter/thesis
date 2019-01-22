@@ -38,37 +38,3 @@ I wonder if it's worth looking at the work of \cite{fujieda_wavelet_2018} and do
 similar to that 
 
 \section{Properties of a Scatternet}
-Adversarial attacks are of the form of additive noise. One of the nice properties of Scattering
-transforms is that 
-$$||\Phi(x) - \Phi(x+\epsilon)|| \leq \epsilon$$
-
-Other transformations such as camera warping come under the scope of diffeomorphisms:
-$$L_{\tau} x(u) = x(u-\tau(u))$$
-
-We can define the largest displacement of this field as 
-$$||\tau||_{\infty} = \sup_{u \in \reals[2]} |\tau(u)|$$
-
-Deformations not only change $u$, but they change $x$ as well. A Taylor series expansion around $u$ shows this:
-$$u+v - \tau(u+v) \approx u + v - \nabla \tau(u)v = u - \tau(u) + (1-\nabla\tau(u))v$$
-This can be summarised by noting that in the neighbourhood of $u$, $\tau$ introduces a translation
-by $\tau(u)$ and a warping that differes from 1 by $\nabla \tau(u)$. This warping can be quantified
-as 
-
-$$||\nabla \tau||_{\infty} = \sup_{u\in \reals[2]}||\nabla \tau(u)||$$
-
-A representation is stable to deformations if we can define to small constants, $C_1, C_2$ such that
-for all $x\in L^2(\reals[2]$:
-
-$$ ||\Phi L_\tau x - \Phi x|| \leq (C_1 ||\tau||_\infty + C_2 ||\nabla \tau||_\infty) ||x||$$
-
-Note that if $C_1 =0$ then we have full translation invariance (translation is when $\tau(u) = C$,
-$\nabla \tau(u) = 0$). Full translation invariance does not imply stability to transformations.
-E.g.\ the Fourier modulus has full translation invariance. If we introduce a warping:
-$$\tau(u) = \epsilon u, \epsilon > 0$$
-Then a sine wave with frequency $\omega$ will get shifted to $\frac{w}{1-\epsilon}$ and $||\Phi
-L_\tau x - \Phi x|| = 2$ even when $||\nabla \tau||_\infty = \epsilon$ is made arbitrarily small.
-
-
-Is it possible to maintain these properties if I modify the Scattering Transform? So the translation
-invariance property isn't really invariance. Well it is is invariant to sub-pixel and to an extent
-pixel shifts.

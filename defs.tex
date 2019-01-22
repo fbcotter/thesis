@@ -1,4 +1,5 @@
 \newcommand{\bmu}[1]{\mathbf{#1}}           % bold math upright
+\newcommand{\xy}{\bmu{u}}
 
 % Define some nicely typesetted words
 \newcommand{\CWT}{\ensuremath{{\mathbb{C}}\mathrm{WT}}\xspace} % Nice display of CWT 
@@ -50,5 +51,8 @@
 \newcommand{\galois}[2][]{\ensuremath{{\mathbb{F}_{#2}}^{#1}}\xspace}
 \newcommand{\binaries}[1][]{\galois[#1]{2}\xspace}
 
+\newcommand{\cnnfilt}[4]{h^{(#1)}_{#2}\left(#3, #4 \right)}
+\newcommand{\cnnact}[3]{#1\left(#2, #3\right)}
+\newcommand{\cnnlact}[4]{#1^{(#2)}\left(#3, #4\right)}
 
 \renewcommand{\vec}[1]{\mathbf{#1}}
