@@ -1,0 +1,178 @@
+\begin{tikzpicture}[%
+  path image/.style={
+    path picture={
+      \node at (path picture bounding box.center) {
+        \includegraphics[height=2.6cm]{#1}
+      };
+    }
+  }, 
+  path pic/.style={
+    path picture={
+      \node at (path picture bounding box.center) {
+        \includegraphics[height=1.5cm]{#1}
+      };
+    }
+  }, 
+  scale=0.8]
+
+  \tikzcuboid{
+  shiftx=-0.5cm,
+  shifty=-2.5cm,
+  scale=0.5,
+  anglex=0, 
+  angley=90, 
+  anglez=230,
+  dimx=3, 
+  dimy=3, 
+  dimz=6,
+  densityx=1, 
+  densityy=1, 
+  densityz=1,
+  shade=false,
+  emphedge=true,
+  shadeopacity=0,
+  emphstyle/.style={rounded corners=0.2pt,line width=0.3mm},
+  front/.style={draw=blue!50!white,fill=blue!50!white},%
+  right/.style={draw=blue!50!white,fill=blue!50!white},%
+  top/.style={draw=blue!50!white,fill=blue!50!white},%
+  drawxdims=true,
+  dimxval=W,
+  drawydims=true,
+  dimyval=H,
+  drawzdims=true,
+  dimzval=C,
+  }
+  \draw [path image=misc/waveys.png, draw=black] (1.5,1.5,0) rectangle (6,0,0) (waveys);
+  \draw (1.5,0,0) -- (3,-1.7,0);
+  \draw (6,0,0) -- (3.3,-1.7,0);
+
+  % \draw [path image=misc/real15.png, draw=black] (1,0,0) rectangle (2,1,0);
+  % \draw [path image=misc/imag15.png, draw=black] (2,0,0) rectangle (3,1,0);
+  % \draw [path image=misc/real45.png, draw=black] (3,0,0) rectangle (4,1,0);
+  % \draw (4.5, 0.5, 0) node {$\ldots$};
+  % \draw [path image=misc/imag165.png, draw=black] (5,0,0) rectangle (6,1,0);
+    
+  \draw (2.2, -1.5, 0) node {\Large{$\conv$}};
+
+  \tikzcuboid{
+  shiftx=3cm,
+  shifty=-1.7cm,
+  scale=0.3,
+  dimx=1, dimy=1, dimz=4,
+  densityx=2, densityy=2, densityz=2,
+  drawxdims=false,
+  drawydims=false,
+  drawzdims=true,
+  dimzval=12,
+  front/.style={draw=yellow!70!white,fill=yellow!70!white},%
+  right/.style={draw=yellow!70!white,fill=yellow!70!white},%
+  top/.style={draw=yellow!70!white,fill=yellow!70!white},%
+  }
+
+  \draw [->, fill=gray!30,ultra thick] (4, -1.5, 0) -- (5, -1.5, 0);
+
+  \tikzcuboid{
+  shiftx=6cm,
+  shifty=-2cm,
+  scale=0.5,
+  dimx=2, dimy=2, dimz=24,
+  densityx=2, densityy=2, densityz=2,
+  drawxdims=true,
+  dimxval=\frac{W}{2},
+  drawydims=true,
+  dimyval=\frac{H}{2},
+  drawzdims=true,
+  dimzval=12C,
+  front/.style={draw=blue!50!white,fill=blue!50!white},%
+  right/.style={draw=blue!50!white,fill=blue!50!white},%
+  top/.style={draw=blue!50!white,fill=blue!50!white},%
+  }
+
+  \draw [->, fill=gray!30,ultra thick] (8.5, -1.5, 0) -- (10.5, -1.5, 0)
+    node[midway, above] (mag) {\large{$|\cdot|$}};
+  \draw [path pic=misc/mag.png, draw=white] (9.25,0,0) rectangle (11.75,2,0) (mag);
+  \draw (9.25,0,0) -- (mag.north);
+  \draw (11.75,0,0) -- (mag.north);
+  
+
+  \tikzcuboid{
+  shiftx=11.5cm,
+  shifty=-2cm,
+  scale=0.5,
+  dimx=2, dimy=2, dimz=12,
+  densityx=2, densityy=2, densityz=2,
+  dimzval=6C,
+  front/.style={draw=blue!50!white,fill=blue!50!white},%
+  right/.style={draw=blue!50!white,fill=blue!50!white},%
+  top/.style={draw=blue!50!white,fill=blue!50!white},%
+  }
+
+  \draw (13.75, -1.5, 0) node {\Large{$\conv$}};
+
+  \tikzcuboid{
+  shiftx=15cm,
+  shifty=-1.0cm,
+  scale=0.5,
+  dimx=0.4, dimy=0.4, dimz=12,
+  densityx=5, densityy=5, densityz=2,
+  drawxdims=false,
+  drawydims=false,
+  drawzdims=false,
+  front/.style={draw=red!50!white,fill=red!50!white},%
+  right/.style={draw=red!50!white,fill=red!50!white},%
+  top/.style={draw=red!50!white,fill=red!50!white},%
+  }
+  \tikzcuboid{
+  shifty=-1.65cm,
+  }
+  \tikzcuboid{
+  shifty=-3.0cm,
+  scale=0.5,
+  drawxdims=true,
+  dimxval=1,
+  drawydims=true,
+  dimyval=1,
+  drawzdims=true,
+  dimzval=6C,
+  }
+  \draw (15, -2.2, 0) node {$\vdots$};
+  \draw [<->] (15.2, -0.8, -3) -- (15.2, -3, -3) node[midway, right] {$F$};
+
+  \draw [->, fill=gray!30,ultra thick] (16.5, -1.5, 0) -- (17.5, -1.5, 0);
+
+  \tikzcuboid{
+  shiftx=18.5cm,
+  shifty=-2.0cm,
+  scale=0.5,
+  dimx=2, dimy=2, dimz=6,
+  densityx=4, densityy=4, densityz=2,
+  drawzdims=true,
+  dimzval=F,
+  drawxdims=true,
+  dimxval=\frac{W}{2},
+  drawydims=true,
+  dimyval=\frac{H}{2},
+  front/.style={draw=blue!50!white,fill=blue!50!white},%
+  right/.style={draw=blue!50!white,fill=blue!50!white},%
+  top/.style={draw=blue!50!white,fill=blue!50!white},%
+  }
+
+    % \tikzcuboid{
+    % shiftx=0cm,
+    % shifty=-2cm,
+    % scale=0.5,
+    % anglex=0, angley=90, anglez=210,
+    % dimx=2, dimy=2, dimz=12,
+    % densityx=1, densityy=1, densityz=1,
+    % shade=false,
+    % emphedge=true,
+    % shadeopacity=0,
+    % emphstyle/.style={rounded corners=0.2pt,line width=0.3mm},
+    % front/.style={draw=blue!25!white,fill=blue!25!white},%
+    % right/.style={draw=blue!50!white,fill=blue!50!white},%
+    % top/.style={draw=blue!50!white,fill=blue!50!white},%
+    % drawdims=true,
+    % dimzval=C,
+    % }
+\end{tikzpicture}
+
