@@ -1,0 +1,80 @@
+\section{Experiments}\label{sec:experiments}
+In this section we examine the effectiveness of our invariant layer by testing
+its performance on the well known datasets CIFAR-10 (10 classes, 5000 images per class
+at $32\x 32$ pixels per image), CIFAR-100 (100 classes, 500 images per class at 
+$32\x 32$ pixels per image) and Tiny ImageNet\cite{li_tiny_nodate} (a dataset
+like ImageNet with 200 classes and 500 training images per class, each image at
+$64 \x 64$ pixels). Our experiment code is available at
+\url{https://github.com/fbcotter/invariant_convolution}.
+
+\subsection{Layer Level Comparison}\label{sec:conv_exp}
+To compare our proposed locally invariant layer (inv) to a regular convolutional
+layer (conv), we use a simple yet powerful VGG-like architecture with 6 convolutional layers for CIFAR
+and 8 layers for Tiny ImageNet as shown in \autoref{tab:arch}. The initial number of
+channels $C$ we use is 64. Despite this simple design, this reference
+architecture achieves competitive performance for the three datasets.
+
+This network is optimized with stochastic gradient descent with momentum. The
+initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and
+weight decay is $10^{-4}$. For CIFAR-10/CIFAR-100 we scale the learning rate by
+a factor of 0.2 after 60, 80 and 100 epochs, training for 120 epochs in total.
+For Tiny ImageNet, the rate change is at 18, 30 and 40 epochs (training for 45 in total).
+
+\input{\path/table1}
+
+We perform an ablation study where we progressively swap out convolutional
+layers for invariant layers keeping the input and output activation sizes the
+same. As there are 6 layers (or 8 for Tiny ImageNet), there are too many
+permutations to list the results for swapping out all layers for our locally
+invariant layer, so we restrict our results to swapping 1 or 2 layers. 
+\autoref{tab:conv_results} reports the top-1 classification accuracies for
+CIFAR-10, CIFAR-100 and Tiny ImageNet. In addition to testing on the full
+datasets we report results for a reduced training set size. In the table, `invX'
+means that the `convX' layer from \autoref{tab:arch} is replaced with an 
+invariant layer.
+
+Interestingly, we see improvements when one or two invariant layers are used near the
+start of a system, but not for the first layer. 
+\input{\path/table2}
+
+\subsection{Network Comparison}\label{sec:scat_exp}
+In the previous section, we examined how the locally invariant layer performs when
+directly swapped in for a convolutional layer in an architecture designed
+for convolutional layers. In this section, we look at how
+it performs in a Hybrid ScatterNet-like \cite{oyallon_hybrid_2017,oyallon_scaling_2017},
+network.
+
+To build the second order ScatterNet, we stack two invariant layers on top of each
+other. For 3 input channels, the output of these layers has $3(1 +
+6 + 6 +36) = 147$ channels at $1/16$ the spatial input size. We then use 4
+convolutional layers, similar to convC to convF in \autoref{tab:arch} with
+$C=96$. In addition, we use dropout after these later convolutional layers with drop probability $p=0.3$.
+
+We compare a ScatterNet with no learning in between scattering orders
+(ScatNet A) to one with our proposal for a learned mixing matrix $A$ (ScatNet B). Finally,
+we also test the hypothesis seen from \autoref{sec:conv_exp} about putting conv
+layers before an inv layer, and test a version with a small convolutional layer
+before ScatNets A and B, taking the input from 3 to 16 channels, and call these ScatNet
+architectures ScatNet C and D respectively.
+
+See \autoref{tab:hybrid_scat} for results from these experiments. It is clear from
+the improvements that the mixing layer helps the Scattering front end.
+Interestingly, ScatNet C and D further improve on the A and B versions
+(albeit with a larger parameter and multiply cost than the mixing operation). This reaffirms that there
+may be benefit to add learning before as well as inside the ScatterNet.
+
+For comparison, we have also listed the performance of other architectures as
+reported by their authors in order of increasing complexity. Our proposed ScatNet D achieves
+comparable performance with the the All Conv, VGG16 and FitNet architectures.
+The Deep\cite{he_identity_2016} and Wide\cite{zagoruyko_wide_2016}
+ResNets perform best, but with very many more
+multiplies, parameters and layers.
+%and
+%being quick to train --- dropping the spatial size to $8\x 8$ on CIFAR after
+%only two layers is unique to the ScatterNet design. 
+
+ScatNets A to D with 6 layers like convC to convG from \autoref{tab:arch} after
+the scattering, achieve $58.1, 59.6, 60.8$ and $62.1\%$ top-1 accuracy on Tiny ImageNet. As
+these have more parameters and multiplies from the extra layers we exclude them
+from \autoref{tab:hybrid_scat}.
+\input{\path/table3}

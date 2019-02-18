@@ -1,0 +1,102 @@
+\section{Related Work}\label{sec:background}
+
+\subsection{Convolutional Layers}\label{sec:conv_layer}
+
+Let the output of a CNN at layer $l$ be:
+
+$$ \cnnlact{x}{l}{c}{\xy}, \quad c\in \{0, \ldots C_l-1\}, \xy \in \reals[2]$$
+
+where $c$ indexes the channel dimension , and $\xy$ is a vector of coordinates
+for the spatial position. Of course, $\xy$ is typically sampled on a grid, but
+following the style of \cite{qiu_dcfnet:_2018}, we keep it continuous to
+more easily differentiate between the spatial and channel dimensions. A typical
+convolutional layer in a standard CNN (ignoring the bias term) is:
+%
+\begin{eqnarray} 
+  \cnnlact{y}{l+1}{f}{\xy} &=& \sum_{c=0}^{C_l - 1}  x^{(l)}(c,\xy) \conv h^{(l)}_{f}(c, \xy)
+    \label{eq:conv}\\
+    \cnnlact{x}{l+1}{f}{\xy} & = & \sigma \left( \cnnlact{y}{l+1}{f}{\xy} \right) \label{eq:nonlin}
+\end{eqnarray}
+
+where $\cnnfilt{l}{f}{c}{\xy}$ is the $f$th filter of the $l$th layer (i.e. $f \in \{0,
+\ldots, C_{l+1}-1 \}$) with $C_l$ different point spread functions. $\sigma$ is a non-linearity 
+possibly combined with scaling such as batch normalization. The convolution
+is done independently for each $c$ in the $C_l$ channels and the resulting outputs are
+summed together to give one activation map. This is repeated $C_{l+1}$ times to
+give $\left\{ \cnnlact{x}{l+1}{f}{\xy} \right\}_{f \in \{0, \ldots, C_{l+1}-1 \}, \xy \in \reals[2]}$
+
+\subsection{Wavelets and Scattering Transforms}\label{sec:scatternet}
+The 2-D wavelet transform is done by convolving the input with a mother wavelet
+dilated by $2^j$ and rotated by $\theta$:
+
+\begin{equation}
+  \psi_{j, \theta}(\xy) = 2^{-j}\psi \left(2^{-j} R_{-\theta} \xy\right)
+\end{equation}
+
+where $R$ is the rotation matrix, $1 \leq j \leq J$ indexes the scale, and
+$1 \leq k \leq K$ indexes $\theta$ to give $K$ angles between $0$ and $\pi$. We
+copy notation from \cite{bruna_invariant_2013} and define $\lambda = (j, k)$ and
+the set of all possible $\lambda$s is $\Lambda$ whose size is $|\Lambda | = JK$.
+The wavelet transform, including lowpass, is then:
+%
+\begin{equation}
+  Wx(c, \xy) = \left\{ x(c, \xy)\conv \phi_J(\xy), x(c, \xy)\conv \psi_\lambda (\xy) \right\}_{\lambda \in \Lambda}
+\end{equation}
+
+Taking the modulus of the wavelet coefficients removes the high frequency
+oscillations of the output signal while preserving the energy of the
+coefficients over the frequency band covered by $\psi_\lambda$. This is crucial
+to ensure that the scattering energy is concentrated towards zero-frequency as
+the scattering order increases, allowing sub-sampling.
+% We experimentally show in \autoref{sec:??} that it plays a vital role in the
+%classification process. 
+We define the wavelet modulus propagator to be:
+%
+\begin{equation}
+  \label{eq:wave_mod}
+  \tilde{W}x(c, \xy) = \left\{ x(c, \xy) \conv \phi_{J}(\xy), |x(c, \xy) \conv \psi_\lambda (\xy) | \right\}_{\lambda \in \Lambda} 
+\end{equation}
+
+Let us call these modulus terms $U[\lambda] x = \lvert x \conv \psi_\lambda
+\rvert$ and define a path as a sequence of $\lambda$s given by $p = \left(\lambda_1,
+\lambda_2, \ldots \lambda_m \right)$. Further, define the modulus propagator
+acting on a path $p$ by:
+%
+\begin{eqnarray}
+  U[p]x & = & U[\lambda_m] \cdots U[\lambda_2]U[\lambda_1]x \label{eq:u_paths}\\
+        & = & || \cdots | x\conv \psi_{\lambda_1} | \conv \psi_{\lambda_2} | \cdots \conv \psi_{\lambda_m} |
+\end{eqnarray}
+
+These descriptors are then averaged over the window $2^J$ by a scaled lowpass filter $\phi_J =
+2^{-J}\phi(2^{-J}\xy)$ giving the `invariant' scattering coefficient
+%
+\begin{equation}
+  S[p]x(\xy) = U[p]x \conv \phi_J(\xy)
+\end{equation}
+
+If we define $p + \lambda = (\lambda_1, \ldots, \lambda_m, \lambda)$ then we can
+combine \autoref{eq:wave_mod} and \autoref{eq:u_paths} to give:
+%
+\begin{equation}
+  \tilde{W} U[p] x = \left\{S[p]x, U[p+\lambda]x \right\}_{\lambda}
+\end{equation}
+
+Hence we iteratively apply $\tilde{W}$ to all of the propagated $U$ terms of
+the previous layer to get the next order of scattering coefficients and
+the new $U$ terms.
+
+The resulting scattering coefficients have many nice properties, one of which is
+stability to diffeomorphisms (such as shifts and warping). From
+\cite{mallat_group_2012}, if $\mathcal{L}_\tau
+x = x(\xy -\tau(\xy))$ is a diffeomorphism which is bounded with 
+$\norm{\nabla \tau}_{\infty} \leq 1/2$, then there exists a $K_L > 0$ such
+that:
+%
+\begin{equation}
+  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq K_L P H(\tau) \norm{x}
+  \label{eq:stability}
+\end{equation}
+
+where $P = \F{length}(p)$ is the scattering order, and $H(\tau)$ is a function
+of the size of the displacement, derivative and Hessian of $\tau$. 
+

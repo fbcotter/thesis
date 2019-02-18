@@ -1,0 +1,29 @@
+\section{Conclusion}\label{sec:conclusion}
+In this work we have proposed a new learnable scattering layer, dubbed the
+locally invariant convolutional layer, tying together ScatterNets and CNNs.
+We do this by adding a mixing between the layers of ScatterNet allowing the
+learning of more complex shapes than the ripples seen in
+\cite{cotter_visualizing_2017}. This invariant layer can easily be shaped to allow
+it to drop in the place of a convolutional layer, theoretically saving on parameters and
+computation. However, care must be taken when doing this, as our ablation study
+showed that the layer only improves upon regular convolution at certain depths.
+Typically, it seems wise to interleave convolutional layers and invariant
+layers.
+%, which gave the best results in \autoref{sec:conv_exp}.
+
+We have developed a system that allows us to pass
+gradients through the Scattering Transform, something that previous work has not
+yet researched. Because of this, we were able to train end-to-end a system that
+has a ScatterNet surrounded by convolutional layers and with our proposed mixing. 
+We were surprised to see that even a small
+convolutional layer before Scattering helps the network, and a
+very shallow and simple Hybrid-like ScatterNet was able to achieve good
+performance on CIFAR-10 and CIFAR-100.
+
+There is still much research to do - why does the proposed layer work best near,
+but not at the beginning of deeper networks? Why is it beneficial to precede an
+invariant layer with a convolutional layer? Can we combine invariant layers in
+Residual style architectures? The work presented here is still
+nascent but we hope that it will stimulate further interest and research into both
+ScatterNets and the design of convolutional layers in CNNs.
+

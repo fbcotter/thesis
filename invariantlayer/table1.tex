@@ -1,0 +1,38 @@
+\begin{table}[ht]
+  \centering
+  \caption{Base Architecture used for Convolution Layer comparison tests.
+  \textsuperscript{\textdagger}indicates only used in Tiny ImageNet
+  experiments.}
+  \label{tab:arch}
+  \begin{tabular}{c|c}
+    \textbf{Name} & \textbf{Output Size}  \\\hline
+    convA & $C\x H\x W$ \\
+    convB & $C\x H\x W$ \\
+    convC & $2C\x H/2\x W/2$\\
+    convD & $2C\x H/2\x W/2$\\
+    convE & $4C\x H/4\x W/4$\\
+    convF & $4C\x H/4\x W/4$\\
+    convG\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
+    convH\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
+    fc & num classes \\
+    % conv1\_1 & $C\x H\x W$ & conv+bn+ReLU\\
+    % conv1\_2 & $C\x H\x W$ & conv+bn+ReLU+maxpool \\
+    % conv2\_1 & $2C\x H/2\x W/2$& conv+bn+ReLU \\
+    % conv2\_2 & $2C\x H/2\x W/2$& conv+bn+ReLU+maxpool \\
+    % conv3\_1 & $4C\x H/4\x W/4$& conv+bn+ReLU \\
+    % conv3\_2 & $4C\x H/4\x W/4$& conv+bn+ReLU+maxpool\textsuperscript{\textdagger} \\
+    % conv4\_1\textsuperscript{\textdagger} & $8C\x H/8\x W/8$& conv+bn+ReLU \\
+    % conv4\_2\textsuperscript{\textdagger} & $8C\x H/8\x W/8$& conv+bn+ReLU \\
+    % fc1 & num classes & average pool + fc \\
+    % conv1\_1 & conv $C\x 3\x 3\x 3$, bn+ReLU\\
+    % conv1\_2 & conv $C\x C\x 3\x 3$, bn+ReLU, maxpool $2\x 2$ \\
+    % conv2\_1 & conv $2C\x C\x 3\x 3$, bn+ReLU \\
+    % conv2\_2 & conv $2C\x 2C\x 3\x 3$, bn+ReLU, maxpool $2\x 2$ \\
+    % conv3\_1 & conv $4C\x 2C\x 3\x 3$, bn+ReLU \\
+    % conv3\_2 & conv $4C\x 4C\x 3\x 3$, bn+ReLU maxpool\textsuperscript{\textdagger} $2\x 2$\\
+    % conv4\_1\textsuperscript{\textdagger} & conv $8C\x 4C\x 3\x 3$, bn+ReLU \\
+    % conv4\_2\textsuperscript{\textdagger} & conv $8C\x 8C\x 3\x 3$, bn+ReLU \\
+    % fc1 & average pool $8\x 8$, fc $4C\x \F{num classes}$
+  \end{tabular}
+\end{table}
+

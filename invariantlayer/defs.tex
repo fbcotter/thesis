@@ -8,12 +8,9 @@
 \newcommand{\x}{\times}                     % I don't like having to write out \times so often
 \newcommand{\degs}{{\ensuremath{^{\circ}}}\xspace}
 \newcommand{\conv}{\ast}
-\def\wrt{w.r.t.\xspace}
-\def\definedas{\triangleq}
-\newcommand{\mycaption}[2]{\caption[#1]{\textbf{#1.} #2}} % Use \macpation{bold font}{rest}
+\newcommand{\definedas}{\triangleq}
 
-\DeclareMathOperator*{\argmin}{arg\,min}
-\DeclareMathOperator*{\argmax}{arg\,max}
+%\DeclareMathOperator*{\argmin}{arg\,min}
 % Generic command to make upright words in mathmode 
 \newcommand{\F}[1]{\ensuremath{\mathrm{#1}}\xspace}
 
@@ -22,18 +19,17 @@
 \newcommand{\tr}{\F{trace}}
 \newcommand{\diag}{\F{diag}}
 
-% Declare the floor and ceiling operators
-\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
-\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
-
 % Define a new command for the euclidean norm of an expression
 \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
 \newcommand{\lnorm}[2]{{\left\lVert #1 \right\rVert}_{#2}}
-\newcommand{\loss}{L}
+\newcommand{\abs}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\loss}{l}
 \newcommand{\logloss}{\mathcal{L}}
 \newcommand{\dydx}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\conj}[1]{\bar{#1}}
 \newcommand{\half}{\frac{1}{2}}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
 \newcommand{\expected}[2][]{\ensuremath{{\mathbb{E}_{#1}\left[#2\right]}}\xspace}
 \newcommand{\drawnfrom}{\ensuremath{\sim}\xspace}
 \newcommand{\real}[1]{\F{Re}\left(#1\right)}
@@ -50,7 +46,6 @@
 \newcommand{\integers}[1][]{\ensuremath{{\mathbb{Z}}^{#1}}\xspace}
 \newcommand{\galois}[2][]{\ensuremath{{\mathbb{F}_{#2}}^{#1}}\xspace}
 \newcommand{\binaries}[1][]{\galois[#1]{2}\xspace}
-
 \newcommand{\cnnfilt}[4]{h^{(#1)}_{#2}\left(#3, #4 \right)}
 \newcommand{\cnnact}[3]{#1\left(#2, #3\right)}
 \newcommand{\cnnlact}[4]{#1^{(#2)}\left(#3, #4\right)}

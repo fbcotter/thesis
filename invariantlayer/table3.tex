@@ -1,0 +1,22 @@
+\begin{table}
+  \centering
+  \caption{Hybrid ScatterNet top-1 classification accuracies on CIFAR-10 and CIFAR-100. 
+  $N_l$ is the number of learned convolutional layers, \#param is the number of
+  parameters, and \#mults is the number of multiplies per $32\x 32\x 3$ image. An asterisk indicates
+  that the value was estimated from the architecture description.}\label{tab:hybrid_scat}
+  \hspace{-10pt}
+  \begin{tabular}{c|ccc|ccc}
+    & $N_l$ &\#param&\#mults&CIFAR-10&CIFAR-100\\ \hline 
+    ScatNet A & 4 & 2.6M & 165M & 89.4 & 67.0 \\ 
+    ScatNet B & 6 & 2.7M & 167M & 91.1  & 70.7 \\ %                
+    ScatNet C & 5 & 3.7M & 251M & 91.6 & 70.8  \\ %           
+    ScatNet D & 7 & 4.3M & 294M & 93.0 & 73.5  \\\hline %           
+    All Conv\cite{springenberg_striving_2014-3} & 8 & 1.4M & 281M\textsuperscript{*} & 92.8 & 66.3 \\ %    & - \\
+    VGG16\cite{liu_very_2015} & 16 & 138M\textsuperscript{*} & 313M\textsuperscript{*}  & 91.6 & -  \\ 
+    FitNet\cite{romero_fitnets:_2014} & 19 & 2.5M & 382M & 91.6 & 65.0 \\ %  & - \\
+    % ResNet-110\cite{he_deep_2016} & 109 & 1.7M & 255M\textsuperscript{*}& 93.6 & 74.8 \\ %              &  -\\
+    ResNet-1001\cite{he_identity_2016} & 1000 & 10.2M & 4453M\textsuperscript{*}& 95.1 & 77.3 \\ %              &  -\\
+    WRN-28-10\cite{zagoruyko_wide_2016} & 28 & 36.5M & 5900M\textsuperscript{*} & 96.1 & 81.2 \\ %    & - \\
+  \end{tabular}
+\end{table}
+

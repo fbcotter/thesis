@@ -1,0 +1,83 @@
+% Include the figure here so it goes to the top of the third page
+\section{Locally Invariant Layer} \label{sec:method}
+The $U$ terms in \autoref{sec:scatternet} are often called `covariant' terms but
+in this paper we will call them locally invariant, as they tend to be invariant up to a
+scale $2^j$.  We propose to mix the locally invariant terms $U$ and the
+lowpass terms $S$ with learned weights $a_{f,\lambda}$ and $b_f$. For example,
+consider a first order ScatterNet, and let the input to it be $x^{(l)}$. Our
+proposed output $y^{(l+1)}$ is then:
+%
+\begin{eqnarray} \label{eq:comb1}
+  y^{(l+1)}(f, \xy) & = & \sum_{\lambda\in \Lambda} \sum_{c=0}^{C-1} |x^{(l)}(c, \xy)\conv \psi_\lambda(\xy)|\ a_{f, \lambda}(c) \nonumber \\
+                    & + & \left(\sum_{c=0}^{C-1} x^{(l)}(c, \xy) \conv \phi_J(\xy)\right) b_f(c)
+  \label{eq:layer}
+\end{eqnarray}
+
+Returning to \autoref{eq:wave_mod}, we define a new index variable $\gamma$
+such that $\tilde{W}[\gamma]x = x\conv \phi_J$ for $\gamma = 1$ and
+$\tilde{W}[\gamma]x = |x \conv \psi_{\lambda}|$ for $2 \leq \gamma \leq JK + 1$.
+We do the same for the weights $a$, $b$ by defining $\tilde{a}_f = \left\{b_f,
+a_{f, \lambda} \right\}_\lambda$ and $\tilde{a}_f[\gamma] = b_f$ if $\gamma = 1$
+and $\tilde{a}_f[\gamma] = a_{f, \lambda}$ if $2 \leq \gamma \leq JK + 1$.
+We further define $q = (c, \gamma) \in Q$ to combine the channel
+and index terms.  This simplifies \autoref{eq:layer} to be:
+%
+\begin{eqnarray}
+  z^{(l+1)}(q, \xy) & = & \tilde{W}x^{(l)}[q] = \tilde{W}x^{(l)}[\tilde{\lambda}](c, \xy) \label{eq:covariant}\\
+  y^{(l+1)}(f, \xy) & = & \sum_{q \in Q} z^{(l+1)}(q, \xy) \tilde{a}_f(q) \label{eq:mixing}
+\end{eqnarray}
+or in matrix form with $A_{f,q} = \tilde{a}_f(q)$
+%
+\begin{equation}
+  Y^{(l+1)}(\xy)  =  A Z^{(l+1)}(\xy) \label{eq:matrix}
+\end{equation}
+
+This is very similar to the standard convolutional layer from
+\autoref{eq:conv}, except we have replaced the previous layer's $x$ with
+intermediate coefficients $z$ (with $|Q| = (JK+1)C$ channels), and the
+convolutions of \autoref{eq:conv} have been replaced by a matrix multiply
+(which can also be seen as a $1\x 1$ convolutional layer). We can then apply
+\autoref{eq:nonlin} to \autoref{eq:mixing} to get the next layer's output (or
+equivalently, the next order scattering coefficients). 
+
+\subsection{Properties}
+The first thing to note is that with careful choice of $A$ and $\sigma$, we can
+recover the original translation invariant ScatterNet
+\cite{bruna_invariant_2013, oyallon_scaling_2017}. If $C_{l+1} = (JK+1)C_l$ 
+and $A$ is the identity matrix $I_{C_{l+1}}$, we remove the mixing and then $y^{(l+1)} = \tilde{W}x$.
+
+Further, if $\sigma = \F{ReLU}$ as is commonly the case in training CNNs, it has
+no effect on the positive locally invariant terms $U$. It will affect the averaging terms
+if the signal is not positive, but this can be dealt with by adding a channel
+dependent bias term $\alpha_c$ to $x^{(l)}$ to ensure it is positive. This bias term
+will not affect the propagated signals as $\int \alpha_c \psi_\lambda(\xy) d\xy =
+0$. The bias can then be corrected by subtracting $\alpha_c \norm{\phi_J}_2$ from
+the averaging terms after taking the ReLU, then $x^{(l+1)} = \tilde{W}x$.
+
+This makes one layer of our system equivalent to a first order scattering
+transform, giving $S_0$ and $U_1$ (invariant to input shifts of $2^1$). Repeating the
+same process for the next layer again works, as we saw in \autoref{eq:u_paths},
+giving $S_1$ and $U_2$ (invariant to shifts of $2^2$).  If we want to build
+higher invariance, we can continue or simply average these outputs with an average pooling
+layer.
+
+Let us define the action of our layer on the scattering
+coefficients to be $Vx$. We would like to find a bound on $\norm{V\mathcal{L}_\tau x -
+V x}$. To do this, we note that the mixing is a linear operator and hence is
+Lipschitz continuous. The authors in \cite{qiu_dcfnet:_2018} find constraints on the mixing
+weights to make them non-expansive (i.e. Lipschitz constant 1).
+Further, the ReLU is non-expansive meaning the combination of the two is
+also non-expansive, so $\norm{V\mathcal{L}_\tau x - V x} \leq \norm{S\mathcal{L}_\tau
+x - Sx}$, and \autoref{eq:stability} holds.
+% We would also like to ensure that we can derive a similar bound in stability to
+% \autoref{eq:stability}. Let us call the action of our layer (with learned
+% weights and nonlinearity) $Vx = \sigma(M[\gamma]\tilde{W}[\gamma]x)$. We would like to find a bound on
+% $\norm{V\mathcal{L}_\tau x - V x}$. Fortunately, $M[\gamma]$ is a linear
+% operator, so it is not difficult to find constraints on it that make it
+% non-expansive. Proposition 3.1 in \autoref{qiu_dcfnet:_2018} does just this for
+% the ReLU and convolutional layer
+
+% \begin{eqnarray}
+% \norm{V\mathcal{L}_\tau x - V x} = 
+% \end{eqnarray}
+

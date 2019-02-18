@@ -1,0 +1,71 @@
+\input{\imgpath/figure1}
+
+\section{Implementation}\label{sec:implementation}
+Like \cite{singh_dual-tree_2017,singh_multi-resolution_2016} we use the \DTCWT
+\cite{selesnick_dual-tree_2005} for our wavelet filters $\psi_{j, \theta}$ due
+to their fast implementation with separable convolutions which we will discuss
+more in \autoref{sec:computation}.  A side effect of this choice is that the
+number of orientations of wavelets is restricted to $K=6$.
+
+The output of the \DTCWT is decimated by a factor of $2^j$ in each direction for
+each scale $j$.  In all our experiments we set $J=1$ for each invariant layer,
+meaning we can mix the lowpass and bandpass coefficients at the same resolution.
+\autoref{fig:block_diagram} shows how this is done. Note that setting $J=1$ for
+a single layer does not restrict us from having $J>1$ for the entire system, as
+if we have a second layer with $J=1$ after the first, including downsampling
+($\downarrow$), we would have:
+%
+\begin{equation}
+  \left(\left(\left(x \conv \phi_1\right) \downarrow 2\right) \conv \psi_{1, \theta}\right) \downarrow 2 = \left(x \conv \psi_{2, \theta}\right) \downarrow 4
+\end{equation}
+
+\subsection{Memory Cost}\label{sec:memory}
+A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output channels
+and kernel size $L$ has $L^2C_{l}C_{l+1}$ parameters. 
+
+The number of learnable parameters in each of our proposed invariant layers with
+$J=1$ and $K=6$ orientations is:
+%
+\begin{equation}
+  \text{\#params} = (JK+1)C_{l}C_{l+1} = 7C_{l}C_{l+1}
+\end{equation} 
+%
+The spatial support of the wavelet filters is typically $5\x 5$ pixels or more,
+and we have reduced $\text{\#params}$ to less than $3\x3$ per filter, while
+producing filters that are significantly larger than this.
+
+\subsection{Computational Cost}\label{sec:computation}
+A standard convolutional layer with kernel size $L$ needs $L^2C_{l+1}$
+multiplies per input pixel (of which there are $C_{l}\x H\x W$).
+
+As mentioned in \autoref{sec:memory}, we use the \DTCWT for our complex, shift
+invariant wavelet decomposition. We use the open source Pytorch implementation
+of the \DTCWT \cite{cotter_pytorch_2018} as it can run on GPUs and
+has support for backpropagating gradients.
+
+There is an overhead in doing the wavelet decomposition for each input channel. A
+regular discrete wavelet transform (DWT) with filters of length $L$ will have
+$2L\left(1-2^{-2J}\right)$ multiplies for a $J$ scale decomposition. A \DTCWT
+has 4 DWTs for a 2-D input, so its cost is $8L\left(1-2^{-2J}\right)$, with
+$L=6$ a common size for the filters. It is important to note that unlike the
+filtering operation, this does not scale with $C_{l+1}$, the end result being that as
+$C_{l+1}$ grows, the cost of $C_l$ forward transforms is outweighed by that of the mixing
+process.
+
+Because we are using a decimated wavelet decomposition, the sample rate decreases after each
+wavelet layer. The benefit of this is that the mixing process then only works on
+one quarter the spatial size after one first scale and one sixteenth the spatial
+after the second scale. Restricting ourselves to $J=1$ as we mentioned in
+\autoref{sec:implementation}, the computational cost is then:
+
+\begin{equation}
+  % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
+  \underbrace{ \frac{7}{4}C_{l+1} }_{\textrm{mixing}} +
+  \underbrace{\vphantom{\frac{7}{4}} 36}_{\textrm{\DTCWT}} \quad
+  \textrm{multiplies per input pixel}\label{eq:comp}
+\end{equation}
+In most CNNs, $C_{l+1}$ is several dozen if not several
+hundred, which makes \autoref{eq:comp} significantly smaller than
+$L^2C_{l+1}=9C_{l+1}$ multiplies for $3\x 3$ convolutions.
+
+
