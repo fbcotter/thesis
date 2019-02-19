@@ -9,7 +9,6 @@
   cuboid,
   shiftx/.initial=0,
   shifty/.initial=0,
-  shiftz/.initial=0,
   dimx/.initial=3,
   dimy/.initial=3,
   dimz/.initial=3,
@@ -68,7 +67,6 @@
     \newcommand{\dimx}{\tikzcuboidkey{dimx}}
     \newcommand{\dimy}{\tikzcuboidkey{dimy}}
     \newcommand{\dimz}{\tikzcuboidkey{dimz}}
-    \newcommand{\shiftz}{\tikzcuboidkey{shiftz}}
     \pgfmathsetmacro{\secondx}{2*\steppingx}
     \pgfmathsetmacro{\secondy}{2*\steppingy}
     \pgfmathsetmacro{\secondz}{2*\steppingz}
@@ -76,38 +74,38 @@
       \foreach \y in {\steppingy,\secondy,...,\dimy} {   
         \pgfmathsetmacro{\lowx}{(\x-\steppingx)}
         \pgfmathsetmacro{\lowy}{(\y-\steppingy)}
-        \filldraw[cuboid/front] (\lowx,\lowy,0.5*\dimz+\shiftz) -- (\lowx,\y,0.5*\dimz+\shiftz) -- (\x,\y,0.5*\dimz+\shiftz) -- (\x,\lowy,0.5*\dimz+\shiftz) -- cycle;
+        \filldraw[cuboid/front] (\lowx,\lowy,0.5*\dimz) -- (\lowx,\y,0.5*\dimz) -- (\x,\y,0.5*\dimz) -- (\x,\lowy,0.5*\dimz) -- cycle;
       }
     }
     \foreach \x in {\steppingx,\secondx,...,\dimx} { 
       \foreach \z in {\steppingz,\secondz,...,\dimz} {   
         \pgfmathsetmacro{\lowx}{(\x-\steppingx)}
-        \pgfmathsetmacro{\lowz}{(\z-\steppingz-0.5*\dimz+\shiftz)}
-        \pgfmathsetmacro{\highz}{(\z-0.5*\dimz+\shiftz)}
+        \pgfmathsetmacro{\lowz}{(\z-\steppingz-0.5*\dimz)}
+        \pgfmathsetmacro{\highz}{(\z-0.5*\dimz)}
         \filldraw[cuboid/top] (\lowx,\dimy,\lowz) -- (\lowx,\dimy,\highz) -- (\x,\dimy,\highz) -- (\x,\dimy,\lowz) -- cycle;
       }
     }
     \foreach \y in {\steppingy,\secondy,...,\dimy} { 
       \foreach \z in {\steppingz,\secondz,...,\dimz} {
         \pgfmathsetmacro{\lowy}{(\y-\steppingy)}
-        \pgfmathsetmacro{\lowz}{(\z-\steppingz-0.5*\dimz+\shiftz)}
-        \pgfmathsetmacro{\highz}{(\z-0.5*\dimz+\shiftz)}
+        \pgfmathsetmacro{\lowz}{(\z-\steppingz-0.5*\dimz)}
+        \pgfmathsetmacro{\highz}{(\z-0.5*\dimz)}
         \filldraw[cuboid/right] (\dimx,\lowy,\lowz) -- (\dimx,\lowy,\highz) -- (\dimx,\y,\highz) -- (\dimx,\y,\lowz) -- cycle;
       }
     }
     \ifcuboidemphedge
-      \draw[cuboid/emphstyle] (0,\dimy,-0.5*\dimz+\shiftz) -- (\dimx,\dimy,-0.5*\dimz+\shiftz) -- (\dimx,\dimy,0.5*\dimz+\shiftz) -- (0,\dimy,0.5*\dimz+\shiftz) -- cycle;%
-      \draw[cuboid/emphstyle] (0,\dimy,0.5*\dimz+\shiftz) -- (0,0,0.5*\dimz+\shiftz) -- (\dimx,0,0.5*\dimz+\shiftz) -- (\dimx,\dimy,0.5*\dimz+\shiftz);%
-      \draw[cuboid/emphstyle] (\dimx,\dimy,-0.5*\dimz+\shiftz) -- (\dimx,0,-0.5*\dimz+\shiftz) -- (\dimx,0,0.5*\dimz+\shiftz);%
+      \draw[cuboid/emphstyle] (0,\dimy,-0.5*\dimz) -- (\dimx,\dimy,-0.5*\dimz) -- (\dimx,\dimy,0.5*\dimz) -- (0,\dimy,0.5*\dimz) -- cycle;%
+      \draw[cuboid/emphstyle] (0,\dimy,0.5*\dimz) -- (0,0,0.5*\dimz) -- (\dimx,0,0.5*\dimz) -- (\dimx,\dimy,0.5*\dimz);%
+      \draw[cuboid/emphstyle] (\dimx,\dimy,-0.5*\dimz) -- (\dimx,0,-0.5*\dimz) -- (\dimx,0,0.5*\dimz);%
     \fi
     \ifcuboiddrawxdims
-      \draw[<->] (0, -0.5, 0.5*\dimz+\shiftz) -- (\dimx, -0.5, 0.5*\dimz+\shiftz) node[below,midway] {$\tikzcuboidkey{dimxval}$};
+      \draw[<->] (0, -0.5, 0.5*\dimz) -- (\dimx, -0.5, 0.5*\dimz) node[below,midway] {$\tikzcuboidkey{dimxval}$};
     \fi
     \ifcuboiddrawydims
-      \draw[<->] (-0.5, 0, 0.5*\dimz+\shiftz) -- (-0.5, \dimy, 0.5*\dimz+\shiftz) node[left,midway] {$\tikzcuboidkey{dimyval}$};
+      \draw[<->] (-0.5, 0, 0.5*\dimz) -- (-0.5, \dimy, 0.5*\dimz) node[left,midway] {$\tikzcuboidkey{dimyval}$};
     \fi
     \ifcuboiddrawzdims
-      \draw[<->] (\dimx, -0.5, -0.5*\dimz+\shiftz) -- (\dimx, -0.5, 0.5*\dimz+\shiftz) node[below right,midway] {$\tikzcuboidkey{dimzval}$};
+      \draw[<->] (\dimx, -0.5, -0.5*\dimz) -- (\dimx, -0.5, 0.5*\dimz) node[below right,midway] {$\tikzcuboidkey{dimzval}$};
     \fi
 
     \ifcuboidshade
@@ -119,16 +117,16 @@
         \pgfmathsetmacro{\cpercent}{(\lows)/(\tikzcuboidkey{shadesamples}-1)*100}
         \fill[opacity=\tikzcuboidkey{shadeopacity},
               color=\tikzcuboidkey{shadecolorlight}!\cpercent!\tikzcuboidkey{shadecolordark}] 
-            (0,\s*\cstepy,0.5*\dimz+\shiftz) -- (\s*\cstepx,\s*\cstepy,0.5*\dimz+\shiftz) -- (\s*\cstepx,0,0.5*\dimz+\shiftz) 
-              -- (\lows*\cstepx,0,0.5*\dimz+\shiftz) -- (\lows*\cstepx,\lows*\cstepy,0.5*\dimz+\shiftz) -- (0,\lows*\cstepy,0.5*\dimz+\shiftz) -- cycle;
+            (0,\s*\cstepy,0.5*\dimz) -- (\s*\cstepx,\s*\cstepy,0.5*\dimz) -- (\s*\cstepx,0,0.5*\dimz) 
+              -- (\lows*\cstepx,0,0.5*\dimz) -- (\lows*\cstepx,\lows*\cstepy,0.5*\dimz) -- (0,\lows*\cstepy,0.5*\dimz) -- cycle;
         \fill[opacity=\tikzcuboidkey{shadeopacity},
               color=\tikzcuboidkey{shadecolorlight}!\cpercent!\tikzcuboidkey{shadecolordark}] 
-            (0,\dimy,\s*\cstepz-0.5*\dimz+\shiftz) -- (\s*\cstepx,\dimy,\s*\cstepz-0.5*\dimz+\shiftz) -- (\s*\cstepx,\dimy,-0.5*\dimz+\shiftz) 
-              -- (\lows*\cstepx,\dimy,-0.5*\dimz+\shiftz) -- (\lows*\cstepx,\dimy,\lows*\cstepz-0.5*\dimz+\shiftz) -- (0,\dimy,\lows*\cstepz-0.5*\dimz+\shiftz) -- cycle;
+            (0,\dimy,\s*\cstepz-0.5*\dimz) -- (\s*\cstepx,\dimy,\s*\cstepz-0.5*\dimz) -- (\s*\cstepx,\dimy,-0.5*\dimz) 
+              -- (\lows*\cstepx,\dimy,-0.5*\dimz) -- (\lows*\cstepx,\dimy,\lows*\cstepz-0.5*\dimz) -- (0,\dimy,\lows*\cstepz-0.5*\dimz) -- cycle;
         \fill[opacity=\tikzcuboidkey{shadeopacity},
               color=\tikzcuboidkey{shadecolorlight}!\cpercent!\tikzcuboidkey{shadecolordark}] 
-            (\dimx,0,\s*\cstepz-0.5*\dimz+\shiftz) -- (\dimx,\s*\cstepy,\s*\cstepz-0.5*\dimz+\shiftz) -- (\dimx,\s*\cstepy,-0.5*\dimz+\shiftz) 
-              -- (\dimx,\lows*\cstepy,-0.5*\dimz+\shiftz) -- (\dimx,\lows*\cstepy,\lows*\cstepz-0.5*\dimz+\shiftz) -- (\dimx,0,\lows*\cstepz-0.5*\dimz+\shiftz) -- cycle;
+            (\dimx,0,\s*\cstepz-0.5*\dimz) -- (\dimx,\s*\cstepy,\s*\cstepz-0.5*\dimz) -- (\dimx,\s*\cstepy,-0.5*\dimz) 
+              -- (\dimx,\lows*\cstepy,-0.5*\dimz) -- (\dimx,\lows*\cstepy,\lows*\cstepz-0.5*\dimz) -- (\dimx,0,\lows*\cstepz-0.5*\dimz) -- cycle;
       }
     \fi 
 
