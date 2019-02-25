@@ -9,10 +9,11 @@ $64 \x 64$ pixels). Our experiment code is available at
 
 \subsection{Layer Level Comparison}\label{sec:conv_exp}
 To compare our proposed locally invariant layer (inv) to a regular convolutional
-layer (conv), we use a simple yet powerful VGG-like architecture with 6 convolutional layers for CIFAR
-and 8 layers for Tiny ImageNet as shown in \autoref{tab:arch}. The initial number of
-channels $C$ we use is 64. Despite this simple design, this reference
-architecture achieves competitive performance for the three datasets.
+layer (conv), we build a simple yet powerful reference network based on VGG.
+It has six convolutional layers for CIFAR and eight layers for Tiny ImageNet as shown in
+\autoref{tab:arch}. The initial number of channels $C$ we use is 64. Despite
+this simple design, this reference architecture achieves competitive performance
+for the three datasets.
 
 This network is optimized with stochastic gradient descent with momentum. The
 initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and

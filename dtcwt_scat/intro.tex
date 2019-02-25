@@ -1,42 +1,3 @@
-\section{Related Work}\label{sec:ch5:related}
-
-There has been several similar works that look into desigining new convolutional
-layers by separating them into two stages --- a first stage that performs a
-non-standard filtering process, and a second stage that combines the first stage
-into single activations. The inception layer 
-\cite{szegedy_rethinking_2015} by \citeauthor*{szegedy_rethinking_2015} does this by filtering with different
-kernel sizes in the first stage, and then combining with a $1\x 1$ convolution
-in the second stage. \citeauthor*{ioannou_training_2015} also do something similar by making
-a first stage with horizontal and vertical filters, and then combining in the
-second stage again with a $1\x 1$ convolution\cite{ioannou_training_2015}. But perhaps the most similar
-works are those that use a first stage with fixed filters, combining them in a
-learned way in the second stage. Of particular note are:
-\begin{itemize}
-\item 
-\citetitle{juefei-xu_local_2016} \cite{juefei-xu_local_2016}. This paper builds a
-first stage with a small $3\x 3$ kernel filled with zeros, and randomly insert
-plus and minus ones into it. This builds a very crude spatial differentiator in random
-directions. The output of the first stage is then passed through a sigmoid
-nonlinearity before being mixed with a $1\x 1$ convolution. The imposed
-structure on the first stage was found to be a good regularizer and prevented
-overfitting, and the combination of the mixing in the second layer allowed
-for a powerful and expressive layer, with performance near that of a regular CNN
-layer.
-
-\item
-``DCFNet: Deep Neural Network with Decomposed Convolutional Filters"
-\cite{qiu_dcfnet:_2018}. This paper decomposes convolutional filters as linear
-combinations of Fourier Bessel and random bases.  The first stage projects the
-inputs onto the chosen basis, and the second stage learns how to mix these
-projections with a $1\x 1$ convolution. Unlike \cite{juefei-xu_local_2016} this
-layer is purely linear. The supposed advantage being that the
-basis can be truncated to save parameters and make the input less susceptible to
-high frequency variations. The work found that this layer had marginal benefits
-over regular CNN layers in classification, but had improved stability to noisy
-inputs. 
-
-\end{itemize}
-
 \section{Recap of Useful Terms}\label{sec:ch5:background}
 
 \subsection{Convolutional Layers}\label{sec:ch5:conv}
@@ -103,7 +64,7 @@ Let us call these modulus terms $U[\lambda] x = \lvert x \conv \psi_\lambda
 acting on a path $p$ by:
 %
 \begin{eqnarray}
-  U[p]x & = & U[\lambda_m] \cdots U[\lambda_2]U[\lambda_1]x \label{eq:ch5:u_paths}\\
+  U[p]x & = & U[\lambda_m] \cdots U[\lambda_2]U[\lambda_1]x \label{eq:u_paths}\\
         & = & || \cdots | x\conv \psi_{\lambda_1} | \conv \psi_{\lambda_2} | \cdots \conv \psi_{\lambda_m} |
 \end{eqnarray}
 
@@ -111,7 +72,7 @@ These descriptors are then averaged over the window $2^J$ by a scaled lowpass fi
 2^{-J}\phi(2^{-J}\xy)$ giving the `invariant' scattering coefficient
 %
 \begin{equation}
-  S[p]x(\xy) = U[p]x \conv \phi_J(\xy)
+  S[p]x(\xy) = U[p]x \conv \phi_J(\xy) \label{eq:ch5:wavemod}
 \end{equation}
 
 If we define $p + \lambda = (\lambda_1, \ldots, \lambda_m, \lambda)$ then we can
@@ -146,3 +107,8 @@ of the size of the displacement, derivative and Hessian of $\tau$, $H\tau$
   \frac{\norm{\Delta \tau}_{\infty} }{\norm{\nabla \tau}_{\infty}}, 1 \right) +
   \norm{H\tau}_{\infty}
 \end{equation}
+
+\section{Multiscale Scattering}
+The notation and analysis on Scattering so far has presented it as a cascade of
+several multi-scale 
+

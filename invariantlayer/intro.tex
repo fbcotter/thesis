@@ -1,59 +1,28 @@
 \section{Introduction}
 
-In image understanding tasks such as classification, recognition and segmentation,
-Convolutional Neural Networks (CNNs) have now become the \emph{de facto} and the state
-of the art model. Since they proved their worth in 2012 by winning the ImageNet
-Large Scale Visual Recognition Competition (ILSVRC) \cite{russakovsky_imagenet_2014}
-with the AlexNetwork \cite{krizhevsky_imagenet_2012}, they have been fine tuned and developed into very
-powerful and flexible models. Most of this development has been in changing the
-architecture, such as the Residual Network\cite{he_deep_2016}, the Inception
-Network \cite{szegedy_going_2015} and the DenseNet \cite{huang_densely_2017}.
-However one of the key building blocks of CNNs, the convolutional filter bank,
-has seen less development and in today's models they are not too dissimilar to
-what they were in 2012. % 
-%
-% Some changes they have seen is in their size,
-% \cite{simonyan_very_2014} suggested reducing the spatial support of the filters to only $3\x 3$ and 
-% \cite{he_deep_2015} proposed the residual layer, which does not change the structure of the filters 
-% directly, but adds a bypass connection akin to adding the identity matrix to the
-% filter weights. 
-%
-We believe there is still much to explore in the way convolutional 
-filters are built and learned. 
+% We believe there is still much to explore in the way convolutional 
+% filters are built and learned. 
 
-Current layers are randomly initialized and learned through backpropagation by
-minimizing a custom loss function.
-The properties and purpose of learned filters
-past the first layer of a CNN are not well understood, a deeply unsatisfying
-situation, particularly when we start to see problems in modern solutions such as significant redundancy
-\cite{denton_exploiting_2014} and weakness to adversarial attacks
-\cite{carlini_towards_2017}. 
+% Current layers are randomly initialized and learned through backpropagation by
+% minimizing a custom loss function.
+% The properties and purpose of learned filters
+% past the first layer of a CNN are not well understood, a deeply unsatisfying
+% situation, particularly when we start to see problems in modern solutions such as significant redundancy
+% \cite{denton_exploiting_2014} and weakness to adversarial attacks
+% \cite{carlini_towards_2017}. 
 
-The Scattering Transform by Mallat et.\ al.\ \cite{mallat_group_2012, bruna_invariant_2013} 
-attempts to address the problems of poorly understood filtering layers 
-by using predefined wavelet bases whose properties are well known. Using
-this knowledge, Mallat derives bounds on the effect of 
-noise and deformations to the input. This work inspires us, but the
-fixed nature of ScatterNets has proved a limiting factor for them so far.
+% The Scattering Transform by Mallat et.\ al.\ \cite{mallat_group_2012, bruna_invariant_2013} 
+% attempts to address the problems of poorly understood filtering layers 
+% by using predefined wavelet bases whose properties are well known. Using
+% this knowledge, Mallat derives bounds on the effect of 
+% noise and deformations to the input. This work inspires us, but the
+% fixed nature of ScatterNets has proved a limiting factor for them so far.
 
-To combat this, \cite{oyallon_scaling_2017, oyallon_hybrid_2017,
-singh_scatternet_2018} use ScatterNets as a front end for deep learning tasks,
-calling them Hybrid ScatterNets. These have had some success, but
-in \cite{cotter_visualizing_2017} we visualized what features a ScatterNet extracted
-and showed that they were ripple-like and very dissimilar from what a CNN would
-extract, suggesting that some learning should be done between the ScatterNet
-orders. 
 
-To do this, we take inspiration from works like \cite{qiu_dcfnet:_2018,
-jacobsen_dynamic_2017, worrall_harmonic_2017, cotter_deep_2018},
-which decompose convolutional filters as a learned mixing of fixed harmonic
-functions. However we now propose to build a
-convolutional-like layer which is a learned mixing of the locally invariant
-scattering terms from the original ScatterNet \cite{bruna_invariant_2013}.
+% To do this, we take inspiration from works like \cite{qiu_dcfnet:_2018,
+% jacobsen_dynamic_2017, worrall_harmonic_2017, cotter_deep_2018, juefei-xu_local_2016},
+% which decompose convolutional filters as a learned mixing of fixed harmonic
+% functions. However we now propose to build a
+% convolutional-like layer which is a learned mixing of the locally invariant
+% scattering terms from the original ScatterNet \cite{bruna_invariant_2013}.
 
-In \autoref{sec:background} we briefly review convolutional layers and scattering
-layers before introducing our learnable scattering layers in \autoref{sec:method}.
-In \autoref{sec:implementation} we describe how we implement our proposed layer,
-and present some experiments we have run in \autoref{sec:experiments} and then
-draw conclusions about how these new ideas might improve neural networks in the
-future.
