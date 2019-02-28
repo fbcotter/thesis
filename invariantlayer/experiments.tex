@@ -1,13 +1,57 @@
 \section{Experiments}\label{sec:experiments}
 In this section we examine the effectiveness of our invariant layer by testing
-its performance on the well known datasets CIFAR-10 (10 classes, 5000 images per class
-at $32\x 32$ pixels per image), CIFAR-100 (100 classes, 500 images per class at 
-$32\x 32$ pixels per image) and Tiny ImageNet\cite{li_tiny_nodate} (a dataset
-like ImageNet with 200 classes and 500 training images per class, each image at
-$64 \x 64$ pixels). Our experiment code is available at
+its performance on the well known datasets (listed in the order of increasing
+difficulty):
+\begin{itemize}
+  \item MNIST: 10 classes, 6000 images per class, $28\x 28$ pixels per image.
+  \item CIFAR-10: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
+  \item CIFAR-100: 100 classes, 500 images per class, $32\x 32$ pixels per image. 
+  \item Tiny ImageNet\cite{li_tiny_nodate}: 200 classes, 500 images per class, 
+    $64 \x 64$ pixels per image. 
+\end{itemize}
+Our experiment code is available at
 \url{https://github.com/fbcotter/invariant_convolution}.
 
-\subsection{Layer Level Comparison}\label{sec:conv_exp}
+\subsection{Layer Introduction with MNIST}\label{sec:ch5:mnist}
+To begin our experiments on the proposed locally invariant layer, we must look at the
+previously mentioned hyperparameters such as how to initialize the mixing matrix $A$, 
+how fast we should update the parameters, and whether or not we should use
+momentum. On top of this, how well does the layer scale with the number of
+output channels $C_{l+1}$?
+
+To achieve this, we build a very simple four layer network on MNIST. The first
+two layers are our proposed invariant layer, the third layer is a random
+projection layer that unravels the invariant layer output and projects
+down to the number of classes (10). This layer is not learned, so does not add
+any power to the classifier. The fourth and final layer is a small learned
+fully connected layer, that takes the 10 outputs from the projection layer and
+outputs 10 new values. This is to facilitate swapping of the values from the
+previous layer. 
+
+On this network we search over a range of learning rates, momenta, weight decay
+and the variance of the initialized weights in the mixing matrix. We do a grid
+search over values, but use Hyperband \cite{li_hyperband:_2016} to schedule early 
+stopping of poor runs. We use Tune \cite{liaw2018tune} to do a parallel distributed
+search over the parameter space. For reference, we also train a system that uses
+standard convolutional blocks for the first two layers. 
+
+Finally, we use fANOVA \cite{hutter_efficient_2014} analysis to find the
+importance of these hyperparameters to our layer, comparing to a standard layer.
+
+\textbf{Not sure how to report results.} The takeaway message I want to give
+here is that I found out that the most important hyperparameters were the
+learning rate and the momentum. We need the learning rate to be larger than for
+the conv case, about 0.5 is a good start. Momentum should be slightly smaller,
+with the best value at 0.25. The initialization scheme we found to be the best
+for the weights was a uniform method based on \cite{glorot_understanding_2010}:
+
+\begin{equation}
+  A_{ij} \drawnfrom U\left[ -\sqrt{\frac{6}{C_l + C_{l+1}}}, \sqrt{\frac{6}{C_l + C_{l+1}}}\
+  \right]
+\end{equation}
+
+
+\subsection{Layer Comparison with CIFAR and Tiny ImageNet}\label{sec:conv_exp}
 To compare our proposed locally invariant layer (inv) to a regular convolutional
 layer (conv), we build a simple yet powerful reference network based on VGG.
 It has six convolutional layers for CIFAR and eight layers for Tiny ImageNet as shown in

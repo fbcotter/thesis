@@ -77,16 +77,19 @@ There are several hyperparameters to choose in our layer, in particular:
   \item The number of output channels $C_{l+1}$. This may be restricted by the
     architecture.
   \item The variance of the weight initialization for the mixing matrix $A$.
+  \item The optimizer parameters such as learning rate, momentum and weight
+    decay.
 \end{itemize}
 
 These are also considerations for a regular CNN layer as well, so we can use
 previous techniques to guide our choices here. We will explore the effects of
 these choices in a later section. Assuming we have already chosen
-hyperparameters for the size and initial variance of $A$, then the forward
-algorithm can be computed with:
+hyperparameters then the forward and backward algorithms can be computed with
+Algorithms~\autoref{alg:ch5:invfwd} and \autoref{alg:ch5:invbwd} respectively.
 
-\begin{algorithm}
-\caption{Locally Invariant Convolutional Layer forward pass}\label{euclid}
+\begin{algorithm}[t]
+\caption{Locally Invariant Convolutional Layer forward
+pass}\label{alg:ch5:invfwd}
 \begin{algorithmic}[1]
 \Procedure{LOCALINV}{$x, A$}
   \State $yl,\ yh \gets \DTCWT(x^l, \mbox{nlevels}=1) $ \Comment{yh has 6
@@ -103,15 +106,15 @@ algorithm can be computed with:
 \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}
+\begin{algorithm}[t]
 \caption{Locally Invariant Convolutional Layer backward
 pass}\label{alg:ch5:invbwd}
 \begin{algorithmic}[1]
-\Procedure{LOCALINVBWD}{$\dydx{L}{Y}$}
+\Procedure{LOCALINVBWD}{$\dydx{L}{Y},\ A$}
   \State \textbf{load} $Z$
   \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$
   \State $\Delta{Z} \gets A^T\dydx{L}{Y}$
-  \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z})$ 
+  \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
   \State $\Delta yl \gets \F{AVGPOOL2x2BWD}(\Delta yl)$
   \State $\Delta yh \gets \F{COMPLEXMAGBWD}(\Delta U)$
   \State $\dydx{L}{x} \gets \F{DT$\mathbb{C}$}\F{WTBWD}(\Delta yl,\ \Delta yh)$
