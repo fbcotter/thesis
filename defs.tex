@@ -2,20 +2,21 @@
 \newcommand{\xy}{\bmu{u}}
 
 % Define some nicely typesetted words
-\newcommand{\CWT}{\ensuremath{{\mathbb{C}}\mathrm{WT}}\xspace} % Nice display of CWT 
-\newcommand{\DTCWT}{{\ensuremath{\mathrm{DT}\CWT}}\xspace}
+\newcommand{\CWT}{\mathbb{C}\mathrm{WT}} % Nice display of CWT 
+\newcommand{\DTCWT}{\mathrm{DT}\CWT}
 \newcommand{\cifar}{CIFAR-10}
 \newcommand{\x}{\times}                     % I don't like having to write out \times so often
-\newcommand{\degs}{{\ensuremath{^{\circ}}}\xspace}
+\newcommand{\degs}{^{\circ}}
 \newcommand{\conv}{\ast}
 \def\wrt{w.r.t.\xspace}
 \def\definedas{\triangleq}
 \newcommand{\mycaption}[2]{\caption[#1]{\textbf{#1.} #2}} % Use \macpation{bold font}{rest}
+\newcommand{\mycaptionnodot}[2]{\caption[#1]{\textbf{#1} #2}} % Use \macpation{bold font}{rest}
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
 % Generic command to make upright words in mathmode 
-\newcommand{\F}[1]{\ensuremath{\mathrm{#1}}\xspace}
+\newcommand{\F}[1]{\mathrm{#1}}
 
 % And some particularly useful operators
 \newcommand{\sgn}{\F{sgn}}
@@ -34,8 +35,10 @@
 \newcommand{\dydx}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\conj}[1]{\bar{#1}}
 \newcommand{\half}{\frac{1}{2}}
-\newcommand{\expected}[2][]{\ensuremath{{\mathbb{E}_{#1}\left[#2\right]}}\xspace}
-\newcommand{\drawnfrom}{\ensuremath{\sim}\xspace}
+% \newcommand{\expected}[2][]{\ensuremath{{\mathbb{E}_{#1}\left[#2\right]}}\xspace}
+% \newcommand{\drawnfrom}{\ensuremath{\sim}\xspace}
+\newcommand{\expected}[2][]{\mathbb{E}_{#1}\left[#2\right]}
+\newcommand{\drawnfrom}{\sim}
 \newcommand{\real}[1]{\F{Re}\left(#1\right)}
 \newcommand{\imag}[1]{\F{Im}\left(#1\right)}
 
@@ -45,10 +48,14 @@
 % 2 dimensional space of reals, we can call \reals[2]. The Galois spaces need
 % to be given the order of their space, so a 3-dimensional binary space would
 % be \galois[3]{2}, or simply \binaries[3]
-\newcommand{\reals}[1][]{\ensuremath{{\mathbb{R}}^{#1}}\xspace}
-\newcommand{\complexes}[1][]{\ensuremath{{\mathbb{C}}^{#1}}\xspace}
-\newcommand{\integers}[1][]{\ensuremath{{\mathbb{Z}}^{#1}}\xspace}
-\newcommand{\galois}[2][]{\ensuremath{{\mathbb{F}_{#2}}^{#1}}\xspace}
+% \newcommand{\reals}[1][]{\ensuremath{{\mathbb{R}}^{#1}}\xspace}
+\newcommand{\reals}[1][]{\mathbb{R}^{#1}}
+\newcommand{\complexes}[1][]{\mathbb{C}^{#1}}
+\newcommand{\integers}[1][]{\mathbb{Z}^{#1}}
+\newcommand{\galois}[2][]{{\mathbb{F}_{#2}}^{#1}}
+% \newcommand{\complexes}[1][]{\ensuremath{{\mathbb{C}}^{#1}}\xspace}
+% \newcommand{\integers}[1][]{\ensuremath{{\mathbb{Z}}^{#1}}\xspace}
+% \newcommand{\galois}[2][]{\ensuremath{{\mathbb{F}_{#2}}^{#1}}\xspace}
 \newcommand{\binaries}[1][]{\galois[#1]{2}\xspace}
 
 \newcommand{\cnnfilt}[4]{h^{(#1)}_{#2}\left(#3, #4 \right)}

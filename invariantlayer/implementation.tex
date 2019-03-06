@@ -1,5 +1,5 @@
 \section{Implementation Details}\label{sec:implementation}
-Again, we use the \DTCWT \cite{selesnick_dual-tree_2005} for our wavelet filters
+Again, we use the $\DTCWT$ \cite{selesnick_dual-tree_2005} for our wavelet filters
 $\psi_{j, \theta}$ due to their fast implementation with separable convolutions
 which we will discuss more in \autoref{sec:computation}.  There are two side
 effects of this choice. The first is that the number of orientations of wavelets
@@ -41,14 +41,14 @@ producing filters that are significantly larger than this.
 A standard convolutional layer with kernel size $L$ needs $L^2C_{l+1}$
 multiplies per input pixel (of which there are $C_{l}\x H\x W$).
 
-As mentioned in \autoref{sec:memory}, we use the \DTCWT for our complex, shift
+As mentioned in \autoref{sec:memory}, we use the $\DTCWT$ for our complex, shift
 invariant wavelet decomposition. We use the open source Pytorch implementation
-of the \DTCWT \cite{cotter_pytorch_2018} as it can run on GPUs and
+of the $\DTCWT$ \cite{cotter_pytorch_2018} as it can run on GPUs and
 has support for backpropagating gradients.
 
 There is an overhead in doing the wavelet decomposition for each input channel. A
 regular discrete wavelet transform (DWT) with filters of length $L$ will have
-$2L\left(1-2^{-2J}\right)$ multiplies for a $J$ scale decomposition. A \DTCWT
+$2L\left(1-2^{-2J}\right)$ multiplies for a $J$ scale decomposition. A $\DTCWT$
 has 4 DWTs for a 2-D input, so its cost is $8L\left(1-2^{-2J}\right)$, with
 $L=6$ a common size for the filters. It is important to note that unlike the
 filtering operation, this does not scale with $C_{l+1}$, the end result being that as
@@ -64,7 +64,7 @@ after the second scale. Restricting ourselves to $J=1$ as we mentioned in
 \begin{equation}
   % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
   \underbrace{ \frac{7}{4}C_{l+1} }_{\textrm{mixing}} +
-  \underbrace{\vphantom{\frac{7}{4}} 36}_{\textrm{\DTCWT}} \quad
+  \underbrace{\vphantom{\frac{7}{4}} 36}_{\DTCWT} \quad
   \textrm{multiplies per input pixel}\label{eq:comp}
 \end{equation}
 In most CNNs, $C_{l+1}$ is several dozen if not several
@@ -117,7 +117,7 @@ pass}\label{alg:ch5:invbwd}
   \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
   \State $\Delta yl \gets \F{AVGPOOL2x2BWD}(\Delta yl)$
   \State $\Delta yh \gets \F{COMPLEXMAGBWD}(\Delta U)$
-  \State $\dydx{L}{x} \gets \F{DT$\mathbb{C}$}\F{WTBWD}(\Delta yl,\ \Delta yh)$
+  \State $\dydx{L}{x} \gets \F{\DTCWT BWD}(\Delta yl,\ \Delta yh)$
   \State \textbf{return} $\dydx{L}{x},\ \dydx{L}{A}$
 \EndProcedure
 \end{algorithmic}
