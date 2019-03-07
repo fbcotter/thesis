@@ -1,38 +1,75 @@
-\begin{table}[ht]
+% \begin{table}[ht]
+  % \centering
+  % \mycaption{CIFAR and Tiny ImageNet Base Architecture}{
+  % \textsuperscript{\textdagger}indicates only used in Tiny ImageNet
+  % experiments.}
+  % \label{tab:arch}
+  % \begin{tabular}{ll}
+    % \textbf{Name} & \textbf{Output Size}  \\\hline
+    % convA & $C\x H\x W$ \\
+    % convB & $C\x H\x W$ \\
+    % convC & $2C\x H/2\x W/2$\\
+    % convD & $2C\x H/2\x W/2$\\
+    % convE & $4C\x H/4\x W/4$\\
+    % convF & $4C\x H/4\x W/4$\\
+    % convG\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
+    % convH\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
+  % \end{tabular}
+% \end{table}
+
+\begin{table}[t]
+  \renewcommand{\arraystretch}{1.4}
   \centering
-  \caption{Base Architecture used for Convolution Layer comparison tests.
+  \mycaption{CIFAR and Tiny ImageNet Base Architecture}{
   \textsuperscript{\textdagger}indicates only used in Tiny ImageNet
   experiments.}
-  \label{tab:arch}
-  \begin{tabular}{c|c}
-    \textbf{Name} & \textbf{Output Size}  \\\hline
-    convA & $C\x H\x W$ \\
-    convB & $C\x H\x W$ \\
-    convC & $2C\x H/2\x W/2$\\
-    convD & $2C\x H/2\x W/2$\\
-    convE & $4C\x H/4\x W/4$\\
-    convF & $4C\x H/4\x W/4$\\
-    convG\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
-    convH\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
-    fc & num classes \\
-    % conv1\_1 & $C\x H\x W$ & conv+bn+ReLU\\
-    % conv1\_2 & $C\x H\x W$ & conv+bn+ReLU+maxpool \\
-    % conv2\_1 & $2C\x H/2\x W/2$& conv+bn+ReLU \\
-    % conv2\_2 & $2C\x H/2\x W/2$& conv+bn+ReLU+maxpool \\
-    % conv3\_1 & $4C\x H/4\x W/4$& conv+bn+ReLU \\
-    % conv3\_2 & $4C\x H/4\x W/4$& conv+bn+ReLU+maxpool\textsuperscript{\textdagger} \\
-    % conv4\_1\textsuperscript{\textdagger} & $8C\x H/8\x W/8$& conv+bn+ReLU \\
-    % conv4\_2\textsuperscript{\textdagger} & $8C\x H/8\x W/8$& conv+bn+ReLU \\
-    % fc1 & num classes & average pool + fc \\
-    % conv1\_1 & conv $C\x 3\x 3\x 3$, bn+ReLU\\
-    % conv1\_2 & conv $C\x C\x 3\x 3$, bn+ReLU, maxpool $2\x 2$ \\
-    % conv2\_1 & conv $2C\x C\x 3\x 3$, bn+ReLU \\
-    % conv2\_2 & conv $2C\x 2C\x 3\x 3$, bn+ReLU, maxpool $2\x 2$ \\
-    % conv3\_1 & conv $4C\x 2C\x 3\x 3$, bn+ReLU \\
-    % conv3\_2 & conv $4C\x 4C\x 3\x 3$, bn+ReLU maxpool\textsuperscript{\textdagger} $2\x 2$\\
-    % conv4\_1\textsuperscript{\textdagger} & conv $8C\x 4C\x 3\x 3$, bn+ReLU \\
-    % conv4\_2\textsuperscript{\textdagger} & conv $8C\x 8C\x 3\x 3$, bn+ReLU \\
-    % fc1 & average pool $8\x 8$, fc $4C\x \F{num classes}$
-  \end{tabular}
+  \label{tab:ch5:cifar_tiny_arch}
+  \subfloat[CIFAR Architecture]{%
+    \label{tab:ch5:cifar_arch}
+    \begin{tabular}{l l}
+      \toprule
+      Activation Size & Layer Name + Info \\
+      \midrule
+      \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
+        $3\x 32\x 32$ \\ $C \x 32\x 32$ \\ $2C\x 16 \x 16$ \\
+        $2C\x 16\x 16$ \\ $4C\x 8\x 8$ \\ $4C\x 8\x 8$\\ $4C\x 1\x 1$ \\
+        $10\x1$, $100\x1$ 
+      \end{tabular} &
+      \begin{tabular}{@{}c@{}}
+        convA, $w \in \reals[C\x 3\x 3\x 3]$ \\       
+        convB, $w \in \reals[C\x C\x 3\x 3]$ \\       
+        convC, $w \in \reals[2C\x C\x 3\x 3]$ \\% , $\F{stride} = 2$\\       
+        convD, $w \in \reals[2C\x 2C\x 3\x 3]$ \\       
+        convE, $w \in \reals[4C\x 2C\x 3\x 3]$ \\ % , $\F{stride} = 2$\\       
+        convF, $w \in \reals[4C\x 4C\x 3\x 3]$ \\       
+        avg, $8\x 8$ average pooling
+      \end{tabular}\\
+      \bottomrule
+    \end{tabular}
+  }\quad
+  \subfloat[Tiny ImageNet Architecture]{%
+    \label{tab:ch5:tiny_arch}
+    \begin{tabular}{l l}
+      \toprule
+      Activation Size & Layer Name + Info \\
+      \midrule
+      \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
+        $3\x 64\x 64$ \\ $C \x 64\x 64$ \\ $2C\x 32 \x 32$ \\
+        $2C\x 32\x 32$ \\ $4C\x 16\x 16$ \\ $4C\x 16\x 16$\\ $8C\x 8\x 8$ \\
+        $8C\x 8\x 8$ \\ $8C\x 1$ \\ $10\x1$, $100\x1$ 
+      \end{tabular} &
+      \begin{tabular}{@{}c@{}}
+        convA, $w \in \reals[C\x 3\x 3\x 3]$ \\       
+        convB, $w \in \reals[C\x C\x 3\x 3]$ \\       
+        convC, $w \in \reals[2C\x C\x 3\x 3]$ \\ %, $\F{stride} = 2$\\       
+        convD, $w \in \reals[2C\x 2C\x 3\x 3]$ \\       
+        convE, $w \in \reals[4C\x 2C\x 3\x 3]$\\ % , $\F{stride} = 2$\\       
+        convF, $w \in \reals[4C\x 4C\x 3\x 3]$ \\       
+        convG, $w \in \reals[8C\x 4C\x 3\x 3]$\\ % , $\F{stride} = 2$\\       
+        convH, $w \in \reals[8C\x 8C\x 3\x 3]$ \\       
+        avg, $8\x 8$ average pooling
+      \end{tabular}\\
+      \bottomrule
+    \end{tabular}
+  }
 \end{table}
-
