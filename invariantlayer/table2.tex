@@ -1,26 +1,29 @@
 \begin{table}
+  \renewcommand{\arraystretch}{1.2}
   \centering
   \caption{Results for testing VGG like architecture with convolutional and
   invariant layers on several datasets. An architecture with `invX' means the
   equivalent convolutional layer `convX' from \autoref{tab:arch} was swapped for
   our proposed layer.}
-  \begin{tabular}{c|cc|cc|cc}
-    & \multicolumn{2}{c|}{CIFAR-10} & \multicolumn{2}{c|}{CIFAR-100} & \multicolumn{2}{c}{Tiny ImgNet} \\ \cline{2-7}
-    Trainset Size& 10k   &  50k  &  10k  &  50k & 20k & 100k \\ \hline
-    ref & 84.4  & 91.9  & 53.2  & 70.3 & 37.4 & 59.1 \\ \hline
-    invA & 82.8 & 91.3 & 48.4 & 69.5 & 33.2 & 57.7 \\
-    invB & 84.8 & 91.8  & 54.8  & 70.7 & 36.9& 59.5 \\
-    invC & 85.3 & 92.3 & 54.2 & 71.2 & 37.1& 59.8\\
-    invD& 83.8 & 91.2 & 51.2 & 70.1 & 37.6 & 59.3 \\
-    invE& 83.3 & 91.6 & 50.3 & 70.0 & 37.8 & 59.4\\
-    invF& 82.1 & 90.5& 47.6& 68.9 & 34.0 & 57.8\\ \hline
-    invA, invB& 83.1& 90.5 & 49.8 & 68.4 & 35.0 & 57.9\\
-    invB, invC& 83.8& 91.2 & 50.6 & 69.1 & 34.6 & 57.5\\
-    invC, invD& 85.1 & 92.1 & 54.3 & 70.1 & \textbf{37.9} & 59.0\\
-    invD, invE& 80.2 & 89.1 & 49.0 & 67.3 & 33.9 & 57.5\\
-    invA, invC& 82.8 & 90.7 & 49.5 & 69.6 & 34.0 & 56.9\\
-    invB, invD& \textbf{85.4} & \textbf{92.7} & \textbf{54.6} & \textbf{71.3} & \textbf{37.9} & 59.8\\
-    invC, invE& 84.8 & 91.8 & 53.5 & 70.9 & 37.6 & \textbf{60.2}\\
+  % \begin{tabular}{@{}lllcllcll@{}}
+  \begin{tabular}{@{}lcclcclcc@{}}
+    \toprule
+    & \multicolumn{2}{c}{CIFAR-10} & \phantom{abc} & \multicolumn{2}{c}{CIFAR-100} & \phantom{abc} & \multicolumn{2}{c}{Tiny ImgNet} \\ \cline{2-9}
+    \phantom{abc} & 10k   &  50k  &&  10k  &  50k && 20k & 100k \\ \midrule
+    reference arch & 84.4  & 91.9  && 53.2  & 70.3 && 37.4 & 59.1 \\ \hline
+    invA & 82.8 & 91.3 && 48.4 & 69.5 && 33.2 & 57.7 \\
+    invB & 84.8 & 91.8  && 54.8  & 70.7 && 36.9& 59.5 \\
+    invC & 85.3 & 92.3 && 54.2 & 71.2 && 37.1& 59.8\\
+    invD& 83.8 & 91.2 && 51.2 & 70.1 && 37.6 & 59.3 \\
+    invE& 83.3 & 91.6 && 50.3 & 70.0 && 37.8 & 59.4\\
+    invF& 82.1 & 90.5 && 47.6& 68.9 && 34.0 & 57.8\\ \hline
+    invA, invB& 83.1  & 90.5 && 49.8 & 68.4 && 35.0 & 57.9\\
+    invB, invC& 83.8  & 91.2 && 50.6 & 69.1 && 34.6 & 57.5\\
+    invC, invD& 85.1 & 92.1 && 54.3 & 70.1 && \textbf{37.9} & 59.0\\
+    invD, invE& 80.2 & 89.1 && 49.0 & 67.3 && 33.9 & 57.5\\
+    invA, invC& 82.8 & 90.7 && 49.5 & 69.6 && 34.0 & 56.9\\
+    invB, invD& \textbf{85.4} & \textbf{92.7} && \textbf{54.6} & \textbf{71.3} && \textbf{37.9} & 59.8\\
+    invC, invE& 84.8 & 91.8 && 53.5 & 70.9 && 37.6 & \textbf{60.2}\\ \bottomrule
   \end{tabular}\label{tab:conv_results}
 \end{table}
 

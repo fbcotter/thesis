@@ -20,7 +20,10 @@
 \begin{table}[t]
   \renewcommand{\arraystretch}{1.4}
   \centering
-  \mycaption{CIFAR and Tiny ImageNet Base Architecture}{
+  \mycaption{CIFAR and Tiny ImageNet Base Architecture}{Reference architecture
+  used for experiments on CIFAR-10, CIFAR-100 and Tiny ImageNet. $C$ is a
+  hyperparameter that controls the network width, we use $C=64$ for our initial
+  tests.
   \textsuperscript{\textdagger}indicates only used in Tiny ImageNet
   experiments.}
   \label{tab:ch5:cifar_tiny_arch}
@@ -31,7 +34,7 @@
       Activation Size & Layer Name + Info \\
       \midrule
       \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
-        $3\x 32\x 32$ \\ $C \x 32\x 32$ \\ $2C\x 16 \x 16$ \\
+        $3\x 32\x 32$ \\ $C\x 32\x 32$ \\ $C \x 32\x 32$ \\ $2C\x 16 \x 16$ \\
         $2C\x 16\x 16$ \\ $4C\x 8\x 8$ \\ $4C\x 8\x 8$\\ $4C\x 1\x 1$ \\
         $10\x1$, $100\x1$ 
       \end{tabular} &
@@ -42,7 +45,8 @@
         convD, $w \in \reals[2C\x 2C\x 3\x 3]$ \\       
         convE, $w \in \reals[4C\x 2C\x 3\x 3]$ \\ % , $\F{stride} = 2$\\       
         convF, $w \in \reals[4C\x 4C\x 3\x 3]$ \\       
-        avg, $8\x 8$ average pooling
+        avg, $8\x 8$ average pooling \\
+        fc1, fully connected layer
       \end{tabular}\\
       \bottomrule
     \end{tabular}
@@ -67,7 +71,8 @@
         convF, $w \in \reals[4C\x 4C\x 3\x 3]$ \\       
         convG, $w \in \reals[8C\x 4C\x 3\x 3]$\\ % , $\F{stride} = 2$\\       
         convH, $w \in \reals[8C\x 8C\x 3\x 3]$ \\       
-        avg, $8\x 8$ average pooling
+        avg, $8\x 8$ average pooling \\
+        fc1, fully connected layer
       \end{tabular}\\
       \bottomrule
     \end{tabular}
