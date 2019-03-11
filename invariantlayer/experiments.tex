@@ -18,13 +18,13 @@ well a simple system works on MNIST, and compare it to an equivalent system with
 convolutions. To minimize the effects of learning from other layers, we build a
 custom small network, as described in \autoref{tab:ch5:mnist_arch}.
 
-The first two layers are learned convolutional/invariant layers, followed by a fully connected 
-layer with fixed weights that we can use to project down to the number of output
-classes. Finally, we add a small learned layer that linearly combines the 10
-outputs from the random projection, to give 10 new outputs. This is to
-facilitate reordering of the outputs to the correct class. This simple network is
-meant to test the limits of our layer, rather than achieve state of the art
-performance on MNIST.
+The first two layers are learned convolutional/invariant layers, followed by
+a fully connected layer with fixed weights that we can use to project down to
+the number of output classes. Finally, we add a small learned layer that
+linearly combines the 10 outputs from the random projection, to give 10 new
+outputs. This is to facilitate reordering of the outputs to the correct class.
+This simple network is meant to test the limits of our layer, rather than
+achieve state of the art performance on MNIST.
 
 Given that our layer is quite different to a standard convolutional layer, we
 must do a full hyperparameter search over optimizer parameters such as the
@@ -46,8 +46,9 @@ convolutional layer.
 We do a grid search over these hyperparameters and use Hyperband
 \cite{li_hyperband:_2016} to schedule early stopping of poorly performing runs.
 Each run has a grace period of 5 epochs and can train for a maximum of 20
-epochs. We do not do any learning rate decay.  We found the package Tune \cite{liaw2018tune}
-was very helpful in organising parallel distributed training runs.  
+epochs. We do not do any learning rate decay.  We found the package Tune
+\cite{liaw2018tune} was very helpful in organising parallel distributed training
+runs.  
 % Finally, we use fANOVA \cite{hutter_efficient_2014} analysis
 % to find the importance of these hyperparameters to our layer, comparing to a
 % standard layer. 
@@ -59,119 +60,18 @@ architectures 10 times with different random seeds and report the mean and varia
 the accuracy. The results of these runs are listed in
 \autoref{tab:ch5:mnist_initial_results}.
 
-\begin{table}[t]
-  \renewcommand{\arraystretch}{1.4}
-  \centering
-  \mycaption{Architectures for MNIST hyperparameter experiments}{The activation
-  size rows are offset from the layer description rows to convey the input and
-  output shapes. The project layers in both architectures are unlearned, so all
-  of the learning has to be done by the first two layers and the reshuffle
-  layer.}
-  \label{tab:ch5:mnist_arch}
-  \subfloat[Invariant Architecture]{%
-    \label{tab:ch5:mnist_arch_inv}
-    \begin{tabular}{c c}
-      \toprule
-      Activation Size & Layer Name + Info \\
-      \midrule
-      \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
-        $1\x 28 \x 28$ \\ $7\x 14\x 14$ \\ $49\x 7\x 7$ \\ $2401\x 1$ \\ $10\x 1$
-        \\ $10\x 1$ 
-      \end{tabular} &
-      \begin{tabular}{@{}c@{}}
-        inv1, $A \in \reals[7\x 7]$ \\ inv2, $A \in \reals[49\x 49]$ \\ unravel \\
-        project, $w \in \reals[2401\x 10]$ \\ reshuffle, $w\in \reals[10\x 10]$
-      \end{tabular}\\
-      \bottomrule
-    \end{tabular}
-  }\quad
-  \subfloat[Reference Arch with $3\x 3$ convolutions]{%
-    \label{tab:ch5:mnist_arch_conv}
-    \begin{tabular}{c c}
-      \toprule
-      Activation Size & Layer Name + Info \\
-      \midrule
-      \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
-        $1\x 28 \x 28$ \\ $7\x 28\x 28$ \\ $7\x 14\x 14$ \\ $49\x 14\x 14$ \\ $49\x 7\x 7$ 
-        \\ $2401\x 1$ \\ $10\x 1$ \\ $10\x 1$ 
-      \end{tabular} &
-      \begin{tabular}{@{}c@{}}
-        conv1, $w \in \reals[7\x 1\x 3 \x 3]$ \\ maxpool1, $2\x 2$ \\ 
-        conv2 $w \in \reals[49\x 7 \x 3\x 3]$ \\ maxpool2, $2\x 2$ \\ unravel \\
-        project, $w \in \reals[2401\x 10]$ \\ reshuffle, $w\in \reals[10\x 10]$
-      \end{tabular} \\
-      \bottomrule
-    \end{tabular}
-  }
-\end{table}
+\input{\path/mnist_arch_table}
 
-\begin{table}[hbt]
-  \centering
-  \mycaption{Hyperparameter settings for the MNIST experiments}{The weight gain is
-  the term $a$ from \autoref{eq:ch5:glorot}. Note that $\log_{10} 3.16 = 0.5$.}
-  \label{tab:ch5:hyper_options}
-  \begin{tabular}{c c}
-    \toprule
-    Hyperparameter & Values \\
-    \midrule
-    Learning Rate (lr) & $\left\{ 0.0316,\ 0.1,\ 0.316,\ 1 \right\}$ \\
-    Momentum (mom) & $\left\{ 0,\ 0.25,\ 0.5,\ 0.9 \right\}$ \\
-    Weight Decay (wd) & $\left\{ 10^{-5},\ 3.16\x 10^{-5},\ 10^{-4},\ 3.16\x 10^{-4} \right\} $\\
-    Weight Gain (a) & $\left\{0.5,\ 1.0,\ 1.5,\ 2.0 \right\}$
-    \\\bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{table}[hbt]
-  \centering
-  \mycaption{Architecture performance comparison}{Numbers reported are the mean
-  and standard deviation of accuracy over 10 runs with the optimal
-  hyperparameters, $\theta$. Note that for
-  both architectures we found that $\F{lr}$ was the most important
-  hyperparameter to choose correctly, and had the largest impact on the
-  performance.
-  % We also use
-  % fANOVA\cite{hutter_efficient_2014} analysis to weight the importance of these 
-  % hyperparameters. High values imply the accuracy is more sensitive to this
-  % hyperparameter. 
-  }
-  \label{tab:ch5:mnist_initial_results}
-  \begin{tabular}{@{}l c c c@{}}
-    \toprule
-     & &\multicolumn{2}{c}{accuracy} \\\cline{3-4}
-    Architecture & $\theta = \{\F{lr}, \F{mom}, \F{wd}, \F{a}\}$ & mean & std  \\\midrule
-    Convolutional & $\{0.1,\ 0.5,\ 10^{-5},\ 1.5 \}$ & 97.3 & 0.29 \\
-    Invariant & $\{0.032,\ 0.9,\ 3.2\x 10^{-5},\ 1.0 \}$ & 96.6 & 0.26 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\input{\path/mnist_hyper_table}
 
 \subsubsection{Proposed Expansions}\label{sec:ch5:mnist_initial}
-The results from the previous section seem to indicate that
-our proposed invariant layer is a slightly worse substitute for a convolutional
-layer. However we believe that this is due to the centred nature of the wavelet bases that were
-used to generate the $z$ and later the $y$ coefficients. A similar effect was seen
-in the previous chapter in \autoref{fig:ch4:shapes} where the space of shapes
-attainable by mixing wavelet coefficients in a $3\x 3$ area was much richer than
-those attainable by only mixing in a $1\x 1$ area. 
-
-% \begin{figure}[t]
-  % \centering
-  % \subfloat[Invariant Layers]{%
-  % \includegraphics[width=0.5\linewidth]{\imgpath/mnist_inv1x1_grid.pdf}
-  % \label{fig:ch5:mnist_comparison_inv}
-  % }
-  % \subfloat[Convolutional Layers]{%
-  % \includegraphics[width=0.5\linewidth]{\imgpath/mnist_conv3x3_2.pdf}
-  % \label{fig:ch5:mnist_comparison_conv}
-  % }
-  % \mycaptionnodot{Histogram of classification accuracies}{for the two architectures from
-  % \autoref{tab:ch5:mnist_arch} over 256 runs with varying hyperparameters. 
-  % The proposed invariant layer is more sensitive
-  % to hyperparameters and overall worse performing than the architecture with
-  % standard $3\x 3$ convolutions.}
-  % \label{fig:ch5:mnist_comparison}
-% \end{figure}
+The results from the previous section seem to indicate that our proposed
+invariant layer is a slightly worse substitute for a convolutional layer.
+However we believe that this is due to the centred nature of the wavelet bases
+that were used to generate the $z$ and later the $y$ coefficients. A similar
+effect was seen in the previous chapter in \autoref{fig:ch4:shapes} where the
+space of shapes attainable by mixing wavelet coefficients in a $3\x 3$ area was
+much richer than those attainable by only mixing in a $1\x 1$ area. 
 
 To test this hypothesis, we change \autoref{eq:ch5:mixing} to be:
 \begin{equation}
@@ -215,92 +115,16 @@ parameter cost. To explore an equivalent system, we also list in
 architecture that uses $5\x 5$ convolutions and $C_1 = 10,\ C_2 = 100$ channels,
 resulting in a system with comparable parameter cost to (d).
 
-\begin{table}[hbt]
-  \renewcommand{\arraystretch}{1.4}
-  \centering
-  \mycaption{Modified architecture performance comparison}{Numbers reported are the mean
-  and standard deviation of accuracy over 10 runs with the optimal
-  hyperparameters, $\theta$. We also list parameter cost and number
-  of multiplies for each layer option, relative to the standard $3\x 3$
-  convolutional layer to highlight the benefits/drawbacks of each option.}
-  \label{tab:ch5:mnist_new_results}
-  \begin{tabular}{@{}l c c c c c@{}}
-    \toprule
-    & & \multicolumn{2}{c}{cost} & \multicolumn{2}{c}{accuracy} \\\cline{3-4}\cline{5-6}
-    Architecture & $\theta = \{\F{lr}, \F{mom}, \F{wd}, \F{a}\}$ & param & mults & mean & std  \\\midrule
-    Convolutional & $\{0.1,\ 0.5,\ 10^{-5},\ 1.5 \}$ & 1 & 1 & 97.3 & 0.29 \\
-    Invariant & $\{0.032,\ 0.9,\ 3.2\x 10^{-5},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{36}$ & 96.6 & 0.26 \\\midrule
-    Shifted impulses (a) & $\{0.32,\ 0.5,\ 10^{-4},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{36}$ & 97.9 & 0.25 \\
-    Shifted gaussians (b) & $\{1.0,\ 0.0,\ 10^{-5},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{4}$ & 97.7 & 0.56\\
-    Random $3\x3$ kernel (c) & $\{1.0,\ 0.9,\  10^{-5},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{4}$ & 95.8 & 1.01\\
-    Learned $3\x3$ kernel (d) & $\{0.1,\ 0.5,\  10^{-4},\ 1.0 \}$ & \textbf{7} & $\frac{7}{4}$ & \textbf{99.0} & 0.12 \\
-    Learned 3 DCT coeffs (e) & $\{1.0,\ 0.0,\ 10^{-5},\ 1.0 \}$ & $\frac{7}{3}$ & $\frac{7}{4}$ & 98.1 & 0.37\\\midrule
-    Wide Convolutional & $\{0.32,\ 0.5,\ 10^{-5},\ 1.5 \}$ & 7 & 7 & 98.7 & 0.25  \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-% \subsubsection{Modified MNIST Results}
-% The results of the new experiments are shown in
-% \autoref{fig:ch5:mnist_comparison}. All options improve on the original
-% performance seen in \autoref{fig:ch5:mnist_comparison_inv} proving that it is
-% important to spatially separate the wavelets, something the original Scatternet
-% design cannot do. Of particular interest are options
-% \subref{fig:ch5:mnist_comparison_smooth},
-% \subref{fig:ch5:mnist_comparison_3x3} and
-% \subref{fig:ch5:mnist_comparison_dct}. \protect\subref{fig:ch5:mnist_comparison_smooth} 
-% is the best performing option without increasing the parameter cost and is very
-% near the reference architecture.
-% \textbf{Finish me.}
-
-% \begin{figure}[hbtp]
-  % \centering
-  % \subfloat[Randomly shifted impulse]{%
-  % \includegraphics[width=0.45\linewidth]{\imgpath/mnist_inv1x1_random_impulse2.pdf}
-  % \label{fig:ch5:mnist_comparison_impulse}
-  % }
-  % \subfloat[Randomly shifted $3\x 3$ gaussian]{%
-  % \includegraphics[width=0.45\linewidth]{\imgpath/mnist_inv1x1_random_smooth.pdf}
-  % \label{fig:ch5:mnist_comparison_smooth}
-  % }\\\vspace{-10pt}
-  % \subfloat[Fixed random $3\x 3$ filter]{%
-  % \includegraphics[width=0.45\linewidth]{\imgpath/mnist_inv1x1_random2.pdf}
-  % \label{fig:ch5:mnist_comparison_random}
-  % }
-  % \subfloat[Fully learned $3\x 3$ $A$ matrix]{%
-  % \includegraphics[width=0.45\linewidth]{\imgpath/mnist_inv3x3.pdf}
-  % \label{fig:ch5:mnist_comparison_3x3}
-  % }\\\vspace{-10pt}
-  % \subfloat[Top three DCT coefficients]{%
-  % \includegraphics[width=0.45\linewidth]{\imgpath/mnist_inv1x1_dct.pdf}
-  % \label{fig:ch5:mnist_comparison_dct}
-  % }\\
-  % \mycaptionnodot{Histogram of new classification accuracies}{for the five 
-  % modified architectures presented in \autoref{sec:ch5:mnist_initial}. 
-  % The subcaption describes the $\alpha$ kernel introduced to provide spatial separation
-  % of wavelet coefficients.}
-  % \label{fig:ch5:mnist_comparison}
-% \end{figure}
-
-% \subsubsection{Optimal Hyperparameters}
-
+\input{\path/mnist_modified_results}
 
 \subsection{Layer Comparison with CIFAR and Tiny ImageNet}\label{sec:conv_exp}
 Now we look at expanding our layer to harder datasets, focusing more on the
 final classification accuracy. We do this again by comparing to a reference
-architecture based on VGG.
+architecture. For this task, we choose a VGG-like network as our reference.
 It has six convolutional layers for CIFAR and eight layers for Tiny ImageNet as shown in
 \autoref{tab:arch}. The initial number of channels $C$ we use is 64. Despite
 this simple design, this reference architecture achieves competitive performance
 for the three datasets.
-
-This network is optimized with stochastic gradient descent with momentum. The
-initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and
-weight decay is $10^{-4}$. For CIFAR-10/CIFAR-100 we scale the learning rate by
-a factor of 0.2 after 60, 80 and 100 epochs, training for 120 epochs in total.
-For Tiny ImageNet, the rate change is at 18, 30 and 40 epochs (training for 45 in total).
-
-\input{\path/table1}
 
 We perform an ablation study where we progressively swap out convolutional
 layers for invariant layers keeping the input and output activation sizes the
@@ -313,9 +137,23 @@ datasets we report results for a reduced training set size. In the table, `invX'
 means that the `convX' layer from \autoref{tab:arch} is replaced with an 
 invariant layer.
 
-Interestingly, we see improvements when one or two invariant layers are used near the
-start of a system, but not for the first layer. 
-\input{\path/table2}
+This network is optimized with stochastic gradient descent with momentum. The
+initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and
+weight decay is $10^{-4}$. For CIFAR-10/CIFAR-100 we scale the learning rate by
+a factor of 0.2 after 60, 80 and 100 epochs, training for 120 epochs in total.
+For Tiny ImageNet, the rate change is at 18, 30 and 40 epochs (training for 45 in total).
+
+\input{\path/cifar_arch_table}
+
+Interestingly, we see improvements when one or two invariant layers are used
+near the start of a system, but not for the first layer. In particular, the best
+position for the invariant layer seems to be just before a sample rate change.
+Recalling that the magnitude operation in the ScatterNet effectively
+demodulates the energy from higher spatial frequencies to a lower band, it
+intuitively makes sense that good places for scattering layers are at
+positions where you want to downsample.
+
+\input{\path/cifar_ablation_table}
 
 \subsection{Network Comparison}\label{sec:scat_exp}
 In the previous section, we examined how the locally invariant layer performs when
@@ -357,4 +195,5 @@ ScatNets A to D with 6 layers like convC to convG from \autoref{tab:arch} after
 the scattering, achieve $58.1, 59.6, 60.8$ and $62.1\%$ top-1 accuracy on Tiny ImageNet. As
 these have more parameters and multiplies from the extra layers we exclude them
 from \autoref{tab:hybrid_scat}.
-\input{\path/table3}
+
+\input{\path/cifar_scatnet_results}

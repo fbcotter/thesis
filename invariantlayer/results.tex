@@ -7,8 +7,8 @@ learning of more complex shapes than the ripples seen in
 it to drop in the place of a convolutional layer, theoretically saving on parameters and
 computation. However, care must be taken when doing this, as our ablation study
 showed that the layer only improves upon regular convolution at certain depths.
-Typically, it seems wise to interleave convolutional layers and invariant
-layers.
+Typically, it seems wise to use the invariant layer right before a sample rate
+change.
 %, which gave the best results in \autoref{sec:conv_exp}.
 
 We have developed a system that allows us to pass

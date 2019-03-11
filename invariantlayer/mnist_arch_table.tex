@@ -1,0 +1,47 @@
+\begin{table}[t]
+  \renewcommand{\arraystretch}{1.4}
+  \centering
+  \mycaption{Architectures for MNIST hyperparameter experiments}{The activation
+  size rows are offset from the layer description rows to convey the input and
+  output shapes. The project layers in both architectures are unlearned, so all
+  of the learning has to be done by the first two layers and the reshuffle
+  layer.}
+  \label{tab:ch5:mnist_arch}
+  \subfloat[Invariant Architecture]{%
+    \label{tab:ch5:mnist_arch_inv}
+    \begin{tabular}{c c}
+      \toprule
+      Activation Size & Layer Name + Info \\
+      \midrule
+      \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
+        $1\x 28 \x 28$ \\ $7\x 14\x 14$ \\ $49\x 7\x 7$ \\ $2401\x 1$ \\ $10\x 1$
+        \\ $10\x 1$ 
+      \end{tabular} &
+      \begin{tabular}{@{}c@{}}
+        inv1, $A \in \reals[7\x 7]$ \\ inv2, $A \in \reals[49\x 49]$ \\ unravel \\
+        project, $w \in \reals[2401\x 10]$ \\ reshuffle, $w\in \reals[10\x 10]$
+      \end{tabular}\\
+      \bottomrule
+    \end{tabular}
+  }\quad
+  \subfloat[Reference Arch with $3\x 3$ convolutions]{%
+    \label{tab:ch5:mnist_arch_conv}
+    \begin{tabular}{c c}
+      \toprule
+      Activation Size & Layer Name + Info \\
+      \midrule
+      \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
+        $1\x 28 \x 28$ \\ $7\x 28\x 28$ \\ $7\x 14\x 14$ \\ $49\x 14\x 14$ \\ $49\x 7\x 7$ 
+        \\ $2401\x 1$ \\ $10\x 1$ \\ $10\x 1$ 
+      \end{tabular} &
+      \begin{tabular}{@{}c@{}}
+        conv1, $w \in \reals[7\x 1\x 3 \x 3]$ \\ maxpool1, $2\x 2$ \\ 
+        conv2 $w \in \reals[49\x 7 \x 3\x 3]$ \\ maxpool2, $2\x 2$ \\ unravel \\
+        project, $w \in \reals[2401\x 10]$ \\ reshuffle, $w\in \reals[10\x 10]$
+      \end{tabular} \\
+      \bottomrule
+    \end{tabular}
+  }
+\end{table}
+
+

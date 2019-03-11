@@ -1,22 +1,3 @@
-% \begin{table}[ht]
-  % \centering
-  % \mycaption{CIFAR and Tiny ImageNet Base Architecture}{
-  % \textsuperscript{\textdagger}indicates only used in Tiny ImageNet
-  % experiments.}
-  % \label{tab:arch}
-  % \begin{tabular}{ll}
-    % \textbf{Name} & \textbf{Output Size}  \\\hline
-    % convA & $C\x H\x W$ \\
-    % convB & $C\x H\x W$ \\
-    % convC & $2C\x H/2\x W/2$\\
-    % convD & $2C\x H/2\x W/2$\\
-    % convE & $4C\x H/4\x W/4$\\
-    % convF & $4C\x H/4\x W/4$\\
-    % convG\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
-    % convH\textsuperscript{\textdagger} & $8C\x H/8\x W/8$\\
-  % \end{tabular}
-% \end{table}
-
 \begin{table}[t]
   \renewcommand{\arraystretch}{1.4}
   \centering
@@ -33,12 +14,12 @@
       \toprule
       Activation Size & Layer Name + Info \\
       \midrule
-      \begin{tabular}{@{}c@{}} % This supresses the space on the left and right
+      \begin{tabular}{@{}l@{}} % This supresses the space on the left and right
         $3\x 32\x 32$ \\ $C\x 32\x 32$ \\ $C \x 32\x 32$ \\ $2C\x 16 \x 16$ \\
         $2C\x 16\x 16$ \\ $4C\x 8\x 8$ \\ $4C\x 8\x 8$\\ $4C\x 1\x 1$ \\
         $10\x1$, $100\x1$ 
       \end{tabular} &
-      \begin{tabular}{@{}c@{}}
+      \begin{tabular}{@{}l@{}}
         convA, $w \in \reals[C\x 3\x 3\x 3]$ \\       
         convB, $w \in \reals[C\x C\x 3\x 3]$ \\       
         convC, $w \in \reals[2C\x C\x 3\x 3]$ \\% , $\F{stride} = 2$\\       
