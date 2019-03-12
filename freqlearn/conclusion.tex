@@ -1,0 +1,27 @@
+\section{Conclusion and Future Work}
+In this work we have presented the novel idea of learning filters by taking
+activations into the wavelet domain, learning mixing coefficients and then
+returning to the pixel space. This work is done as a preliminary step; we
+ultimately hope that learning in both the wavelet and pixel space will have many
+advantages, but as yet it has not been explored. We have considered the possible
+challenges this proposes and described how a multirate system can learn through
+backpropagation.  
+
+Our experiments so far have been promising. We have shown that our layer can
+learn in an end-to-end system, achieving very near similar accuracies on
+CIFAR-10 and CIFAR-100 to the same system with convolutional layers instead.
+This is a good start and shows the plausibility of such an idea, but we need to
+search for how to improve these layers if they are to be useful.  It will be
+interesting to see how well we can learn on datasets with larger images - our
+proposed method naturally learns large kernels, so should scale well with the
+image size.
+
+In our experiments so far, we only briefly go into the wavelet domain before
+coming back to the pixel domain to do ReLU nonlinearities, however we plan to
+explore using nonlinearities in the wavelet domain, such as soft-shrinkage to
+denoise/sparsify the coefficients \cite{donoho_ideal_1994}. We feel there are
+strong links between ReLU non-linearities and denoising/sparsity ideas, and that
+there may well be useful performance gains from mixing real pixel-domain
+non-linearities with complex wavelet-domain shrinkage functions. Thus we present
+these ideas here as a starting point for a novel and exciting avenue of deep
+network research.

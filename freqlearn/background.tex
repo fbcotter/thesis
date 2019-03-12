@@ -1,0 +1,47 @@
+\section{Introduction}\label{sec:ch6:intro}
+Using wavelet based methods with deep learning is nascent but not novel.
+Wavelets have been applied to texture classification \cite{fujieda_wavelet_2017,
+sifre_combined_2012}, super-resolution \cite{guo_deep_2017} and for adding
+detail back into dense pixel-wise segmentation tasks \cite{ma_detailed_2018}.
+One exciting piece of work built on wavelets is the Scattering Transform
+\cite{mallat_group_2012}, which has been used as a feature extractor for
+learning, firstly with simple classifiers \cite{bruna_invariant_2013,
+singh_scatternet_2017}, and later as a front end to hybrid deep learning
+tasks\cite{oyallon_scaling_2017, singh_scatternet_2018}. Despite their power and
+simplicity, scattering features are fixed and are visibly different to regular
+CNN features \cite{cotter_visualizing_2017} - their nice invariance properties
+come at the cost of flexibility, as there is no ability to learn in between
+scattering layers. 
+
+For this reason, we have been investigating a slightly different approach, more
+similar to the Fourier based work in \cite{rippel_spectral_2015} in which Rippel
+et.\ al.\ investigate parameterization of filters in the Fourier domain. In the
+forward pass, they take the inverse DFT of their filter, and then apply normal
+pixel-wise convolution. We wish to extend this by not only parameterizing
+filters in the wavelet domain, but by performing the convolution there as well
+(i.e., also taking the activations into the wavelet domain). After processing is
+done, we can return to the pixel domain. Doing these forward and inverse
+transforms has two significant advantages: 
+\begin{enumerate*}[label=\roman*)]
+  \item the layers can easily replace standard convolutional layers if they
+    accept and return the same format;
+  \item we can learn both in the wavelet and pixel space.
+\end{enumerate*}
+
+As neural network training involves presenting thousands of training samples, we
+want our layer to be fast. To achieve this we would ideally choose to use
+a critically sampled filter bank implementation. The fast 2-D Discrete Wavelet
+Transform (DWT) is a possible option, but it has two drawbacks: it has poor
+directional selectivity and any alteration of wavelet coefficients will cause
+the aliasing cancelling properties of the reconstructed signal to disappear.
+Instead we choose to use the Dual-Tree Complex Wavelet Transform ($DTCWT$)
+\cite{selesnick_dual-tree_2005} as at the expense of limited redundancy (4:1),
+it enables us to have better directional selectivity, and allows us to modify
+the wavelet coefficients and still have minimal aliasing terms when we
+reconstruct \cite{kingsbury_complex_2001}.
+
+% This work is a step
+\autoref{sec:ch6:method} of the paper describes the implementation details of
+our design, and \autoref{sec:ch6:results} describes the experiments and results
+we have done so far.
+
