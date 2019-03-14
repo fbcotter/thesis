@@ -1,5 +1,5 @@
 \begin{tikzpicture}
-    \matrix (m1) [row sep=4mm, column sep=6mm,align=center,anchor=center]
+    \matrix (m1) [row sep=5mm, column sep=6mm,align=center,anchor=center]
 	{
 	%--------------------------------------------------------------------
 		\node[coordinate]                  (m00) {};    &
@@ -14,7 +14,7 @@
 		\node[coordinate]                  (m09) {};          &
 		\node[coordinate]                  (m0X) {};          \\
 		%--------------------------------------------------------------------
-		\node[dspnodefull]                 (m10) {$X(z)$};          &
+		\node[]                            (m10) {$X(z)$};          &
 		\node[coordinate]                  (m11) {};          &
 		\node[coordinate]                  (m12) {};    &
 		\node[coordinate]                  (m13) {};          &
@@ -24,14 +24,13 @@
 		\node[coordinate]                  (m17) {};          &
 		\node[coordinate]                  (m18) {};    &
 		\node[dspadder]                    (m19) {};          &
-		\node[label=$Y(z)$]     (m1X) {};          \\
+    \node[]                            (m1X) {$Y(z)$};          \\
 		%--------------------------------------------------------------------
 		\node[coordinate]                  (m20) {};    &
 		\node[coordinate]                  (m21) {};          &
 		\node[dspsquare]                   (m22) {$B(z)$};          &
 		\node[circle,draw,inner sep=1pt]   (m23) {\downsamplertext{M}}; &
 		\node[dspnodeopen,dsp/label=below] (m24) {$V_i(z)$};          &
-		%\node[coordinate]                  (m25) {}; &
 		\node[rectangle,draw,inner sep=2pt](m25) {$G_r(z)$}; &
 		\node[dspnodeopen,dsp/label=below] (m26) {$W_i(z)$};          &
 		\node[circle,draw,inner sep=1pt]   (m27) {\upsamplertext{M}}; &
@@ -40,22 +39,21 @@
 		\node[coordinate]                  (m2X) {};          \\
 		%--------------------------------------------------------------------
 		&&&&&&&&& \\
-		&&&&&&&&& \\
 		\node[coordinate]                  (m00a) {};    &
 		\node[coordinate]                  (m01a) {};          &
-		\node[dspsquare]                   (m02a) {$A(z^{-1})$};          &
+		\node[dspsquare]                   (m02a) {$A\left(z^{-1}\right)$};          &
 		\node[circle,draw,inner sep=1pt]   (m03a) {\upsamplertext{M}}; &
 		\node[dspnodeopen,dsp/label=above] (m04a) {$\Delta V_r(z)$};          &
 		%\node[coordinate]                  (m05) {}; &
-		\node[rectangle,draw,inner sep=2pt](m05a) {$G_r(z^{-1})$}; &
+		\node[rectangle,draw,inner sep=2pt](m05a) {$G_r\left(z^{-1}\right)$}; &
 		\node[dspnodeopen,dsp/label=above] (m06a) {$\Delta W_r(z)$};          &
 		\node[circle,draw,inner sep=1pt]   (m07a) {\downsamplertext{M}}; &
-		\node[dspsquare]                   (m08a) {$C(z^{-1})$};          &
+		\node[dspsquare]                   (m08a) {$C\left(z^{-1}\right)$};          &
 		\node[coordinate]                  (m09a) {};          &
 		\node[coordinate]                  (m0Xa) {};          \\
 		%--------------------------------------------------------------------
 		%\node[coordinate]  (m10) {$\Delta X(z)$};          &
-		\node[label=above:$\Delta X(z)$]   (m10a) {}; &
+    \node[]                            (m10a) {$\Delta X(z)$}; &
 		\node[dspadder]                    (m11a) {};          &
 		\node[coordinate]                  (m12a) {};    &
 		\node[coordinate]                  (m13a) {};          &
@@ -65,18 +63,18 @@
 		\node[coordinate]                  (m17a) {};          &
 		\node[coordinate]                  (m18a) {};    &
 		\node[coordinate]                  (m19a) {};          &
-		\node[dspnodefull]                 (m1Xa) {$\Delta Y(z)$};          \\
+		\node[]                            (m1Xa) {$\Delta Y(z)$};          \\
 		%--------------------------------------------------------------------
 		\node[coordinate]                  (m20a) {};    &
 		\node[coordinate]                  (m21a) {};          &
-		\node[dspsquare]                   (m22a) {$B(z^{-1})$};          &
+		\node[dspsquare]                   (m22a) {$B\left(z^{-1}\right)$};          &
 		\node[circle,draw,inner sep=1pt]   (m23a) {\upsamplertext{M}}; &
 		\node[dspnodeopen,dsp/label=below] (m24a) {$\Delta V_i(z)$};          &
 		%\node[coordinate]                  (m25) {}; &
-		\node[rectangle,draw,inner sep=2pt](m25a) {$G_r(z^{-1})$}; &
+		\node[rectangle,draw,inner sep=2pt](m25a) {$G_r\left(z^{-1}\right)$}; &
 		\node[dspnodeopen,dsp/label=below] (m26a) {$\Delta W_i(z)$};          &
 		\node[circle,draw,inner sep=1pt]   (m27a) {\downsamplertext{M}}; &
-		\node[dspsquare]                   (m28a) {$D(z^{-1})$};          &
+		\node[dspsquare]                   (m28a) {$D\left(z^{-1}\right)$};          &
 		\node[coordinate]                  (m29a) {};          &
 		\node[coordinate]                  (m2Xa) {};          \\
 		%--------------------------------------------------------------------
@@ -116,8 +114,8 @@
 	}
 	%\draw[dspflow] (m04) --  (m06);
 	%\draw[dspflow] (m24) -- (m26);
-	\draw[dspconn] (m06a) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$-G_i(z^{-1})$} (m24a);
-	\draw[dspconn] (m26a) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$G_i(z^{-1})$} (m04a);
+	\draw[dspconn] (m06a) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$-G_i\left(z^{-1}\right)$} (m24a);
+	\draw[dspconn] (m26a) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$G_i\left(z^{-1}\right)$} (m04a);
 	\draw[dspline] (m09a) -- (m19a);
 	\draw[dspline] (m29a) -- (m19a);
 	\draw[dspline] (m19a) -- (m1Xa);

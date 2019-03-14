@@ -1,47 +1,209 @@
-\section{Introduction}\label{sec:ch6:intro}
-Using wavelet based methods with deep learning is nascent but not novel.
-Wavelets have been applied to texture classification \cite{fujieda_wavelet_2017,
-sifre_combined_2012}, super-resolution \cite{guo_deep_2017} and for adding
-detail back into dense pixel-wise segmentation tasks \cite{ma_detailed_2018}.
-One exciting piece of work built on wavelets is the Scattering Transform
-\cite{mallat_group_2012}, which has been used as a feature extractor for
-learning, firstly with simple classifiers \cite{bruna_invariant_2013,
-singh_scatternet_2017}, and later as a front end to hybrid deep learning
-tasks\cite{oyallon_scaling_2017, singh_scatternet_2018}. Despite their power and
-simplicity, scattering features are fixed and are visibly different to regular
-CNN features \cite{cotter_visualizing_2017} - their nice invariance properties
-come at the cost of flexibility, as there is no ability to learn in between
-scattering layers. 
+\section{Related Work}\label{sec:ch6:related}
 
-For this reason, we have been investigating a slightly different approach, more
-similar to the Fourier based work in \cite{rippel_spectral_2015} in which Rippel
-et.\ al.\ investigate parameterization of filters in the Fourier domain. In the
-forward pass, they take the inverse DFT of their filter, and then apply normal
-pixel-wise convolution. We wish to extend this by not only parameterizing
-filters in the wavelet domain, but by performing the convolution there as well
-(i.e., also taking the activations into the wavelet domain). After processing is
-done, we can return to the pixel domain. Doing these forward and inverse
-transforms has two significant advantages: 
-\begin{enumerate*}[label=\roman*)]
-  \item the layers can easily replace standard convolutional layers if they
-    accept and return the same format;
-  \item we can learn both in the wavelet and pixel space.
-\end{enumerate*}
+\subsection{Wavelets as a Front End}
+Fujieda et.\ al.\ use a DWT in combination with a
+CNN to do texture classification and image annotation 
+\cite{fujieda_wavelet_2017, fujieda_wavelet_2018}. In particular, they take a
+multiscale wavelet transform of the input image, combine the actviations at each
+scale independently with learned weights, and feed these back into the network
+where the activation resolution size matches the subband resolution. The
+architecture block diagram is shown in \autoref{fig:ch6:fujieda}, taken from the
+original paper.  This work found that their dubbed `Wavelet-CNN' could
+outperform competetive non wavelet based CNNs on both texture classification and
+image annotation.
 
-As neural network training involves presenting thousands of training samples, we
-want our layer to be fast. To achieve this we would ideally choose to use
-a critically sampled filter bank implementation. The fast 2-D Discrete Wavelet
-Transform (DWT) is a possible option, but it has two drawbacks: it has poor
-directional selectivity and any alteration of wavelet coefficients will cause
-the aliasing cancelling properties of the reconstructed signal to disappear.
-Instead we choose to use the Dual-Tree Complex Wavelet Transform ($DTCWT$)
-\cite{selesnick_dual-tree_2005} as at the expense of limited redundancy (4:1),
-it enables us to have better directional selectivity, and allows us to modify
-the wavelet coefficients and still have minimal aliasing terms when we
-reconstruct \cite{kingsbury_complex_2001}.
+\begin{figure}[bt]
+  \centering
+  \includegraphics[width=\textwidth]{\imgpath/wavelet_CNN_3.pdf}
+  \mycaption{Architecture using the DWT as a frontend to a CNN}{Figure 1 from
+  \cite{fujieda_wavelet_2018}. Fujieda et.\ al.\ take a multiscale wavelet
+  decomposition of the input before passing the input through a standard
+  CNN\@. They learn convolutional layers independently on each subband and feed
+  these back into the network at different depths, where the resolution of the
+  subband and the network activations match.}
+  \label{fig:ch6:fujieda}
+\end{figure}
 
-% This work is a step
-\autoref{sec:ch6:method} of the paper describes the implementation details of
-our design, and \autoref{sec:ch6:results} describes the experiments and results
-we have done so far.
+Several works also use wavelets in deep neural networks for super-resolution
+\cite{guo_deep_2017} and for adding detail back into dense pixel-wise
+segmentation tasks \cite{ma_detailed_2018}. These typically save wavelet
+coefficients and use them for the reconstruction phase, so are a little less
+applicable than the first work.
+
+\subsection{Parameterizing filters in Fourier Domain}
+In \citetitle{rippel_spectral_2015} \cite{rippel_spectral_2015}, Rippel et.\
+al.\ explore parameterization of filters in the DFT domain.  Note that they do
+not necessarily do the convolution in the Frequency
+domain, they simply parameterize a filter $\vec{w} \in \reals[F\x C\x K\x K]$ as
+a set of fourier coefficients $\hat{\vec{w}} \in \complexes[F\x C\x K \x \ceil{K/2}]$
+(the reduced spatial size is a result of enforcing that the inverse DFT of their
+filter to be real, so the parameterization is symmetric). On the forward pass of
+the neural network, they take the inverse DFT of $\hat{\vec{w}}$ to obtain
+$\vec{w}$ and then convolve this with the input $\vec{x}$ as a normal CNN
+would do.\footnote{The convolution may be done by taking both the image and
+filter back into the fourier space but this is typically decided by the
+framework, which selects the optimal convolution strategy for the filter and
+input size. Note that there is not necessarily a saving to be gained by
+enforcing it to do convolution by product of FFTs, as the FFT size needed for
+the filter will likely be larger than $K\x K$, which would require resampling
+the coefficients}. 
+
+\section{Background}
+Note that an important point should be laboured about reparameterizing filters
+in either the wavelet or Fourier domains. That is that any invertible linear
+transform of the parameter space will not change the updates if a linear
+optimization scheme (like standard gradient descent, or SGD with momentum) is
+used.
+
+To see this, let us consider the work from \cite{rippel_spectral_2015} where
+filters are parameterized in the Fourier domain. 
+
+If we define the DFT as the orthonormal version, i.e. let:
+$$ U_{ab} = \frac{1}{\sqrt{N}} \exp\{ \frac{-2j\pi ab}{N} \} $$
+%
+then call $X = \DFT{x}$. In matrix form the 2-D DFT is then:
+
+\begin{eqnarray}
+  X &=& \DFT{x} = UxU \\
+  x &=& \IFT{X} = U^*YU^* 
+\end{eqnarray}
+
+When it comes to gradients, these become:
+\begin{eqnarray}
+  \dydx{L}{X} &=& U \dydx{L}{x} U = \DFT{\dydx{L}{x}} \label{eq:ch6:dft_grad}\\
+  \dydx{L}{x} &=& U^* \dydx{L}{X} U^* = \IFT{\dydx{L}{X}}
+\end{eqnarray}
+
+Now consider a single filter parameterized in the DFT and spatial domains
+presented with the exact same data and with the same \ltwo\ regularization
+$\epsilon$ and learning rate $\eta$. Let
+the spatial filter at time $t$ be $\vec{w}_t$, the Fourier-parameterized
+filter be $\hat{\vec{w}}_t$, and let 
+
+\begin{equation}
+  \hat{\vec{w}}_1 = \F{DFT}\{\vec{w}_1\} \label{eq:ch6:initial_condition}
+\end{equation}
+%
+After presenting both systems with the same minibatch of samples $\mathcal{D}$
+and calculating the gradient $\dydx{L}{\vec{w}}$ we update both parameters:
+
+\begin{eqnarray}
+  \vec{w}_2 & = & \vec{w}_1 - \eta \left(
+    \dydx{L}{\vec{w}} + \epsilon \vec{w}_1 \right) \\
+    &=& (1-\eta\epsilon)\vec{w}_1 - \eta \dydx{L}{\vec{w}} \\
+  \hat{\vec{w}}_2 & = & \hat{\vec{w}}_1 - \eta \left(
+     \dydx{L}{\hat{\vec{w}}} + \epsilon \hat{\vec{w}}_1 \right)  \\
+     &=& (1-\eta\epsilon)\hat{\vec{w}_1} - \eta \dydx{L}{\hat{\vec{w}}} \\
+\end{eqnarray}
+
+Where we have shortened the gradient of the loss evaluated at the current
+parameter values to $\delta_{\vec{w}}$ and $\delta_{\hat{\vec{w}}}$.
+We can then compare the effect the new parameters would have on the next
+minibatch by calculating $\F{DFT}^{-1} \{\hat{\vec{w}}_2 \}$. Using
+equations~\ref{eq:ch6:dft_grad} and ~\ref{eq:ch6:initial_condition} we then get:
+
+\begin{eqnarray}
+  \IFT{\hat{\vec{w}}_2} &=& \IFT{(1-\eta\epsilon)\hat{\vec{w}_1} - \eta\ \dydx{L}{\hat{\vec{w}}}} \\       
+                        & = & (1-\eta\epsilon)\vec{w}_1 - \eta\ \IFT{ \dydx{L}{\hat{\vec{w}}}} \\
+                        & = & (1-\eta\epsilon)\vec{w}_1 - \eta \dydx{L}{\vec{w}} \\
+                        & = & \vec{w}_2
+\end{eqnarray}
+
+This does not hold for the Adam \cite{kingma_adam:_2014} or Adagrad \cite{}
+optimizers, which automatically rescale the learning rates for each parameter
+based on estimates of the parameters variance.
+% Note that this is almost identical to a normal CNN, except it allows for
+% slightly a reworked filter initialization and optimization. In fact, with linear optimizers
+% such as SGD or momentum and using \ltwo regularization, this work is equivalent to
+% do regular pixel domain convolution but applying is as well as 
+% affecting optimizers that keep track of past updates (such as SGD with momentum, 
+% Adam \cite{kingma_adam:_2014} or Adagrad). \autoref{fig:rippel_spectral_figs}
+% shows the fourier and spatial representation of some of the filters in
+% \cite{rippel_spectral_2015}, as well as histograms showing the sparsity of
+% parameters and momenta for parameter updates. The lower mean in the distribution
+% of parameter momenta indicates that fewer parameters are being updated in a
+% constant direction.
+
+% \subsubsection{Regularization}
+% Due to Parseval's theorem, it is clear that applying an L2 regularization on the
+% filter weights :
+
+% $$\sum_i \lnorm{w_i}{2}^2 = \sum_i \lnorm{\hat{w}_i}{2}^2 = \sum_i
+  % \lnorm{\real{\hat{w_i}}}{2}^2 + \lnorm{\imag{\hat{w_i}}}{2}^2 $$
+
+% However can apply L1 regularization on the complex magnitude of the DFT filter
+% weights to impose spectral sparsity.
+
+
+% In fact it can easily be seen that any optimizer that uses linear combinations
+% of gradients makes this new parameterization identical to parameterization in
+% the spatial domain. Optimizers like Adam and Adagrad however have update rules
+% that are not simply linear combinations of past gradients and so this affects
+% the learning trajectory. For Adam, there is a step where the gradients are
+% squared to estimate the variance of the parameter updates. 
+
+% This shows that any work involving reparametrizing or rethinking filter
+% convolution must be careful in what is done.
+
+% Further to this, while the inspiration for the work comes from wanting to remain
+% in the frequency domain, it is unsatisfying to simply parameterize filters there
+% and then take the inverse DFT and perform normal convolution. Ideally we would
+% like to fully take advantage of the benefits of a frequency representation.
+
+% \begin{figure}
+  % \centering
+  % \includegraphics[width=\textwidth]{\imgpath/rippel.png}
+  % \mycaption{Learning Dynamics of CNNs with DFT parameterization}{(a)
+  % Progression over several epochs of filters parametrized in the frequency
+  % domain. The left column shows the parameterized filter and the right column
+  % its inverse DFT. (b) Sparsity patterns for different parameterizations -
+  % spectral representations tend to be sparser. (c) Momenta distributions for
+  % parameters of CNNs trained with and without spectral parameterization. In the
+  % spectral parameterization fewer parameters are updated.  Image taken from
+  % \cite{rippel_spectral_2015}.}
+  % \label{fig:rippel_spectral_figs}
+% \end{figure}
+
+
+% \subsection{Spectral Pooling}
+% The Spectral Pooling method introduced in \cite{rippel_spectral_2015} is
+% described in the paper as:
+
+% \begin{quote}
+  % We assume we are given an input $\vec{x}\in \reals[M\x N]$, and some desired
+  % output map dimensionality $H \x W$. First we compute the discrete Fourier
+  % transform of the input into the frequency domain as $y = \mathcal{F}(\vec{x})
+  % \in \complexes[M\x N]$, and assume that the DC componenet has been shifted to
+  % the center of the domain as is standard practice. We then crop the frequency
+  % representation by maintaining only the central $H\x W$ submatrix of
+  % frequencies, which we denote as $\hat{\vec{y}} \in \complexes[H\x W]$. Finally, we
+  % map this approximation back into the spatial domain by taking its inverse DFT
+  % as $\hat{\vec{x}} = \mathcal{F}^{-1}(\hat{\vec{y}}) \in \reals[H\x W]$.
+% \end{quote}
+
+% While they have chosen to do this in the Fourier domain, this could also be
+% achieved by convolving with a separable, resampled 2D sinc function of the
+% appropriate frequencies for the horizontal and vertical directions:
+
+% $$\hat{\vec{x}} = \frac{HW}{MN} \vec{x} \conv \F{sinc}(\frac{Hn_y}{M}) \conv
+% \F{sinc}(\frac{Wn_x}{N})$$
+
+% where $n_x \in \{??\}, n_y \in \{??\}$. Of course, sincs have infinite support
+% in the time domain, so to achieve a similar result to spectral pooling you would
+% have to convolve with windowed sincs, or do some other form of similar low pass
+% filtering with resampling. In \cite{williams_wavelet_2018} they do exactly this
+% and call it `wavelet pooling', which is just keeping the low-low output of a
+% separable 2D DWT, or simply convolving with a separable lowpass filter. They
+% experimentally showed that this was equivalent to spectral and average pooling.
+
+% Note that speed ups could be achieved here if the convolution is done in the
+% Fourier domain, as it would involve only computing the reduced spectrum size
+% before taking inverse DFTs.
+
+
+% \begin{enumerate}
+  % \item the layers can easily replace standard convolutional layers if they
+    % accept and return the same format;
+  % \item we can learn both in the wavelet and pixel space.
+% \end{enumerate}
 
