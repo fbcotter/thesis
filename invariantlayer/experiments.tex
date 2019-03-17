@@ -64,7 +64,7 @@ the accuracy. The results of these runs are listed in
 
 \input{\path/mnist_hyper_table}
 
-\subsubsection{Proposed Expansions}\label{sec:ch5:mnist_initial}
+\subsubsection{Proposed Expansions}\label{sec:ch5:mnist_newlayer}
 The results from the previous section seem to indicate that our proposed
 invariant layer is a slightly worse substitute for a convolutional layer.
 However we believe that this is due to the centred nature of the wavelet bases
@@ -122,7 +122,7 @@ Now we look at expanding our layer to harder datasets, focusing more on the
 final classification accuracy. We do this again by comparing to a reference
 architecture. For this task, we choose a VGG-like network as our reference.
 It has six convolutional layers for CIFAR and eight layers for Tiny ImageNet as shown in
-\autoref{tab:arch}. The initial number of channels $C$ we use is 64. Despite
+\autoref{tab:ch5:cifar_arch}. The initial number of channels $C$ we use is 64. Despite
 this simple design, this reference architecture achieves competitive performance
 for the three datasets.
 
@@ -130,12 +130,18 @@ We perform an ablation study where we progressively swap out convolutional
 layers for invariant layers keeping the input and output activation sizes the
 same. As there are 6 layers (or 8 for Tiny ImageNet), there are too many
 permutations to list the results for swapping out all layers for our locally
-invariant layer, so we restrict our results to swapping 1 or 2 layers. 
-\autoref{tab:conv_results} reports the top-1 classification accuracies for
-CIFAR-10, CIFAR-100 and Tiny ImageNet. In addition to testing on the full
-datasets we report results for a reduced training set size. In the table, `invX'
-means that the `convX' layer from \autoref{tab:arch} is replaced with an 
-invariant layer.
+invariant layer, so we restrict our results to swapping 1 or 2 layers. We also
+report the accuracy when we swap out all of the layers.
+\autoref{tab:ch5:conv_results} reports the top-1 classification accuracies for
+CIFAR-10, CIFAR-100 and Tiny ImageNet. In the table, `invX'
+means that the `convX' layer from \autoref{tab:ch5:cifar_arch} was replaced with an 
+invariant layer. If the convolutional layer is before a pooling layer, then we
+do not interpolate the output of the invariant layer and we remove the pooling
+layer. 
+
+In addition to testing the original $1\x 1$ gain, we also report results for using 
+the `shifted impulse' and `learned $3\x 3$' modified architectures from 
+\autoref{sec:ch5:mnist_newlayer}. 
 
 This network is optimized with stochastic gradient descent with momentum. The
 initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and
@@ -151,7 +157,7 @@ position for the invariant layer seems to be just before a sample rate change.
 Recalling that the magnitude operation in the ScatterNet effectively
 demodulates the energy from higher spatial frequencies to a lower band, it
 intuitively makes sense that good places for scattering layers are at
-positions where you want to downsample.
+positions where you want to downsample. 
 
 \input{\path/cifar_ablation_table}
 
@@ -166,7 +172,8 @@ To build the second order ScatterNet, we stack two invariant layers on top of ea
 other. For 3 input channels, the output of these layers has $3(1 +
 6 + 6 +36) = 147$ channels at $1/16$ the spatial input size. We then use 4
 convolutional layers, similar to convC to convF in \autoref{tab:arch} with
-$C=96$. In addition, we use dropout after these later convolutional layers with drop probability $p=0.3$.
+$C=96$. In addition, we use dropout after these later convolutional layers with
+drop probability $p=0.3$.
 
 We compare a ScatterNet with no learning in between scattering orders
 (ScatNet A) to one with our proposal for a learned mixing matrix $A$ (ScatNet B). Finally,
