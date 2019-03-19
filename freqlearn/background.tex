@@ -48,7 +48,7 @@ enforcing it to do convolution by product of FFTs, as the FFT size needed for
 the filter will likely be larger than $K\x K$, which would require resampling
 the coefficients}. 
 
-\section{Background}
+\section{Invertible Transforms and Optimization}
 Note that an important point should be laboured about reparameterizing filters
 in either the wavelet or Fourier domains. That is that any invertible linear
 transform of the parameter space will not change the updates if a linear
@@ -109,9 +109,41 @@ equations~\ref{eq:ch6:dft_grad} and ~\ref{eq:ch6:initial_condition} we then get:
                         & = & \vec{w}_2
 \end{eqnarray}
 
+
+\subsection{Regularization}
+If we use $\ell_1$ then the above doesn't hold.
+
+\subsection{Optimization}
+If we us adam things r different.
+
 This does not hold for the Adam \cite{kingma_adam:_2014} or Adagrad \cite{}
 optimizers, which automatically rescale the learning rates for each parameter
-based on estimates of the parameters variance.
+based on estimates of the parameter's variance. Rippel et.\ al.\ use this fact
+in their paper \cite{rippel_spectral_2015}.
+
+\section{A Summary of Choices}
+As mentioned in the inspiration for this chapter, many filters that
+have complex support in the pixel domain would have simple support in the
+wavelet domain, but as the previous section showed, naively reparameterizing
+things in a different domain may not afford us any benefit in the optimization
+procedure.
+
+There are two possible ways we can try to leverage the wavelet domain for
+learning: 
+
+\begin{enumerate}
+  \item We can reparameterize filters in the wavelet domain if we use nonlinear
+optimizers like ADAM, or $\ell_1$ regularization to impose sparsity. 
+  \item We can take wavelet transforms of the inputs and learn filters on the
+    activations. Doing the latter would require a little care though. In the
+    wavelet domain we can then apply new nonlinearities like wavelet shrinkage. 
+    On the output of this, we have the choice of either staying in
+    the wavelet domain or returning to the pixel domain with an inverse wavelet
+    transform. 
+\end{enumerate}
+
+This chapter explores both possible methods and the merits and drawbacks of
+each.
 % Note that this is almost identical to a normal CNN, except it allows for
 % slightly a reworked filter initialization and optimization. In fact, with linear optimizers
 % such as SGD or momentum and using \ltwo regularization, this work is equivalent to
