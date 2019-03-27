@@ -4,8 +4,8 @@ learn. In particular the ScatterNet, and even the learnable ScatterNet proposed
 in the previous chapter, are built around taking complex magnitudes of the
 highpass wavelets. This inherently builds invariance to shifts but at the cost
 of making things smoother. In many ways this was beneficial, as it allowed us to
-subsample the output and we saw that the scattering layers worked well right
-before the downsampling stages of a CNN\@. However, we would now like to explore
+subsample the output and we saw that the scattering layers worked well just 
+before downsampling stages of a CNN\@. However, we would now like to explore
 if it is possible and at all beneficial to learn with wavelets without taking
 the complex magnitude. This means that the frequency support of our activations
 will remain in the same space in the Fourier domain. 
@@ -13,9 +13,11 @@ will remain in the same space in the Fourier domain.
 The inspiration to this chapter is the hope that learning in the
 frequency/wavelet domain may afford simpler filters than learning in the pixel
 domain. A classic example of this is the first layer filters in AlexNet shown in
-\autoref{fig:ch6:alexnet}. These are a collection of lowpass (with colour) and
-oriented highpass filters, each of which would only require a few parameters if
-coded as subband gains.
+\autoref{fig:ch6:alexnet}. These could be parameterized with only a few nonzero
+wavelet coefficients, or alternatively, we could take a 
+decomposition of each input channel and keep individual
+subbands (or equivalently, attenuate other bands), then take the inverse wavelet
+transform. 
 
 \begin{figure}[bt]
   \centering
@@ -24,26 +26,34 @@ coded as subband gains.
   filters of the seminal AlexNet \cite{krizhevsky_imagenet_2012} are an
   inspiration for considering learning filters in the wavelet domain. Each of
   these $11\x 11$ filters would only require a handful of non zero coefficients
-  in the wavelet domain. Weights taken from torchvision
-  \cite{marcel_torchvision_2010}.}
+  in the wavelet domain. The weights shown here were taken from a pretrained
+  network from torchvision \cite{marcel_torchvision_2010}.}
   \label{fig:ch6:alexnet}
 \end{figure}
 
-Our experiments show that \ellipsis
+Our experiments show that \ldots \textbf{FINISH ME}
 
-As neural network training involves presenting thousands of training samples, we
-want our layer to be fast. To achieve this we would ideally choose to use
-a critically sampled filter bank implementation. The fast 2-D Discrete Wavelet
-Transform (DWT) is a possible option, but it has two drawbacks: it has poor
-directional selectivity and any alteration of wavelet coefficients will cause
-the aliasing cancelling properties of the reconstructed signal to disappear.
-Instead we choose to use the Dual-Tree Complex Wavelet Transform ($DTCWT$)
-\cite{selesnick_dual-tree_2005} as at the expense of limited redundancy (4:1),
-it enables us to have better directional selectivity, and allows us to modify
-the wavelet coefficients and still have minimal aliasing terms when we
-reconstruct \cite{kingsbury_complex_2001}.
 
-% This work is a step
-\autoref{sec:ch6:method} of the paper describes the implementation details of
-our design, and \autoref{sec:ch6:results} describes the experiments and results
-we have done so far.
+\section{A Summary of Choices}
+As mentioned in the inspiration for this chapter, many filters that
+have complex support in the pixel domain would have simple support in the
+wavelet domain, but as the previous section showed, naively reparameterizing
+things in a different domain may not afford us any benefit in the optimization
+procedure.
+
+There are two possible ways we can try to leverage the wavelet domain for
+learning: 
+
+\begin{enumerate}
+  \item We can reparameterize filters in the wavelet domain if we use nonlinear
+  optimizers like ADAM, or $\ell_1$ regularization to impose sparsity. This is
+  presented in \autoref{sec:ch6:reparameterization}.
+  \item We can take wavelet transforms of the inputs and learn filters on the
+    wavelet coefficients. We can also apply nonlinearities to the wavelet coefficients
+    such as wavelet shrinkage. On the output of this, we have the choice of either
+    staying in the wavelet domain or returning to the pixel domain with an
+    inverse wavelet transform. This is presented in \autoref{sec:ch6:gainlayer}
+\end{enumerate}
+
+This chapter explores both possible methods and the merits and drawbacks of
+each.

@@ -1,4 +1,4 @@
-\section{Parameterizing Filters in the Wavelet Domain}
+\section{Parameterizing Filters in the Wavelet Domain}\label{sec:ch6:reparameterization}
 This is a simple extension of the work done by Rippel et.\ al. Their work also
 added another layer called `Spectral Pooling' which effectively is a lowpass
 filter. As with the Fourier parameterization, a Wavelet parameterization
@@ -8,3 +8,77 @@ power of 2 whereas most convolutional filters in CNNs have an odd spatial
 support, typically of size 3 (and maybe more for earlier layers). This is done
 for a very good reason too, in that we do not want our filters to shift the
 activations. 
+
+\subsection{Invertible Transforms and Optimization}
+Note that an important point should be laboured about reparameterizing filters
+in either the wavelet or Fourier domains. That is that any invertible linear
+transform of the parameter space will not change the updates if a linear
+optimization scheme (like standard gradient descent, or SGD with momentum) is
+used.
+
+To see this, let us consider the work from \cite{rippel_spectral_2015} where
+filters are parameterized in the Fourier domain. 
+
+If we define the DFT as the orthonormal version, i.e. let:
+$$ U_{ab} = \frac{1}{\sqrt{N}} \exp\{ \frac{-2j\pi ab}{N} \} $$
+%
+then call $X = \DFT{x}$. In matrix form the 2-D DFT is then:
+
+\begin{eqnarray}
+  X &=& \DFT{x} = UxU \\
+  x &=& \IFT{X} = U^*YU^* 
+\end{eqnarray}
+
+When it comes to gradients, these become:
+\begin{eqnarray}
+  \dydx{L}{X} &=& U \dydx{L}{x} U = \DFT{\dydx{L}{x}} \label{eq:ch6:dft_grad}\\
+  \dydx{L}{x} &=& U^* \dydx{L}{X} U^* = \IFT{\dydx{L}{X}}
+\end{eqnarray}
+
+Now consider a single filter parameterized in the DFT and spatial domains
+presented with the exact same data and with the same \ltwo\ regularization
+$\epsilon$ and learning rate $\eta$. Let
+the spatial filter at time $t$ be $\vec{w}_t$, the Fourier-parameterized
+filter be $\hat{\vec{w}}_t$, and let 
+
+\begin{equation}
+  \hat{\vec{w}}_1 = \F{DFT}\{\vec{w}_1\} \label{eq:ch6:initial_condition}
+\end{equation}
+%
+After presenting both systems with the same minibatch of samples $\mathcal{D}$
+and calculating the gradient $\dydx{L}{\vec{w}}$ we update both parameters:
+
+\begin{eqnarray}
+  \vec{w}_2 & = & \vec{w}_1 - \eta \left(
+    \dydx{L}{\vec{w}} + \epsilon \vec{w}_1 \right) \\
+    &=& (1-\eta\epsilon)\vec{w}_1 - \eta \dydx{L}{\vec{w}} \\
+  \hat{\vec{w}}_2 & = & \hat{\vec{w}}_1 - \eta \left(
+     \dydx{L}{\hat{\vec{w}}} + \epsilon \hat{\vec{w}}_1 \right)  \\
+     &=& (1-\eta\epsilon)\hat{\vec{w}_1} - \eta \dydx{L}{\hat{\vec{w}}} \\
+\end{eqnarray}
+
+Where we have shortened the gradient of the loss evaluated at the current
+parameter values to $\delta_{\vec{w}}$ and $\delta_{\hat{\vec{w}}}$.
+We can then compare the effect the new parameters would have on the next
+minibatch by calculating $\F{DFT}^{-1} \{\hat{\vec{w}}_2 \}$. Using
+equations~\ref{eq:ch6:dft_grad} and ~\ref{eq:ch6:initial_condition} we then get:
+
+\begin{eqnarray}
+  \IFT{\hat{\vec{w}}_2} &=& \IFT{(1-\eta\epsilon)\hat{\vec{w}_1} - \eta\ \dydx{L}{\hat{\vec{w}}}} \\       
+                        & = & (1-\eta\epsilon)\vec{w}_1 - \eta\ \IFT{ \dydx{L}{\hat{\vec{w}}}} \\
+                        & = & (1-\eta\epsilon)\vec{w}_1 - \eta \dydx{L}{\vec{w}} \\
+                        & = & \vec{w}_2
+\end{eqnarray}
+
+
+\subsection{Regularization}
+If we use $\ell_1$ then the above doesn't hold.
+
+\subsection{Optimization}
+If we us adam things r different.
+
+This does not hold for the Adam \cite{kingma_adam:_2014} or Adagrad \cite{}
+optimizers, which automatically rescale the learning rates for each parameter
+based on estimates of the parameter's variance. Rippel et.\ al.\ use this fact
+in their paper \cite{rippel_spectral_2015}.
+

@@ -1,0 +1,30 @@
+\begin{algorithm}[t]
+\caption{$\DTCWT$ gain layer forward and backward passes}\label{alg:ch6:gain}
+\begin{algorithmic}[1]
+\Procedure{GAINFWD}{$x, w_l, $}
+  \State $yl,\ yh \gets \DTCWT(x^l, \mbox{nlevels}=1) $ \Comment{yh has 6
+  orientations and is complex}
+  \State $U \gets \F{COMPLEXMAG}(yh)$
+  \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample and recentre lowpass
+  to match U size}
+  \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{concatenated along the
+  channel dimension}
+  \State $Y \gets AZ$ \Comment{Mix}
+  \State \textbf{save} $Z$ \Comment{For the backwards pass}
+  \State \textbf{return} $Y$ 
+\EndProcedure
+\end{algorithmic}\vspace{10pt}
+\begin{algorithmic}[1]
+\Procedure{GAINBWD}{$\dydx{L}{Y},\ A$}
+  \State \textbf{load} $Z$
+  \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$ \Comment{The weight gradient}
+  \State $\Delta{Z} \gets A^T\dydx{L}{Y}$
+  \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
+  \State $\Delta yl \gets \F{AVGPOOL2x2BWD}(\Delta yl)$
+  \State $\Delta yh \gets \F{COMPLEXMAGBWD}(\Delta U)$
+  \State $\dydx{L}{x} \gets \F{\DTCWT BWD}(\Delta yl,\ \Delta yh)$ \Comment{The propagated gradient}
+  \State \textbf{return} $\dydx{L}{x},\ \dydx{L}{A}$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+

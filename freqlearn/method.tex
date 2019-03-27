@@ -1,6 +1,17 @@
-\section{Method}\label{sec:ch6:method}
+\section{Taking Wavelet Transforms of Inputs}\label{sec:ch6:gainlayer}
 
-\section{Aliasing in the DWT}
+As neural network training involves presenting thousands of training samples, we
+want our layer to be fast. To achieve this we would ideally choose to use a
+critically sampled filter bank implementation. The fast 2-D Discrete Wavelet
+Transform (DWT) is a possible option, but it has two drawbacks: it has poor
+directional selectivity and any alteration of wavelet coefficients will cause
+the aliasing cancelling properties of the reconstructed signal to disappear.
+Instead we choose to use the $\DTCWT$ \cite{selesnick_dual-tree_2005} as at the
+expense of limited redundancy (4:1), it enables us to have better directional
+selectivity, and allows us to modify the wavelet coefficients and still have
+minimal aliasing terms when we reconstruct \cite{kingsbury_complex_2001}.
+
+\subsection{Aliasing in the DWT}
 Consider a single level critically sampled DWT in 1-D. The aliasing cancelling
 condition is:
 
@@ -14,11 +25,7 @@ This is typically solved by using Quadrature Mirror Filters, i.e.
   G_1(z) &= -H_1(z) = -H_0(-z) 
 \end{align}
 
-\section{Shift Invariance of the $\DTCWT$}
-\begin{figure}
-  \includegraphics[width=\textwidth]{\imgpath/dtcwt.png}
-  \mycaption{Full 1-D $\DTCWT$}{}
-\end{figure}
+\section{$\DTCWT$ Convolution}
 
 \begin{figure}
   \centering
@@ -26,118 +33,43 @@ This is typically solved by using Quadrature Mirror Filters, i.e.
   \mycaption{Block Diagram of 1-D $\DTCWT$}{Note the top and bottom paths are
   through the wavelet or scaling functions from just level m ($M=2^m$). Figure
   based on Figure~4 in \cite{kingsbury_complex_2001}.}
-  \label{fig:dtcwt_two_tree}
+  \label{fig:ch6:dtcwt_two_tree}
 \end{figure}
 
-Firstly, let us look at what would happen if we retained only 1 of the subbands.
-Note that we have to keep the same band from each tree. E.g. if we wanted to
-keep the $x_{001}$ coefficients, we must keep $x_{001a}$ and $x_{001b}$. For any
-pair of coefficients on the tree, this would look like:
+As we saw from \autoref{ch2:??}, if we keep only 1 passband in the $\DTCWT$ as
+shown in \autoref{fig:ch6:dtcwt_two_tree} then
+the end to end transfer function is:
 
-e.g. if we kept $x_{001a}$ and $x_{001b}$ then $M=8$ and $A(z) =
-H_{0a}(z)H_{00a}(z^2)H_{001a}(z^4)$ is the transfer fucntion from $x$ to
-$x_{001a}$. The transfer functions for $B(z)$, $C(z)$ and $D(z)$ are obtained
-similarly. It is well known that:
+\begin{equation}
+  \frac{1}{M} \sum_{k=0}^{M-1} [A(W^kz)C(z) + B(W^kz)D(z)]
+\end{equation}
 
-\begin{eqnarray}
-  U(z) \downarrow M &\rightarrow&  U(z^M) \\
-  U(z) \uparrow M &\rightarrow & \frac{1}{M}\sum_{k=0}^{M-1}U(W^kz^{1/M})
-\end{eqnarray}
+Let us extend this idea to allow for any linear gain applied to the passbands
+(not just zeros and ones). Ultimately, we may want to allow for nonlinear
+operations applied to the wavelet coefficients, but we restrict ourselves to
+linear gains so that we can build from a sensible base.
 
-Where $W=e^{j2\pi/M}$. So downsampling followed by upsampling becomes:
-$$U(z) \downarrow M \uparrow M \rightarrow \frac{1}{M}\sum_{k=0}^{M-1}U(W^kz)$$
-
-This means that
-
-  $$Y(z) = Y_{a}(z) + Y_{b}(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z) [A(W^kz)C(z) + B(W^kz)D(z)]$$
-
-The aliasing terms for which are everywhere where $k \neq 0$ (as $X(W^kz)$ is
-$X(z)$ shifted by $\frac{2k\pi}{M}$). I.e. to avoid aliasing in this reduced
-tree, we want to make sure that $A(W^kz)C(z) + B(W^kz)D(z) = 0$ for all $k \neq
-0$.
-
-The figure below (Fig 5 from \cite{kingsbury_complex_2001}) shows what $A(W^kz)$
-and $C(z)$ look like for both the lowpass case (left) and the highpass case
-(right). Note that these responses will be similar for $B(W^kz)$ and $D(z)$. For
-large values of k, there is almost no overlap (i.e. 
-$A(W^kz)C(z) \approx B(W^kz)D(z) \approx 0$, 
-but for small values of k (particularly $k = \pm 1$),
-the transition bands have significant overlap with the central response. It is
-here that we need to use the flexibility of having 2 trees to ensure that
-$A(W^kz)C(z)$ and $B(W^kz)D(z)$ cancel out.
+If we want to have linear gains applied to the wavelet coefficients, it would be
+nice to maintain the shift invariant properties of the $\DTCWT$. 
 
 \begin{figure}
   \centering
-  \includegraphics[width=\textwidth]{\imgpath/overlaps.png}
+  \input{\imgpath/dtcwt2}
+  \mycaption{Block Diagram of 1-D $\DTCWT$}{Note the top and bottom paths are
+  through the wavelet or scaling functions from just level m ($M=2^m$). Figure
+  based on Figure~4 in \cite{kingsbury_complex_2001}.}
+  \label{fig:ch6:dtcwt_two_tree_gain}
 \end{figure}
 
-To do this, let us consider the lowpass filters first. If we let:
+This is a two port network with four individual transfer functions. Let us call
+the transfer fucntion from $X_a$ to $Y_a$ $G_{aa}$, the transfer function from
+$X_a$ to $Y_b$ $G_{ab}$, and similarly the transfer functions from $X_b$ to
+$Y_a$ and $Y_b$ $G_{ba}$ and $G_{bb}$.
 
-\begin{eqnarray}
-  B(z) &=& z^{\pm M/2}A(z) \\
-  D(z) &=& z^{\mp M/2}C(z)
-\end{eqnarray}
-
-Then
-
-\begin{eqnarray}
-  A(W^kz)C(z) + B(W^kz)D(z) &=& A(W^kz)C(z) + (W^kz)^{\pm M/2}A(W^kz) z^{\mp M/2}C(z) \\
-  &=& A(W^kz)C(z) + e^{\frac{jk2\pi}{M} \times (\pm \frac{M}{2})} z^{\pm M/2} z^{\mp M/2} A(W^kz)C(z) \\
-  &=& A(W^kz)C(z) + (-1)^k A(W^kz)C(z)
-\end{eqnarray}
-
-Which cancels when k is odd
-
-Now consider the bandpass case. For shifts of $k=1$ the right half of the left
-peak overlaps with the left half of the right peak. For a shift of $k=2$, the
-left half of the left peak overlaps with the right half of the right peak.
-Similarly for $k=-1$ and $k=-2$. For $|k| > 2$, there is no overlap. The fact
-that we have overlaps at both even and odd shifts of $k$ means that we can't use
-the same clever trick from before. However, what we do note is that the overlap
-is always caused by opposite peaks (i.e. the left with the right peak, and never
-the left with itself, or the right with itself). The solution then is to have
-$B$ and $D$ have upper and lower passbands of opposite polarity, whil $A$ and
-$C$ should have passbands of the same polarity.
-
-Consider two prototype complex filters $P(z)$ and $Q(z)$ each with single
-passbands going from $f_s/2M \rightarrow f_s/M$ (or $\frac{pi}{M} \rightarrow
-\frac{2*pi}{M}$) - they must be complex to have support in only one half of the
-frequency plane. Now say $P^*(z) = \sum_{r}p_r^*z^{-r}$ is the z-transform of
-the conjugate of $p_r$, which has support only in the negative half of the
-frequency plane. Then we can get the required filters by:
-
-\begin{eqnarray}
-A(z) &=& 2\Re [P(z)] = P(z) + P^*(z) \\
-B(z) &=& 2\Im [P(z)] = -j[P(z) - P^*(z)] \\
-C(z) &=& 2\Re [Q(z)] = Q(z) + Q^*(z) \\
-D(z) &=& -2\Im [Q(z)] = j[Q(z) - Q^*(z)]
-\end{eqnarray}
-
-Then:
-\begin{eqnarray}
-A(W^kz)C(z) + B(W^kz)D(z) &=&  [P(W^kz) + P^*(W^kz)][Q(z) + Q^*(z)] + \nonumber \\
-  && (-j*j)[P(W^kz) - P^*(W^kz)][Q(z) - Q^*(z)] \\
-&=& P(W^kz)Q(z)[1+1] + P^*(W^kz)Q(z)[1-1] + \nonumber \\ 
-  && P(W^kz)Q^*(z)[1-1] + P^*(W^kz)Q^*(z)[1+1] \\
-&=& 2P(W^kz)Q(z) + 2P^*(W^kz)Q^*(z)
-\end{eqnarray}
-
-So now we only need to ensure that $P(W^kz)$ overlaps as little as possible with
-$Q(z)$. This is somewhat more manageable, the diagram below shows the problem.
-
-\begin{figure}
-  \includegraphics[width=\textwidth]{\imgpath/overlaps_complex.png}
-\end{figure}
-
-
-\section{$\DTCWT$ Convolution}
-To do full $\DTCWT$ convolution, we need to do more than the above. We don't
-want to only keep some passbands, but we want to apply different gains to each
-one. First, let us check that analytically this makes sense and we still won't
-have aliasing when we do more general operations to the passbands. I.e. instead
-of considering the above reduced tree, consider the below tree:
-
-$$Y(z) = Y_{a}(z) + Y_{b}(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z) [A(W^kz)G(W^kz^{M})C(z) + B(W^kz)H(W^kz^{M})D(z)]$$
+Then the end to end transfer function is: \textbf{FIXME}
+\begin{equation}
+Y(z) = Y_{a}(z) + Y_{b}(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z) [A(W^kz)G(W^kz^{M})C(z) + B(W^kz)H(W^kz^{M})D(z)]
+\end{equation}
 
 If we set $H=G$ then we get:
 
@@ -188,25 +120,6 @@ $P(z)Q(z)$ for different subbands of a 2-D $\DTCWT$ have spectra shown in
 frequency space.\\
 \input{\path/figure1}
 
-In a standard convolutional layer, an input with $C$ channels, $H$ rows and $W$
-columns is $X \in \reals[C\x H\x W]$, which is then convolved with $F$ filters
-of spatial size $K$ - $w \in \reals[F \x C\x K\x K]$, giving $Y \in \reals[F\x
-H\x W]$. In many systems like \cite{krizhevsky_imagenet_2012, he_deep_2015}, the
-first layer is typically a selection of bandpass filters, selecting edges with
-different orientations and center frequencies. In the wavelet space this would
-be trivial - take a decomposition of each input channel and keep individual
-subbands (or equivalently, attenuate other bands), then take the inverse wavelet
-transform.  \autoref{fig:ch6:dtcwt_bands} shows the frequency space for the
-$\DTCWT$ and makes it clearer as to how this could be done practically for a two
-scale transform. To attenuate all but say the $15 \degs$ band at the first scale
-for the first input channel, we would need to have $13C$ gains for the 13
-subbands and $C$ input channels, $13C-1$ of which would be zero and the
-remaining coefficient one.
-
-Instead of explicitly setting the gains, we can randomly initialize them and use
-backpropagation to learn what they should be. This gives us the power to learn
-more complex shapes rather than simple edges, as we can mix the regions of the
-frequency space per input channel in an arbitrary way. 
 
 \subsection{Forward propagation}
 \autoref{fig:ch6:fwd_bwd} shows the block diagram using $Z$-transforms for

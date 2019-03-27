@@ -116,10 +116,10 @@
       \mycaption{Sensitivity of DWT coefficients to zero crossings and small
         shifts}{Two impulse signals $\delta(n-60)$ and $\delta(n-64)$ are
         shown (top), as well as the wavelet coefficients for scale $j=1$ for the DWT (middle) and
-        for the \DTCWT\ (bottom). In the middle row, not only are the coefficients very different
+        for the $\DTCWT$ (bottom). In the middle row, not only are the coefficients very different
         from a shifted input, but the energy has almost doubled. As the DWT is an orthonormal
         transform, this means that this extra energy has come from other scales. In comparison, the
-      energy of the magnitude of the \DTCWT\ coefficients has remained far more constant, as has the
+      energy of the magnitude of the $\DTCWT$ coefficients has remained far more constant, as has the
     shape of the envelope of the output.  Image taken from \citep{selesnick_dual-tree_2005}.}
       \label{fig:dwt_zero_crossing}
   \end{figure}
@@ -174,7 +174,7 @@
   \citep{bruna_classification_2011, bruna_invariant_2013, bruna_scattering_2013,
   oyallon_generic_2013, oyallon_deep_2015, sifre_rotation_2013,
   sifre_rigid-motion_2014, sifre_rigid-motion_2014-1, sifre_scatnet_2013}, and
-  the separable, filter bank based \DTCWT\ developed by Kingsbury
+  the separable, filter bank based $\DTCWT$ developed by Kingsbury
   \citep{kingsbury_wavelet_1997, kingsbury_dual-tree_1998,
   kingsbury_dual-tree_1998-1,  kingsbury_image_1999, kingsbury_shift_1999,
   kingsbury_dual-tree_2000, kingsbury_complex_2001, selesnick_dual-tree_2005}.
@@ -413,7 +413,7 @@
   \cite{kingsbury_dual-tree_1998, kingsbury_dual-tree_1998-1} as a way to combat
   many of the shortcomings of the DWT, in particular, its poor directional
   selectivity, and its poor shift invariance. A thorough analsysis of the
-  properties and benefits of the \DTCWT\ is done in
+  properties and benefits of the $\DTCWT$ is done in
   \cite{kingsbury_image_1999,selesnick_dual-tree_2005}. Building on these
   properties, it been used
   successfully for denoising and inverse problems \cite{rivaz_bayesian_2001,
@@ -432,7 +432,7 @@
     noninvertible, or both.
   \end{quote}
   This nicely summarises the difference between this method and the Fourier
-  based method outlined in \autoref{sec:morlet_fourier}. The \DTCWT\ is
+  based method outlined in \autoref{sec:morlet_fourier}. The $\DTCWT$ is
   a filter bank (FB) based wavelet transform. It is faster
   to implement than the Morlet analysis, as well as being more readily invertible.
 
@@ -475,7 +475,7 @@
     \centering
       % \includegraphics[width=\textwidth]{images/dtcwt_1d_fb.png}
       \caption[Analysis FB for the \DTCWT]
-              {Analysis FB for the \DTCWT\@. Top `tree' forms the real
+              {Analysis FB for the $\DTCWT$@. Top `tree' forms the real
               component of the complex wavelet $\psi_r$, and the bottom tree forms the
               imaginary (Hilbert pair) component $\psi_i$. Image taken from
               \citep{selesnick_dual-tree_2005}.}
@@ -492,7 +492,7 @@
     g_0(n) \approx h_0(n-0.5) \rightarrow \psi_g(t) \approx
     \mathcal{H}\{\psi_h(t)\}
   \end{equation}
-  As the \DTCWT\ is designed as an invertible filter bank implementation, this
+  As the $\DTCWT$ is designed as an invertible filter bank implementation, this
   is only one of the constraints. Naturally, there are also:
   \begin{itemize}
     \item Perfect reconstruction
@@ -510,7 +510,7 @@
 
 \subsubsection{The Resulting Wavelets and their Properties}
   While analytic wavelets in 1D are useful for their shift invariance, the real
-  beauty of the \DTCWT\ is in its ability to make a separable 2D wavelet
+  beauty of the $\DTCWT$ is in its ability to make a separable 2D wavelet
   transform with oriented wavelets. 
   
   \autoref{fig:dwt_hh} shows the spectrum of
@@ -541,7 +541,7 @@
   \autoref{fig:dtcwt_wavelets} shows the resulting wavelets both in the spatial
   domain and their idealized support in the frequency domain.
 
-  \autoref{fig:dtcwt_shift_invariance} shows how the \DTCWT\ compares with the
+  \autoref{fig:dtcwt_shift_invariance} shows how the $\DTCWT$ compares with the
   DWT with a shifting input.
 
   \begin{figure}
@@ -553,10 +553,10 @@
       \subfloat[]{\makebox[\textwidth][c]{%
         % \includegraphics[width=0.8\textwidth]{images/dtcwt_hh.png}
         \label{fig:dtcwt_hh}}}
-      \caption[The DWT high-high vs the \DTCWT\ high-high frequency support]
+      \caption[The DWT high-high vs the $\DTCWT$ high-high frequency support]
               {\subref{fig:dwt_hh} The high-high DWT wavelet having a passband in
               all 4 corners of the frequency plane vs \subref{fig:dtcwt_hh} the
-              high-high \DTCWT\ wavelet frequency support only existing in one
+              high-high $\DTCWT$ wavelet frequency support only existing in one
               quadrant. Taken from \citep{selesnick_dual-tree_2005}}
       \label{fig:dwt_dtcwt_hh}
   \end{figure}
@@ -565,7 +565,7 @@
     \centering
       % \includegraphics[width=\textwidth]{images/dtcwt_wavelets.png}
       \caption[Wavelets from the 2D \DTCWT]
-              {Wavelets from the 2d \DTCWT\@. \textbf{Top:} The six  oriented filters
+              {Wavelets from the 2d $\DTCWT$@. \textbf{Top:} The six  oriented filters
       in the space domain (only the real wavelets are shown). \textbf{Bottom:}
       Idealized support of the Fourier spectrum of each wavelet in the 2D
       frequency plane. Spectra of the the real wavelets are shown --- the
@@ -578,15 +578,15 @@
       \makebox[\textwidth][c]{%
         % \includegraphics[width=1.1\textwidth]{images/dtcwt_shift_invariance.png}
       }
-      \caption[The shift invariance ofthe \DTCWT\ vs.\ the real DWT]
-              {The shift invariance of the \DTCWT\ (left) vs.\ the real DWT
-              (right). The \DTCWT\ linearizes shifts in the phase change of the complex
+      \caption[The shift invariance ofthe $\DTCWT$ vs.\ the real DWT]
+              {The shift invariance of the $\DTCWT$ (left) vs.\ the real DWT
+              (right). The $\DTCWT$ linearizes shifts in the phase change of the complex
               wavelet. Image taken from \citep{kingsbury_dual-tree_1998}.}
       \label{fig:dtcwt_shift_invariance}
   \end{figure}
 
 \subsubsection{Implementation and Efficiency}\label{sec:dtcwt_efficiency}
-  \autoref{fig:dtcwt_1d_fb} showed the layout for the \DTCWT\ for 1D signals. We
+  \autoref{fig:dtcwt_1d_fb} showed the layout for the $\DTCWT$ for 1D signals. We
   saw from \autoref{eq:dtcwt_2d_product} that the 2D separable product of wavelets
   involved the product of $\psi_g$, $\psi_h$, $\phi_g$, and $\phi_h$ terms, with
   some summing and differencing operations. \autoref{fig:dtcwt_fb} shows how to
@@ -598,13 +598,13 @@
       % \includegraphics[width=1.1\textwidth]{images/dtcwt_fb.png}
     }
       \caption[The filter bank implementation of the \DTCWT]
-              {The filter bank implementation of the \DTCWT\@. Image taken from 
+              {The filter bank implementation of the $\DTCWT$@. Image taken from 
               \citep{kingsbury_image_1999}}
       \label{fig:dtcwt_fb}
   \end{figure}
 
   As we did for \autoref{sec:morlet_implementation}, we calculate and compare
-  the complexity of the \DTCWT\@. To do this, we must know the length of our
+  the complexity of the $\DTCWT$@. To do this, we must know the length of our
   $h$ and $g$ filters. It is also important to know that we must use different
   filters for the first scale to the deeper scales, as this achieves better
   analyticity. A typical configuration will use biorthogonal filters for the
@@ -681,17 +681,17 @@
 
   For a simple comparison experiment, we performed the two transforms on a four
   core Intel i7 processor (a moderately high-end personal computer). The
-  \DTCWT\ transform took roughly 0.15s on a black and
+  $\DTCWT$ transform took roughly 0.15s on a black and
   white $32\x 32$ image, vs. 0.5s for the Fourier-based method. For a larger,
-  $512\x 512$ image, the \DTCWT\ implementation took 0.35s vs. 3.5s
+  $512\x 512$ image, the $\DTCWT$ implementation took 0.35s vs. 3.5s
   (times were averaged over several runs).
   
 \subsubsection{Invertibility and Energy Conservation}
   We analysed the Littlewood-Paley function for the Morlet-Fourier
   implementation, and saw what areas of the spectrum were better covered than
-  others. How about for the \DTCWT\@?
+  others. How about for the $\DTCWT$@?
 
-  It is important to note that in the case of the \DTCWT\, the wavelet
+  It is important to note that in the case of the $\DTCWT$, the wavelet
   transform is also approximately unitary, i.e.,\
   \begin{equation}
     \norm{x}^2 \approx \norm{\mathcal{W}x}^2
@@ -719,8 +719,8 @@
     \subfloat{\makebox[0.4\textwidth][c]{%
       % \includegraphics[width=0.5\textwidth,valign=c]{scripts/dtcwt_lwoodpaley_2.png}
     }}
-    \caption[\DTCWT\ basis functions and their frequency coverage]
-    {Four scales of the \DTCWT\ (left) and its associated frequency
+    \caption[$\DTCWT$ basis functions and their frequency coverage]
+    {Four scales of the $\DTCWT$ (left) and its associated frequency
     coverage, or $A(\omega)$ (right). Note the reduced scale compared to \autoref{fig:morlet_littlewood_paley}.}
     \label{fig:dtcwt_lwoodpaley}
   \end{figure}
@@ -737,7 +737,7 @@
     \label{fig:difference}
   \end{figure}
 \subsection{Summary of Methods}
-  One final comparison to make between the \DTCWT\ and the Morlet wavelets is
+  One final comparison to make between the $\DTCWT$ and the Morlet wavelets is
   their frequency coverage. The Morlet wavelets can be made to be tighter than
   the \DTCWT, which gives better angular resolution --- see
   \autoref{fig:wavelet_freq_resp}. However it is not always
@@ -749,7 +749,7 @@
   disadvantages of the wavelet methods discussed in this chapter.
 
   \begin{figure}
-    \subfloat[\DTCWT\ wavelets (left to right) --- $15\degs$, $45\degs$ and $75\degs$]{%
+    \subfloat[$\DTCWT$ wavelets (left to right) --- $15\degs$, $45\degs$ and $75\degs$]{%
       \makebox[\textwidth][c]{%
       % \includegraphics[width=0.4\textwidth]{scripts/dtcwt_15deg_energy.png}
       % \includegraphics[width=0.4\textwidth]{scripts/dtcwt_45deg_energy.png}
@@ -775,9 +775,9 @@
         % \includegraphics[width=0.4\textwidth,center]{scripts/mallat_90deg_energy.png}
       }
     }
-    \caption[Comparison of the energy spectra for \DTCWT\ wavelets to Morlet
+    \caption[Comparison of the energy spectra for $\DTCWT$ wavelets to Morlet
     wavelets]
-    {Normalized Energy spectra of the \DTCWT\ wavelets versus the preferred
+    {Normalized Energy spectra of the $\DTCWT$ wavelets versus the preferred
             8 orientation Morlet wavelets by Mallat for the second quadrant.
             Orientations listed refer to the edge orientation in the spatial
             domain that gives the highest response. All wavelets have been
@@ -794,7 +794,7 @@
   % \begin{center}
 
   % \begin{tabularx}{\textwidth}[t]{X|X|X} \toprule
-      % DWT & \DTCWT\ & FFT-based\\ \hline
+      % DWT & $\DTCWT$ & FFT-based\\ \hline
       
       % \cellcolor{green!25} Efficient filter bank implementation & 
         % \cellcolor{green!25 }Efficient filter bank implementation &
@@ -831,3 +831,119 @@
   % \end{tabularx}
   % \end{center}
 % \end{table}
+  %
+\section{Shift Invariance of the $\DTCWT$}
+\begin{figure}
+  \includegraphics[width=\textwidth]{\imgpath/dtcwt.png}
+  \mycaption{Full 1-D $\DTCWT$}{}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \input{\imgpath/dtcwt}
+  \mycaption{Block Diagram of 1-D $\DTCWT$}{Note the top and bottom paths are
+  through the wavelet or scaling functions from just level m ($M=2^m$). Figure
+  based on Figure~4 in \cite{kingsbury_complex_2001}.}
+  \label{fig:ch6:dtcwt_two_tree}
+\end{figure}
+
+Firstly, let us look at what would happen if we retained only 1 of the subbands.
+Note that we have to keep the same band from each tree. For any pair of
+coefficients on the tree, this would look like \autoref{fig:ch6:dtcwt_two_tree}.
+E.g.\ if we kept $x_{001a}$ and $x_{001b}$ then $M=8$ and $A(z) =
+H_{0a}(z)H_{00a}(z^2)H_{001a}(z^4)$ is the transfer fucntion from $x$ to
+$x_{001a}$. The transfer functions for $B(z)$, $C(z)$ and $D(z)$ are obtained
+similarly. It is well known that:
+
+\begin{eqnarray}
+  U(z) \downarrow M &\rightarrow&  U(z^M) \\
+  U(z) \uparrow M &\rightarrow & \frac{1}{M}\sum_{k=0}^{M-1}U(W^kz^{1/M})
+\end{eqnarray}
+
+Where $W=e^{j2\pi/M}$. So downsampling followed by upsampling becomes:
+$$U(z) \downarrow M \uparrow M \rightarrow \frac{1}{M}\sum_{k=0}^{M-1}U(W^kz)$$
+
+This means that
+
+\begin{equation}
+  Y(z) = Y_{a}(z) + Y_{b}(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z) [A(W^kz)C(z) + B(W^kz)D(z)]
+\end{equation}
+
+The aliasing terms for which are everywhere where $k \neq 0$ (as $X(W^kz)$ is
+$X(z)$ shifted by $\frac{2k\pi}{M}$). I.e. to avoid aliasing in this reduced
+tree, we want to make sure that $A(W^kz)C(z) + B(W^kz)D(z) = 0$ for all $k \neq
+0$.
+
+The figure below (Fig 5 from \cite{kingsbury_complex_2001}) shows what $A(W^kz)$
+and $C(z)$ look like for both the lowpass case (left) and the highpass case
+(right). Note that these responses will be similar for $B(W^kz)$ and $D(z)$. For
+large values of k, there is almost no overlap (i.e. 
+$A(W^kz)C(z) \approx B(W^kz)D(z) \approx 0$, 
+but for small values of k (particularly $k = \pm 1$),
+the transition bands have significant overlap with the central response. It is
+here that we need to use the flexibility of having 2 trees to ensure that
+$A(W^kz)C(z)$ and $B(W^kz)D(z)$ cancel out.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{\imgpath/overlaps.png}
+\end{figure}
+
+To do this, let us consider the lowpass filters first. If we let:
+
+\begin{eqnarray}
+  B(z) &=& z^{\pm M/2}A(z) \\
+  D(z) &=& z^{\mp M/2}C(z)
+\end{eqnarray}
+
+Then
+
+\begin{eqnarray}
+  A(W^kz)C(z) + B(W^kz)D(z) &=& A(W^kz)C(z) + (W^kz)^{\pm M/2}A(W^kz) z^{\mp M/2}C(z) \\
+  &=& A(W^kz)C(z) + e^{\frac{jk2\pi}{M} \times (\pm \frac{M}{2})} z^{\pm M/2} z^{\mp M/2} A(W^kz)C(z) \\
+  &=& A(W^kz)C(z) + (-1)^k A(W^kz)C(z)
+\end{eqnarray}
+
+Which cancels when k is odd
+
+Now consider the bandpass case. For shifts of $k=1$ the right half of the left
+peak overlaps with the left half of the right peak. For a shift of $k=2$, the
+left half of the left peak overlaps with the right half of the right peak.
+Similarly for $k=-1$ and $k=-2$. For $|k| > 2$, there is no overlap. The fact
+that we have overlaps at both even and odd shifts of $k$ means that we can't use
+the same clever trick from before. However, what we do note is that the overlap
+is always caused by opposite peaks (i.e. the left with the right peak, and never
+the left with itself, or the right with itself). The solution then is to have
+$B$ and $D$ have upper and lower passbands of opposite polarity, whil $A$ and
+$C$ should have passbands of the same polarity.
+
+Consider two prototype complex filters $P(z)$ and $Q(z)$ each with single
+passbands going from $f_s/2M \rightarrow f_s/M$ (or $\frac{\pi}{M} \rightarrow
+\frac{2*\pi}{M}$) - they must be complex to have support in only one half of the
+frequency plane. Now say $P^*(z) = \sum_{r}p_r^*z^{-r}$ is the z-transform of
+the conjugate of $p_r$, which has support only in the negative half of the
+frequency plane. Then we can get the required filters by:
+
+\begin{eqnarray}
+A(z) &=& 2\Re [P(z)] = P(z) + P^*(z) \\
+B(z) &=& 2\Im [P(z)] = -j[P(z) - P^*(z)] \\
+C(z) &=& 2\Re [Q(z)] = Q(z) + Q^*(z) \\
+D(z) &=& -2\Im [Q(z)] = j[Q(z) - Q^*(z)]
+\end{eqnarray}
+
+Then:
+\begin{eqnarray}
+A(W^kz)C(z) + B(W^kz)D(z) &=&  [P(W^kz) + P^*(W^kz)][Q(z) + Q^*(z)] + \nonumber \\
+  && (-j*j)[P(W^kz) - P^*(W^kz)][Q(z) - Q^*(z)] \\
+&=& P(W^kz)Q(z)[1+1] + P^*(W^kz)Q(z)[1-1] + \nonumber \\ 
+  && P(W^kz)Q^*(z)[1-1] + P^*(W^kz)Q^*(z)[1+1] \\
+&=& 2P(W^kz)Q(z) + 2P^*(W^kz)Q^*(z)
+\end{eqnarray}
+
+So now we only need to ensure that $P(W^kz)$ overlaps as little as possible with
+$Q(z)$. This is somewhat more manageable, the diagram below shows the problem.
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{\imgpath/overlaps_complex.png}
+\end{figure}
+
