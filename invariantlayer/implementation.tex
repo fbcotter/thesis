@@ -4,12 +4,13 @@ $\psi_{j, \theta}$ due to their fast implementation with separable convolutions
 which we will discuss more in \autoref{sec:computation}.  There are two side
 effects of this choice. The first is that the number of orientations of wavelets
 is restricted to $K=6$. The second is that we naturally downsample the output
-activations by a factor of $2^j$ in each direction for each scale $j$. This represents the
+activations by a factor of $2$ for each direction for each scale $j$, giving a 
+$4^j$ downsampling factor overall. This represents the
 source of the invariance in our layer. If we do not wish to downsample the
 output (say to make the layer fit in a larger network), we can bilinearly
 interpolate the output of our layer. This is computationally cheap to do on its
 own, but causes the next layer's computation to be higher than necessary (there
-will be no energy for frequencies higher than $f_s/4$).
+will be almost no energy for frequencies higher than $f_s/4$).
 
 In all our experiments we set $J=1$ for each invariant layer,
 meaning we can mix the lowpass and bandpass coefficients at the same resolution.
@@ -19,12 +20,13 @@ if we have a second layer with $J=1$ after the first, including downsampling
 ($\downarrow$), we would have:
 %
 \begin{equation}
-  \left(\left(\left(x \conv \phi_1\right) \downarrow 2\right) \conv \psi_{1, \theta}\right) \downarrow 2 = \left(x \conv \psi_{2, \theta}\right) \downarrow 4
+  \left(\left(\left(x \conv \phi_1\right) \downarrow 2\right) \conv \psi_{1, \theta}\right) 
+    \downarrow 2 = \left(x \conv \psi_{2, \theta}\right) \downarrow 4
 \end{equation}
 
-\subsection{Memory Cost}\label{sec:memory}
+\subsection{Parameter Memory Cost}\label{sec:memory}
 A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output channels
-and kernel size $L$ has $L^2C_{l}C_{l+1}$ parameters. 
+and kernel size $L\x L$ has $L^2C_{l}C_{l+1}$ parameters. 
 
 The number of learnable parameters in each of our proposed invariant layers with
 $J=1$ and $K=6$ orientations is:
@@ -37,8 +39,22 @@ The spatial support of the wavelet filters is typically $5\x 5$ pixels or more,
 and we have reduced $\text{\#params}$ to less than $3\x3$ per filter, while
 producing filters that are significantly larger than this.
 
+\subsection{Activation Memory Cost}
+A standard convolutional layer needs to save the activation $x^{(l)}$ to
+convolve with the backpropagated gradient $\dydx{L}{y^{(l+1)}}$ on the backwards
+pass (to give $\dydx{L}{w^{(l)}}$). For an input with $C_l$ channels of spatial size $H\x W$, this means
+$HWC_l$ floats must be saved. 
+
+Our layer requires us to save the activation
+$z^{(l+1)}$ for updating the $\tilde{a}$ terms. This has $7C_l$ channels of
+spatial size $\frac{HW}{4}$. This means that our proposed layer needs to save
+$\frac{7}{4}HWC_l$ floats, a $\frac{7}{4}$ times memory increase on the standard
+layer.
+
+\input{\path/algorithm1}
+
 \subsection{Computational Cost}\label{sec:computation}
-A standard convolutional layer with kernel size $L$ needs $L^2C_{l+1}$
+A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
 multiplies per input pixel (of which there are $C_{l}\x H\x W$).
 
 As mentioned in \autoref{sec:memory}, we use the $\DTCWT$ for our complex, shift
@@ -46,29 +62,31 @@ invariant wavelet decomposition. We use the open source Pytorch implementation
 of the $\DTCWT$ \cite{cotter_pytorch_2018} as it can run on GPUs and
 has support for backpropagating gradients.
 
-There is an overhead in doing the wavelet decomposition for each input channel. A
-regular discrete wavelet transform (DWT) with filters of length $L$ will have
-$2L\left(1-2^{-2J}\right)$ multiplies for a $J$ scale decomposition. A $\DTCWT$
-has 4 DWTs for a 2-D input, so its cost is $8L\left(1-2^{-2J}\right)$, with
-$L=6$ a common size for the filters. It is important to note that unlike the
-filtering operation, this does not scale with $C_{l+1}$, the end result being that as
-$C_{l+1}$ grows, the cost of $C_l$ forward transforms is outweighed by that of the mixing
-process.
+There is an overhead in doing the wavelet decomposition for each input channel.
+A separable 2-D discrete wavelet transform (DWT) with 1-D filters of length $L$
+will have $2L\left(1-2^{-2J}\right)$ multiplies per input pixel for a $J$ scale
+decomposition. A $\DTCWT$ has 4 DWTs for a 2-D input, so its cost is
+$8L\left(1-2^{-2J}\right)$, with $L=6$ a common size for the filters. It is
+important to note that unlike the filtering operation, this does not scale with
+$C_{l+1}$, the end result being that as $C_{l+1}$ grows, the cost of $C_l$
+forward transforms is outweighed by that of the mixing process whose cost is
+proportional to $C_l C_{l+1}$.
 
-Because we are using a decimated wavelet decomposition, the sample rate decreases after each
-wavelet layer. The benefit of this is that the mixing process then only works on
-one quarter the spatial size after one first scale and one sixteenth the spatial
-after the second scale. Restricting ourselves to $J=1$ as we mentioned in
-\autoref{sec:implementation}, the computational cost is then:
+Because we are using a decimated wavelet decomposition, the sample rate
+decreases after each wavelet layer. The benefit of this is that the mixing
+process then only works on one quarter the spatial size after the first scale
+and one sixteenth the spatial after the second scale. Restricting ourselves to
+$J=1$ as we mentioned in \autoref{sec:implementation}, the computational cost is
+then:
 
 \begin{equation}
   % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
   \underbrace{ \frac{7}{4}C_{l+1} }_{\textrm{mixing}} +
   \underbrace{\vphantom{\frac{7}{4}} 36}_{\DTCWT} \quad
-  \textrm{multiplies per input pixel}\label{eq:comp}
+  \textrm{multiplies per input pixel}\label{eq:ch5:comp}
 \end{equation}
 In most CNNs, $C_{l+1}$ is several dozen if not several
-hundred, which makes \autoref{eq:comp} significantly smaller than
+hundred, which makes \eqref{eq:ch5:comp} significantly smaller than
 $L^2C_{l+1}=9C_{l+1}$ multiplies for $3\x 3$ convolutions.
 
 \subsection{Forward and Backward Algorithm}
@@ -83,33 +101,3 @@ Assuming we have already chosen these values,
 then the forward and backward algorithms can be computed with
 Algorithm~\autoref{alg:ch5:inv}.
 
-\begin{algorithm}[t]
-\caption{Locally Invariant Convolutional Layer forward and backward
-passes}\label{alg:ch5:inv}
-\begin{algorithmic}[1]
-\Procedure{LOCALINVFWD}{$x, A$}
-  \State $yl,\ yh \gets \DTCWT(x^l, \mbox{nlevels}=1) $ \Comment{yh has 6
-  orientations and is complex}
-  \State $U \gets \F{COMPLEXMAG}(yh)$
-  \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample and recentre lowpass
-  to match U size}
-  \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{concatenated along the
-  channel dimension}
-  \State $Y \gets AZ$ \Comment{Mix}
-  \State \textbf{save} $Z$ \Comment{For the backwards pass}
-  \State \textbf{return} $Y$ 
-\EndProcedure
-\end{algorithmic}\vspace{10pt}
-\begin{algorithmic}[1]
-\Procedure{LOCALINVBWD}{$\dydx{L}{Y},\ A$}
-  \State \textbf{load} $Z$
-  \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$ \Comment{The weight gradient}
-  \State $\Delta{Z} \gets A^T\dydx{L}{Y}$
-  \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
-  \State $\Delta yl \gets \F{AVGPOOL2x2BWD}(\Delta yl)$
-  \State $\Delta yh \gets \F{COMPLEXMAGBWD}(\Delta U)$
-  \State $\dydx{L}{x} \gets \F{\DTCWT BWD}(\Delta yl,\ \Delta yh)$ \Comment{The propagated gradient}
-  \State \textbf{return} $\dydx{L}{x},\ \dydx{L}{A}$
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}

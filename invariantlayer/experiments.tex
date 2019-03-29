@@ -15,9 +15,14 @@ Our experiment code is available at
 \subsection{Layer Introduction with MNIST}\label{sec:ch5:mnist}
 To begin experiments on the proposed locally invariant layer, we look at how
 well a simple system works on MNIST, and compare it to an equivalent system with
-convolutions. To minimize the effects of learning from other layers, we build a
-custom small network, as described in \autoref{tab:ch5:mnist_arch}.
+convolutions. Because of the small size of the MNIST challenge, we can quickly
+get results, allowing a large number of trials and a broad search over
+hyperparameters to be done. In this way, we can use the findings from these
+experiments to guide our work on more difficult tasks like CIFAR and Tiny
+ImageNet.
 
+To minimize the effects of learning from other layers, we build a
+custom small network, as described in \autoref{tab:ch5:mnist_arch}. 
 The first two layers are learned convolutional/invariant layers, followed by
 a fully connected layer with fixed weights that we can use to project down to
 the number of output classes. Finally, we add a small learned layer that
@@ -28,7 +33,7 @@ achieve state of the art performance on MNIST.
 
 Given that our layer is quite different to a standard convolutional layer, we
 must do a full hyperparameter search over optimizer parameters such as the
-learning rate, momentum, and weight decay, as well layer hyperparameters 
+learning rate, momentum, and weight decay, as well as layer hyperparameters 
 such as the variance of the random initialization for the mixing matrix $A$.
 
 To simplify the weight variance search, we use Glorot Uniform Initialization
@@ -113,7 +118,9 @@ learning. The second improves the performance by $2.4\%$ but with a large
 parameter cost. To explore an equivalent system, we also list in
 \autoref{tab:ch5:mnist_new_results} a modification to the convolutional
 architecture that uses $5\x 5$ convolutions and $C_1 = 10,\ C_2 = 100$ channels,
-resulting in a system with comparable parameter cost to (d).
+resulting in a system with comparable parameter cost to (d). We include these
+results at the bottom of \autoref{tab:ch5:mnist_new_results} under `Wide
+Convolutional'.
 
 \input{\path/mnist_modified_results}
 

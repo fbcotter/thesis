@@ -1,6 +1,6 @@
 \section{Related Work}\label{sec:ch5:related}
 
-There has been several similar works that look into desigining new convolutional
+There have been several similar works that look into designing new convolutional
 layers by separating them into two stages --- a first stage that performs a
 non-standard filtering process, and a second stage that combines the first stage
 into single activations. The inception layer 
@@ -15,13 +15,13 @@ learned way in the second stage. Of particular note are:
 \item 
 \citetitle{juefei-xu_local_2016} \cite{juefei-xu_local_2016}. This paper builds a
 first stage with a small $3\x 3$ kernel filled with zeros, and randomly insert
-plus and minus ones into it. This builds a very crude spatial differentiator in random
-directions. The output of the first stage is then passed through a sigmoid
-nonlinearity before being mixed with a $1\x 1$ convolution. The imposed
-structure on the first stage was found to be a good regularizer and prevented
-overfitting, and the combination of the mixing in the second layer allowed
-for a powerful and expressive layer, with performance near that of a regular CNN
-layer.
+plus and minus ones into it keeping a set sparsity level. This builds a very
+crude spatial differentiator in random directions. The output of the first stage
+is then passed through a sigmoid nonlinearity before being mixed with a $1\x 1$
+convolution. The imposed structure on the first stage was found to be a good
+regularizer and prevented overfitting, and the combination of the mixing in the
+second layer allowed for a powerful and expressive layer, with performance near
+that of a regular CNN layer.
 
 \item
 ``DCFNet: Deep Neural Network with Decomposed Convolutional Filters"
@@ -65,7 +65,7 @@ summed together to give one activation map. This is repeated $C_{l+1}$ times to
 give $\left\{ \cnnlact{x}{l+1}{f}{\xy} \right\}_{f \in \{0, \ldots, C_{l+1}-1 \}, \xy \in \reals[2]}$
 
 \subsection{Wavelet Transforms}\label{sec:ch5:wavelets}
-The 2-D wavelet transform is done by convolving the input with a mother wavelet
+The 2-D wavelet transform is performed by convolving the input with a mother wavelet
 dilated by $2^j$ and rotated by $\theta$:
 
 \begin{equation}
@@ -83,11 +83,12 @@ The wavelet transform, including lowpass, is then:
 \end{equation}
 
 \subsection{Scattering Transforms}\label{sec:ch5:scatter}
-Taking the modulus of the wavelet coefficients removes the high frequency
-oscillations of the output signal while preserving the energy of the
-coefficients over the frequency band covered by $\psi_\lambda$. This is crucial
-to ensure that the scattering energy is concentrated towards zero-frequency as
-the scattering order increases, allowing sub-sampling.
+As the real and imaginary parts of complex wavelets are in quadrature with
+each other, taking the modulus of the resulting transformed coefficients removes
+the high frequency oscillations of the output signal while preserving the energy
+of the coefficients over the frequency band covered by $\psi_\lambda$. This is
+crucial to ensure that the scattering energy is concentrated towards
+zero-frequency as the scattering order increases, allowing sub-sampling.
 % We experimentally show in \autoref{sec:??} that it plays a vital role in the
 %classification process. 
 We define the wavelet modulus propagator to be:
@@ -115,7 +116,7 @@ These descriptors are then averaged over the window $2^J$ by a scaled lowpass fi
 \end{equation}
 
 If we define $p + \lambda = (\lambda_1, \ldots, \lambda_m, \lambda)$ then we can
-combine \autoref{eq:ch5:wave_mod} and \autoref{eq:ch5:u_paths} to give:
+combine \eqref{eq:ch5:wave_mod} and \eqref{eq:ch5:u_paths} to give:
 %
 \begin{equation}
   \tilde{W} U[p] x = \left\{S[p]x, U[p+\lambda]x \right\}_{\lambda}
@@ -133,16 +134,16 @@ $\norm{\nabla \tau}_{\infty} \leq 1/2$, then there exists a $K_L > 0$ such
 that:
 %
 \begin{equation}
-  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq K_L P H(\tau) \norm{x}
+  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq K_L P F(\tau) \norm{x}
   \label{eq:stability}
 \end{equation}
 
-where $P = \F{length}(p)$ is the scattering order, and $H(\tau)$ is a function
-of the size of the displacement, derivative and Hessian of $\tau$, $H\tau$
+where $P = \F{length}(p)$ is the scattering order, and $F(\tau)$ is a function
+of the size of the displacement, derivative and Hessian of $\tau$, $H(\tau)$
 \cite{mallat_group_2012}: 
 
 \begin{equation}
-  H(\tau) = 2^{-J} \norm{\tau}_{\infty} + \norm{\nabla \tau}_{\infty} \max\left(\log
+  F(\tau) = 2^{-J} \norm{\tau}_{\infty} + \norm{\nabla \tau}_{\infty} \max\left(\log
   \frac{\norm{\Delta \tau}_{\infty} }{\norm{\nabla \tau}_{\infty}}, 1 \right) +
-  \norm{H\tau}_{\infty}
+  \norm{H(\tau)}_{\infty}
 \end{equation}
