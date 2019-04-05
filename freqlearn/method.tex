@@ -1,31 +1,96 @@
 \section{Taking Wavelet Transforms of Inputs}\label{sec:ch6:gainlayer}
 
-As neural network training involves presenting thousands of training samples, we
-want our layer to be fast. To achieve this we would ideally choose to use a
-critically sampled filter bank implementation. The fast 2-D Discrete Wavelet
-Transform (DWT) is a possible option, but it has two drawbacks: it has poor
-directional selectivity and any alteration of wavelet coefficients will cause
-the aliasing cancelling properties of the reconstructed signal to disappear.
-Instead we choose to use the $\DTCWT$ \cite{selesnick_dual-tree_2005} as at the
-expense of limited redundancy (4:1), it enables us to have better directional
-selectivity, and allows us to modify the wavelet coefficients and still have
-minimal aliasing terms when we reconstruct \cite{kingsbury_complex_2001}.
+In contrast to the previous section where we only parameterized filters in the
+wavelet domain and transformed the filters back to the pixel domain to do
+convolution, this section explores learning wholly in the wavelet domain. I.e.,
+we want to take a wavelet decomposition of the input and learn gains to apply to
+these coefficients, and optionally return to the pixel domain.
 
-\subsection{Aliasing in the DWT}
-Consider a single level critically sampled DWT in 1-D. The aliasing cancelling
-condition is:
+As neural network training involves presenting thousands of training samples on
+memory limited GPUs, we want our layer to be fast and as memory efficient as
+possible. To achieve this we would ideally choose to use a critically sampled
+filter bank implementation.  The fast 2-D Discrete Wavelet Transform (DWT) is a
+possible option, but it has two drawbacks: it has poor directional selectivity
+and any alteration of wavelet coefficients will cause the aliasing cancelling
+properties of the reconstructed signal to disappear. Another option is to use
+the $\DTCWT$ \cite{selesnick_dual-tree_2005}. This comes with a memory overhead
+which we discuss more in \autoref{sec:ch6:memory}, but it enables us to have
+have better directional selectivity and allows for the possibility of returning
+to the pixel domain with minimal aliasing \cite{kingsbury_complex_2001}.
 
-$$G_0(z)H_0(-z) + G_1(z)H_1(-z) = 0$$
+In the next section we describe in more detail how the proposed layer works,
+agnostic of the wavelet transform used, before describing the differences between
+using the DWT and the $\DTCWT$.
+% \subsection{Aliasing in the DWT}
+% Consider a single level critically sampled DWT in 1-D. The aliasing cancelling
+% condition is:
 
-This is typically solved by using Quadrature Mirror Filters, i.e.
+% $$G_0(z)H_0(-z) + G_1(z)H_1(-z) = 0$$
 
-\begin{align}
-  H_1(z) &= H_0(-z) \\
-  G_0(z) &= H_0(z) \\
-  G_1(z) &= -H_1(z) = -H_0(-z) 
-\end{align}
+% This is typically solved by using Quadrature Mirror Filters, i.e.
 
-\section{$\DTCWT$ Convolution}
+% \begin{align}
+  % H_1(z) &= H_0(-z) \\
+  % G_0(z) &= H_0(z) \\
+  % G_1(z) &= -H_1(z) = -H_0(-z) 
+% \end{align}
+
+\subsection{Background}
+As we now want to consider the DWT and the $\DTCWT$ which are both implemented
+as filter bank systems, we deviate slightly from the notation in the previous
+chapter (which was inspired by sampling a continuous wavelet transform). 
+
+Firstly, instead of talking about the continuous spatial variable $\xy$, we now
+consider the discrete spatial variable $\nn = [n_1, n_2]$. We switch to square 
+brackets to make this clearer. With the new discrete notation, the output of a CNN at layer $l$ is:
+%
+\begin{equation}
+  \cnndlact{x}{l}{c}{\nn}, \quad c\in \{0, \ldots C_l-1\}, \nn \in \integers[2]
+\end{equation}
+%
+where $c$ indexes the channel dimension. 
+We also make use of the 2-D $Z$-transform to simplify our analysis:
+%
+\begin{equation}
+  X(\zz) = \sum_{n_1}\sum_{n_2} x[n_1, n_2]z_1^{-n_1}z_2^{-n_2} =
+  \sum_{\nn}x[c, \nn]\zz^{-\nn}
+\end{equation}
+%
+As we are working with three dimensional arrays (two spatial and one channel) but are
+only doing convolution in two, we introduce a slightly modified 2-D $Z$-transform
+which includes the channel index:
+%
+\begin{equation}
+  X(c, \zz) = \sum_{n_1}\sum_{n_2} x[c, n_1, n_2]z_1^{-n_1}z_2^{-n_2} =
+  \sum_{\nn}x[c, \nn]\zz^{-\nn} \label{eq:ch6:ztransform}
+\end{equation}
+
+Recall that a typical convolutional
+layer in a standard CNN gets the next layer's output in a two-step process:
+%
+\begin{eqnarray} 
+  \cnndlact{y}{l+1}{f}{\nn} &=& \sum_{c=0}^{C_l - 1} \cnndlact{x}{l}{c}{\nn} \conv \cnndfilt{l}{f}{c}{\nn}
+    \label{eq:ch6:conv}\\
+    \cnndlact{x}{l+1}{f}{\xy} & = & \sigma \left( \cnndlact{y}{l+1}{f}{\xy} \right) \label{eq:ch6:nonlin}
+\end{eqnarray}
+%
+With the new $Z$-transform notation introduced in \eqref{eq:ch6:ztransform}, we
+can rewrite \eqref{eq:ch6:conv} as:
+
+\begin{equation}
+  \cnnlact{Y}{l+1}{f}{\zz} = \sum_{c=0}^{C_l - 1} \cnnlact{Z}{l}{c}{\zz}
+  H_f^{(l)}(c, \zz)
+\end{equation}
+%
+Note that we cannot rewrite \eqref{eq:ch6:nonlin} with $Z$-transforms as it is a nonlinear
+operation.
+
+Also recall that with multirate systems, upsampling by $M$ takes $X(z)$ to
+$X(z^M)$ and downsampling by $M$ takes $X(z)$ to $\frac{1}{M}\sum_{k=0}^{M-1} X(W_M^k
+z^{1/k})$ where $W_M^k = e^{\frac{j2\pi k}{M}}$. We will drop the $M$ subscript
+below unless it is unclear of the sample rate change, simply using $W^k$.
+
+\section{$\DTCWT$ Subband Gains}
 
 \begin{figure}
   \centering
@@ -36,21 +101,63 @@ This is typically solved by using Quadrature Mirror Filters, i.e.
   \label{fig:ch6:dtcwt_two_tree}
 \end{figure}
 
-As we saw from \autoref{ch2:??}, if we keep only 1 passband in the $\DTCWT$ as
-shown in \autoref{fig:ch6:dtcwt_two_tree} then
-the end to end transfer function is:
-
+Let us consider one subband of the $\DTCWT$. This includes the coefficients from
+both tree A and tree B. For simplicity in this analysis we will consider the 1-D
+$\DTCWT$ without the channel parameter $c$. If we only keep coefficients from a given
+subband and set all the others to zero, then we have a reduced tree as shown in
+\autoref{fig:ch6:dtcwt_two_tree}. The end to end transfer function is:
+%
 \begin{equation}
-  \frac{1}{M} \sum_{k=0}^{M-1} [A(W^kz)C(z) + B(W^kz)D(z)]
+  \frac{Y(z)}{X(z)} = \frac{1}{M} \sum_{k=0}^{M-1} \left[A(W^k z)C(z) + B(W^k z)D(z)\right]
+  \label{eq:ch6:aliasing}
+\end{equation}
+%
+where the aliasing terms are formed from the addition of the rotated z
+transforms, i.e.\ when $k \neq 0$.
+
+\begin{theorem} \label{thm:ch6:shiftinv}
+  Suppose we have complex filters $P(z)$ and $Q(z)$ with support only in the
+  positive half of the frequency space. If $A(z) = 2\real{P(z)}$, $B(z) =
+  2\imag{P(z)}$, $C(z) = 2\real{Q(z)}$ and $D(z) = -2\imag{Q(z)}$, then the aliasing
+  terms in \eqref{eq:ch6:aliasing} are nearly zero and the system is nearly
+  shift invariant.
+\end{theorem}
+
+\begin{proof}
+  See section 4 of \cite{kingsbury_complex_2001} for the full proof of
+  this, and section 7 for the bounds on what `nearly' shift invariant means. 
+  In short, from the definition of $A, B, C$ and $D$ it follows that:  
+  \begin{eqnarray*}
+    A(z) &=& P(z) + P^*(z) \\
+    B(z) &=& -j(P(z) - P^*(z)) \\
+    C(z) &=& Q(z) + Q^*(z) \\
+    D(z) &=& j(Q(z) - Q^*(z))
+  \end{eqnarray*}
+  where $H^*(z) = \sum_n h^*[n]z^{-n}$ is the $Z$-transform of the complex
+  conjugate of the complex filter $h$. This reflects the purely positive
+  frequency support of $P(z)$ to a purely negative one. Substituting these into
+  \eqref{eq:ch6:aliasing} gives:
+  \begin{equation}
+    A(W^k z)C(z) + B(W^k z)D(z) = 2P(W^kz)Q(z) + 2P^*(W^kz)Q^*(z)
+    \label{eq:ch6:complex_filts}
+  \end{equation}
+ Using \eqref{eq:ch6:complex_filts}, Kingsbury shows that it is easier to design
+ single side band filters so $P(W^kz)$ does not overlap with $Q(z)$ and
+ $P^*(W^kz)$ does not overlap with $Q^*(z)$ for $k \neq 0$.
+\end{proof}
+
+Using \autoref{thm:ch6:shiftinv} \eqref{eq:ch6:aliasing} reduces to:
+\begin{equation}
+ \frac{Y(z)}{X(z)} = \frac{1}{M}\left[ A(z)C(z) + B(z)D(z) \right]
+  \label{eq:ch6:aliasing_cancel}
 \end{equation}
 
 Let us extend this idea to allow for any linear gain applied to the passbands
 (not just zeros and ones). Ultimately, we may want to allow for nonlinear
-operations applied to the wavelet coefficients, but we restrict ourselves to
-linear gains so that we can build from a sensible base.
-
-If we want to have linear gains applied to the wavelet coefficients, it would be
-nice to maintain the shift invariant properties of the $\DTCWT$. 
+operations applied to the wavelet coefficients, but we initially restrict
+ourselves to linear gains so that we can build from a sensible base. In
+particular, if we want to have gains applied to the wavelet coefficients, it
+would be nice to maintain the shift invariant properties of the $\DTCWT$.
 
 \begin{figure}
   \centering
@@ -61,28 +168,72 @@ nice to maintain the shift invariant properties of the $\DTCWT$.
   \label{fig:ch6:dtcwt_two_tree_gain}
 \end{figure}
 
-This is a two port network with four individual transfer functions. Let us call
-the transfer fucntion from $X_a$ to $Y_a$ $G_{aa}$, the transfer function from
-$X_a$ to $Y_b$ $G_{ab}$, and similarly the transfer functions from $X_b$ to
-$Y_a$ and $Y_b$ $G_{ba}$ and $G_{bb}$.
-
-Then the end to end transfer function is: \textbf{FIXME}
+\autoref{fig:ch6:dtcwt_two_tree_gain} shows a block diagram of the extension of 
+the above to general gains. This is a two port network with four individual
+transfer functions. Let the transfer fucntion from $X_i$ to $Y_j$
+be $G_{ij}$ for $i, j \in \{a, b\}$. Then $Y_a$ and $Y_b$ are:
+\begin{eqnarray}
+  Y_a(z) &=& X_a(z)G_{aa}(z) + X_b(z)G_{ba}(z) \\
+         &=& \frac{1}{M} \sum_k X(W^{k} z^{1/k}) \left[A(W^k z^{1/k})G_{aa}(z) +
+      B(W^k z^{1/k}) G_{ba}(z) \right] \\
+      Y_b(z) &=& X_a(z)G_{ab}(z) + X_b(z)G_{bb}(z) \\
+             &=& \frac{1}{M} \sum_k X(W^{k} z^{1/k}) \left[A(W^k z^{1/k})G_{ab}(z) +
+      B(W^k z^{1/k}) G_{bb}(z) \right] 
+\end{eqnarray}
+%
+Further, $Y_a'$ and $Y_b'$ are:
+\begin{eqnarray}
+  Y_a'(z) &=& C(z)Y_a(z^M) \\
+  Y_b'(z) &=& D(z)Y_b(z^M)
+\end{eqnarray}
+%
+Then the end to end transfer function is:
 \begin{equation}
-Y(z) = Y_{a}(z) + Y_{b}(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z) [A(W^kz)G(W^kz^{M})C(z) + B(W^kz)H(W^kz^{M})D(z)]
+  \begin{split}
+  % \begin{multline}
+    Y(z) = Y_{a}'(z) + Y_{b}'(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z)
+    & \left[  A(W^kz)C(z)G_{aa}(z^k) + B(W^kz)D(z)G_{bb}(z) + \right. \\
+    & \left. \hphantom{[}  B(W^kz)C(z)G_{ba}(z^k) + A(W^kz)D(z)G_{ba}(z) \right] 
+    \label{eq:ch6:transfer}
+  % \end{multline}
+  \end{split}
 \end{equation}
 
-If we set $H=G$ then we get:
+\begin{theorem}\label{thm:ch6:shiftinvgain}
+  If we let $G_{aa}(z^k) = G_{bb}(z^k) = G_r(z^k)$ and $G_{ab}(z^k) = -G_{ba}(z^k) = G_i(z^k)$
+  then the end to end transfer function is shift invariant.
+\end{theorem}
+\begin{proof}
+  Using the above substitutions, the terms in the square brackets of
+  \eqref{eq:ch6:transfer} become:
+  \begin{equation}\label{eq:ch6:realimag}
+    G_r(z^k)\left[A(W^kz)C(z) + B(W^kz)D(z)\right] + G_i(z^k)\left[A(W^kz)D(z) - B(W^kz)C(z)\right]
+  \end{equation}
+  \autoref{thm:ch6:shiftinv} already showed that the $G_r$ terms are shift
+  invariant and reduce to $A(z)C(z) + B(z)D(z)$. To prove the same for the $G_i$
+  terms, we follow the same procedure. Using our definitions of $A, B, C, D$
+  from \autoref{thm:ch6:shiftinv} we note that:
+  %
+  \begin{eqnarray}
+    A(W^kz)D(z) - B(W^kz)C(z) &=& j\left[P(W^kz) + P^*(W^kz)\right]\left[Q(z) -Q^*(z)\right] +\\
+                              &&j\left[P(W^kz) -P^*(W^kz)\right]\left[Q(z) + Q^*(z)\right] \\
+                              &=& 2j\left[P(W^kz)Q(z) - P^*(W^kz)Q^*(z)\right]
+  \end{eqnarray}
+  We note that the difference
+  between the $G_r$ and $G_i$ terms is just in the sign of the negative
+  frequency parts, $AD - BC$ is the Hilbert pair of $AC+BD$. To prove shift
+  invariance for the $G_r$ terms in \autoref{thm:ch6:shiftinv}, we ensured that
+  $P(W^kz)Q(z) \approx 0$ and $P^*(W^kz)Q^*(z) \approx 0$ for $k\neq 0$. We can
+  use this again here to prove the shift invariance of the $G_i$ terms in
+  \eqref{eq:ch6:realimag}. This completes our proof.
+\end{proof}
 
-$$Y(z) = Y_{a}(z) + Y_{b}(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z)G(W^kz^{M}) [A(W^kz)C(z) + B(W^kz)D(z)]$$
-
-And assuming the above analysis holds, we see that we are safe with aliasing, as
-we know $[A(W^kz)C(z) + B(W^kz)D(z)] \approx 0$ for all $k\neq 0$. This means
-that our equivalent filter becomes
-
-\begin{eqnarray}
-  Y(z) &=& \frac{1}{M} X(z)G(z^{M}) [A(z)C(z) + B(z)D(z)] \\
-  &=& \frac{1}{M} X(z)G(z^{M}) [P(z)Q(z) + jP^{*}(z)Q^{*}(z)]
-\end{eqnarray}
+Using \autoref{thm:ch6:shiftinvgain}, the end to end transfer function with the
+gains is now
+\begin{equation}
+  \frac{Y(z)}{X(z)} &=& \frac{2}{M} X(z) \left[G_r(z^{M}) \left(A(z)C(z) + B(z)D(z)\right)
+  + G_i(z^{M}) \left(A(z)D(z) - B(z)C(z)\right) \right]
+\end{equation}
 
 Now we know can assume that our $\DTCWT$ is well designed and extracts frequency
 bands at local areas, then our filter $G(z^{M})$ allows us to modify these
