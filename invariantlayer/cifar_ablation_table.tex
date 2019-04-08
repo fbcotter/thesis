@@ -4,26 +4,31 @@
   \caption{Results for testing VGG like architecture with convolutional and
   invariant layers on several datasets. An architecture with `invX' means the
   equivalent convolutional layer `convX' from \autoref{tab:arch} was swapped for
-  our proposed layer.}
+  our proposed layer. The top row is the reference architecture using all
+  convolutional layers. The `A' architecture is the originally proposed gain
+  layer, the `B' architecture uses the gainlayer with random shifting of the
+  activations, and the `C' architecture changes the mixing to be a learned
+  $3\x3$ kernel acting on the invariant coefficients. Numbers are averages over
+  5 runs.}
   % \begin{tabular}{@{}lllcllcll@{}}
-  \begin{tabular}{@{}lcclcclcc@{}}
+  \begin{tabular}{@{}lccclccclccc@{}}
     \toprule
-    & \multicolumn{2}{c}{CIFAR-10} & \phantom{abc} & \multicolumn{2}{c}{CIFAR-100} & \phantom{abc} & \multicolumn{2}{c}{Tiny ImgNet} \\ \cline{2-9}
-    \phantom{abc} & 10k   &  50k  &&  10k  &  50k && 20k & 100k \\ \midrule
-    reference arch & 84.4  & 91.9  && 53.2  & 70.3 && 37.4 & 59.1 \\ \hline
-    invA & 82.8 & 91.3 && 48.4 & 69.5 && 33.2 & 57.7 \\
-    invB & 84.8 & 91.8  && 54.8  & 70.7 && 36.9& 59.5 \\
-    invC & 85.3 & 92.3 && 54.2 & 71.2 && 37.1& 59.8\\
-    invD& 83.8 & 91.2 && 51.2 & 70.1 && 37.6 & 59.3 \\
-    invE& 83.3 & 91.6 && 50.3 & 70.0 && 37.8 & 59.4\\
-    invF& 82.1 & 90.5 && 47.6& 68.9 && 34.0 & 57.8\\ \hline
-    invA, invB& 83.1  & 90.5 && 49.8 & 68.4 && 35.0 & 57.9\\
-    invB, invC& 83.8  & 91.2 && 50.6 & 69.1 && 34.6 & 57.5\\
-    invC, invD& 85.1 & 92.1 && 54.3 & 70.1 && \textbf{37.9} & 59.0\\
-    invD, invE& 80.2 & 89.1 && 49.0 & 67.3 && 33.9 & 57.5\\
-    invA, invC& 82.8 & 90.7 && 49.5 & 69.6 && 34.0 & 56.9\\
-    invB, invD& \textbf{85.4} & \textbf{92.7} && \textbf{54.6} & \textbf{71.3} && \textbf{37.9} & 59.8\\
-    invC, invE& 84.8 & 91.8 && 53.5 & 70.9 && 37.6 & \textbf{60.2}\\ \bottomrule
+    & \multicolumn{3}{c}{CIFAR-10} & \phantom{abc} & \multicolumn{3}{c}{CIFAR-100} & \phantom{abc} & \multicolumn{3}{c}{Tiny ImgNet} \\ \cline{2-4}\cline{6-8}\cline{10-12}
+    \phantom{abc} & A  & B & C &&  A & B & C && A & B & C \\ \midrule
+    reference & 92.6 & - & - && 70.3 & - & - && 59.1 & - & - \\ \midrule
+    invA & 92.3 & 92.4 & 92.3 && 69.5 & & && 57.7 & &  \\
+    invB & 93.4 & 93.2 & 93.4 && 70.7 & & && 59.5 & &  \\
+    invC & 93.7 & 93.2 & 93.4 && 71.2 & & && 59.8 & &  \\
+    invD & 92.7 & 92.6 & 92.8 && 70.1 & & && 59.3 & &  \\
+    invE & 91.8 & 92.2 & 92.5 && 70.0 & & && 59.4 & &  \\
+    invF & 92.4 & 92.9 & && 68.9 & & && 57.8 & &  \\
+    invA, invB& 92.6 & 91.8 & 92.4 && 68.4 & &  && 57.9 & & \\
+    invB, invC& 92.2 & 91.8 & 92.3 && 69.1 & & && 57.5 & & \\
+    invC, invD& 92.5 & 92.0 & 92.9 && 70.1 & &  && 59.0 & & \\
+    invD, invE& 90.4 & 91.2 & 91.9 && 67.3 & &  && 57.5 & & \\
+    invA, invC& 92.2 & 92.0 & 92.5 && 69.6 & &  && 56.9 & & \\
+    invB, invD& 92.8 & 92.3 & 82.8 && 71.3 & &  && 59.8 & & \\
+    invC, invE& 91.5 & 92.0 & 92.3 && 70.9 & &  && 60.2 & & \\ \bottomrule
   \end{tabular}\label{tab:conv_results}
 \end{table}
 

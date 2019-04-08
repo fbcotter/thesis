@@ -1,6 +1,6 @@
 \begin{figure}[t!]
   \centering
-  \small
+  % \small
   \resizebox{\textwidth}{!} {
   \begin{tikzpicture}[%
     path image/.style={
@@ -160,7 +160,8 @@
     top/.style={draw=blue!50!white,fill=blue!50!white},%
     }
     \draw (13.2, 0.8, 0) node {\large{$z^{(l+1)}$}};
-    \draw (20.5, 0.3, 0) node {\large{$x^{(l+1)}$}};
+    \draw (20.5, 0.3, 0) node {\large{$y^{(l+1)}$}};
+    \draw (24.5, 0.3, 0) node {\large{$x^{(l+1)}$}};
     \draw (14, -1.5, 0) node {\Large{$\conv$}};
 
     \tikzcuboid{
@@ -192,12 +193,27 @@
     }
     \draw (15.5, -1.8, 0) node {$\vdots$};
     \draw [<->] (15.7, -0.8, -3) -- (15.7, -3, -3) node[near start, right] {$C_{l+1}$};
-    \draw [->, fill=gray!30,ultra thick] (17.5, -1.5, 0) -- (18.5, -1.5, 0)
-      node[midway, above] {$\sigma$};
+    \draw [->, fill=gray!30,ultra thick] (17.5, -1.5, 0) -- (18.5, -1.5, 0);
 
     \tikzcuboid{
     shiftx=19.5cm,
-    shifty=-2.0cm,
+    shifty=-2.25cm,
+    scale=0.5,
+    dimx=2, dimy=2, dimz=6,
+    densityx=4, densityy=4, densityz=2,
+    drawzdims=false,
+    drawxdims=false,
+    drawydims=false,
+    front/.style={draw=blue!50!white,fill=blue!50!white},%
+    right/.style={draw=blue!50!white,fill=blue!50!white},%
+    top/.style={draw=blue!50!white,fill=blue!50!white},%
+    }
+    \draw [->, fill=gray!30,ultra thick] (21.5, -1.5, 0) -- (22.5, -1.5, 0)
+      node[midway, above] {$\sigma$};
+
+    \tikzcuboid{
+    shiftx=23.5cm,
+    shifty=-2.25cm,
     scale=0.5,
     dimx=2, dimy=2, dimz=6,
     densityx=4, densityy=4, densityz=2,
@@ -215,7 +231,7 @@
   \end{tikzpicture}
 
   }
-  \caption{Block Diagram of Proposed Invariant Layer for $J=1$. Activations are shaded
+  \caption{Block Diagram of Proposed Invariant Layer for $j=J=1$. Activations are shaded
   blue, fixed parameters yellow and learned parameters red. Input
   $x^{(l)}\in \mathbb{R}^{C_l\x H\x W}$ is filtered by real and imaginary oriented
   wavelets and a lowpass filter and is downsampled. The channel dimension
