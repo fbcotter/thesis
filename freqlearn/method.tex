@@ -78,7 +78,7 @@ With the new $Z$-transform notation introduced in \eqref{eq:ch6:ztransform}, we
 can rewrite \eqref{eq:ch6:conv} as:
 
 \begin{equation}
-  \cnnlact{Y}{l+1}{f}{\zz} = \sum_{c=0}^{C_l - 1} \cnnlact{Z}{l}{c}{\zz}
+  \cnnlact{Y}{l+1}{f}{\zz} = \sum_{c=0}^{C_l - 1} \cnnlact{X}{l}{c}{\zz}
   H_f^{(l)}(c, \zz)
 \end{equation}
 %
@@ -90,7 +90,7 @@ $X(z^M)$ and downsampling by $M$ takes $X(z)$ to $\frac{1}{M}\sum_{k=0}^{M-1} X(
 z^{1/k})$ where $W_M^k = e^{\frac{j2\pi k}{M}}$. We will drop the $M$ subscript
 below unless it is unclear of the sample rate change, simply using $W^k$.
 
-\section{$\DTCWT$ Subband Gains}
+\section{$\DTCWT$ Single Subband Gain}
 
 \begin{figure}
   \centering
@@ -230,79 +230,69 @@ Then the end to end transfer function is:
 
 Using \autoref{thm:ch6:shiftinvgain}, the end to end transfer function with the
 gains is now
-\begin{equation}
-  \frac{Y(z)}{X(z)} &=& \frac{2}{M} X(z) \left[G_r(z^{M}) \left(A(z)C(z) + B(z)D(z)\right)
-  + G_i(z^{M}) \left(A(z)D(z) - B(z)C(z)\right) \right]
-\end{equation}
+\begin{eqnarray}
+  \frac{Y(z)}{X(z)} &=& \frac{2}{M} \left[G_r(z^{M}) \left(A(z)C(z) + B(z)D(z)\right)
+  + G_i(z^{M}) \left(A(z)D(z) - B(z)C(z)\right) \right] \\
+  &=& \frac{2}{M}\left[G_r(z^{M}) \left(PQ + P^*Q^*\right)
+  + jG_i(z^{M}) \left(PQ - P^*Q^*\right) \right] 
+\end{eqnarray}
 
 Now we know can assume that our $\DTCWT$ is well designed and extracts frequency
-bands at local areas, then our filter $G(z^{M})$ allows us to modify these
-passbands (e.g. by simply scaling if $G(z) = C$, or by more complex functions.
+bands at local areas, then our complex filter $G(z)=G_r(z) + jG_i(z)$ allows us
+to modify these passbands (e.g.\ by simply scaling if $G(z) = C$, or by more
+complex functions.
 
+\section{$\DTCWT$ Multiple Subband Gains}\label{sec:ch6:multiple_subbands}
 
-The output from \autoref{fig:dtcwt_two_tree} is:
+Now that we have the framework for applying a complex gain at one subband, we
+can extend this to all of the subbands in the $\DTCWT$. We also reintroduce the channel
+dimension. 
 
-$$ Y(z) = Y_a(z) + Y_b(z) = \frac{1}{M}\sum_{k=0}^{M-1} X\left(W^k z\right)
-  \left[ A\left(W^kz\right)C(z) + B\left(W^kz\right)D(z) \right] $$
+In 2-D, a $J$ scale $\DTCWT$ gives $6J+1$ coefficients, 6 sets of complex
+coefficients for each scale (representing the oriented bands from 15 to 165
+degrees) and 1 set of real lowpass coefficients. Let us write this as:
 
-Where $W=e^{j2\pi/M}$.  To achieve shift invariance we need 
-$A\left(W^kz\right)C(z) + B\left(W^kz\right)D(z)$ to be very small or to cancel
-each other out for all $k \neq 0$.
-
-The complex analysis filter (taking us into the wavelet domain) is 
-
-$$P(z) = \frac{1}{2}\left(A(z)+jB(z)\right)$$
-
-and the complex synthesis filter (returning us to the pixel domain) is 
-
-$$Q(z) = \frac{1}{2}\left(C(z) - jD(z)\right)$$
-
-where $A,B,C,D$ are real.  If $G(z) = G_r(z) + jG_i(z) = 1$ then the end-to-end
-transfer function is (from section 4 of \cite{kingsbury_complex_2001}):
-
-\begin{equation}\label{eq:end_to_end1}
-\frac{Y(z)}{X(z)} = \frac{2}{M}\left(P(z)Q(z) + P^*(z)Q^*(z)\right)
+\begin{equation}
+  \DTCWT\{x\} = \{x_{lp}, x_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 6}
 \end{equation}
 
-where $P, Q$ have support only in the top half of the Fourier plane and $P^*,
-Q^*$ are $P$ and $Q$ reflected in the horizontal frequency axis. Examples of
-$P(z)Q(z)$ for different subbands of a 2-D $\DTCWT$ have spectra shown in
-\autoref{fig:dtcwt_bands_freq}, $P^*(z)Q^*(z)$ make up the missing half of the
-frequency space.\\
-\input{\path/figure1}
+To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
+output channels, we introduce the learnable filters:
+%
+\begin{eqnarray}
+  g_{lp} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w] \\
+  g_{1,1} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
+  g_{1,2} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
+      & \vdots &\\
+  g_{J,6} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] 
+\end{eqnarray}
+%
+where $k_h, k_w$ are the sizes of the mixing kernels. These could be $1\x 1$ for
+simple gain control, or could be larger, say $3\x 3$, to do more complex
+filtering on the subbands. Let us index the lowpass filters $g_{lp}$ and the
+bandpass filters $g_{j,k}$ as $g_{lp}[f, c, \nn]$ and $g_{j,k}[f, c, \nn]$.
 
+With these gains we create new coefficients:
+\begin{eqnarray}
+  y_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
+  y_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
+  y_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
+                  & \vdots & \\
+  y_{J,6}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
+\end{eqnarray}
 
-\subsection{Forward propagation}
-\autoref{fig:ch6:fwd_bwd} shows the block diagram using $Z$-transforms for
-a single band of our system (it is based on Figure~4 in
-\cite{kingsbury_complex_2001}). To keep things simple for the rest of
-\autoref{sec:ch6:method} the figure shown is for a 1-D system; it is relatively
-straightforward to extend this to 2-D\cite{selesnick_dual-tree_2005}. The
-complex analysis filter (taking us into the wavelet domain) is $P(z)
-= \frac{1}{2}\left(A(z)+jB(z)\right)$ and the complex synthesis filter
-(returning us to the pixel domain) is $Q(z) = \frac{1}{2}\left(C(z)
-  - jD(z)\right)$ where $A,B,C,D$ are real.  If $G(z) = G_r(z) + jG_i(z) = 1$
-  then the end-to-end transfer function is (from section 4 of
-\cite{kingsbury_complex_2001}):
+I.e., we do independent mixing at each of the different subbands. For $1\x 1$
+kernels, this is simply a matrix multiply of the wavelet coefficients. Note that
+for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
+b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$.
 
-\begin{equation}\label{eq:ch6:end_to_end1}
-\frac{Y(z)}{X(z)} = \frac{2}{M}\left(P(z)Q(z) + P^*(z)Q^*(z)\right)
-\end{equation}
+\autoref{fig:ch6:dtcwt_bands} shows the frequency support of the $6J+1$ subbands
+for a two scale $\DTCWT$ as well as some of the equivalent impulse responses for
+a randomly initialized set of $g$ filters.
 
-where $P, Q$ have support only in the top half of the Fourier plane and $P^*,
-Q^*$ are $P$ and $Q$ reflected in the horizontal frequency axis. Examples of
-$P(z)Q(z)$ for different subbands of a 2-D $\DTCWT$ have spectra shown in
-\autoref{fig:ch6:dtcwt_bands_freq}, $P^*(z)Q^*(z)$ make up the missing half of
-the frequency space.\\ 
+\input{\imgpath/figure1}
 
-Modifying this from the standard wavelet equations by
-adding the subband gains $G_r(z)$ and $G_i(z)$, the transfer function becomes:
-\begin{equation}\label{eq:ch6:end_to_end2}
-    \frac{Y(z)}{X(z)} = \frac{2}{M} \left[ \right. G_r(z^M) \left( P(z)Q(z) + P^*(z)Q^*(z) \right) +  
-      \left. jG_i(z^M) \left(P(z)Q(z)-P^*(z)Q^*(z) \right) \right]
-\end{equation}
-
-\subsection{Backpropagation}
+\subsection{Backpropagation Analysis}
 We start with the commonly known property that for a convolutional block, the
 gradient with respect to the input is the gradient with respect to the output
 convolved with the time reverse of the filter. More formally, if 
@@ -349,52 +339,4 @@ Note that we only need to evaluate equations
 support of $G(z)$ i.e., if it is a single number we only need to calculate
 $\left.\Delta G(z)\right\rvert_{z=0}$.
 
-
-\subsection{Memory Cost}
-Again considering a two scale transform --- instead of learning $w\in \reals[F
-\x C\x K\x K]$ we learn complex gains at the two scales, and a real gain for the
-real lowpass:
-
-\begin{eqnarray*}
-  g_1 &\in& \complexes[F\x C\x 6\x 1\x 1] \\
-  g_2 &\in& \complexes[F\x C\x 6\x 1\x 1] \\
-  g_{lp} &\in& \reals[F\x C\x 1\x 1]
-\end{eqnarray*}
-
-We have set the spatial dimension to be $1\x 1$ to show that this gain is
-identical to a $1\x 1$ convolution over the complex wavelet coefficients. If we
-wish, we can learn larger spatial sizes to have more complex
-attenuation/magnification of the subbands. We also can use more/fewer than
-2 wavelet scales.  At first glance, we have increased our parameterization by
-a factor of 25 (13 subbands, of which all but the lowpass are complex), but
-each one of these gains affects a large spatial size. For the first scale, the
-effective size is about $5\x 5$ pixels, for the second scale it is about $15\x
-15$.
-
-\subsection{Computational Cost}
-A standard convolutional layer needs $K^2 F$ multiplies per input pixel (of
-which there are $C\x H\x W$). In comparison, the wavelet gain method does a set
-number of operations per pixel for the forward and inverse transforms, and then
-applies gains on subsampled activations. For a 2 level $\DTCWT$ the transform
-overhead is about 60 multiplies for both the forward and inverse transform. It
-is important to note that unlike the filtering operation, this does not scale
-with $F$. The learned gains in each subband do scale with the number of output
-channels, but can have smaller spatial size (as they have larger effective
-sizes) as well as having fewer pixels to operate on (because of the decimation).
-The end result is that as $F$ and $C$ grow, the overhead of the $C$ forward and
-$F$ inverse transforms is outweighed by cost of $FC$ mixing processes, which
-should in turn be significantly less than the cost of $FC$ $K\x K$ standard
-convolutions for equivalent spatial sizes.
-
 \input{\path/figure2}
-
-\subsection{Examples}
-\autoref{fig:ch6:example_impulses} show example impulse responses of our layer.
-These impulses were generated by randomly initializing both the real and
-imaginary parts of $g_2 \in \complexes[6\x 1\x 1]$ from $\mathcal{N}(0,1)$ and
-$g_1, g_{lp}$ are set to 0. I.e. each shape has 12 random variables. It is good
-to see that there is still a large degree of variability between shapes. Our
-experiments have shown that the distribution of the normalized cross-correlation
-between 512 of such randomly generated shapes matches the distribution for
-random vectors with roughly 11.5 degrees of freedom.
-

@@ -1,44 +1,44 @@
 \begin{tikzpicture}
     \matrix (m1) [row sep=5mm, column sep=6mm,align=center,anchor=center]
 	{
-	%--------------------------------------------------------------------
-		\node[coordinate]                  (m00) {};    &
-		\node[coordinate]                  (m01) {};          &
-		\node[dspsquare]                   (m02) {$A(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m03) {\downsamplertext{M}}; &
-		\node[dspnodeopen,dsp/label=above] (m04) {$V_r(z)$};          &
-		\node[rectangle,draw,inner sep=2pt](m05) {$G_r(z)$}; &
-		\node[dspnodeopen,dsp/label=above] (m06) {$W_r(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m07) {\upsamplertext{M}}; &
-		\node[dspsquare]                   (m08) {$C(z)$};          &
-		\node[coordinate]                  (m09) {};          &
-		\node[coordinate]                  (m0X) {};          \\
-		%--------------------------------------------------------------------
-		\node[]                            (m10) {$X(z)$};          &
-		\node[coordinate]                  (m11) {};          &
-		\node[coordinate]                  (m12) {};    &
-		\node[coordinate]                  (m13) {};          &
-		\node[coordinate]                  (m14) {};    &
-		\node[coordinate]                  (m15) {};          &
-		\node[coordinate]                  (m16) {};    &
-		\node[coordinate]                  (m17) {};          &
-		\node[coordinate]                  (m18) {};    &
-		\node[dspadder]                    (m19) {};          &
-    \node[]                            (m1X) {$Y(z)$};          \\
-		%--------------------------------------------------------------------
-		\node[coordinate]                  (m20) {};    &
-		\node[coordinate]                  (m21) {};          &
-		\node[dspsquare]                   (m22) {$B(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m23) {\downsamplertext{M}}; &
-		\node[dspnodeopen,dsp/label=below] (m24) {$V_i(z)$};          &
-		\node[rectangle,draw,inner sep=2pt](m25) {$G_r(z)$}; &
-		\node[dspnodeopen,dsp/label=below] (m26) {$W_i(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m27) {\upsamplertext{M}}; &
-		\node[dspsquare]                   (m28) {$D(z)$};          &
-		\node[coordinate]                  (m29) {};          &
-		\node[coordinate]                  (m2X) {};          \\
-		%--------------------------------------------------------------------
-		&&&&&&&&& \\
+	% %--------------------------------------------------------------------
+		% \node[coordinate]                  (m00) {};    &
+		% \node[coordinate]                  (m01) {};          &
+		% \node[dspsquare]                   (m02) {$A(z)$};          &
+		% \node[circle,draw,inner sep=1pt]   (m03) {\downsamplertext{M}}; &
+		% \node[dspnodeopen,dsp/label=above] (m04) {$V_r(z)$};          &
+		% \node[rectangle,draw,inner sep=2pt](m05) {$G_r(z)$}; &
+		% \node[dspnodeopen,dsp/label=above] (m06) {$W_r(z)$};          &
+		% \node[circle,draw,inner sep=1pt]   (m07) {\upsamplertext{M}}; &
+		% \node[dspsquare]                   (m08) {$C(z)$};          &
+		% \node[coordinate]                  (m09) {};          &
+		% \node[coordinate]                  (m0X) {};          \\
+		% %--------------------------------------------------------------------
+		% \node[]                            (m10) {$X(z)$};          &
+		% \node[coordinate]                  (m11) {};          &
+		% \node[coordinate]                  (m12) {};    &
+		% \node[coordinate]                  (m13) {};          &
+		% \node[coordinate]                  (m14) {};    &
+		% \node[coordinate]                  (m15) {};          &
+		% \node[coordinate]                  (m16) {};    &
+		% \node[coordinate]                  (m17) {};          &
+		% \node[coordinate]                  (m18) {};    &
+		% \node[dspadder]                    (m19) {};          &
+    % \node[]                            (m1X) {$Y(z)$};          \\
+		% %--------------------------------------------------------------------
+		% \node[coordinate]                  (m20) {};    &
+		% \node[coordinate]                  (m21) {};          &
+		% \node[dspsquare]                   (m22) {$B(z)$};          &
+		% \node[circle,draw,inner sep=1pt]   (m23) {\downsamplertext{M}}; &
+		% \node[dspnodeopen,dsp/label=below] (m24) {$V_i(z)$};          &
+		% \node[rectangle,draw,inner sep=2pt](m25) {$G_r(z)$}; &
+		% \node[dspnodeopen,dsp/label=below] (m26) {$W_i(z)$};          &
+		% \node[circle,draw,inner sep=1pt]   (m27) {\upsamplertext{M}}; &
+		% \node[dspsquare]                   (m28) {$D(z)$};          &
+		% \node[coordinate]                  (m29) {};          &
+		% \node[coordinate]                  (m2X) {};          \\
+		% %--------------------------------------------------------------------
+		% &&&&&&&&& \\
 		\node[coordinate]                  (m00a) {};    &
 		\node[coordinate]                  (m01a) {};          &
 		\node[dspsquare]                   (m02a) {$A\left(z^{-1}\right)$};          &
@@ -79,26 +79,26 @@
 		\node[coordinate]                  (m2Xa) {};          \\
 		%--------------------------------------------------------------------
 	};
-	\draw[dspline] (m10) -- (m11);
-	\draw[dspline] (m11) -- (m01);
-	\draw[dspline] (m11) -- (m21);
-	\foreach \i in {0,2} {
-    	\draw[dspconn] (m\i1) -- (m\i2);
-    	\draw[dspconn] (m\i2) -- (m\i3);
-    	\draw[dspline] (m\i3) -- (m\i4);
-    	\draw[dspconn] (m\i4) -- (m\i5);
-    	\draw[dspline] (m\i5) -- (m\i6);
-    	\draw[dspconn] (m\i6) -- (m\i7);
-    	\draw[dspconn] (m\i7) -- (m\i8);
-    	\draw[dspline] (m\i8) -- (m\i9);
-	}
-	%\draw[dspflow] (m04) --  (m06);
-	%\draw[dspflow] (m24) -- (m26);
-	\draw[dspconn] (m24) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$-G_i(z)$} (m06);
-	\draw[dspconn] (m04) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$G_i(z)$} (m26);
-	\draw[dspconn] (m09) -- (m19);
-	\draw[dspconn] (m29) -- (m19);
-	\draw[dspconn] (m19) -- (m1X);
+	% \draw[dspline] (m10) -- (m11);
+	% \draw[dspline] (m11) -- (m01);
+	% \draw[dspline] (m11) -- (m21);
+	% \foreach \i in {0,2} {
+      % \draw[dspconn] (m\i1) -- (m\i2);
+      % \draw[dspconn] (m\i2) -- (m\i3);
+      % \draw[dspline] (m\i3) -- (m\i4);
+      % \draw[dspconn] (m\i4) -- (m\i5);
+      % \draw[dspline] (m\i5) -- (m\i6);
+      % \draw[dspconn] (m\i6) -- (m\i7);
+      % \draw[dspconn] (m\i7) -- (m\i8);
+      % \draw[dspline] (m\i8) -- (m\i9);
+	% }
+	% %\draw[dspflow] (m04) --  (m06);
+	% %\draw[dspflow] (m24) -- (m26);
+	% \draw[dspconn] (m24) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$-G_i(z)$} (m06);
+	% \draw[dspconn] (m04) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$G_i(z)$} (m26);
+	% \draw[dspconn] (m09) -- (m19);
+	% \draw[dspconn] (m29) -- (m19);
+	% \draw[dspconn] (m19) -- (m1X);
 	\draw[dspconn] (m11a) -- (m10a);
 	\draw[dspconn] (m01a) -- (m11a);
 	\draw[dspconn] (m21a) -- (m11a);
