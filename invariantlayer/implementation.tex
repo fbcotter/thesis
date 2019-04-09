@@ -1,7 +1,7 @@
-\section{Implementation Details}\label{sec:implementation}
+\section{Implementation Details}\label{sec:ch5:implementation}
 Again, we use the $\DTCWT$ \cite{selesnick_dual-tree_2005} for our wavelet filters
 $\psi_{j, \theta}$ due to their fast implementation with separable convolutions
-which we will discuss more in \autoref{sec:computation}.  There are two side
+which we will discuss more in \autoref{sec:ch5:computation}.  There are two side
 effects of this choice. The first is that the number of orientations of wavelets
 is restricted to $K=6$. The second is that we naturally downsample the output
 activations by a factor of $2$ for each direction for each scale $j$, giving a 
@@ -14,7 +14,7 @@ will be almost no energy for frequencies higher than $f_s/4$).
 
 In all our experiments we set $J=1$ for each invariant layer,
 meaning we can mix the lowpass and bandpass coefficients at the same resolution.
-\autoref{fig:block_diagram} shows how this is done. Note that setting $J=1$ for
+\autoref{fig:ch5:block_diagram} shows how this is done. Note that setting $J=1$ for
 a single layer does not restrict us from having $J>1$ for the entire system, as
 if we have a second layer with $J=1$ after the first, including downsampling
 ($\downarrow$), we would have:
@@ -24,7 +24,7 @@ if we have a second layer with $J=1$ after the first, including downsampling
     \downarrow 2 = \left(x \conv \psi_{2, \theta}\right) \downarrow 4
 \end{equation}
 
-\subsection{Parameter Memory Cost}\label{sec:memory}
+\subsection{Parameter Memory Cost}\label{sec:ch5:memory}
 A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output channels
 and kernel size $L\x L$ has $L^2C_{l}C_{l+1}$ parameters. 
 
@@ -53,11 +53,11 @@ layer.
 
 \input{\path/algorithm1}
 
-\subsection{Computational Cost}\label{sec:computation}
+\subsection{Computational Cost}\label{sec:ch5:computation}
 A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
 multiplies per input pixel (of which there are $C_{l}\x H\x W$).
 
-As mentioned in \autoref{sec:memory}, we use the $\DTCWT$ for our complex, shift
+As mentioned in \autoref{sec:ch5:memory}, we use the $\DTCWT$ for our complex, shift
 invariant wavelet decomposition. We use the open source Pytorch implementation
 of the $\DTCWT$ \cite{cotter_pytorch_2018} as it can run on GPUs and
 has support for backpropagating gradients.
@@ -76,7 +76,7 @@ Because we are using a decimated wavelet decomposition, the sample rate
 decreases after each wavelet layer. The benefit of this is that the mixing
 process then only works on one quarter the spatial size after the first scale
 and one sixteenth the spatial after the second scale. Restricting ourselves to
-$J=1$ as we mentioned in \autoref{sec:implementation}, the computational cost is
+$J=1$ as we mentioned in \autoref{sec:ch5:implementation}, the computational cost is
 then:
 
 \begin{equation}
