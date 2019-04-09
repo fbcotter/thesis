@@ -1,6 +1,6 @@
 \section{Implementation Details}
 
-We use our PyTorch Wavelets package \cite{} to perform the $\DTCWT$. As
+We use our PyTorch Wavelets package \cite{cotter_pytorch_2018} to perform the $\DTCWT$. As
 mentioned in \autoref{sec:ch6:multiple_subbands}, our layer requires a set
 of learnable filters:
 \begin{equation}
@@ -13,22 +13,96 @@ complex, and so to get the full use of the phase information of the $\DTCWT$, we
 also learn complex bandpass filters. This comes with an overhead which we will 
 fully quantify in a later section.
 
-Once we have decided on the number of scales in the $\DTCWT$ to take, and the
-spatial support.taken the forward transform
-
-\include{\imgpath/block_diagram}. 
-
-We now also must choose the spatial sizes of both the lowpass and bandpass
+We must choose the spatial sizes of both the lowpass and bandpass
 mixing kernels. In our work, we set the spatial support of the complex bandpass
 filters $g_{j,k}$ to be $1\x 1$ and the lowpass filters $g_{lp}$ to be $3\x 3$.
 Further, we limit ourselves initially to only considering a single scale
-transform.
-
+transform.  
 If we wish, we can learn larger spatial sizes to have more complex
 attenuation/magnification of the subbands. We also can use more than
 one wavelet scale. 
 
+\include{\imgpath/block_diagram}. 
+
+\subsection{Parameter Memory Cost}\label{sec:ch6:memory}
+A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output channels
+and kernel size $L\x L$ has $L^2C_{l}C_{l+1}$ parameters, with $L=3$ or $L=5$
+common choices for the spatial size.
+
+The number of learnable parameters in our proposed gain layer with
+$J=1$, $K=6$, kernel spatial size 3 for the lowpass and 1 for the bandpass:
+%
+\begin{equation}
+  \text{\#params} = (2JK + 3^2)C_lC_{l+1} = 21C_lC_{l+1} \label{eq:ch6:memcost}
+\end{equation} 
+%
+At first glance, we have increased our parameterization by over twofold on a $3\x 3$ 
+convolution, but as with the invariant layer, the spatial support of the full
+filter is larger than an equivalent one parameterized in the filter domain. Note
+that using a second scale with $1\x 1$ filters would increase
+\eqref{eq:ch6:memcost} to $33C_lC_{l+1}$.
+
+\subsection{Activation Memory Cost}\label{sec:ch6:act_memory}
+A standard convolutional layer needs to save the activation $x^{(l)}$ to
+convolve with the backpropagated gradient $\dydx{L}{y^{(l+1)}}$ on the backwards
+pass (to give $\dydx{L}{w^{(l)}}$). For an input with $C_l$ channels of spatial
+size $H\x W$, this means $HWC_l$ floats must be saved. 
+
+Our layer requires us to save the wavelet coefficients from \eqref{eq:ch6:wave_coeffs}, 
+$\{u_{lp}, u_{j,k}\}_{1\leq j \leq J, 1}$ for updating the $g$ terms 
+\eqref{eq:ch6:gr_update}, \eqref{eq:ch6:gi_update}.
+These are $4:1$ redundant, so require $4HWC_l$ floats to be saved.
+
+If memory is an issue and the computation of the $\DTCWT$ is very fast, then we
+only need to save the $x^(l)$ coefficients and can calculate the $u$'s on the
+fly during the backwards pass. 
+
+\subsection{Computational Cost}\label{sec:ch6:computation}
+A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
+multiplies per input pixel (of which there are $C_{l}\x H\x W$).
+
+There is an overhead in doing the wavelet decomposition for each input channel.
+A separable 2-D discrete wavelet transform (DWT) with 1-D filters of length $L$
+will have $2L\left(1-2^{-2J}\right)$ multiplies per input pixel for a $J$ scale
+decomposition. A $\DTCWT$ has 4 DWTs for a 2-D input, so its cost is
+$8L\left(1-2^{-2J}\right)$, with $L=6$ a common size for the filters. It is
+important to note that unlike the filtering operation, this does not scale with
+$C_{l+1}$, the end result being that as $C_{l+1}$ grows, the cost of $C_l$
+forward transforms is outweighed by that of the mixing process whose cost is
+proportional to $C_l C_{l+1}$.
+
+Because we are using a decimated wavelet decomposition, the sample rate
+decreases after each wavelet layer. The benefit of this is that the mixing
+process then only works on one quarter the spatial size after the first scale
+and one sixteenth the spatial after the second scale. Restricting ourselves to
+$J=1$ as we mentioned in \autoref{sec:implementation}, the computational cost is
+then:
+
+\begin{equation}
+  % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
+  \underbrace{ \frac{7}{4}C_{l+1} }_{\textrm{mixing}} +
+  \underbrace{\vphantom{\frac{7}{4}} 36}_{\DTCWT} \quad
+  \textrm{multiplies per input pixel}\label{eq:ch5:comp}
+\end{equation}
+In most CNNs, $C_{l+1}$ is several dozen if not several
+hundred, which makes \eqref{eq:ch5:comp} significantly smaller than
+$L^2C_{l+1}=9C_{l+1}$ multiplies for $3\x 3$ convolutions.
+
+\subsection{Forward and Backward Algorithm}
+There are two layer hyperparameters to choose in our layer:
+\begin{itemize}
+  \item The number of output channels $C_{l+1}$. This may be restricted by the
+    architecture.
+  \item The variance of the weight initialization for the mixing matrix $A$.
+\end{itemize}
+
+Assuming we have already chosen these values, 
+then the forward and backward algorithms can be computed with
+Algorithm~\autoref{alg:ch5:inv}.
+
+
 \subsection{Parameter Memory Cost}
+A standard 
 Again considering a two scale transform --- instead of learning $w\in \reals[F
 \x C\x K\x K]$ we learn complex gains at the two scales, and a real gain for the
 real lowpass:

@@ -57,11 +57,6 @@ layer.
 A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
 multiplies per input pixel (of which there are $C_{l}\x H\x W$).
 
-As mentioned in \autoref{sec:memory}, we use the $\DTCWT$ for our complex, shift
-invariant wavelet decomposition. We use the open source Pytorch implementation
-of the $\DTCWT$ \cite{cotter_pytorch_2018} as it can run on GPUs and
-has support for backpropagating gradients.
-
 There is an overhead in doing the wavelet decomposition for each input channel.
 A separable 2-D discrete wavelet transform (DWT) with 1-D filters of length $L$
 will have $2L\left(1-2^{-2J}\right)$ multiplies per input pixel for a $J$ scale

@@ -170,28 +170,28 @@ would be nice to maintain the shift invariant properties of the $\DTCWT$.
 
 \autoref{fig:ch6:dtcwt_two_tree_gain} shows a block diagram of the extension of 
 the above to general gains. This is a two port network with four individual
-transfer functions. Let the transfer fucntion from $X_i$ to $Y_j$
-be $G_{ij}$ for $i, j \in \{a, b\}$. Then $Y_a$ and $Y_b$ are:
+transfer functions. Let the transfer fucntion from $U_i$ to $V_j$
+be $G_{ij}$ for $i, j \in \{a, b\}$. Then $V_a$ and $V_b$ are:
 \begin{eqnarray}
-  Y_a(z) &=& X_a(z)G_{aa}(z) + X_b(z)G_{ba}(z) \\
+  V_a(z) &=& U_a(z)G_{aa}(z) + U_b(z)G_{ba}(z) \\
          &=& \frac{1}{M} \sum_k X(W^{k} z^{1/k}) \left[A(W^k z^{1/k})G_{aa}(z) +
-      B(W^k z^{1/k}) G_{ba}(z) \right] \\
-      Y_b(z) &=& X_a(z)G_{ab}(z) + X_b(z)G_{bb}(z) \\
-             &=& \frac{1}{M} \sum_k X(W^{k} z^{1/k}) \left[A(W^k z^{1/k})G_{ab}(z) +
-      B(W^k z^{1/k}) G_{bb}(z) \right] 
+             B(W^k z^{1/k}) G_{ba}(z) \right] \\
+  V_b(z) &=& U_a(z)G_{ab}(z) + U_b(z)G_{bb}(z) \\
+         &=& \frac{1}{M} \sum_k X(W^{k} z^{1/k}) \left[A(W^k z^{1/k})G_{ab}(z) +
+             B(W^k z^{1/k}) G_{bb}(z) \right] 
 \end{eqnarray}
 %
-Further, $Y_a'$ and $Y_b'$ are:
+Further, $Y_a$ and $Y_b$ are:
 \begin{eqnarray}
-  Y_a'(z) &=& C(z)Y_a(z^M) \\
-  Y_b'(z) &=& D(z)Y_b(z^M)
+  Y_a(z) &=& C(z)V_a(z^M) \\
+  Y_b(z) &=& D(z)V_b(z^M)
 \end{eqnarray}
 %
 Then the end to end transfer function is:
 \begin{equation}
   \begin{split}
   % \begin{multline}
-    Y(z) = Y_{a}'(z) + Y_{b}'(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z)
+    Y(z) = Y_{a}(z) + Y_{b}(z) = \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z)
     & \left[  A(W^kz)C(z)G_{aa}(z^k) + B(W^kz)D(z)G_{bb}(z) + \right. \\
     & \left. \hphantom{[}  B(W^kz)C(z)G_{ba}(z^k) + A(W^kz)D(z)G_{ba}(z) \right] 
     \label{eq:ch6:transfer}
@@ -253,7 +253,8 @@ coefficients for each scale (representing the oriented bands from 15 to 165
 degrees) and 1 set of real lowpass coefficients. Let us write this as:
 
 \begin{equation}
-  \DTCWT\{x\} = \{x_{lp}, x_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 6}
+  \DTCWT\{x\} = \{u_{lp}, u_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 6}
+  \label{eq:ch6:wave_coeffs}
 \end{equation}
 
 To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
@@ -274,11 +275,11 @@ bandpass filters $g_{j,k}$ as $g_{lp}[f, c, \nn]$ and $g_{j,k}[f, c, \nn]$.
 
 With these gains we create new coefficients:
 \begin{eqnarray}
-  y_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
-  y_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
-  y_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
+  y_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
+  y_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
+  y_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
                   & \vdots & \\
-  y_{J,6}[f, \nn] &= & \sum_{c=0}^{C_l-1} x_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
+  y_{J,6}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
 \end{eqnarray}
 
 I.e., we do independent mixing at each of the different subbands. For $1\x 1$
@@ -297,9 +298,11 @@ We start with the commonly known property that for a convolutional block, the
 gradient with respect to the input is the gradient with respect to the output
 convolved with the time reverse of the filter. More formally, if 
 $Y(z) = H(z) X(z)$:
+%
 \begin{equation}\label{eq:ch6:backprop}
-\Delta X(z) = H(z^{-1}) \Delta Y(z)
+  \Delta X(z) = H(z^{-1}) \Delta Y(z)
 \end{equation}
+%
 where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
 $\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
 to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
@@ -318,12 +321,12 @@ filters, so no change has to be done. The q-shift filters of the $\DTCWT$
 \cite{kingsbury_design_2003} have this property.} Similarly, the backwards pass
 of the forward transform is equivalent to doing the inverse transform. The
 weight update gradients are then calculated by finding 
-$\Delta W(z) = \DTCWT\left\{ \Delta Y(z) \right\}$ and then convolving with the 
-time reverse of the saved wavelet coefficients from the forward pass - $V(z)$.
+$\Delta V(z) = \DTCWT\left\{ \Delta Y(z) \right\}$ and then convolving with the 
+time reverse of the saved wavelet coefficients from the forward pass - $U(z)$.
 
 \begin{gather}
-  \Delta G_r(z) = \Delta W_r(z) V_r(z^{-1}) + \Delta W_i(z) V_i(z^{-1})  \label{eq:ch6:gr_update}\\
-  \Delta G_i(z) =  -\Delta W_r(z) V_i(z^{-1}) + \Delta W_i(z) V_r(z^{-1})  \label{eq:ch6:gi_update} 
+  \Delta G_r(z) = \Delta V_r(z) U_r(z^{-1}) + \Delta V_i(z) U_i(z^{-1})  \label{eq:ch6:gr_update}\\
+  \Delta G_i(z) =  -\Delta V_r(z) U_i(z^{-1}) + \Delta V_i(z) U_r(z^{-1})  \label{eq:ch6:gi_update} 
 \end{gather}
 
 Unsurprisingly, the passthrough gradients have similar form to
