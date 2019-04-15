@@ -1,0 +1,34 @@
+\begin{table}
+  \renewcommand{\arraystretch}{1.2}
+  \centering
+  \caption{Results for testing VGG like architecture with convolutional and
+  wavelet gain layers on several datasets. An architecture with `gainX' means the
+  equivalent convolutional layer `convX' from \autoref{tab:arch} was swapped for
+  our proposed layer. The top row is the reference architecture using all
+  convolutional layers. The `A' architecture is the originally proposed gain
+  layer, the `B' architecture uses the gainlayer with random shifting of the
+  activations, and the `C' architecture changes the mixing to be a learned
+  $3\x3$ kernel acting on the invariant coefficients. Numbers are averages over
+  5 runs. \textbf{TODO: Rerun C models with different hypes}.}
+  % \begin{tabular}{@{}lllcllcll@{}}
+  \begin{tabular}{@{}lccclccclccc@{}}
+    \toprule
+    & \multicolumn{3}{c}{CIFAR-10} & \phantom{abc} & \multicolumn{3}{c}{CIFAR-100} & \phantom{abc} & \multicolumn{3}{c}{Tiny ImgNet} \\ \cline{2-4}\cline{6-8}\cline{10-12}
+    \phantom{abc} & A  & B & C &&  A & B & C && A & B & C \\ \midrule
+    reference & \multicolumn{3}{c}{92.6} && \multicolumn{3}{c}{72.0} && \multicolumn{3}{c}{59.3} \\ \midrule
+    gainA        & & & && & & && & & \\
+    gainB        & & & && & & && & & \\
+    gainC        & & & && 73.0 & & && & & \\
+    gainD        & & & && 73.5 & & && & & \\
+    gainE        & & & && & & && & & \\
+    gainF        & & & && & & && & & \\
+    gainA, gainB & & & && & & && & & \\
+    gainB, gainC & & & && & & && & & \\
+    gainC, gainD & & & && & & && & & \\
+    gainD, gainE & & & && & & && & & \\
+    gainA, gainC & & & && & & && & & \\
+    gainB, gainD & & & && & & && & & \\
+    gainC, gainE & & & && & & && & & \\ \bottomrule
+  \end{tabular}\label{tab:ch6:ablation_results}
+\end{table}
+

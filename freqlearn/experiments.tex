@@ -1,42 +1,26 @@
-\section{Experiments and Preliminary Results}\label{sec:ch6:results}
-To examine the effectiveness of our convolutional layer, we do a simple
-experiment on CIFAR-10 and CIFAR-100. For simplicity, we compare the performance
-using a simple yet relatively effective convolutional architecture - LeNet
-\cite{lecun_gradient-based_1998}. LeNet has 2 convolutional layers of spatial
-size $5\x 5$ followed by 2 fully connected layers and a softmax final layer. We
-swap both these convolutional layers out for two of our proposed wavelet gain
-layers (keeping the ReLU between them). As CIFAR has very small spatial size, we
-only take a single scale $\DTCWT$. Therefore each gain layer has $6$ complex
-gains for the 6 subbands, and a $3\x 3$ real gain for the lowpass (a total of
-$21C$ parameters vs $25C$ for the original system). We train both networks for
-200 epochs with Adam \cite{kingma_adam:_2014} optimizer with a constant learning
-rate of $10^{-3}$ and a weight decay of $10^{-5}$. The code is available at
-\cite{cotter_dtcwt_2018}. \autoref{tab:results} shows the mean of the
-validation set accuracies for 5 runs. The different columns represent
-undersampled training set sizes (with 50000 being the full training set).
-When undersampling, we keep the samples per class constant. We see our
-system perform only very slightly worse than the standard convolutional
-layer. 
+\section{Experiments}\label{sec:ch6:results}
+To explore the effectiveness of our gain layer, we do a similar ablation study
+to \autoref{sec:ch5:conv_exp} on CIFAR-10, CIFAR-100 and Tiny ImageNet. We use
+the same reference network so that we can also compare the wavelet gain layer to the
+invariant layer (see \autoref{tab:ch5:cifar_tiny_arch}). We also use the same
+naming technique, calling a network `gainX' means that the `convX' layer was
+replaced with a wavelet gain layer, but otherwise keeping the rest of the
+architecture the same. 
 
-\begin{table}[]
-  \centering
-{\renewcommand{\arraystretch}{1.2}
-  \captionsetup{width=\textwidth}
-  \caption{Comparison of LeNet with standard convolution to our proposed method
-    which learns in the wavelet space (WaveLenet) on CIFAR-10 and CIFAR-100.
-  Values reported are the average top-1 accuracy (\%) rates for different train
-  set sizes over 5 runs.}
-\begin{tabular}{cccccccc}
-  \specialrule{.1em}{.1em}{.1em} 
-  & Train set size & 1000 & 2000 & 5000 & 10000 & 20000 & 50000 \\ \specialrule{.1em}{.1em}{.1em} 
-  \multicolumn{1}{l}{\multirow{2}{*}{CIFAR-10}} & LeNet & 
-    48.5 & 52.4 & 59.5 & 65.0 & 69.5 & 73.3\\ \cline{2-8}
-  \multicolumn{1}{l}{} & WaveLeNet & 
-    47.3 & 52.1 & 58.7 & 63.8 & 68.0 & 72.4\\ \hline
-  \multicolumn{1}{l}{\multirow{2}{*}{CIFAR-100}} & LeNet & 
-    11.1 & 15.8 & 23.1 & 29.5 & 34.4 & 41.1  \\ \cline{2-8}
-  \multicolumn{1}{l}{} & WaveLeNet & 
-    11.1 & 15.4 & 23.2 & 28.4  & 33.9 & 39.6 \\ \specialrule{.1em}{.1em}{.1em} 
-\end{tabular}\label{tab:results}
-}
-\end{table}
+We train all our networks for with stochastic gradient descent with momentum.
+The initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and
+weight decay is $10^{-4}$. For CIFAR-10/CIFAR-100 we scale the learning rate by
+a factor of 0.2 after 60, 80 and 100 epochs, training for 120 epochs in total.
+For Tiny ImageNet, the rate change is at 18, 30 and 40 epochs (training for 45 in total).
+
+\input{\path/cifar_ablation_table}
+
+\autoref{tab:ch6:ablation_results} lists the results from these experiments.
+These show a promising start to this work. We can get an improvement in accuracy
+by over a percent when we use the gain layer \textbf{Finish me when results are
+done}.
+
+Unlike the scatternet inspired invariant layer from the previous chapter, the
+gain layer does naturally downsample the output, so we are able to stack more of
+them? Maybe.
+

@@ -234,7 +234,7 @@ gains is now
   \frac{Y(z)}{X(z)} &=& \frac{2}{M} \left[G_r(z^{M}) \left(A(z)C(z) + B(z)D(z)\right)
   + G_i(z^{M}) \left(A(z)D(z) - B(z)C(z)\right) \right] \\
   &=& \frac{2}{M}\left[G_r(z^{M}) \left(PQ + P^*Q^*\right)
-  + jG_i(z^{M}) \left(PQ - P^*Q^*\right) \right] 
+  + jG_i(z^{M}) \left(PQ - P^*Q^*\right) \right]  \label{eq:ch6:end2end}
 \end{eqnarray}
 
 Now we know can assume that our $\DTCWT$ is well designed and extracts frequency
@@ -242,56 +242,6 @@ bands at local areas, then our complex filter $G(z)=G_r(z) + jG_i(z)$ allows us
 to modify these passbands (e.g.\ by simply scaling if $G(z) = C$, or by more
 complex functions.
 
-\section{$\DTCWT$ Multiple Subband Gains}\label{sec:ch6:multiple_subbands}
-
-Now that we have the framework for applying a complex gain at one subband, we
-can extend this to all of the subbands in the $\DTCWT$. We also reintroduce the channel
-dimension. 
-
-In 2-D, a $J$ scale $\DTCWT$ gives $6J+1$ coefficients, 6 sets of complex
-coefficients for each scale (representing the oriented bands from 15 to 165
-degrees) and 1 set of real lowpass coefficients. Let us write this as:
-
-\begin{equation}
-  \DTCWT\{x\} = \{u_{lp}, u_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 6}
-  \label{eq:ch6:wave_coeffs}
-\end{equation}
-
-To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
-output channels, we introduce the learnable filters:
-%
-\begin{eqnarray}
-  g_{lp} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w] \\
-  g_{1,1} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
-  g_{1,2} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
-      & \vdots &\\
-  g_{J,6} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] 
-\end{eqnarray}
-%
-where $k_h, k_w$ are the sizes of the mixing kernels. These could be $1\x 1$ for
-simple gain control, or could be larger, say $3\x 3$, to do more complex
-filtering on the subbands. Let us index the lowpass filters $g_{lp}$ and the
-bandpass filters $g_{j,k}$ as $g_{lp}[f, c, \nn]$ and $g_{j,k}[f, c, \nn]$.
-
-With these gains we create new coefficients:
-\begin{eqnarray}
-  y_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
-  y_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
-  y_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
-                  & \vdots & \\
-  y_{J,6}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
-\end{eqnarray}
-
-I.e., we do independent mixing at each of the different subbands. For $1\x 1$
-kernels, this is simply a matrix multiply of the wavelet coefficients. Note that
-for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
-b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$.
-
-\autoref{fig:ch6:dtcwt_bands} shows the frequency support of the $6J+1$ subbands
-for a two scale $\DTCWT$ as well as some of the equivalent impulse responses for
-a randomly initialized set of $g$ filters.
-
-\input{\imgpath/figure1}
 
 \subsection{Backpropagation Analysis}
 We start with the commonly known property that for a convolutional block, the
@@ -321,6 +271,7 @@ filters, so no change has to be done. The q-shift filters of the $\DTCWT$
 \cite{kingsbury_design_2003} have this property.} Similarly, the backwards pass
 of the forward transform is equivalent to doing the inverse transform. The
 weight update gradients are then calculated by finding 
+\textbf{FIX this - make it not use the $\DTCWT$ to get delta v}.
 $\Delta V(z) = \DTCWT\left\{ \Delta Y(z) \right\}$ and then convolving with the 
 time reverse of the saved wavelet coefficients from the forward pass - $U(z)$.
 
@@ -330,7 +281,7 @@ time reverse of the saved wavelet coefficients from the forward pass - $U(z)$.
 \end{gather}
 
 Unsurprisingly, the passthrough gradients have similar form to
-\autoref{eq:ch6:end_to_end2}:
+\autoref{eq:ch6:end2end}:
 \begin{equation}\label{eq:ch6:passthrough}
     \Delta X(z) = \frac{2\Delta Y(z)}{M} \left[G_r(z^{-M})\left( PQ + P^*Q^* \right)\right. + 
       \left. jG_i(z^{-M}) \left(PQ-P^*Q^* \right) \right] 
@@ -343,3 +294,68 @@ support of $G(z)$ i.e., if it is a single number we only need to calculate
 $\left.\Delta G(z)\right\rvert_{z=0}$.
 
 \input{\path/figure2}
+
+\section{$\DTCWT$ Multiple Subband Gains}\label{sec:ch6:multiple_subbands}
+
+Now that we have the framework for applying a complex gain at one subband, we
+can extend this to all of the subbands in the $\DTCWT$. We also reintroduce the channel
+dimension. 
+
+In 2-D, a $J$ scale $\DTCWT$ gives $6J+1$ coefficients, 6 sets of complex
+coefficients for each scale (representing the oriented bands from 15 to 165
+degrees) and 1 set of real lowpass coefficients. Let us write this as:
+
+\begin{equation}
+  \DTCWT\{x\} = \{u_{lp}, u_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 6}
+  \label{eq:ch6:wave_coeffs}
+\end{equation}
+%
+Sometimes we may want to refer to all of the subband coefficients at a single scale
+with one variable, in which case we will call them $\vec{u}_{j}$.
+
+To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
+output channels, we introduce the learnable filters:
+%
+\begin{eqnarray}
+  g_{lp} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w] \label{eq:ch6:glp} \\
+  g_{1,1} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
+  g_{1,2} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
+      & \vdots &\\
+  g_{J,6} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w]  \label{eq:ch6:gj6}
+\end{eqnarray}
+%
+where $k_h, k_w$ are the sizes of the mixing kernels. These could be $1\x 1$ for
+simple gain control, or could be larger, say $3\x 3$, to do more complex
+filtering on the subbands. Let us index the lowpass filters $g_{lp}$ and the
+bandpass filters $g_{j,k}$ as $g_{lp}[f, c, \nn]$ and $g_{j,k}[f, c, \nn]$.
+
+With these gains we create new coefficients:
+\begin{eqnarray}
+  v_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
+  v_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
+  v_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
+                  & \vdots & \\
+  v_{J,6}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
+\end{eqnarray}
+
+I.e., we do independent mixing at each of the different subbands. For $1\x 1$
+kernels, this is simply a matrix multiply of the wavelet coefficients. Note that
+for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
+b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$.
+
+
+\subsection{Examples}
+\autoref{fig:ch6:dtcwt_bands} show example impulse responses of our layer.
+These impulses were generated by randomly initializing both the real and
+imaginary parts of $g_{2,k} \in \complexes[1\x 1]$ from $\mathcal{N}(0,1)$
+independently for the six orientations $k$. $g_{1,k}, g_{lp}$ are set to 0. 
+I.e. each shape has 12 random variables. It is good
+to see that there is still a large degree of variability between shapes. Our
+experiments have shown that the distribution of the normalized cross-correlation
+between 512 of such randomly generated shapes matches the distribution for
+random vectors with roughly 11.5 degrees of freedom.
+\autoref{fig:ch6:dtcwt_bands} shows the frequency support of the $6J+1$ subbands
+for a two scale $\DTCWT$ as well as some of the equivalent impulse responses for
+a randomly initialized set of $g$ filters.
+
+\input{\imgpath/figure1}

@@ -1,0 +1,43 @@
+\section{Wavelet Based Nonlinearities and Multiple Gain Layers}
+So far we have only considered linear operations in the wavelet domain. This is
+a good starting point, and it is nice to see that we can do operations that
+preserve some of the nice properties of the $\DTCWT$. Let us call the layer
+considered so far a \textbf{first order gain layer}. Recall this is where a
+$\DTCWT$ is done, followed by a single linear convolution and then straight away
+returning to the pixel domain with the inverse $\DTCWT$. While it is good to see
+that it is possible to do and even achieves some benefit over a convolutional
+layer, the proposed layer \eqref{eq:ch6:end2end} can be implemented in the pixel domain
+as a single convolution.
+
+It would be particularly interesting if we could find a sensible nonlinearity to
+do in the wavelet domain. This would mean it would be no longer possibile to do the
+gain layer in the pixel domain. Further, we could then do multiple mixing
+stages in the wavelet domain before returning to the pixel domain.
+
+But what sensible nonlinearity to use? Two particular options are good initial
+candidates:
+\begin{enumerate}
+  \item The ReLU: this is a mainstay of most modern neural networks and has
+    proved invaluable in the pixel domain. Perhaps its sparsifying properties
+    will work well on wavelet coefficients too. 
+  \item Soft thresholding: a technique commonly applied to wavelet
+    coefficients for denoising and compression. Many proponents of compressed
+    sensing and dictionary learning even like to compare soft thresholding to a
+    two sided ReLU \cite{papyan_theoretical_2018, papyan_convolutional_2016}.
+\end{enumerate}
+
+In this section we will look at each, see if they add to the first order gain
+layer, and see if they open the possibility of having multiple layers in the
+wavelet domain. 
+
+\subsection{ReLUs in the Wavelet Domain}
+A ReLU could be applied to the real lowpass coefficients with ease, but it does
+not generalize so easily to complex coefficients. One option could be to apply
+it independently to the real and imaginary coefficients, effectively only
+selecting one quadrant of the complex plane.
+\begin{equation}
+  
+
+One potential problem with this is
+that applying a ReLU independently to the real and imaginary components
+

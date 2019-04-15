@@ -1,29 +1,24 @@
 \begin{algorithm}[tb]
 \caption{Locally Invariant Convolutional Layer forward and backward
-passes}\label{alg:ch5:inv}
+passes}\label{alg:ch6:inv}
 \begin{algorithmic}[1]
-\Procedure{LOCALINVFWD}{$x, A$}
-  \State $yl,\ yh \gets \DTCWT(x^l, \mbox{nlevels}=1) $ \Comment{yh has 6
-  orientations and is complex}
-  \State $U \gets \F{COMPLEXMAG}(yh)$
-  \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample and recentre lowpass
-  to match U size}
-  \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{concatenated along the
-  channel dimension}
-  \State $Y \gets AZ$ \Comment{Mix}
-  \State \textbf{save} $Z$ \Comment{For the backwards pass}
-  \State \textbf{return} $Y$ 
+\Procedure{GAINLAYERFWD}{$x,\ g_{lp},\ g_1$}
+\State $u_{lp},\ u_{1} \gets \DTCWT(x^l, \mbox{nlevels}=1) $ \Comment{$u_{1}$ has 6 orientations and is complex}
+  \State \textbf{save} $u_{lp},\ u_{1}$ \Comment{For the backwards pass}
+  \State $v_{lp} \gets u_{lp} \conv g_{lp}$ 
+  \For{$1\leq k \leq 6$}
+  \State \begin{varwidth}[t]{\linewidth}  $v_{1,k} \gets 
+      \left( \real{u_{1,k}} \conv \real{g_{1,k}} - \imag{u_{1,k}} \conv \imag{g_{1,k}} \right)\ +$ \par
+      \hskip\algorithmicindent \hphantom{abc}$ j\left(\real{u_{1,k}} \conv \imag{g_{1,k}} + \imag{u_{1,k}} \conv \real{g_{1,k}}\right)$;
+  \end{varwidth}
+  \EndFor
+  \State $y \gets \DTCWT^{-1}(v_{lp}, v_{1})$
+  \State \textbf{return} $y$
 \EndProcedure
 \end{algorithmic}\vspace{10pt}
 \begin{algorithmic}[1]
-\Procedure{LOCALINVBWD}{$\dydx{L}{Y},\ A$}
-  \State \textbf{load} $Z$
-  \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$ \Comment{The weight gradient}
-  \State $\Delta{Z} \gets A^T\dydx{L}{Y}$
-  \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
-  \State $\Delta yl \gets \F{AVGPOOL2x2BWD}(\Delta yl)$
-  \State $\Delta yh \gets \F{COMPLEXMAGBWD}(\Delta U)$
-  \State $\dydx{L}{x} \gets \F{\DTCWT BWD}(\Delta yl,\ \Delta yh)$ \Comment{The propagated gradient}
+  \Procedure{GAINLAYERBWD}{$\dydx{L}{Y},\ g_{lp},\ g_1$}
+  \State \textbf{load} $u_{lp},\ u_1$
   \State \textbf{return} $\dydx{L}{x},\ \dydx{L}{A}$
 \EndProcedure
 \end{algorithmic}

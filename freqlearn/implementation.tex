@@ -29,18 +29,51 @@ A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output chann
 and kernel size $L\x L$ has $L^2C_{l}C_{l+1}$ parameters, with $L=3$ or $L=5$
 common choices for the spatial size.
 
-The number of learnable parameters in our proposed gain layer with
-$J=1$, $K=6$, kernel spatial size 3 for the lowpass and 1 for the bandpass:
+Returning to \eqref{eq:ch6:glp} -- \eqref{eq:ch6:gj6}, let us consider a single
+scale ($J=1$) wavelet gain layer. We will keep the spatial size of all the bandpass
+kernels the same, and allow for a differently sized lowpass gain. The filters
+are then:
+
+\begin{eqnarray*}
+  g_{lp} &\in& \reals[F\x C\x k_{lp}\x k_{lp}] \\
+  g_{1,1} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
+  g_{1,2} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
+  g_{1,3} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
+  g_{1,4} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
+  g_{1,5} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
+  g_{1,6} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] 
+\end{eqnarray*}
+%
+or more compactly:
+%
+\begin{eqnarray*}
+  g_{lp} &\in& \reals[F\x C\x k_{lp}\x k_{lp}] \\
+  \vec{g}_{1} &\in& \complexes[6\x F\x C\x k_{bp}\x k_{bp}] 
+\end{eqnarray*}
+
+We typically set $k_{bp} = 1$ to avoid large parameter costs, but allow $k_{lp}$
+to be 1 or 3. For $k_{lp} = 3$, the total parameter cost is then (requiring 2
+floats for complex values):
 %
 \begin{equation}
-  \text{\#params} = (2JK + 3^2)C_lC_{l+1} = 21C_lC_{l+1} \label{eq:ch6:memcost}
+  \text{\#params} = (2\x 6 + 3^2)C_lC_{l+1} = 21C_lC_{l+1} \label{eq:ch6:memcost}
 \end{equation} 
 %
 At first glance, we have increased our parameterization by over twofold on a $3\x 3$ 
 convolution, but as with the invariant layer, the spatial support of the full
 filter is larger than an equivalent one parameterized in the filter domain. Note
-that using a second scale with $1\x 1$ filters would increase
-\eqref{eq:ch6:memcost} to $33C_lC_{l+1}$.
+that using a second scale ($J=2$) with $1\x 1$ filters would increase
+\eqref{eq:ch6:memcost} to $33C_lC_{l+1}$. 
+
+Compared to a single scale invariant layer from the previous chapter, this requires
+$21C_lC_{l+1} - 7C_lC_{l+1} = 14C_lC_{l+1}$ more parameters, or a threefold
+increase. $6C_lC_{l+1}$ of these come from learning a complex gain rather than a
+purely real gain for the bandpass, and $8C_lC_{l+1}$ come from using a larger
+kernel on the lowpass. 
+
+If we were to set $k_{lp} = 1$, we would minimize the 
+relative parameter cost increase to be slightly
+less than $2:1$ on the invariant layer.
 
 \subsection{Activation Memory Cost}\label{sec:ch6:act_memory}
 A standard convolutional layer needs to save the activation $x^{(l)}$ to
@@ -50,8 +83,16 @@ size $H\x W$, this means $HWC_l$ floats must be saved.
 
 Our layer requires us to save the wavelet coefficients from \eqref{eq:ch6:wave_coeffs}, 
 $\{u_{lp}, u_{j,k}\}_{1\leq j \leq J, 1}$ for updating the $g$ terms 
-\eqref{eq:ch6:gr_update}, \eqref{eq:ch6:gi_update}.
+as in \eqref{eq:ch6:gr_update}, \eqref{eq:ch6:gi_update}.
 These are $4:1$ redundant, so require $4HWC_l$ floats to be saved.
+
+Note that a single scale layer requires $16/7$ times as many floats to be saved
+as compared to the invariant layer of the previous chapter. The extra cost of
+this comes from two things. Firstly, we keep the real and imaginary components
+for the bandpass (as opposed to only the magnitude), meaning we need $3HWC_l$
+floats, rather than $\frac{3}{2}HWC_l$. Additionally, the lowpass was
+downsampled in the previous chapter, requiring only $\frac{1}{4}HWC_l$, whereas
+we keep the full sample rate costing $HWC_l$.
 
 If memory is an issue and the computation of the $\DTCWT$ is very fast, then we
 only need to save the $x^(l)$ coefficients and can calculate the $u$'s on the
@@ -61,121 +102,29 @@ fly during the backwards pass.
 A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
 multiplies per input pixel (of which there are $C_{l}\x H\x W$).
 
-There is an overhead in doing the wavelet decomposition for each input channel.
-A separable 2-D discrete wavelet transform (DWT) with 1-D filters of length $L$
-will have $2L\left(1-2^{-2J}\right)$ multiplies per input pixel for a $J$ scale
-decomposition. A $\DTCWT$ has 4 DWTs for a 2-D input, so its cost is
-$8L\left(1-2^{-2J}\right)$, with $L=6$ a common size for the filters. It is
-important to note that unlike the filtering operation, this does not scale with
-$C_{l+1}$, the end result being that as $C_{l+1}$ grows, the cost of $C_l$
-forward transforms is outweighed by that of the mixing process whose cost is
-proportional to $C_l C_{l+1}$.
-
-Because we are using a decimated wavelet decomposition, the sample rate
-decreases after each wavelet layer. The benefit of this is that the mixing
-process then only works on one quarter the spatial size after the first scale
-and one sixteenth the spatial after the second scale. Restricting ourselves to
-$J=1$ as we mentioned in \autoref{sec:implementation}, the computational cost is
-then:
+The overhead calculations are the same as in \autoref{sec:ch5:computation}, so
+we will omit their derivation here. The mixing is however different, requiring
+complex convolution for the bandpass coefficients, and convolution over a higher
+resolution lowpass. The bandpass has one quarter spatial resolution at the first
+scale, but this is offset by the $4:1$ cost of complex multiplies compared to 
+real multiplies. Again assuming we have set $J=1$ and $k_{lp} = 3$ then the total
+cost for the gain layer is:
 
 \begin{equation}
   % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
-  \underbrace{ \frac{7}{4}C_{l+1} }_{\textrm{mixing}} +
-  \underbrace{\vphantom{\frac{7}{4}} 36}_{\DTCWT} \quad
-  \textrm{multiplies per input pixel}\label{eq:ch5:comp}
+  \underbrace{\hphantom{1} \frac{6\x 4}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
+  \underbrace{\hphantom{1}\vphantom{\frac{6}{4}} 3^2 C_{l+1} \hphantom{1}}_{\textrm{lowpass}} + 
+  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT} + 
+  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT^{-1}} = \quad 15C_{l+1} + 72 \quad
+  \textrm{mults/pixel}\label{eq:ch5:comp}
 \end{equation}
-In most CNNs, $C_{l+1}$ is several dozen if not several
-hundred, which makes \eqref{eq:ch5:comp} significantly smaller than
-$L^2C_{l+1}=9C_{l+1}$ multiplies for $3\x 3$ convolutions.
+
+This is larger than both a standard $3\x 3$ convolutional layer, using
+$9C_{l+1}$ multiplies per input pixel, and the invariant layer of the previous
+chapter which uses $\frac{7}{4}C_{l+1} + 36}$ multiplies per input pixel. 
+
+\subsection{Parameter Initialization}
 
 \subsection{Forward and Backward Algorithm}
-There are two layer hyperparameters to choose in our layer:
-\begin{itemize}
-  \item The number of output channels $C_{l+1}$. This may be restricted by the
-    architecture.
-  \item The variance of the weight initialization for the mixing matrix $A$.
-\end{itemize}
-
-Assuming we have already chosen these values, 
-then the forward and backward algorithms can be computed with
-Algorithm~\autoref{alg:ch5:inv}.
-
-
-\subsection{Parameter Memory Cost}
-A standard 
-Again considering a two scale transform --- instead of learning $w\in \reals[F
-\x C\x K\x K]$ we learn complex gains at the two scales, and a real gain for the
-real lowpass:
-
-\begin{eqnarray*}
-  g_1 &\in& \complexes[F\x C\x 6\x 1\x 1] \\
-  g_2 &\in& \complexes[F\x C\x 6\x 1\x 1] \\
-  g_{lp} &\in& \reals[F\x C\x 1\x 1]
-\end{eqnarray*}
-
-We have set the spatial dimension to be $1\x 1$ to show that this gain is
-identical to a $1\x 1$ convolution over the complex wavelet coefficients. If we
-wish, we can learn larger spatial sizes to have more complex
-attenuation/magnification of the subbands. We also can use more/fewer than
-2 wavelet scales.  At first glance, we have increased our parameterization by
-a factor of 25 (13 subbands, of which all but the lowpass are complex), but
-each one of these gains affects a large spatial size. For the first scale, the
-effective size is about $5\x 5$ pixels, for the second scale it is about $15\x
-15$.
-
-\subsection{Computational Cost}
-A standard convolutional layer needs $K^2 F$ multiplies per input pixel (of
-which there are $C\x H\x W$). In comparison, the wavelet gain method does a set
-number of operations per pixel for the forward and inverse transforms, and then
-applies gains on subsampled activations. For a 2 level $\DTCWT$ the transform
-overhead is about 60 multiplies for both the forward and inverse transform. It
-is important to note that unlike the filtering operation, this does not scale
-with $F$. The learned gains in each subband do scale with the number of output
-channels, but can have smaller spatial size (as they have larger effective
-sizes) as well as having fewer pixels to operate on (because of the decimation).
-The end result is that as $F$ and $C$ grow, the overhead of the $C$ forward and
-$F$ inverse transforms is outweighed by cost of $FC$ mixing processes, which
-should in turn be significantly less than the cost of $FC$ $K\x K$ standard
-convolutions for equivalent spatial sizes.
-
-
-\subsection{Examples}
-\autoref{fig:ch6:example_impulses} show example impulse responses of our layer.
-These impulses were generated by randomly initializing both the real and
-imaginary parts of $g_2 \in \complexes[6\x 1\x 1]$ from $\mathcal{N}(0,1)$ and
-$g_1, g_{lp}$ are set to 0. I.e. each shape has 12 random variables. It is good
-to see that there is still a large degree of variability between shapes. Our
-experiments have shown that the distribution of the normalized cross-correlation
-between 512 of such randomly generated shapes matches the distribution for
-random vectors with roughly 11.5 degrees of freedom.
-
-\begin{algorithm}[t]
-\caption{$\DTCWT$ gain layer forward and backward passes}\label{alg:ch6:gain}
-\begin{algorithmic}[1]
-\Procedure{GAINFWD}{$x, w_l, $}
-  \State $yl,\ yh \gets \DTCWT(x^l, \mbox{nlevels}=1) $ \Comment{yh has 6
-  orientations and is complex}
-  \State $U \gets \F{COMPLEXMAG}(yh)$
-  \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample and recentre lowpass
-  to match U size}
-  \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{concatenated along the
-  channel dimension}
-  \State $Y \gets AZ$ \Comment{Mix}
-  \State \textbf{save} $Z$ \Comment{For the backwards pass}
-  \State \textbf{return} $Y$ 
-\EndProcedure
-\end{algorithmic}\vspace{10pt}
-\begin{algorithmic}[1]
-\Procedure{GAINBWD}{$\dydx{L}{Y},\ A$}
-  \State \textbf{load} $Z$
-  \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$ \Comment{The weight gradient}
-  \State $\Delta{Z} \gets A^T\dydx{L}{Y}$
-  \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
-  \State $\Delta yl \gets \F{AVGPOOL2x2BWD}(\Delta yl)$
-  \State $\Delta yh \gets \F{COMPLEXMAGBWD}(\Delta U)$
-  \State $\dydx{L}{x} \gets \F{\DTCWT BWD}(\Delta yl,\ \Delta yh)$ \Comment{The propagated gradient}
-  \State \textbf{return} $\dydx{L}{x},\ \dydx{L}{A}$
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-
+Algorithm~\autoref{alg:ch6:inv}.
+\input{\path/algorithm1}
