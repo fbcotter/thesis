@@ -1,145 +1,120 @@
-\section{Related Work}\label{sec:ch6:related}
+\section{Background and Notation}
+As we now want to consider the DWT and the $\DTCWT$ which are both implemented
+as filter bank systems, we deviate slightly from the notation in the previous
+chapter (which was inspired by sampling a continuous wavelet transform). 
 
-\subsection{Wavelets as a Front End}
-Fujieda et.\ al.\ use a DWT in combination with a
-CNN to do texture classification and image annotation 
-\cite{fujieda_wavelet_2017, fujieda_wavelet_2018}. In particular, they take a
-multiscale wavelet transform of the input image, combine the actviations at each
-scale independently with learned weights, and feed these back into the network
-where the activation resolution size matches the subband resolution. The
-architecture block diagram is shown in \autoref{fig:ch6:fujieda}, taken from the
-original paper.  This work found that their dubbed `Wavelet-CNN' could
-outperform competetive non wavelet based CNNs on both texture classification and
-image annotation.
+Firstly, instead of talking about the continuous spatial variable $\xy$, we now
+consider the discrete spatial variable $\nn = [n_1, n_2]$. We switch to square 
+brackets to make this clearer. With the new discrete notation, the output of a CNN at layer $l$ is:
+%
+\begin{equation}
+  \cnndlact{x}{l}{c}{\nn}, \quad c\in \{0, \ldots C_l-1\}, \nn \in \integers[2]
+\end{equation}
+%
+where $c$ indexes the channel dimension. 
+We also make use of the 2-D $Z$-transform to simplify our analysis:
+%
+\begin{equation}
+  X(\zz) = \sum_{n_1}\sum_{n_2} x[n_1, n_2]z_1^{-n_1}z_2^{-n_2} =
+  \sum_{\nn}x[c, \nn]\zz^{-\nn}
+\end{equation}
+%
+As we are working with three dimensional arrays (two spatial and one channel) but are
+only doing convolution in two, we introduce a slightly modified 2-D $Z$-transform
+which includes the channel index:
+%
+\begin{equation}
+  X(c, \zz) = \sum_{n_1}\sum_{n_2} x[c, n_1, n_2]z_1^{-n_1}z_2^{-n_2} =
+  \sum_{\nn}x[c, \nn]\zz^{-\nn} \label{eq:ch6:ztransform}
+\end{equation}
 
-\begin{figure}[bt]
-  \centering
-  \includegraphics[width=\textwidth]{\imgpath/wavelet_CNN_3.pdf}
-  \mycaption{Architecture using the DWT as a frontend to a CNN}{Figure 1 from
-  \cite{fujieda_wavelet_2018}. Fujieda et.\ al.\ take a multiscale wavelet
-  decomposition of the input before passing the input through a standard
-  CNN\@. They learn convolutional layers independently on each subband and feed
-  these back into the network at different depths, where the resolution of the
-  subband and the network activations match.}
-  \label{fig:ch6:fujieda}
-\end{figure}
+Recall that a typical convolutional
+layer in a standard CNN gets the next layer's output in a two-step process:
+%
+\begin{eqnarray} 
+  \cnndlact{y}{l+1}{f}{\nn} &=& \sum_{c=0}^{C_l - 1} \cnndlact{x}{l}{c}{\nn} \conv \cnndfilt{l}{f}{c}{\nn}
+    \label{eq:ch6:conv}\\
+    \cnndlact{x}{l+1}{f}{\xy} & = & \sigma \left( \cnndlact{y}{l+1}{f}{\xy} \right) \label{eq:ch6:nonlin}
+\end{eqnarray}
+%
+In shorthand, we can reduce the action of the convolutional layer in \eqref{eq:ch6:conv} to $\mathcal{H}$, saying:
+\begin{equation}
+  y^{(l+1)} = \mathcal{H}x^{(l)}
+\end{equation}
 
-Several works also use wavelets in deep neural networks for super-resolution
-\cite{guo_deep_2017} and for adding detail back into dense pixel-wise
-segmentation tasks \cite{ma_detailed_2018}. These typically save wavelet
-coefficients and use them for the reconstruction phase, so are a little less
-applicable than the first work.
+With the new $Z$-transform notation introduced in \eqref{eq:ch6:ztransform}, we
+can rewrite \eqref{eq:ch6:conv} as:
 
-\subsection{Parameterizing filters in Fourier Domain}
-In \citetitle{rippel_spectral_2015} \cite{rippel_spectral_2015}, Rippel et.\
-al.\ explore parameterization of filters in the DFT domain.  Note that they do
-not necessarily do the convolution in the Frequency
-domain, they simply parameterize a filter $\vec{w} \in \reals[F\x C\x K\x K]$ as
-a set of fourier coefficients $\hat{\vec{w}} \in \complexes[F\x C\x K \x \ceil{K/2}]$
-(the reduced spatial size is a result of enforcing that the inverse DFT of their
-filter to be real, so the parameterization is symmetric). On the forward pass of
-the neural network, they take the inverse DFT of $\hat{\vec{w}}$ to obtain
-$\vec{w}$ and then convolve this with the input $\vec{x}$ as a normal CNN
-would do.\footnote{The convolution may be done by taking both the image and
-filter back into the fourier space but this is typically decided by the
-framework, which selects the optimal convolution strategy for the filter and
-input size. Note that there is not necessarily a saving to be gained by
-enforcing it to do convolution by product of FFTs, as the FFT size needed for
-the filter will likely be larger than $K\x K$, which would require resampling
-the coefficients}. 
+\begin{equation}
+  \cnnlact{Y}{l+1}{f}{\zz} = \sum_{c=0}^{C_l - 1} \cnnlact{X}{l}{c}{\zz}
+  H_f^{(l)}(c, \zz)
+\end{equation}
+%
+Note that we cannot rewrite \eqref{eq:ch6:nonlin} with $Z$-transforms as it is a nonlinear
+operation.
 
-% Note that this is almost identical to a normal CNN, except it allows for
-% slightly a reworked filter initialization and optimization. In fact, with linear optimizers
-% such as SGD or momentum and using \ltwo regularization, this work is equivalent to
-% do regular pixel domain convolution but applying is as well as 
-% affecting optimizers that keep track of past updates (such as SGD with momentum, 
-% Adam \cite{kingma_adam:_2014} or Adagrad). \autoref{fig:rippel_spectral_figs}
-% shows the fourier and spatial representation of some of the filters in
-% \cite{rippel_spectral_2015}, as well as histograms showing the sparsity of
-% parameters and momenta for parameter updates. The lower mean in the distribution
-% of parameter momenta indicates that fewer parameters are being updated in a
-% constant direction.
+Also recall that with multirate systems, upsampling by $M$ takes $X(z)$ to
+$X(z^M)$ and downsampling by $M$ takes $X(z)$ to $\frac{1}{M}\sum_{k=0}^{M-1} X(W_M^k
+z^{1/k})$ where $W_M^k = e^{\frac{j2\pi k}{M}}$. We will drop the $M$ subscript
+below unless it is unclear of the sample rate change, simply using $W^k$.
 
-% \subsubsection{Regularization}
-% Due to Parseval's theorem, it is clear that applying an L2 regularization on the
-% filter weights :
+\subsection{DWT Notation}
+In 2-D, a $J$ scale DWT gives $3J+1$ coefficients, 3 sets of bandpass
+coefficients for each scale, representing the horizontal, vertical and diagonal
+regions of the frequency plane, and 1 set of lowpass coefficients at the final
+scale. Let us refer to the DWT wavelet coefficients with the typewriter font
+$\mathtt{u}$ and write the $J$ scale DWT as:
 
-% $$\sum_i \lnorm{w_i}{2}^2 = \sum_i \lnorm{\hat{w}_i}{2}^2 = \sum_i
-  % \lnorm{\real{\hat{w_i}}}{2}^2 + \lnorm{\imag{\hat{w_i}}}{2}^2 $$
+\begin{equation}
+  \F{DWT}_J(x) = \mathtt{u}_{lp}, \{\mathtt{u}_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 3}
+  \label{eq:ch6:dwt_coeffs}
+\end{equation}
 
-% However can apply L1 regularization on the complex magnitude of the DFT filter
-% weights to impose spectral sparsity.
+If $x$ is a batch of 2-D images with multiple channels, the DWT is done
+indpendently on each channel in each minibatch sample. I.e.\ if the input is a
+minibatch of $N$ samples with $C$ channels of images of spatial size $H\x W$,
+then $x \in \reals[N\x C\x H\x W]$ and:
+%
+\begin{eqnarray}
+  \mathtt{u}_{lp} &\in & \reals[N\x C\x \frac{H}{2^{J}} \x \frac{W}{2^{J}}] \\
+  \mathtt{u}_{j,k} &\in & \reals[N\x C\x \frac{H}{2^{J}}\x \frac{W}{2^{J}}]
+\end{eqnarray}
 
+Sometimes we may want to refer to all of the subband coefficients at a single scale
+with one variable, in which case we will simply drop the $k$ subscript 
+and call them $\mathtt{u}_{j}$. Additionally if we want to refer to all the
+coefficients (lowpass and bandpass) we will call them $\mathtt{u}$.
 
-% In fact it can easily be seen that any optimizer that uses linear combinations
-% of gradients makes this new parameterization identical to parameterization in
-% the spatial domain. Optimizers like Adam and Adagrad however have update rules
-% that are not simply linear combinations of past gradients and so this affects
-% the learning trajectory. For Adam, there is a step where the gradients are
-% squared to estimate the variance of the parameter updates. 
+\subsection{$\DTCWT$ Notation}
+Unlike the DWT, a $J$ scale $\DTCWT$ gives $6J+1$ coefficients, 6 sets of complex
+bandpass coefficients for each scale (representing the oriented bands from 15 to 165
+degrees) and 1 set of real lowpass coefficients. 
 
-% This shows that any work involving reparametrizing or rethinking filter
-% convolution must be careful in what is done.
+Although we will only ever use either the DWT or the $\DTCWT$, to avoid
+confusion we use a regular font $u$ to refer to the $\DTCWT$ coefficients of
+$x$:
 
-% Further to this, while the inspiration for the work comes from wanting to remain
-% in the frequency domain, it is unsatisfying to simply parameterize filters there
-% and then take the inverse DFT and perform normal convolution. Ideally we would
-% like to fully take advantage of the benefits of a frequency representation.
+\begin{equation}
+  \DTCWT_J(x) = u_{lp}, \{u_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 6}
+  \label{eq:ch6:dtcwt_coeffs}
+\end{equation}
 
-% \begin{figure}
-  % \centering
-  % \includegraphics[width=\textwidth]{\imgpath/rippel.png}
-  % \mycaption{Learning Dynamics of CNNs with DFT parameterization}{(a)
-  % Progression over several epochs of filters parametrized in the frequency
-  % domain. The left column shows the parameterized filter and the right column
-  % its inverse DFT. (b) Sparsity patterns for different parameterizations -
-  % spectral representations tend to be sparser. (c) Momenta distributions for
-  % parameters of CNNs trained with and without spectral parameterization. In the
-  % spectral parameterization fewer parameters are updated.  Image taken from
-  % \cite{rippel_spectral_2015}.}
-  % \label{fig:rippel_spectral_figs}
-% \end{figure}
+Each of these coefficients then has size:
+%
+\begin{eqnarray}
+  u_{lp} &\in & \reals[N\x C\x \frac{H}{2^{J-1}} \x \frac{W}{2^{J-1}}] \\
+  u_{j,k} &\in & \complexes[N\x C\x \frac{H}{2^{J}}\x \frac{W}{2^{J}}]
+\end{eqnarray}
+%
+Note that the lowpass coefficients are twice as large as in a fully decimated
+transform, a feature of the redundancy of the $\DTCWT$.
 
+Again if we ever want to refer to all the subbands at a given scale, we will
+drop the $k$ subscript and call them $u_j$. Likewise, $u$ refers to the whole
+set of $\DTCWT$ coefficients.
 
-% \subsection{Spectral Pooling}
-% The Spectral Pooling method introduced in \cite{rippel_spectral_2015} is
-% described in the paper as:
+When we want to be agnostic of the chosen transform type, we use
+$\mathcal{W}$ and $\mathcal{W}^{-1}$ to denote the forward and inverse
+transform.
 
-% \begin{quote}
-  % We assume we are given an input $\vec{x}\in \reals[M\x N]$, and some desired
-  % output map dimensionality $H \x W$. First we compute the discrete Fourier
-  % transform of the input into the frequency domain as $y = \mathcal{F}(\vec{x})
-  % \in \complexes[M\x N]$, and assume that the DC componenet has been shifted to
-  % the center of the domain as is standard practice. We then crop the frequency
-  % representation by maintaining only the central $H\x W$ submatrix of
-  % frequencies, which we denote as $\hat{\vec{y}} \in \complexes[H\x W]$. Finally, we
-  % map this approximation back into the spatial domain by taking its inverse DFT
-  % as $\hat{\vec{x}} = \mathcal{F}^{-1}(\hat{\vec{y}}) \in \reals[H\x W]$.
-% \end{quote}
-
-% While they have chosen to do this in the Fourier domain, this could also be
-% achieved by convolving with a separable, resampled 2D sinc function of the
-% appropriate frequencies for the horizontal and vertical directions:
-
-% $$\hat{\vec{x}} = \frac{HW}{MN} \vec{x} \conv \F{sinc}(\frac{Hn_y}{M}) \conv
-% \F{sinc}(\frac{Wn_x}{N})$$
-
-% where $n_x \in \{??\}, n_y \in \{??\}$. Of course, sincs have infinite support
-% in the time domain, so to achieve a similar result to spectral pooling you would
-% have to convolve with windowed sincs, or do some other form of similar low pass
-% filtering with resampling. In \cite{williams_wavelet_2018} they do exactly this
-% and call it `wavelet pooling', which is just keeping the low-low output of a
-% separable 2D DWT, or simply convolving with a separable lowpass filter. They
-% experimentally showed that this was equivalent to spectral and average pooling.
-
-% Note that speed ups could be achieved here if the convolution is done in the
-% Fourier domain, as it would involve only computing the reduced spectrum size
-% before taking inverse DFTs.
-
-
-% \begin{enumerate}
-  % \item the layers can easily replace standard convolutional layers if they
-    % accept and return the same format;
-  % \item we can learn both in the wavelet and pixel space.
-% \end{enumerate}
 

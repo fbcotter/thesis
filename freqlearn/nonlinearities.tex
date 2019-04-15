@@ -30,6 +30,35 @@ In this section we will look at each, see if they add to the first order gain
 layer, and see if they open the possibility of having multiple layers in the
 wavelet domain. 
 
+\subsection{Some Notation}
+To be in keeping with the style of \eqref{eq:ch6:conv} and
+\eqref{eq:ch6:nonlin}, let us call the output after applying a nonlinearity to
+the mixed coefficients $v$, $u$ again, but increase the layer depth superscript. 
+
+Additionally, to avoid having to write out all equations in \eqref{eq:ch6:glp}
+to \eqref{eq:ch6:gj6}, let us write the action of the layer to all the
+coefficients independently as $\mathcal{G}$. As 
+
+\begin{equation}
+  v^{(l)}_{lp},\ v^{(l)}_1 = \mathcal{G}\left(u^{(l)}_{lp}, u^{(l)}_1\right)
+\end{equation}
+
+For example, consider the pixel domain 
+activation at layer $l$ of the network. So far, we have called this $x^{(l)}$.
+If we were to take the $\DTCWT$ of $x^{(l)}$, we would get the lowpass 
+coefficients $u^{(l)}_{lp}$, and a set of bandpass coefficients $u^{(l)}_{j,k}$.
+Mixing these with our $g$ filters for the layer then give us $v^{(l+1)}_{lp}$ and 
+$v^{(l+1)}_{j,k}$. Applying a nonlinearity to these $v^{(l+1)}$ coefficients gives us
+$u^{(l+1)}$:
+
+\begin{eqnarray}
+  u^{(l)}_{lp},\ u^{(l)}_{j,k} & = & \DTCWT(x^{(l)}) \\
+  v^{(l)}_{lp},\ v^{
+  v^{(l)}_{lp}  & = & \sum_{c=0}^{C_l-1} u_{lp} \conv g_{lp} \\
+  \vec{v}^{(l)}_{1}  & = & \sum_{c=0}^{C_l-1} u_{lp} \conv g_{lp} \\
+  v_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
+  v_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
+\end{eqnarray}
 \subsection{ReLUs in the Wavelet Domain}
 A ReLU could be applied to the real lowpass coefficients with ease, but it does
 not generalize so easily to complex coefficients. One option could be to apply
