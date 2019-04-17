@@ -1,20 +1,20 @@
 \begin{tikzpicture}
-    \matrix (m1) [row sep=5mm, column sep=6mm,align=center,anchor=center]
+    \matrix (m1) [minimum height=4mm, column sep=6mm, align=center]
 	{
 	%--------------------------------------------------------------------
 		\node[coordinate]                  (m00) {};    &
 		\node[coordinate]                  (m01) {};          &
-		\node[dspsquare]                   (m02) {$A(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m03) {\downsamplertext{M}}; &
-		\node[dspnodeopen,dsp/label=above] (m04) {$U_a(z)$};          &
-    \node[rectangle,draw,inner sep=2pt](m05) {$G_{aa}(z)$}; &
-		\node[dspnodeopen,dsp/label=above] (m06) {$V_a(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m07) {\upsamplertext{M}}; &
-		\node[dspsquare]                   (m08) {$C(z)$};          &
+		\node[dspsquare]                   (m02) {$A_0(z)$};          &
+		\node[circle,draw,inner sep=1pt]   (m03) {\downsamplertext{2}}; &
+    \node[dspnodeopen,dsp/label=above] (m04) {$U_{0}(z)$};          &
+    \node[dspsquare]                   (m05) {$G_{0}(z)$}; &
+		\node[dspnodeopen,dsp/label=above] (m06) {$V_0(z)$};          &
+		\node[circle,draw,inner sep=1pt]   (m07) {\upsamplertext{2}}; &
+		\node[dspsquare]                   (m08) {$S_0(z)$};          &
 		\node[coordinate]                  (m09) {};          &
 		\node[coordinate]                  (m0X) {};          \\
 		%--------------------------------------------------------------------
-		\node[]                            (m10) {$X(z)$};          &
+		\node[dspnodefull]                 (m10) {$X(z)$};          &
 		\node[coordinate]                  (m11) {};          &
 		\node[coordinate]                  (m12) {};    &
 		\node[coordinate]                  (m13) {};          &
@@ -24,21 +24,21 @@
 		\node[coordinate]                  (m17) {};          &
 		\node[coordinate]                  (m18) {};    &
 		\node[dspadder]                    (m19) {};          &
-    \node[]                            (m1X) {$Y(z)$};          \\
+		\node[]                            (m1X) {};          \\
 		%--------------------------------------------------------------------
 		\node[coordinate]                  (m20) {};    &
 		\node[coordinate]                  (m21) {};          &
-		\node[dspsquare]                   (m22) {$B(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m23) {\downsamplertext{M}}; &
-		\node[dspnodeopen,dsp/label=below] (m24) {$U_b(z)$};          &
-      \node[rectangle,draw,inner sep=2pt](m25) {$G_{bb}(z)$}; &
-		\node[dspnodeopen,dsp/label=below] (m26) {$V_b(z)$};          &
-		\node[circle,draw,inner sep=1pt]   (m27) {\upsamplertext{M}}; &
-		\node[dspsquare]                   (m28) {$D(z)$};          &
+		\node[dspsquare]                   (m22) {$A_1(z)$};          &
+		\node[circle,draw,inner sep=1pt]   (m23) {\downsamplertext{2}}; &
+		\node[dspnodeopen,dsp/label=below] (m24) {$U_1(z)$};          &
+    \node[dspsquare]                   (m25) {$G_{1}(z)$}; &
+		\node[dspnodeopen,dsp/label=above] (m26) {$V_1(z)$};          &
+		\node[circle,draw,inner sep=1pt]   (m27) {\upsamplertext{2}}; &
+		\node[dspsquare]                   (m28) {$S_1(z)$};          &
 		\node[coordinate]                  (m29) {};          &
 		\node[coordinate]                  (m2X) {};          \\
 		%--------------------------------------------------------------------
-  };
+	};
 	\draw[dspline] (m10) -- (m11);
 	\draw[dspline] (m11) -- (m01);
 	\draw[dspline] (m11) -- (m21);
@@ -52,12 +52,9 @@
     	\draw[dspconn] (m\i7) -- (m\i8);
     	\draw[dspline] (m\i8) -- (m\i9);
 	}
-	%\draw[dspflow] (m04) --  (m06);
-	%\draw[dspflow] (m24) -- (m26);
-  \draw[dspconn] (m24) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$G_{ba}(z)$} (m06);
-  \draw[dspconn] (m04) -- node[draw,pos=0.7,inner sep=2pt,fill=white] {$G_{ab}(z)$} (m26);
-  \draw[dspconn] (m09) -- node[right] {$Y_a(z)$} (m19);
-  \draw[dspconn] (m29) -- node[right] {$Y_b(z)$} (m19);
+  \draw[dspconn] (m09) -- (m19);
+  \draw[dspconn] (m29) -- (m19);
 	\draw[dspconn] (m19) -- (m1X);
 	
 \end{tikzpicture}
+

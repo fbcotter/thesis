@@ -2,7 +2,7 @@
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\textwidth]{\imgpath/fwd_chain.jpg}
+  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chain.jpg}
   \mycaption{Proposed new forward pass in the wavelet domain}{Two network 
   layers with some possible options for processing. Solid lines denote the
   evaluation path and dashed lines indicate relationships. In (a) we see a
@@ -52,19 +52,6 @@ to do this we must first explore:
   \item How effective $\sigma_w$ is at replcaing $\sigma$.
 \end{itemize}
 
-% \subsection{Aliasing in the DWT}
-% Consider a single level critically sampled DWT in 1-D. The aliasing cancelling
-% condition is:
-
-% $$G_0(z)H_0(-z) + G_1(z)H_1(-z) = 0$$
-
-% This is typically solved by using Quadrature Mirror Filters, i.e.
-
-% \begin{align}
-  % H_1(z) &= H_0(-z) \\
-  % G_0(z) &= H_0(z) \\
-  % G_1(z) &= -H_1(z) = -H_0(-z) 
-% \end{align}
 
 \subsection{The DWT Gain Layer}
 As mentioned previously, modifying the wavelet coefficients of a critically
@@ -77,15 +64,79 @@ For each subband in our $J$ scale system, we introduce a gain term $\mathtt{g}$.
 input $\mathtt{u}$ has $C_l$ channels, and we would like our output $\mathtt{v}$
 to have $C_{l+1}$ channels, then $\mathtt{g}$ is made up of:
 \begin{eqnarray}
-  \mathtt{g}_{lp} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w] \label{eq:ch6:glp} \\
-  \mathtt{g}_{1,1} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w] \\
-  \mathtt{g}_{1,2} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w] \\
+  \mathtt{g}_{lp} &\in& \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:dwt_gstart} \\
+  \mathtt{g}_{1,1} &\in& \reals[C_{l+1}\x C_l\x k_{1}\x k_{1}] \\
+  \mathtt{g}_{1,2} &\in& \reals[C_{l+1}\x C_l\x k_{1}\x k_1] \\
       & \vdots &\\
-  g_{J,3} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w]  \label{eq:ch6:gj3}
+  \mathtt{g}_{J,3} &\in& \reals[C_{l+1}\x C_l\x k_J\x k_J] \label{eq:ch6:dwt_gend}
 \end{eqnarray}
- 
-\subsection{$\DTCWT$ Multiple Subband Gains}\label{sec:ch6:multiple_subbands}
+%
+Note that we have allowed for different kernel spatial sizes for the lowpass and for
+each bandpass scale $\mathtt{g}_j$. This is to allow for the flexibility of
+putting more emphasis on certain frequency areas if desired.
 
+With these gains, we define $\mathtt{v}=\mathtt{Gu}$ to be:
+\begin{eqnarray}
+  \mathtt{v}_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{lp}[c, \nn] \conv \mathtt{g}_{lp}[f, c, \nn] \\
+  \mathtt{v}_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{1,1}[c, \nn] \conv \mathtt{g}_{1,1}[f, c, \nn] \\
+  \mathtt{v}_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{1,2}[c, \nn] \conv \mathtt{g}_{1,2}[f, c, \nn] \\
+                  & \vdots & \\
+  \mathtt{v}_{J,3}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{J,3}[c, \nn] \conv \mathtt{g}_{J,3}[f, c, \nn] 
+\end{eqnarray}
+%
+I.e., we do independent mixing at each of the different subbands. For $1\x 1$
+kernels, this is simply a matrix multiply of the wavelet coefficients. This is shown
+visually in \autoref{fig:ch6:dwt_blk_diagram}.
+
+\subsubsection{The Output}
+
+\begin{figure}[ht!]
+  \centering
+  \input{\imgpath/dwt_gain}
+  \mycaption{Block Diagram of 1-D DWT Gain Layer}{Here we show the low and
+  highpass for a single scale 1-D DWT, Gain Layer and inverse DWT. The gain layer
+  has gains $\mathtt{g}_0$ and $\mathtt{g}_1$.}
+  \label{fig:ch6:dwt_gain}
+\end{figure}
+
+To explore the action of the gain layer $\mathtt{G}$ on DWT coefficients, let
+use examine a 1-D, single scale, and single channel system. We want to find the
+transfer function excluding the nonlinearities, i.e., the transfer function of
+\begin{equation}
+y = \mathcal{W}^{-1}\mathtt{G}\mathcal{W}x
+\end{equation}
+or the path taken in \autoref{fig:ch6:fwd_chain}b. 
+
+Let us call the low and highpass analysis filters of the DWT $A_0$ and $A_1$,
+and the synthesis filters $S_0$ and $S_1$ (these are normally called $H$ and
+$G$, but we keep those letters reserved for the CNN and gain layer filters). 
+From the perfect reconstruction property of the DWT, we know 
+\begin{equation}
+  A_0(z)S_0(z) + A_1(z)S_1(z) = 2
+\end{equation}
+and from the aliasing cancellation property of the DWT, we know:
+\begin{equation}
+  A_0(-z)S_0(z) + A_1(-z)S_1(z) = 0
+\end{equation}
+%
+If we add in gains $G_0$ and $G_1$ to the low and highpass coefficients, as
+shown in \autoref{fig:ch6:dwt_gain}, then the output is:
+\begin{equation}
+  \begin{split}
+   Y(z) =& \frac{1}{2} X(z) \left[A_0(z)S_0(z)G_0(z^2) + A_1(z)S_1(z)B(z^2) \right] + \\
+         & \frac{1}{2}X(-z) \left[A_0(-z)S_0(z)G_0(z^2) + A_1(-z)S_1(z)G_1(z^2) \right]
+\end{split}
+\end{equation}
+If we let $D(z) = G_1(z^2) - G_0(z^2)$ then the above becomes:
+\begin{equation}
+   Y(z) = \frac{1}{2} X(z) \left[A_0(z)S_0(z)G_0(z^2) + A_1(z)S_1(z)B(z^2) \right] + \frac{1}{2}X(-z)D(z)A_1(-z)S_1(z)
+\end{equation}
+ 
+\subsection{The $\DTCWT$ Gain Layer}
+
+The $\DTCWT$ gain layer is the same in principle to the action of the DWT gain
+layer, but due to the different properties of the two transforms, the
+implementation is slightly different. 
 Now that we have the framework for applying a complex gain at one subband, we
 can extend this to all of the subbands in the $\DTCWT$. We also reintroduce the channel
 dimension. 
@@ -94,19 +145,18 @@ To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
 output channels, we introduce the learnable filters:
 %
 \begin{eqnarray}
-  g_{lp} &\in& \reals[C_{l+1}\x C_l\x k_h\x k_w] \label{eq:ch6:glp} \\
-  g_{1,1} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
-  g_{1,2} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w] \\
+  g_{lp} &\in& \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:glp} \\
+  g_{1,1} &\in& \complexes[C_{l+1}\x C_l\x k_1\x k_1] \\
+  g_{1,2} &\in& \complexes[C_{l+1}\x C_l\x k_1\x k_1] \\
       & \vdots &\\
-  g_{J,6} &\in& \complexes[C_{l+1}\x C_l\x k_h\x k_w]  \label{eq:ch6:gj6}
+  g_{J,6} &\in& \complexes[C_{l+1}\x C_l\x k_J\x k_J]  \label{eq:ch6:gj6}
 \end{eqnarray}
 %
-where $k_h, k_w$ are the sizes of the mixing kernels. These could be $1\x 1$ for
+where $k, k$ are the sizes of the mixing kernels. These could be $1\x 1$ for
 simple gain control, or could be larger, say $3\x 3$, to do more complex
-filtering on the subbands. Let us index the lowpass filters $g_{lp}$ and the
-bandpass filters $g_{j,k}$ as $g_{lp}[f, c, \nn]$ and $g_{j,k}[f, c, \nn]$.
+filtering on the subbands. 
 
-With these gains we create new coefficients:
+With these gains we define $v = Gu$ to be:
 \begin{eqnarray}
   v_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
   v_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
@@ -115,11 +165,42 @@ With these gains we create new coefficients:
   v_{J,6}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
 \end{eqnarray}
 
-I.e., we do independent mixing at each of the different subbands. For $1\x 1$
-kernels, this is simply a matrix multiply of the wavelet coefficients. Note that
-for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
-b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$.
+Note that for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
+b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$. This is shown 
+in \autoref{fig:ch6:dtcwt_blk_diagram}.
 
+\subsubsection{The Output}
+Unlike the DWT gain layer, the $\DTCWT$ gain layer can achieve aliasing
+cancelling and therefore has a transfer function. The proof of this is done in
+\autoref{app:ch6:dtcwt}. 
+
+For a single subband in the $\DTCWT$. \textbf{FINISH ME}
+
+\begin{figure}[t!]
+  \centering
+  \subfloat[]{%
+    \resizebox{\textwidth}{!} {\input{\imgpath/block_diagram_dwt}}
+    \label{fig:ch6:dwt_blk_diagram}
+  }\newline
+  \vspace{1cm}
+  \subfloat[]{%
+    \resizebox{\textwidth}{!} {\input{\imgpath/block_diagram_dtcwt}}
+    \label{fig:ch6:dtcwt_blk_diagram}
+  }
+  \mycaption{Block diagram of proposed DWT and $\DTCWT$ gain layers for $J=1$}{
+  Activations are shaded blue and learned parameters red. Darker shades of
+  blue and red indicate complex valued activations and weights, whereas the
+  lighter shades indicate purely real values. The input $x^{(l)}\in
+  \mathbb{R}^{C_l\x H\x W}$ is taken into the wavelet domain and each subband is
+  mixed independently with $C_{l+1}$ sets of convolutional filters.  After
+  mixing, a possible wavelet based nonlinearity $\sigma_w$ is applied to the
+  subbands, before returning to the pixel domain with an inverse $\DTCWT$.
+  Figure~\autoref{fig:ch6:dwt_blk_diagram} shows the DWT gain layer, with only 3
+  subbands and fewer learnt parameters, this is the simpler layer.
+  Figure~\autoref{fig:ch6:dtcwt_blk_diagram} shows the $\DTCWT$ gain layer. With 6
+  complex subbands and a larger lowpass, this is the more complex layer.}
+  \label{fig:ch6:block_diagrams}
+\end{figure}
 
 \subsection{Examples}
 \autoref{fig:ch6:dtcwt_bands} show example impulse responses of our layer.
@@ -135,4 +216,34 @@ random vectors with roughly 11.5 degrees of freedom.
 for a two scale $\DTCWT$ as well as some of the equivalent impulse responses for
 a randomly initialized set of $g$ filters.
 
-\input{\imgpath/figure1}
+\begin{figure}
+  \centering
+  \subfloat[]{%
+    \includegraphics[height=6cm]{freqlearn/images/subbands.png}
+    \label{fig:ch6:dtcwt_bands_freq}
+  }
+  \hspace{1cm}
+%    \newline
+  \subfloat[]{%
+    \includegraphics[height=5.7cm]{freqlearn/images/impulses.png}
+    \label{fig:ch6:dtcwt_bands_impulse}
+  }
+  \newline
+  \subfloat[]{%
+    \includegraphics[width=\textwidth]{freqlearn/images/examples_scale2.png}
+    \label{fig:ch6:example_impulses}
+  }
+  \mycaption{Frequency and Spatial support proposed gain layer}{\subref{fig:ch6:dtcwt_bands_freq} Contour plots at
+    -1dB and -3dB showing the support in the Fourier domain of the 6 subbands of
+    the $\DTCWT$ at scales 1 and 2, and the scale 2 lowpass. These are the 
+    product $P(z)Q(z)$ from \autoref{eq:ch6:end_to_end1}.%
+    \subref{fig:ch6:dtcwt_bands_impulse} The pixel domain impulse responses for
+    the second scale wavelets. \subref{fig:ch6:example_impulses} Example
+    impulses of our layer when $g_1$, and $g_{lp}$ are 0 and 
+    $g_2 \in \mathbb{C}^{6\x 1\x 1}$, with each real and imaginary element 
+    drawn from $\mathcal{N}(0,1)$. I.e., only information in the 6 subbands with 
+    $\frac{\pi}{4} < |w_1|, |w_2| < \frac{\pi}{2}$ from 
+    \subref{fig:ch6:dtcwt_bands_freq} is passed through.} 
+  \label{fig:ch6:dtcwt_bands}
+\end{figure}
+

@@ -1,4 +1,4 @@
-\section{Experiments}\label{sec:ch6:results}
+\section{Gain Layer Experiments}\label{sec:ch6:gainlayer_experiments}
 To explore the effectiveness of our gain layer, we do a similar ablation study
 to \autoref{sec:ch5:conv_exp} on CIFAR-10, CIFAR-100 and Tiny ImageNet. We use
 the same reference network so that we can also compare the wavelet gain layer to the
@@ -6,6 +6,12 @@ invariant layer (see \autoref{tab:ch5:cifar_tiny_arch}). We also use the same
 naming technique, calling a network `gainX' means that the `convX' layer was
 replaced with a wavelet gain layer, but otherwise keeping the rest of the
 architecture the same. 
+
+In this section, we are only exploring the wavelet gain layer and not any
+wavelet nonlinearities. This equates to the path shown in \autoref{fig:ch6:fwd_chain}b. 
+I.e\. we are taking wavelet transforms of inputs, applying the gain layer and
+taking inverse wavelet transforms to do a ReLU in the pixel space. In cases like
+`gainA, gainB' from \autoref{tab:}, we go in and out of the wavelet layer twice.
 
 We train all our networks for with stochastic gradient descent with momentum.
 The initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and

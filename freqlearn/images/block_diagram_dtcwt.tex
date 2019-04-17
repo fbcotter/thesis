@@ -1,0 +1,253 @@
+\begin{tikzpicture}[%
+  path image/.style={%
+    path picture={%
+      \node at (path picture bounding box.center) {%
+        \includegraphics[height=2.0cm]{#1}
+      };
+    }
+  }, 
+  path pic/.style={%
+    path picture={%
+      \node at (path picture bounding box.center) {%
+        \includegraphics[height=0.8cm]{#1}
+      };
+    }
+  }, 
+  scale=0.6]
+  \draw (-1, 0.8, 3.5) node {\Large{$x^{(l)}$}};
+  \draw (8.5, 2.5, 0) node {\Large{$u^{(l)}$}};
+  \draw (9.7, 2.3, 0) node {\Large{$\conv$}};
+  \draw (11, 2.5, 0) node {\Large{$g^{(l)}$}};
+  \draw (15, 2.5, 0) node {\Large{$v^{(l+1)}$}};
+  \draw (18.5, 2.5, 0) node {\Large{$u^{(l+1)}$}};
+  \draw (25, 0.8, 3.5) node {\Large{$x^{(l+1)}$}};
+  \draw[<->] (10, -1, -2) -- (10, 0.9, -2) node[near end, right] {$C_{l+1}$};
+  \tikzcuboid{
+  shiftx=-2.5cm,
+  shifty=-2.5cm,
+  shiftz=7,
+  scale=0.5,
+  anglex=0, 
+  angley=90, 
+  anglez=230,
+  dimx=3, 
+  dimy=3, 
+  dimz=6,
+  densityx=1, 
+  densityy=1, 
+  densityz=1,
+  shade=false,
+  emphedge=true,
+  shadeopacity=0,
+  emphstyle/.style={rounded corners=0.2pt,line width=0.3mm},
+  front/.style={draw=blue!50!white,fill=blue!50!white},%
+  right/.style={draw=blue!50!white,fill=blue!50!white},%
+  top/.style={draw=blue!50!white,fill=blue!50!white},%
+  drawxdims=true,
+  dimxval=W,
+  drawydims=true,
+  dimyval=H,
+  drawzdims=true,
+  dimzval=C_l,
+  }
+  \draw [decorate,decoration={brace,mirror,amplitude=10pt,raise=4pt},yshift=0pt]
+    (3.8,-2.5,-8) -- (4.8,-2.5,18) node [black,midway,xshift=0.8cm];
+  \draw [->, fill=gray!30,ultra thick] (0.5, -2.5, 4) -- (2.5, -2.5, 4)
+    node[midway, above] {$\DTCWT$};
+
+  % Draw the 6 subband activations and their filters
+  \foreach \i in {1,...,5} {
+    \tikzcuboid{
+    shiftx=6cm,
+    shifty=-2.0cm,
+    shiftz=-15+5*\i,
+    scale=0.5,
+    dimx=2, dimy=2, dimz=3,
+    densityx=4, densityy=4, densityz=2,
+    drawxdims=false,
+    drawydims=false,
+    dimzval=C_l,
+    drawzdims=false,
+    front/.style={draw=blue!90!white,fill=blue!90!white},%
+    right/.style={draw=blue!90!white,fill=blue!90!white},%
+    top/.style={draw=blue!90!white,fill=blue!90!white},%
+    }
+    \tikzcuboid{
+    dimz=2,
+    shiftx=12.0cm,
+    }
+    \tikzcuboid{
+    shiftx=16.0cm,
+    }
+    \draw [->, fill=gray!30,ultra thick] (9.8+0.08*\i, -1.5, -7+2.5*\i) -- (10.8+0.08*\i, -1.5, -7+2.5*\i);
+      % node[midway, above] {$\sigma_w$};
+    \draw [->, fill=gray!30,ultra thick] (13.8+0.08*\i, -1.5, -7+2.5*\i) -- (14.8+0.08*\i, -1.5, -7+2.5*\i)
+      node[midway, above] {$\sigma_w$};
+
+    \tikzcuboid{
+    shiftx=8.5cm,
+    shifty=-1.0cm,
+    shiftz=-15+5*\i,
+    dimx=0.4, dimy=0.4, dimz=3,
+    densityx=5, densityy=5, densityz=2,
+    front/.style={draw=red!90!white,fill=red!90!white},%
+    right/.style={draw=red!90!white,fill=red!90!white},%
+    top/.style={draw=red!90!white,fill=red!90!white},%
+    }
+    \tikzcuboid{
+    shifty=-1.5cm,
+    }
+    \tikzcuboid{
+    shifty=-2.0cm,
+    }
+    \tikzcuboid{
+    shifty=-2.5cm,
+    }
+    % \draw (8cm, -1.8cm, -15+5*\i) node {$\vdots$};
+  }
+  \tikzcuboid{
+  shiftx=6cm,
+  shifty=-2.0cm,
+  shiftz=15,
+  scale=0.5,
+  dimx=2, dimy=2, dimz=3,
+  densityx=4, densityy=4, densityz=2,
+  dimxval=\frac{W}{2},
+  drawxdims=true,
+  dimyval=\frac{H}{2},
+  drawydims=true,
+  dimzval=C_l,
+  drawzdims=true,
+  front/.style={draw=blue!90!white,fill=blue!90!white},%
+  right/.style={draw=blue!90!white,fill=blue!90!white},%
+  top/.style={draw=blue!90!white,fill=blue!90!white},%
+  }
+  \tikzcuboid{
+  shiftx=12.0cm,
+  dimz=2,
+  dimzval=C_{l+1},
+  }
+  \tikzcuboid{
+  shiftx=16.0cm,
+  drawxdims=false,
+  drawydims=false,
+  drawzdims=false
+  }
+  \draw [->, fill=gray!30,ultra thick] (9.8+6*0.08, -1.5, 8) -- (10.8+6*0.08, -1.5, 8);
+    % node[midway, above] {$\sigma_w$};
+  \draw [->, fill=gray!30,ultra thick] (13.8+6*0.08, -1.5, 8) -- (14.8+6*0.08, -1.5, 8)
+      node[midway, above] {$\sigma_w$};
+  \tikzcuboid{
+  shiftx=8.5cm,
+  shifty=-1.0cm,
+  shiftz=15,
+  dimx=0.4, dimy=0.4, dimz=3,
+  drawxdims=false,
+  drawydims=false,
+  drawzdims=false,
+  densityx=5, densityy=5, densityz=2,
+  front/.style={draw=red!90!white,fill=red!90!white},%
+  right/.style={draw=red!90!white,fill=red!90!white},%
+  top/.style={draw=red!90!white,fill=red!90!white},%
+  }
+  \tikzcuboid{
+  shifty=-1.5cm,
+  }
+  \tikzcuboid{
+  shifty=-2.0cm,
+  }
+  \tikzcuboid{
+  shifty=-2.5cm,
+  }
+
+  % Draw the lowpass activation and its set of filters
+  \tikzcuboid{
+  shiftx=6cm,
+  shifty=-2.0cm,
+  shiftz=35,
+  scale=0.5,
+  dimx=3, dimy=3, dimz=4,
+  densityx=4, densityy=4, densityz=2,
+  dimxval=W,
+  drawxdims=true,
+  dimyval=H,
+  drawydims=true,
+  dimzval=C_l,
+  drawzdims=true,
+  front/.style={draw=blue!50!white,fill=blue!50!white},%
+  right/.style={draw=blue!50!white,fill=blue!50!white},%
+  top/.style={draw=blue!50!white,fill=blue!50!white},%
+  }
+  \tikzcuboid{
+  shiftx=12.0cm,
+  dimz=2,
+  drawxdims=false,
+  drawydims=false,
+  dimzval=C_{l+1},
+  drawzdims=true
+  }
+  \tikzcuboid{
+  shiftx=16.0cm,
+  drawzdims=false,
+  }
+  \draw [->, fill=gray!30,ultra thick] (11.+0.5, -1.5, 17.5) -- (12.0+0.5, -1.5, 17.5);
+    % node[midway, above] {$\sigma_w$};
+  \draw [->, fill=gray!30,ultra thick] (15.+0.5, -1.5, 17.5) -- (16.0+0.5, -1.5, 17.5)
+    node[midway, above] {$\sigma_w$};
+
+  \tikzcuboid{
+  shiftx=9cm,
+  shifty=-2.75cm,
+  dimx=0.8, dimy=0.8, dimz=3,
+  drawxdims=false,
+  drawydims=false,
+  drawzdims=false,
+  densityx=5, densityy=5, densityz=2,
+  front/.style={draw=red!50!white,fill=red!50!white},%
+  right/.style={draw=red!50!white,fill=red!50!white},%
+  top/.style={draw=red!50!white,fill=red!50!white},%
+  }
+  \tikzcuboid{
+  shifty=-2.00cm,
+  }
+  \tikzcuboid{
+  shifty=-1.25cm,
+  }
+  \tikzcuboid{
+  shifty=-0.5cm,
+  }
+  \tikzcuboid{
+  shiftx=23cm,
+  shifty=-2.5cm,
+  shiftz=7,
+  scale=0.5,
+  anglex=0, 
+  angley=90, 
+  anglez=230,
+  dimx=3, 
+  dimy=3, 
+  dimz=6,
+  densityx=1, 
+  densityy=1, 
+  densityz=1,
+  shade=false,
+  emphedge=true,
+  shadeopacity=0,
+  emphstyle/.style={rounded corners=0.2pt,line width=0.3mm},
+  front/.style={draw=blue!50!white,fill=blue!50!white},%
+  right/.style={draw=blue!50!white,fill=blue!50!white},%
+  top/.style={draw=blue!50!white,fill=blue!50!white},%
+  drawxdims=true,
+  dimxval=W,
+  drawydims=true,
+  dimyval=H,
+  drawzdims=true,
+  dimzval=C_{l+1},
+  }
+  % \draw (0, .3, 0) node {\large{$x^{(l)}$}};
+  \draw [decorate,decoration={brace,amplitude=10pt,raise=4pt},yshift=0pt]
+    (16.5,-2.5,-8) -- (18,-2.5,18) node [black,midway,xshift=0.8cm];
+  \draw [->, fill=gray!30,ultra thick] (19, -2.5, 4) -- (21.5, -2.5, 4)
+    node[midway, above] {$\DTCWT^{-1}$};
+
+\end{tikzpicture}

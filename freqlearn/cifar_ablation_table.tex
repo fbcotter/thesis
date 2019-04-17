@@ -1,34 +1,38 @@
 \begin{table}
   \renewcommand{\arraystretch}{1.2}
   \centering
-  \caption{Results for testing VGG like architecture with convolutional and
-  wavelet gain layers on several datasets. An architecture with `gainX' means the
-  equivalent convolutional layer `convX' from \autoref{tab:arch} was swapped for
+  \mycaption{Results for testing VGG like architecture with convolutional and
+  wavelet gain layers on several datasets}{An architecture with `gainX' means the
+  equivalent convolutional layer `convX' from \autoref{tab:ch5:arch} was swapped for
   our proposed layer. The top row is the reference architecture using all
-  convolutional layers. The `A' architecture is the originally proposed gain
-  layer, the `B' architecture uses the gainlayer with random shifting of the
-  activations, and the `C' architecture changes the mixing to be a learned
-  $3\x3$ kernel acting on the invariant coefficients. Numbers are averages over
-  5 runs. \textbf{TODO: Rerun C models with different hypes}.}
+  convolutional layers. The DWT architecture takes a single scale DWT of the
+  activations at the given layer, and mixes the coefficients to get new wavelet
+  coefficients. The lowpass mixing coefficients for the DWT architecture have spatial
+  size $3\x 3$ and the bandpass coefficients have spatial size $1\x 1$. The
+  $\DTCWT$ architecture takes a single scale $\DTCWT$ and mixes the lowpass and 
+  complex bandpass coefficients. Both the lowpass and bandpass coefficients have
+  spatial size $1\x 1$. Numbers are averages over 3 runs.} 
   % \begin{tabular}{@{}lllcllcll@{}}
-  \begin{tabular}{@{}lccclccclccc@{}}
+  \begin{tabular}{@{}lcclcclcc@{}}
     \toprule
-    & \multicolumn{3}{c}{CIFAR-10} & \phantom{abc} & \multicolumn{3}{c}{CIFAR-100} & \phantom{abc} & \multicolumn{3}{c}{Tiny ImgNet} \\ \cline{2-4}\cline{6-8}\cline{10-12}
-    \phantom{abc} & A  & B & C &&  A & B & C && A & B & C \\ \midrule
-    reference & \multicolumn{3}{c}{92.6} && \multicolumn{3}{c}{72.0} && \multicolumn{3}{c}{59.3} \\ \midrule
-    gainA        & & & && & & && & & \\
-    gainB        & & & && & & && & & \\
-    gainC        & & & && 73.0 & & && & & \\
-    gainD        & & & && 73.5 & & && & & \\
-    gainE        & & & && & & && & & \\
-    gainF        & & & && & & && & & \\
-    gainA, gainB & & & && & & && & & \\
-    gainB, gainC & & & && & & && & & \\
-    gainC, gainD & & & && & & && & & \\
-    gainD, gainE & & & && & & && & & \\
-    gainA, gainC & & & && & & && & & \\
-    gainB, gainD & & & && & & && & & \\
-    gainC, gainE & & & && & & && & & \\ \bottomrule
+    & \multicolumn{2}{c}{CIFAR-10} & \phantom{abc} & \multicolumn{2}{c}{CIFAR-100} & \phantom{abc} & \multicolumn{2}{c}{Tiny ImgNet} \\ \cline{2-3}\cline{5-6}\cline{8-9}
+    \phantom{abc} & DWT & $\DTCWT$ &&  DWT & $\DTCWT$ && DWT & $\DTCWT$ \\ \midrule
+    reference & \multicolumn{2}{c}{92.6} && \multicolumn{2}{c}{72.0} && \multicolumn{2}{c}{59.3} \\ \midrule
+    gainA        & & && 72.3 & 72.8 && & \\
+    gainB        & & && 72.5 & 73.4 && & \\
+    gainC        & & && 72.1 & 72.8 && & \\
+    gainD        & & && 72.9 & 73.1 && & \\
+    gainE        & & && 72.8 & 72.7 && & \\
+    gainF        & & && 73.6 & 72.7 && & \\
+    gainA, gainB & & && 70.6 & 72.3 && & \\
+    gainB, gainC & & && 71.7 & 73.1 && & \\
+    gainC, gainD & & && 71.0 & 72.4 && & \\
+    gainD, gainE & & && 72.4 & 71.9 && & \\
+    gainA, gainC & & && 71.8 & 73.6 && & \\
+    gainB, gainD & & && 71.7 & 72.9 && & \\
+    gainC, gainE & & && 71.7 & 72.2 && & \\ \midrule
+    gainA-F      & & &&      &      && & \\ \bottomrule
+    
   \end{tabular}\label{tab:ch6:ablation_results}
 \end{table}
 
