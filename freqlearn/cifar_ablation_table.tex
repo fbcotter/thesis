@@ -13,26 +13,32 @@
   complex bandpass coefficients. Both the lowpass and bandpass coefficients have
   spatial size $1\x 1$. Numbers are averages over 3 runs.} 
   % \begin{tabular}{@{}lllcllcll@{}}
-  \begin{tabular}{@{}lcclcclcc@{}}
+  \begin{tabular}{@{}llcclcclcc@{}}
     \toprule
-    & \multicolumn{2}{c}{CIFAR-10} & \phantom{abc} & \multicolumn{2}{c}{CIFAR-100} & \phantom{abc} & \multicolumn{2}{c}{Tiny ImgNet} \\ \cline{2-3}\cline{5-6}\cline{8-9}
-    \phantom{abc} & DWT & $\DTCWT$ &&  DWT & $\DTCWT$ && DWT & $\DTCWT$ \\ \midrule
-    reference & \multicolumn{2}{c}{92.6} && \multicolumn{2}{c}{72.0} && \multicolumn{2}{c}{59.3} \\ \midrule
-    gainA        & & && 72.3 & 72.8 && & \\
-    gainB        & & && 72.5 & 73.4 && & \\
-    gainC        & & && 72.1 & 72.8 && & \\
-    gainD        & & && 72.9 & 73.1 && & \\
-    gainE        & & && 72.8 & 72.7 && & \\
-    gainF        & & && 73.6 & 72.7 && & \\
-    gainA, gainB & & && 70.6 & 72.3 && & \\
-    gainB, gainC & & && 71.7 & 73.1 && & \\
-    gainC, gainD & & && 71.0 & 72.4 && & \\
-    gainD, gainE & & && 72.4 & 71.9 && & \\
-    gainA, gainC & & && 71.8 & 73.6 && & \\
-    gainB, gainD & & && 71.7 & 72.9 && & \\
-    gainC, gainE & & && 71.7 & 72.2 && & \\ \midrule
-    gainA-F      & & &&      &      && & \\ \bottomrule
-    
+    & \phantom{b} & \multicolumn{2}{c}{CIFAR-10} & \phantom{abc} & 
+                     \multicolumn{2}{c}{CIFAR-100} & \phantom{abc} & 
+                     \multicolumn{2}{c}{Tiny ImgNet} \\ 
+    \cline{3-4}\cline{6-7}\cline{9-10}
+    && DWT & $\DTCWT$ &&  DWT & $\DTCWT$ && DWT & $\DTCWT$ \\ 
+    \midrule
+    reference && \multicolumn{2}{c}{92.6} && \multicolumn{2}{c}{72.0} && \multicolumn{2}{c}{59.3} \\ 
+    \midrule
+    gainA        && 93.0 & 93.0 && 72.3 & 72.8 && 61.3 & 60.8 \\
+    gainB        && 93.0 & 92.9 && 72.5 & 73.4 && 61.3 & 61.3\\
+    gainC        && 92.8 & 93.2 && 72.1 & 72.8 && 60.8 & 60.7\\
+    gainD        && 92.9 & 93.3 && 72.9 & 73.1 && 60.3 & 60.3\\
+    gainE        && 93.3 & 93.0 && 72.8 & 72.7 && 60.8 & 60.6\\
+    gainF        && 93.6 & 93.1 && 73.6 & 72.7 && 61.3 & 61.3\\
+    gainA, gainB && 91.9 & 92.2 && 70.6 & 72.3 && 60.6 & 60.9\\
+    gainB, gainC && 92.1 & 92.6 && 71.7 & 73.1 && 60.3 & 60.7\\
+    gainC, gainD && 91.9 & 92.9 && 71.0 & 72.4 && 60.1 & 59.9\\
+    gainD, gainE && 93.1 & 92.8 && 72.4 & 71.9 && 60.6 & 60.0\\
+    gainA, gainC && 92.4 & 92.8 && 71.8 & 73.6 && 60.7 & 60.0\\
+    gainB, gainD && 92.5 & 92.8 && 71.7 & 72.9 && 60.6 & 61.2\\
+    gainC, gainE && 92.4 & 92.7 && 71.7 & 72.2 && 59.7 & 60.1\\ 
+    \midrule
+    gainA-F      && & &&      &      && & \\ 
+    \bottomrule
   \end{tabular}\label{tab:ch6:ablation_results}
 \end{table}
 

@@ -121,10 +121,12 @@ transforms, i.e.\ when $k \neq 0$.
 \end{proof}
 
 Using \autoref{thm:ch6:shiftinv} \eqref{eq:ch6:aliasing} reduces to:
-\begin{equation}
- \frac{Y(z)}{X(z)} = \frac{1}{M}\left[ A(z)C(z) + B(z)D(z) \right]
-  \label{eq:ch6:aliasing_cancel}
-\end{equation}
+\begin{eqnarray}
+  \frac{Y(z)}{X(z)} & = & \frac{1}{M}\left[ P(z)Q(z) + P^*(z)Q^*(z) \right]
+  \label{eq:ch6:aliasing_cancel2} \\
+    &=& \frac{1}{M}\left[ A(z)C(z) + B(z)D(z) \right]
+  \label{eq:ch6:aliasing_cancel} 
+\end{eqnarray}
 
 Let us extend this idea to allow for any linear gain applied to the passbands
 (not just zeros and ones). Ultimately, we may want to allow for nonlinear
@@ -216,56 +218,4 @@ bands at local areas, then our complex filter $G(z)=G_r(z) + jG_i(z)$ allows us
 to modify these passbands (e.g.\ by simply scaling if $G(z) = C$, or by more
 complex functions.
 
-
-\subsection{Backpropagation Analysis}
-We start with the commonly known property that for a convolutional block, the
-gradient with respect to the input is the gradient with respect to the output
-convolved with the time reverse of the filter. More formally, if 
-$Y(z) = H(z) X(z)$:
-%
-\begin{equation}\label{eq:ch6:backprop}
-  \Delta X(z) = H(z^{-1}) \Delta Y(z)
-\end{equation}
-%
-where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
-$\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
-to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
-the loss with respect to the input. If H were complex, the first term in
-\autoref{eq:ch6:backprop} would be $\bar{H}(1/\bar{z})$, but as each individual
-block in the $\DTCWT$ is purely real, we can use the simpler form. 
-
-Assume we already have access to the quantity $\Delta Y(z)$ (this is the input
-to the backwards pass). \autoref{fig:ch6:bwd_pass} illustrates the
-backpropagation procedure. An interesting result is that the backwards pass of
-an inverse wavelet transform is equivalent to doing a forward wavelet
-transform.\footnote{As shown in \autoref{fig:ch6:bwd_pass}, the analysis and
-synthesis filters have to be swapped and time reversed. For orthogonal wavelet
-transforms, the synthesis filters are already the time reverse of the analysis
-filters, so no change has to be done. The q-shift filters of the $\DTCWT$
-\cite{kingsbury_design_2003} have this property.} Similarly, the backwards pass
-of the forward transform is equivalent to doing the inverse transform. The
-weight update gradients are then calculated by finding 
-\textbf{FIX this - make it not use the $\DTCWT$ to get delta v}.
-$\Delta V(z) = \DTCWT\left\{ \Delta Y(z) \right\}$ and then convolving with the 
-time reverse of the saved wavelet coefficients from the forward pass - $U(z)$.
-
-\begin{gather}
-  \Delta G_r(z) = \Delta V_r(z) U_r(z^{-1}) + \Delta V_i(z) U_i(z^{-1})  \label{eq:ch6:gr_update}\\
-  \Delta G_i(z) =  -\Delta V_r(z) U_i(z^{-1}) + \Delta V_i(z) U_r(z^{-1})  \label{eq:ch6:gi_update} 
-\end{gather}
-
-Unsurprisingly, the passthrough gradients have similar form to
-\autoref{eq:ch6:end2end}:
-\begin{equation}\label{eq:ch6:passthrough}
-    \Delta X(z) = \frac{2\Delta Y(z)}{M} \left[G_r(z^{-M})\left( PQ + P^*Q^* \right)\right. + 
-      \left. jG_i(z^{-M}) \left(PQ-P^*Q^* \right) \right] 
-\end{equation}
-where we have dropped the $z$ terms on $P(z), Q(z), P^*(z), Q^*(z)$ for brevity.
-
-Note that we only need to evaluate equations
-~\ref{eq:ch6:gr_update},\ref{eq:ch6:gi_update},\ref{eq:ch6:passthrough} over the
-support of $G(z)$ i.e., if it is a single number we only need to calculate
-$\left.\Delta G(z)\right\rvert_{z=0}$.
-
-\input{\path/figure2}
 

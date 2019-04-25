@@ -1,129 +1,144 @@
 \section{Implementation Details}
 
-We use our PyTorch Wavelets package \cite{cotter_pytorch_2018} to perform the $\DTCWT$. As
-mentioned in \autoref{sec:ch6:multiple_subbands}, our layer requires a set
-of learnable filters:
-\begin{equation}
-  \{ g_{lp}, g_{j,k} \}_{1\leq j \leq J, 1\leq k\leq 6}
-\end{equation}
-where each of these filters is a four dimensional array as is standard for a
-normal convolutional layer. The lowpass coefficients of a $\DTCWT$ are real, and
-therefore, $g_{lp}$ is also real. In contrast, the bandpass coefficients are
-complex, and so to get the full use of the phase information of the $\DTCWT$, we
-also learn complex bandpass filters. This comes with an overhead which we will 
-fully quantify in a later section.
-
-We must choose the spatial sizes of both the lowpass and bandpass
-mixing kernels. In our work, we set the spatial support of the complex bandpass
-filters $g_{j,k}$ to be $1\x 1$ and the lowpass filters $g_{lp}$ to be $3\x 3$.
-Further, we limit ourselves initially to only considering a single scale
-transform.  
-If we wish, we can learn larger spatial sizes to have more complex
-attenuation/magnification of the subbands. We also can use more than
-one wavelet scale. 
-
+Before analyzing its performance, we compare the implementation properties of
+our two new proposed layers (for the DWT and $\DTCWT$) to a standard
+convolutional layer.
 
 \subsection{Parameter Memory Cost}\label{sec:ch6:memory}
 A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output channels
 and kernel size $L\x L$ has $L^2C_{l}C_{l+1}$ parameters, with $L=3$ or $L=5$
 common choices for the spatial size.
+\begin{equation}
+  \text{#conv params} = 9C_lC_{l+1}
+\end{equation}
 
-Returning to \eqref{eq:ch6:glp} -- \eqref{eq:ch6:gj6}, let us consider a single
-scale ($J=1$) wavelet gain layer. We will keep the spatial size of all the bandpass
-kernels the same, and allow for a differently sized lowpass gain. The filters
-are then:
-
-\begin{eqnarray*}
-  g_{lp} &\in& \reals[F\x C\x k_{lp}\x k_{lp}] \\
-  g_{1,1} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
-  g_{1,2} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
-  g_{1,3} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
-  g_{1,4} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
-  g_{1,5} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] \\
-  g_{1,6} &\in& \complexes[F\x C\x k_{bp}\x k_{bp}] 
-\end{eqnarray*}
+We must choose the spatial sizes of both the lowpass and bandpass
+mixing kernels. In our work, we set:
 %
-or more compactly:
+\begin{itemize}
+  \item The spatial support of the lowpass filters for the DWT gain 
+    layer to be $3\x 3$ and the support of the bandpass layers to be $1\x 1$.
+  \item The spatial support of the lowpass filters for the $\DTCWT$ gain layer to
+    be $1\x 1$ and the support of the complex bandpass filters to be $1\x 1$.
+\end{itemize}
 %
-\begin{eqnarray*}
-  g_{lp} &\in& \reals[F\x C\x k_{lp}\x k_{lp}] \\
-  \vec{g}_{1} &\in& \complexes[6\x F\x C\x k_{bp}\x k_{bp}] 
-\end{eqnarray*}
+Further, we limit ourselves initially to only considering a single scale
+transform.  If we wish, we can learn larger spatial sizes to have more complex
+attenuation/magnification of the subbands. We also can use more than one wavelet
+scale. 
 
-We typically set $k_{bp} = 1$ to avoid large parameter costs, but allow $k_{lp}$
-to be 1 or 3. For $k_{lp} = 3$, the total parameter cost is then (requiring 2
-floats for complex values):
+This means that for the DWT layer, the number of parameters is:
 %
 \begin{equation}
-  \text{\#params} = (2\x 6 + 3^2)C_lC_{l+1} = 21C_lC_{l+1} \label{eq:ch6:memcost}
+  \text{\#DWT params} = (3 + 3^2)C_lC_{l+1} = 12C_lC_{l+1} \label{eq:ch6:memcost1}
 \end{equation} 
 %
-At first glance, we have increased our parameterization by over twofold on a $3\x 3$ 
-convolution, but as with the invariant layer, the spatial support of the full
-filter is larger than an equivalent one parameterized in the filter domain. Note
-that using a second scale ($J=2$) with $1\x 1$ filters would increase
-\eqref{eq:ch6:memcost} to $33C_lC_{l+1}$. 
+And for the $\DTCWT$ layer, the number of parameters is:
+\begin{equation}
+  \text{\#$\DTCWT$ params} = (2\x 6 + 1)C_lC_{l+1} = 13C_lC_{l+1} \label{eq:ch6:memcost2}
+\end{equation} 
+%
+These are both slightly larger than the $9C_lC_{l+1}$ parameters used in a
+standard $3\x 3$ convolution, but as \autoref{fig:ch6:examples} shows, the
+spatial support of the full filter is larger than an equivalent one
+parameterized in the filter domain. 
 
-Compared to a single scale invariant layer from the previous chapter, this requires
-$21C_lC_{l+1} - 7C_lC_{l+1} = 14C_lC_{l+1}$ more parameters, or a threefold
-increase. $6C_lC_{l+1}$ of these come from learning a complex gain rather than a
-purely real gain for the bandpass, and $8C_lC_{l+1}$ come from using a larger
-kernel on the lowpass. 
-
-If we were to set $k_{lp} = 1$, we would minimize the 
-relative parameter cost increase to be slightly
-less than $2:1$ on the invariant layer.
+Note that using a second scale ($J=2$) with $1\x 1$ filters would increase
+\eqref{eq:ch6:memcost1} to $15C_lC_{l+1}$ and \eqref{eq:ch6:memcost2} to
+$25C_lC_{l+1}$.  
 
 \subsection{Activation Memory Cost}\label{sec:ch6:act_memory}
 A standard convolutional layer needs to save the activation $x^{(l)}$ to
 convolve with the backpropagated gradient $\dydx{L}{y^{(l+1)}}$ on the backwards
 pass (to give $\dydx{L}{w^{(l)}}$). For an input with $C_l$ channels of spatial
-size $H\x W$, this means $HWC_l$ floats must be saved. 
+size $H\x W$, this means
+%
+\begin{equation}
+  \text{#conv floats} = HWC_l 
+\end{equation}
 
-Our layer requires us to save the wavelet coefficients from \eqref{eq:ch6:wave_coeffs}, 
-$\{u_{lp}, u_{j,k}\}_{1\leq j \leq J, 1}$ for updating the $g$ terms 
-as in \eqref{eq:ch6:gr_update}, \eqref{eq:ch6:gi_update}.
-These are $4:1$ redundant, so require $4HWC_l$ floats to be saved.
+Our layers require us to save the wavelet coefficients $u_{lp}$ and  $u_{j,k}$
+for updating the $g$ terms as in \eqref{eq:ch6:g_update} and
+\eqref{eq:ch6:gr_update}, \eqref{eq:ch6:gi_update}.  For the critically sampled
+DWT, this requires:
+%
+\begin{equation}
+  \text{#DWT floats} = HWC_l 
+\end{equation}
+%
+to be saved for the backwards pass. For the $4:1$ redundant $\DTCWT$, this 
+requires:
+%
+\begin{equation}
+  \text{#DWT floats} = 4HWC_l 
+\end{equation}
+%
+to be saved for the backwards pass.  You can see this difference from the
+difference in the block diagrams in \autoref{fig:ch6:block_diagrams}.
 
-Note that a single scale layer requires $16/7$ times as many floats to be saved
-as compared to the invariant layer of the previous chapter. The extra cost of
-this comes from two things. Firstly, we keep the real and imaginary components
-for the bandpass (as opposed to only the magnitude), meaning we need $3HWC_l$
-floats, rather than $\frac{3}{2}HWC_l$. Additionally, the lowpass was
-downsampled in the previous chapter, requiring only $\frac{1}{4}HWC_l$, whereas
-we keep the full sample rate costing $HWC_l$.
+Note that a single scale $\DTCWT$ gain layer requires $16/7$ times as many
+floats to be saved as compared to the invariant layer of the previous chapter.
+The extra cost of this comes from two things. Firstly, we keep the real and
+imaginary components for the bandpass (as opposed to only the magnitude),
+meaning we need $3HWC_l$ floats, rather than $\frac{3}{2}HWC_l$. Additionally,
+the lowpass was downsampled in the previous chapter, requiring only
+$\frac{1}{4}HWC_l$, whereas we keep the full sample rate costing $HWC_l$.
 
 If memory is an issue and the computation of the $\DTCWT$ is very fast, then we
 only need to save the $x^(l)$ coefficients and can calculate the $u$'s on the
-fly during the backwards pass. 
+fly during the backwards pass. Note that a two scale $\DTCWT$ gain layer would
+still only require $4HWC_l$ floats.
 
 \subsection{Computational Cost}\label{sec:ch6:computation}
 A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
 multiplies per input pixel (of which there are $C_{l}\x H\x W$).
 
-The overhead calculations are the same as in \autoref{sec:ch5:computation}, so
-we will omit their derivation here. The mixing is however different, requiring
-complex convolution for the bandpass coefficients, and convolution over a higher
-resolution lowpass. The bandpass has one quarter spatial resolution at the first
-scale, but this is offset by the $4:1$ cost of complex multiplies compared to 
-real multiplies. Again assuming we have set $J=1$ and $k_{lp} = 3$ then the total
-cost for the gain layer is:
+For the DWT with Daubechies 2 filters, the forward and inverse transform only
+require about $6$ multiplies per input pixel. The mixing is then done at a
+reduced spatial resolution. For our proposed kernel sizes of $3\x 3$ for the
+lowpass and $1\x 1$ for the bandpass, the DWT gain layer requires:
 
 \begin{equation}
   % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
-  \underbrace{\hphantom{1} \frac{6\x 4}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
-  \underbrace{\hphantom{1}\vphantom{\frac{6}{4}} 3^2 C_{l+1} \hphantom{1}}_{\textrm{lowpass}} + 
-  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT} + 
-  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT^{-1}} = \quad 15C_{l+1} + 72 \quad
-  \textrm{mults/pixel}\label{eq:ch5:comp}
+  \text{#DWT mults/pixel} = \underbrace{\hphantom{1} \frac{3}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
+  \underbrace{\hphantom{1}\vphantom{\frac{3}{4}} \frac{3^2}{4} C_{l+1} \hphantom{1}}_{\textrm{lowpass}} + 
+  \underbrace{\vphantom{\frac{3}{4}} 6}_{\text{DWT}} + 
+  \underbrace{\vphantom{\frac{3}{4}} 6}_{\text{DWT}^{-1}} = \quad 4C_{l+1} + 12 \quad
+  \label{eq:ch6:comp_dwt}
 \end{equation}
 
-This is larger than both a standard $3\x 3$ convolutional layer, using
-$9C_{l+1}$ multiplies per input pixel, and the invariant layer of the previous
-chapter which uses $\frac{7}{4}C_{l+1} + 36}$ multiplies per input pixel. 
+This is smaller than a standard $3\x 3$ convolutional layer using $9C_{l+1}$
+multiplies per pixel.
+
+For the $\DTCWT$, the overhead calculations are the same as in
+\autoref{sec:ch5:computation}, so we will omit their derivation here. The mixing
+is however different, requiring complex convolution for the bandpass
+coefficients, and convolution over a higher resolution lowpass. The bandpass has
+one quarter spatial resolution at the first scale, but this is offset by the
+$4:1$ cost of complex multiplies compared to real multiplies. Again assuming we
+have set $J=1$ and $k_{lp} = 3$ then the total cost for the gain layer is:
+%
+\begin{equation}
+  % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
+  \text{#$\DTCWT$ mults/pixel} = \underbrace{\hphantom{1} \frac{6\x 4}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
+  \underbrace{\hphantom{1}\vphantom{\frac{6}{4}} C_{l+1} \hphantom{1}}_{\textrm{lowpass}} + 
+  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT} + 
+  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT^{-1}} = \quad 7C_{l+1} + 72 \quad
+  \label{eq:ch6:comp_dtcwt}
+\end{equation}
+This is marginally smaller than a $3\x 3$ convolutional layer.
 
 \subsection{Parameter Initialization}
+For both layer types we use the Glorot Initialization scheme \cite{glorot_understanding_2010}
+with $a=1$: 
+%
+\begin{equation}
+  g_{ij} \drawnfrom U\left[ -\sqrt{\frac{6}{(C_l + C_{l+1})k^2}},\ \sqrt{\frac{6}{(C_l + C_{l+1})k^2}}\
+  \right] \label{eq:ch6:glorot}
+\end{equation}
+where $k$ is the kernel size.
+%
 
-\subsection{Forward and Backward Algorithm}
-Algorithm~\autoref{alg:ch6:inv}.
-\input{\path/algorithm1}
+% \subsection{Forward and Backward Algorithm}
+% Algorithm~\autoref{alg:ch6:inv}.
+% \input{\path/algorithm1}

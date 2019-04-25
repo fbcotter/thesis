@@ -22,6 +22,13 @@
   \draw (18.5, 2.5, 0) node {\Large{$u^{(l+1)}$}};
   \draw (25, 0.8, 3.5) node {\Large{$x^{(l+1)}$}};
   \draw[<->] (10, -1, -2) -- (10, 0.9, -2) node[near end, right] {$C_{l+1}$};
+
+  \draw (1.0, -2.5, -3) node {bandpass};
+  \draw (2.0, -2.5, 14) node {lowpass};
+  \draw [decorate,decoration={brace,mirror,amplitude=10pt,raise=4pt},yshift=0pt]
+    (3.8,-2.5,-8) -- (4.8,-2.5,18) node [black,midway,xshift=0.8cm];
+  \draw [->, fill=gray!30,ultra thick] (0.5, -2.5, 4) -- (2.5, -2.5, 4)
+    node[midway, above] {$\DTCWT$};
   \tikzcuboid{
   shiftx=-2.5cm,
   shifty=-2.5cm,
@@ -50,10 +57,6 @@
   drawzdims=true,
   dimzval=C_l,
   }
-  \draw [decorate,decoration={brace,mirror,amplitude=10pt,raise=4pt},yshift=0pt]
-    (3.8,-2.5,-8) -- (4.8,-2.5,18) node [black,midway,xshift=0.8cm];
-  \draw [->, fill=gray!30,ultra thick] (0.5, -2.5, 4) -- (2.5, -2.5, 4)
-    node[midway, above] {$\DTCWT$};
 
   % Draw the 6 subband activations and their filters
   \foreach \i in {1,...,5} {
@@ -181,18 +184,20 @@
   \tikzcuboid{
   shiftx=12.0cm,
   dimz=2,
-  drawxdims=false,
-  drawydims=false,
+  drawxdims=true,
+  drawydims=true,
   dimzval=C_{l+1},
   drawzdims=true
   }
   \tikzcuboid{
   shiftx=16.0cm,
+  drawxdims=false,
+  drawydims=false,
   drawzdims=false,
   }
-  \draw [->, fill=gray!30,ultra thick] (11.+0.5, -1.5, 17.5) -- (12.0+0.5, -1.5, 17.5);
+  \draw [->, fill=gray!30,ultra thick] (11.2, -1.5, 17.5) -- (12.0, -1.5, 17.5);
     % node[midway, above] {$\sigma_w$};
-  \draw [->, fill=gray!30,ultra thick] (15.+0.5, -1.5, 17.5) -- (16.0+0.5, -1.5, 17.5)
+  \draw [->, fill=gray!30,ultra thick] (15.5, -1.5, 17.5) -- (16.5, -1.5, 17.5)
     node[midway, above] {$\sigma_w$};
 
   \tikzcuboid{
