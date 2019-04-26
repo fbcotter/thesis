@@ -10,4 +10,5 @@
 *.blg
 *.bcf
 *.run.xml
+*.auxlock
 chapter.pdf

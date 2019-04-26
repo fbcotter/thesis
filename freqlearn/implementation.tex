@@ -9,7 +9,7 @@ A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output chann
 and kernel size $L\x L$ has $L^2C_{l}C_{l+1}$ parameters, with $L=3$ or $L=5$
 common choices for the spatial size.
 \begin{equation}
-  \text{#conv params} = 9C_lC_{l+1}
+  \text{\#conv params} = 9C_lC_{l+1}
 \end{equation}
 
 We must choose the spatial sizes of both the lowpass and bandpass
@@ -54,7 +54,7 @@ pass (to give $\dydx{L}{w^{(l)}}$). For an input with $C_l$ channels of spatial
 size $H\x W$, this means
 %
 \begin{equation}
-  \text{#conv floats} = HWC_l 
+  \text{\#conv floats} = HWC_l 
 \end{equation}
 
 Our layers require us to save the wavelet coefficients $u_{lp}$ and  $u_{j,k}$
@@ -63,14 +63,14 @@ for updating the $g$ terms as in \eqref{eq:ch6:g_update} and
 DWT, this requires:
 %
 \begin{equation}
-  \text{#DWT floats} = HWC_l 
+  \text{\#DWT floats} = HWC_l 
 \end{equation}
 %
 to be saved for the backwards pass. For the $4:1$ redundant $\DTCWT$, this 
 requires:
 %
 \begin{equation}
-  \text{#DWT floats} = 4HWC_l 
+  \text{\#$\DTCWT$ floats} = 4HWC_l 
 \end{equation}
 %
 to be saved for the backwards pass.  You can see this difference from the
@@ -100,7 +100,7 @@ lowpass and $1\x 1$ for the bandpass, the DWT gain layer requires:
 
 \begin{equation}
   % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
-  \text{#DWT mults/pixel} = \underbrace{\hphantom{1} \frac{3}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
+  \text{\#DWT mults/pixel} = \underbrace{\hphantom{1} \frac{3}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
   \underbrace{\hphantom{1}\vphantom{\frac{3}{4}} \frac{3^2}{4} C_{l+1} \hphantom{1}}_{\textrm{lowpass}} + 
   \underbrace{\vphantom{\frac{3}{4}} 6}_{\text{DWT}} + 
   \underbrace{\vphantom{\frac{3}{4}} 6}_{\text{DWT}^{-1}} = \quad 4C_{l+1} + 12 \quad
@@ -120,7 +120,7 @@ have set $J=1$ and $k_{lp} = 3$ then the total cost for the gain layer is:
 %
 \begin{equation}
   % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
-  \text{#$\DTCWT$ mults/pixel} = \underbrace{\hphantom{1} \frac{6\x 4}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
+  \text{\#$\DTCWT$ mults/pixel} = \underbrace{\hphantom{1} \frac{6\x 4}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
   \underbrace{\hphantom{1}\vphantom{\frac{6}{4}} C_{l+1} \hphantom{1}}_{\textrm{lowpass}} + 
   \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT} + 
   \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT^{-1}} = \quad 7C_{l+1} + 72 \quad
@@ -137,8 +137,6 @@ with $a=1$:
   \right] \label{eq:ch6:glorot}
 \end{equation}
 where $k$ is the kernel size.
-%
-
 % \subsection{Forward and Backward Algorithm}
 % Algorithm~\autoref{alg:ch6:inv}.
 % \input{\path/algorithm1}

@@ -110,8 +110,10 @@
 \usetikzlibrary{matrix,positioning,arrows}
 \usetikzlibrary{decorations.markings}
 \usetikzlibrary{dsp,chains,fit}
-%\usetikzlibrary{external}\tikzexternalize         % Allow tikz images to be
-                                                  % compiled once
+\usetikzlibrary{external}
+% Allow tikz images to be compiled once
+\tikzexternalize         
+\tikzsetexternalprefix{cache/}
 % Make examples in your document
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
