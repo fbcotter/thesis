@@ -1,0 +1,59 @@
+\section{Fast Calculation of the DWT and IDWT}
+\begin{figure}
+  \centering
+  \input{\imgpath/dwt}
+  \mycaption{Block Diagram of 2-D DWT}{The components of a filter bank DWT in
+  two dimensions.}
+  \label{fig:ch3:dwt}
+\end{figure}
+\end{figure}
+
+To have a fast implementation of the Scattering Transform, we need a fast
+implementation of the $\DTCWT$. For a fast implementation of the $\DTCWT$ we
+need a fast implementation of the DWT. Later in our work will we also explore
+the DWT as a basis for learning, so having an implementation that is fast and
+can pass gradients through will prove beneficial in and of itself.
+
+Writing a DWT in PyTorch lowlevel calls is not theoretically difficult to do.
+There are only a few things to be wary of. Firstly, a `convolution' in most deep
+learning packages is in fact a correlation. This does not make any difference
+when learning but when using preset filters, as we want to do, it means that we
+must take care to reverse the filters beforehand. Secondly, the automatic 
+differentiation will naturally save activations after every step in the DWT
+(e.g. after row filtering, downsampling and column filtering). This is for the
+calculation of the backwards pass. We do not need to save these intermediate
+activations and we can save a lot of memory by overwriting the automatic
+differentiation logic and defining our own backwards pass.
+
+\subsection{Primitives}
+We start with the commonly known property that for a convolutional block, the
+gradient with respect to the input is the gradient with respect to the output
+convolved with the time reverse of the filter. More formally, if 
+$Y(z) = H(z) X(z)$:
+%
+\begin{equation}\label{eq:ch6:backprop}
+  \Delta X(z) = H(z^{-1}) \Delta Y(z)
+\end{equation}
+%
+where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
+$\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
+to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
+the loss with respect to the input. 
+
+Additionally, if we decimate by a factor of two on the forwards pass, the
+equivalent backwards pass is interpolating by a factor of two (this is easy to
+convince yourself with pen and paper).
+
+\autoref{fig:ch3:dwt} shows the block diagram for performing the forward pass of
+a DWT. Like matlab, PyTorch has an efficient function for doing convolution
+followed by downsampling. Similarly, there is an efficient function to do
+upsampling followed by convolution (for the inverse transform). Using the above
+two properties for the backwards pass of convolution and sample rate
+changes, we quickly see that the backwards pass of a wavelet transform is simply
+the inverse wavelet transform with the time reverse of the analysis filters used
+as the synthesis filters. For orthogonal wavelet transforms, the synthesis
+filters are the time reverse of the analysis filters so backpropagation can
+simply be done by calling the inverse wavelet transform on the wavelet
+coefficient gradients.
+
+\subsection{The Forward and Backward Algorithms}

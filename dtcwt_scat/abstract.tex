@@ -1,0 +1,35 @@
+The drive of this thesis is in exploring if wavelet theory, in
+particular the $\DTCWT$, has any place in deep learning and if it does,
+quantifying how beneficial it can be. The introduction of more powerful GPUs and
+fast and popular deep learning frameworks such as PyTorch, Tensorflow and Caffe
+in the past few years has helped the field of deep learning grow very rapidly.
+Never before has it been so possible and so accessible to test new designs and
+ideas for a machine learning algorithm than today. Despite this rapid growth,
+there has been little interest in building wavelet analysis software in modern
+frameworks. 
+
+This poses a challenge and an opportunity. To pave the way for more detailed 
+research (both by myself in the rest of this thesis, and by other researchers
+who want to explore wavelets applied to deep learning), we must have the right
+foundation and tools to facilitate research.
+
+A good example of this is the current implementation of the ScatterNet. While
+ScatterNets have been the most promising start in using wavelets in a deep
+learning system, they are orders of magnitude slower and significantly more
+difficult to run than a standard convolutional network. 
+
+Additionally, any researchers wanting to explore the DWT in a deep learning
+system have to rewrite the filter bank implementation themselves, ensuring they
+correctly handle boundary conditions and ensure correct filter tap alignment to
+achieve perfect reconstruction.
+
+This chapter describes how I have built a fast ScatterNet implementation in 
+PyTorch with the $\DTCWT$ as its core. At the core of that is an efficient 
+implementation of the DWT\@. The result is an open source library that provides
+all three, available on GitHub as \emph{PyTorch Wavelets} \cite{}.
+
+In parallel with my efforts, the original authors of the ScatterNet have
+improved their implementation, also building it on PyTorch. My proposed
+$\DTCWT$ ScatterNet is $20-30$x faster than their improved implementation,
+while using less memory. 
+
