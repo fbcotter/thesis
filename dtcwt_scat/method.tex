@@ -1,11 +1,10 @@
-\section{Fast Calculation of the DWT and IDWT}
+\section{Fast Calculation of the DWT and IDWT}\label{sec:ch3:dwt}
 \begin{figure}
   \centering
   \input{\imgpath/dwt}
   \mycaption{Block Diagram of 2-D DWT}{The components of a filter bank DWT in
   two dimensions.}
   \label{fig:ch3:dwt}
-\end{figure}
 \end{figure}
 
 To have a fast implementation of the Scattering Transform, we need a fast
@@ -31,7 +30,7 @@ gradient with respect to the input is the gradient with respect to the output
 convolved with the time reverse of the filter. More formally, if 
 $Y(z) = H(z) X(z)$:
 %
-\begin{equation}\label{eq:ch6:backprop}
+\begin{equation}\label{eq:ch3:backprop}
   \Delta X(z) = H(z^{-1}) \Delta Y(z)
 \end{equation}
 %
@@ -56,4 +55,226 @@ filters are the time reverse of the analysis filters so backpropagation can
 simply be done by calling the inverse wavelet transform on the wavelet
 coefficient gradients.
 
+\subsection{A brief description of autograd}
+
 \subsection{The Forward and Backward Algorithms}
+For clarity and repeatability, we give pseudocode for all the core operations
+developed in \emph{PyTorch Wavelets}. By the end of this thesis, it should be
+clear how every attempted method has been implemented.
+
+Let us start by giving generic names to the above mentioned primitives. In
+PyTorch, convolution followed by downsampling is done with a call to
+\texttt{torch.nn.functional.conv2d} with the stride parameter set to 2. There are
+similar such functions for other deep learning packages; let us refer to them
+all as \texttt{conv2d_down}. As mentioned earlier, in all such packages, this
+function's name is misleading as it in fact does correlation. As such we need to
+be careful to reverse the filters before calling it (\texttt{flip}). Convolution
+followed by upsampling can be done with a call to
+\texttt{torch.nn.functional.conv_transpose2d} with the stride parameter set to
+2; let us refer to this notional function as \texttt{conv2d_up}. Confusingly,
+this function does in fact do true convolution, so we do not need to reverse any
+filters. 
+
+These functions in turn call the cuDNN lowlevel fucntions which can only support
+zero padding. If another padding type is desired, it must be done beforehand
+with a padding function \texttt{pad}.
+
+\subsubsection{The Input}
+In all the work in the following chapters, we would like to work on four
+dimensional arrays. The first dimension represents a minibatch of $N$ images;
+the second is the number of channels $C$ each image has. For a colour image,
+$C=3$, but this often grows deeper in the network. Finally, the last two
+dimensions are the spatial dimensions, of size $H\x W$. 
+
+\subsubsection{1-D Filter Banks}
+Let us assume that the analysis ($h_0,\ h_1$) and synthesis ($g_0,\ g_1$)
+filters are already in the form needed to do column filtering. The necessary
+steps to do the 1-D analysis and synthesis steps are described in
+\autoref{alg:ch3:fb1d}. We do not need to define backpropagation functions for the
+\texttt{afb1d} and \texttt{sfb1d} functions as they are each others backwards
+step.
+
+\begin{algorithm}[tb]
+\caption{1-D analysis and synthesis stages of a DWT}\label{alg:ch3:fb1d}
+\begin{algorithmic}[1]
+\Function{afb1d}{$x,\ h_0,\ h_1,\ mode,\ axis$}
+  % \mbox{\\$h_0,\ h_1$ are 1-D lowpass and highpass filters}
+  \State $ h_0,\ h_1 \gets \F{flip}(h_0),\ \F{flip}(h_1) $\Comment{flip the filters for \texttt{conv2d_down}}
+  \If{axis == -1} 
+    \State $h_0,\ h_1 \gets h_0^t,\ h_1^t$  \Comment{row filtering}
+  \EndIf
+  \State $p \gets \lfloor (\F{len}(x) + \F{len}(h_0) - 1) / 2 \rfloor$ \Comment{calculate output size}
+  \State $b \gets \lfloor p/2 \rfloor$ \Comment{calculate pad size before}
+  \State $a \gets \lceil p/2 \rceil$ \Comment{calculate pad size after}
+  \State $x \gets \F{pad}(x,\ b,\ a,\ mode)$ \Comment{pre pad the signal with selected mode} 
+  \State $lo \gets \mathtt{conv2d\_down} (x, h_0)$
+  \State $hi \gets \mathtt{conv2d\_down} (x, h_1)$
+  \State \textbf{return} $lo,\ hi$
+\EndFunction
+\end{algorithmic}\vspace{10pt}
+\begin{algorithmic}[1]
+\Function{sfb1d}{$lo,\ hi,\ g_0,\ g_1,\ mode,\ axis$}
+  % \mbox{\\$g_0,\ g_1$ are 1-D lowpass and highpass filters.}
+  \If{axis == -1} 
+    \State $g_0,\ g_1 \gets g_0^t,\ g_1^t$  \Comment{row filtering}
+  \EndIf
+  \State $p \gets \F{len}(g_0) - 2$ \Comment{calculate output size}
+  \State $lo \gets \F{pad}(lo,\ p,\ p,\ ``zero")$ \Comment{pre pad the signal with zeros} 
+  \State $hi \gets \F{pad}(hi,\ p,\ p,\ ``zero")$ \Comment{pre pad the signal with zeros} 
+  \State $x \gets \mathtt{conv2d\_up}(lo,\ g_0) + \mathtt{conv2d\_up}(hi,\ g_1)$
+  \State \textbf{return} $x$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{2-D Transforms and their gradients}
+Having built the 1-D filter banks, we can easily generalize this to 2-D.
+Furthermore we can now define the backwards steps of both the forward DWT
+and the inverse DWT using these filter banks. We show how to do do this in 
+\autoref{alg:ch3:dwt}. The inverse transform logic is moved to the appendix
+\autoref{alg:ch3:idwt}. An interesting result is the similarity between the two 
+transforms' forward and backward stages. Further, note that the only things that
+need to be saved are the filters, as seen in
+Algorithm~\algref{alg:ch3:dwt}{line:ch3:dwt_save}. These are typically only a
+few floats, giving us a large saving over relying on autograd.
+
+A multiscale DWT (and IDWT) can easily be made by calling \autoref{alg:ch3:dwt}
+(\autoref{alg:ch3:idwt}) multiple times on the lowpass output (reconstructed
+image). Again, no intermediate activations need be saved, giving this
+implementation almost no memory overhead.
+
+\begin{algorithm}[tb]
+\caption{2-D DWT and its gradient}\label{alg:ch3:dwt}
+\begin{algorithmic}[1]
+\Function{DWT}{$x,\ h_0,\ h_1,\ mode$}
+  \State \textbf{save} $h_0,\ h_1,\ mode$ \Comment{For the backwards pass} \label{line:ch3:dwt_save}
+  \State $lo,\ hi \gets \F{afb1d}(x,\ h_0,\ h_1,\ mode,\ axis=-2)$ \Comment{column filter}
+  \State $ll,\ lh \gets \F{afb1d}(lo,\ h_0,\ h_1,\ mode,\ axis=-1)$ \Comment{row filter}
+  \State $hl,\ hh \gets \F{afb1d}(hi,\ h_0,\ h_1,\ mode,\ axis=-1)$ \Comment{row filter}
+  \State \textbf{return} $ll,\ lh,\ hl,\ hh$
+\EndFunction
+\end{algorithmic}\vspace{10pt}
+\begin{algorithmic}[1]
+\Function{DWT\_backprop}{$\Delta ll,\ \Delta lh,\ \Delta hl,\ \Delta hh$}
+  \State \textbf{load} $h_0,\ h_1,\ mode$
+  \State $ h_0,\ h_1 \gets \F{flip}(h_0),\ \F{flip}(h_1) $\Comment{flip the filters as in \eqref{eq:ch3:backprop}}
+  % \mbox{\\$g_0,\ g_1$ are 1-D lowpass and highpass filters.}
+  \State $\Delta lo \gets \F{sfb1d}(\Delta ll,\ \Delta lh,\ h_0,\ h_1,\ mode,\ axis=-2) $
+  \State $\Delta hi \gets \F{sfb1d}(\Delta hl,\ \Delta hh,\ h_0,\ h_1,\ mode,\ axis=-2) $
+  \State $\Delta x \gets \F{sfb1d}(\Delta lo,\ \Delta hi,\ h_0,\ h_1,\ mode,\ axis=-1) $
+  \State \textbf{return} $\Delta x$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+
+\section{Fast Calculation of the $\DTCWT$}\label{sec:ch3:dtcwt}
+
+\section{Changing the ScatterNet Core}\label{sec:ch3:scat}
+Now that we have a forward and backward pass for the $\DTCWT$, the final missing
+piece is the magnitude operation. Again, it is not difficult to calculate the
+gradients given the direct form, but we must be careful about their size. If $z
+= x + jy$, then:
+
+\begin{equation}
+  r = |z| =  \sqrt{x^2 + y^2}
+\end{equation}
+
+This has two partial derivatives, $\dydx{z}{x},\ dydx{z}{y}$:
+\begin{eqnarray}
+  \dydx{r}{x} & = & \frac{x}{\sqrt{x^2 + y^2}} = \frac{x}{r}\\
+  \dydx{r}{y} & = & \frac{y}{\sqrt{x^2 + y^2}} = \frac{y}{r} 
+\end{eqnarray}
+
+Except for the singularity at the origin, these partial derivatives are restricted to be in the
+range $[-1, 1]$. Also note that the complex magnitude is convex in $x$ and $y$ as:
+
+\begin{equation}
+\nabla^2 r(x,y) = \frac{1}{r^3} 
+\begin{bmatrix}
+  y^2 & -xy \\
+  -xy & x^2
+\end{bmatrix}
+ = \frac{1}{r^3} \begin{bmatrix} y \\ -x \end{bmatrix} 
+ \begin{bmatrix} y & -x \end{bmatrix} \geq 0 
+\end{equation}
+Given an input gradient, $\Delta r$, the passthrough gradient is:
+\begin{eqnarray}
+  \Delta z & = & \Delta r \dydx{r}{x} + j\Delta r \dydx{r}{y} \\
+           &= & \Delta r \frac{x}{r} + j\Delta r \frac{y}{r} \\
+           &=& \Delta r e^{j\theta}
+\end{eqnarray}
+where $\theta = \arctan{\frac{y}{x}}$. This has a nice interpretation to it as
+well, as the backwards pass is simply reinserting the discarded phase
+information. The pseudo-code for this operation is shown in
+\autoref{alg:ch3:mag}.
+
+These partial derivatives are variable around 0, in particular the second
+derivative goes to infinity at the origin \textbf{Show a plot of this}. This is not a
+feature commonly seen with other nonlinearities such as the tanh, sigmoid and
+ReLU, however it is not necessarily a bad thing. The bounded nature of the first
+derivative means we will not have any problems so long as our optimizer does not
+use higher order derivatives; this is commonly the case. Nonetheless, we
+propose to slightly smooth the magnitude operator:
+
+\begin{equation}\label{eq:ch3:magbias}
+ r_s = \sqrt{x^2 + y^2 + b^2} - b
+\end{equation}
+
+This keeps the magnitude near zero for small $x,y$ but does slightly shrink larger
+values. The gain we get however is a new smoother gradient surface \textbf{Plot
+this}. We can then increase/decrease the size of $b$ as a hyperparameter in
+optimization. The partial derivatives now become:
+\begin{eqnarray}
+  \dydx{r_s}{x} & = & \frac{x}{\sqrt{x^2 + y^2+b^2}} = \frac{x}{r_s}\\
+  \dydx{r_s}{y} & = & \frac{y}{\sqrt{x^2 + y^2+b^2}} = \frac{y}{r_s} 
+\end{eqnarray}
+There is a memory cost associated with this, as we will now need to save both
+$\dydx{r_s}{x}$ and $\dydx{r_s}{y}$ as opposed to saving only the phase.
+\autoref{alg:ch3:mag_smooth} has the pseudo-code for this.
+
+\begin{algorithm}[tb]
+\caption{Magnitude forward and backward steps}\label{alg:ch3:mag}
+\begin{algorithmic}[1]
+\Function{mag}{$x,\ y$}
+  \State $r \gets \sqrt{x^2 + y^2}$
+  \State $\theta \gets \arctan2(y,\ x)$ \Comment{$\arctan2$ handles $x=0$}
+  \State \textbf{save} $\theta$ 
+  \State \textbf{return} $r$
+\EndFunction
+\end{algorithmic}\vspace{10pt}
+\begin{algorithmic}[1]
+\Function{mag\_backprop}{$\Delta r$}
+  \State \textbf{load} $\theta$
+  \State $\Delta x \gets \Delta r \cos{\theta}$ \Comment{Reinsert phase}
+  \State $\Delta y \gets \Delta r \sin{\theta}$ \Comment{Reinsert phase}
+  \State \textbf{return} $\Delta x,\ \Delta y$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Now that we have the $\DTCWT$ and the magnitude operation, it is straightforward
+to get a $\DTCWT$ scattering layer, shown in \autoref{alg:ch3:dtcwt_scat}. To
+get a multilayer scatternet, we can call the same function again on $Z$, which
+would give $S_0,\ S_1$ and $U_2$ and so on for higher orders. 
+
+Note that for ease in handling the different sample rates of the lowpass and the
+bandpass, we have averaged the lowpass over a $2\x 2$ window. This slightly
+affects the higher order coefficients, as the true $\DTCWT$ needs the doubly
+sampled lowpass for the second scale. We noticed little difference in
+performance from doing the true $\DTCWT$ and the decimated one.
+
+\begin{algorithm}[tb]
+\caption{$\DTCWT$ ScatterNet Layer}\label{alg:ch3:dtcwt_scat}
+\begin{algorithmic}[1]
+\Function{dtcwt\_scat}{$x$}
+  \State $yl,\ yh \gets \DTCWT(x)$
+  \State $S_0 \gets \F{avg\_pool}(yl, 2)$ \Comment{the lowpass is double the sample
+  size of the bandpass}
+  \State $U_1 \gets \F{mag}(yh.real,\ yh.imag)$ 
+  \State $Z \gets \F{concatenate}(S_0,\ U_1)$ \Comment{stack 1 lowpass with 6
+  magnitudes}
+  \State \textbf{return} $Z$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}

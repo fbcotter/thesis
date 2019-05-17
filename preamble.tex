@@ -9,7 +9,7 @@
 % \fi
 % Package for displaying algorithms in a document as pseudo code
 % \usepackage{algorithmicx} % Replaced the algorithm package
-\usepackage{algorithm}
+\usepackage[chapter]{algorithm}
 \usepackage{algpseudocode}
 
 % Package for having multiple figures in one
@@ -19,6 +19,7 @@
 % Have multiple rows per column in a table
 \usepackage{multirow}
 \usepackage{xparse}
+\usepackage{makecell}
 
 % Special bold and uppercase math characters
 \usepackage{mathtools} % Replaced the amsmath package
@@ -155,6 +156,7 @@
 \newcolumntype{s}{>{\hsize=.5\hsize}X}
 \newcommand{\heading}[1]{\multicolumn{1}{c}{#1}}
 \renewcommand{\theoremautorefname}{Theorem}
+\newcommand{\algorithmautorefname}{Algorithm}
 %\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
