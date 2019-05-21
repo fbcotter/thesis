@@ -1,0 +1,24 @@
+\section{Conclusion}
+In this chapter we have proposed changing the backend for Scattering transforms
+from a Morlet wavelet transform to the spatially separable $\DTCWT$. This was
+originally inspired by the need to speed up the slow Matlab scattering package,
+as well as to provide GPU accelerated code that could do wavelet transforms as part
+of a deep learning package.
+
+We have derived the forward and backpropagation functions necessary to do 
+fast and memory efficient DWTs, $\DTCWT$s, and Scattering based on the $\DTCWT$, 
+and have made this code publically available at \cite{cotter_pytorch_2018}. We
+hope that this will reduce some of the barriers we faced in using wavelets and
+Scattering in deep learning.
+
+In parallel with our efforts, the original ScatterNet authors rewrote their
+package to speed up Scattering. In theory, a spatially separable wavelet
+transform acting on $N$ pixels has order $\mathcal{O}(N)$ whereas an FFT based
+implementation has order $\mathcal{O}(N \log N)$. We have shown experimentally
+that on modern GPUs, the difference is far larger than this, with the $\DTCWT$
+backend an order of magnitude faster than Fourier-based Morlet implementation
+\cite{andreux_kymatio:_2018}.
+
+Additionally, we have experimentally verified that using a different complex
+wavelet backend does not have a negative impact on the performance of the
+ScatterNet as a frontend to Hybrid networks. 

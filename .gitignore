@@ -12,3 +12,5 @@
 *.run.xml
 *.auxlock
 chapter.pdf
+cache
+build

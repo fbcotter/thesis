@@ -1,14 +1,14 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
-import numpy as np
-import pandas as pd
 from ray.tune.visual_utils import load_results_to_df
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from math import floor, ceil
 
 files = [
     "cifar100_scat_options",
+    "cifar10_scat_options",
+    "ti_scat_options",
 ]
 
 if __name__ == '__main__':
@@ -40,8 +40,10 @@ if __name__ == '__main__':
         #  fig.suptitle('CIFAR-100', x=0.54)
         ax = plt.subplot(111)
 
-        vmin = floor(min(zero.min(), symm.min()))
-        vmax = ceil(max(zero.max(), symm.max()))
+        #  vmin = floor(min(zero.min(), symm.min()))
+        #  vmax = ceil(max(zero.max(), symm.max()))
+        vmin = None
+        vmax = None
         img = ax.imshow(zero, vmin=vmin, vmax=vmax, cmap='viridis')
         ax.set_yticks([0,1,2])
         ax.set_yticklabels(['near\_sym\_a', 'near\_sym\_b', 'near\_symb\_b\_bp'])
@@ -65,6 +67,6 @@ if __name__ == '__main__':
         im = ax2.imshow(symm, vmin=vmin, vmax=vmax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         cbar = plt.colorbar(im, cax=cax)
-        cbar.set_ticks(list(range(vmin, vmax+1)))
+        #  cbar.set_ticks(list(range(vmin, vmax+1)))
         plt.savefig(f + '.pdf', dpi=300)
         print('Saved pdf for {}'.format(f))

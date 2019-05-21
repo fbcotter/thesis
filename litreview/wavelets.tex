@@ -408,8 +408,8 @@
 % above procedure can be represented by matrix-vector notations, which will later
 % be introduced in 3.2.3.
 % 
-\subsection{The \DTCWT}
-  The \DTCWT was first proposed by \citeauthor{kingsbury_dual-tree_1998} in
+\subsection{The $\DTCWT$}
+  The $\DTCWT$ was first proposed by \citeauthor{kingsbury_dual-tree_1998} in
   \cite{kingsbury_dual-tree_1998, kingsbury_dual-tree_1998-1} as a way to combat
   many of the shortcomings of the DWT, in particular, its poor directional
   selectivity, and its poor shift invariance. A thorough analsysis of the
@@ -436,7 +436,7 @@
   a filter bank (FB) based wavelet transform. It is faster
   to implement than the Morlet analysis, as well as being more readily invertible.
 
-\subsubsection{Deisgn Criteria for the \DTCWT}
+\subsubsection{Deisgn Criteria for the $\DTCWT$}
   It was stated in
   \autoref{sec:complex_wavelets} that if the mother (and daughter) wavelets
   were complex, with their real and imaginary parts forming a Hilbert pair,
@@ -474,7 +474,7 @@
   \begin{figure}
     \centering
       % \includegraphics[width=\textwidth]{images/dtcwt_1d_fb.png}
-      \caption[Analysis FB for the \DTCWT]
+      \caption[Analysis FB for the $\DTCWT$]
               {Analysis FB for the $\DTCWT$@. Top `tree' forms the real
               component of the complex wavelet $\psi_r$, and the bottom tree forms the
               imaginary (Hilbert pair) component $\psi_i$. Image taken from
@@ -564,7 +564,7 @@
   \begin{figure}
     \centering
       % \includegraphics[width=\textwidth]{images/dtcwt_wavelets.png}
-      \caption[Wavelets from the 2D \DTCWT]
+      \caption[Wavelets from the 2D $\DTCWT$]
               {Wavelets from the 2d $\DTCWT$@. \textbf{Top:} The six  oriented filters
       in the space domain (only the real wavelets are shown). \textbf{Bottom:}
       Idealized support of the Fourier spectrum of each wavelet in the 2D
@@ -597,7 +597,7 @@
     \makebox[\textwidth][c]{%
       % \includegraphics[width=1.1\textwidth]{images/dtcwt_fb.png}
     }
-      \caption[The filter bank implementation of the \DTCWT]
+      \caption[The filter bank implementation of the $\DTCWT$]
               {The filter bank implementation of the $\DTCWT$@. Image taken from 
               \citep{kingsbury_image_1999}}
       \label{fig:dtcwt_fb}
@@ -739,7 +739,7 @@
 \subsection{Summary of Methods}
   One final comparison to make between the $\DTCWT$ and the Morlet wavelets is
   their frequency coverage. The Morlet wavelets can be made to be tighter than
-  the \DTCWT, which gives better angular resolution --- see
+  the $\DTCWT$, which gives better angular resolution --- see
   \autoref{fig:wavelet_freq_resp}. However it is not always
   better to keep getting finer and finer resolutions, indeed the Fourier
   transform gives the ultimate in angular resolution, but as mentioned, this
@@ -840,7 +840,7 @@
 
 \begin{figure}
   \centering
-  \input{\imgpath/dtcwt}
+  % \input{\imgpath/dtcwt}
   \mycaption{Block Diagram of 1-D $\DTCWT$}{Note the top and bottom paths are
   through the wavelet or scaling functions from just level m ($M=2^m$). Figure
   based on Figure~4 in \cite{kingsbury_complex_2001}.}

@@ -1,7 +1,7 @@
 % ******************************* PhD Thesis Template **************************
 % Please have a look at the README.md file for info on how to use the template
 
-\documentclass[a4paper,12pt,customfont,numbered,print]{PhDThesisPSnPDF}
+\documentclass[a4paper,11pt,custombib,customfont,numbered,print]{PhDThesisPSnPDF}
 
 % ******************************************************************************
 % ******************************* Class Options ********************************
@@ -75,6 +75,8 @@
 % `PageStyleII': Chapter Name on Even Side (Left Even) in Header. Section Number
 % and Section Name in Header on Odd Side (Right Odd). Page numbering in footer
 
+\setcounter{secnumdepth}{4}
+
 % Uncomment to change page style
 \pagestyle{PageStyleI}
 
@@ -110,6 +112,15 @@
   \includeonly{intro,tech_background,spec_background}
 \fi
 
+\usepackage[backend=biber, 
+            style=ieee,
+            isbn=false,
+            url=true,
+            doi=false]{biblatex}
+\addbibresource{MyLibrary.bib}
+\AtEveryBibitem{%
+  \clearfield{note}%
+}
 % ******************************** Front Matter ********************************
 \begin{document}
 
@@ -140,10 +151,10 @@
 
 \include{intro/intro}
 \include{litreview/litreview}
+\include{dtcwt_scat/main}
 \include{visualizations/visualizations}
-\include{frontends/frontends}
-\include{freqlearn/freqlearn}
 \include{invariantlayer/main}
+\include{freqlearn/main}
 \include{other/conclusion}
 %\include{Chapter6/chapter6}
 %\include{Chapter7/chapter7}
@@ -161,11 +172,11 @@
 % Bibliography style previews: http://nodonn.tipido.net/bibstyle.php
 % Reference styles: http://sites.stat.psu.edu/~surajit/present/bib.htm
 
-\bibliographystyle{apalike}
+% \bibliographystyle{apalike}
 %\bibliographystyle{unsrt} % Use for unsorted references  
 %\bibliographystyle{plainnat} % use this to have URLs listed in References
-\cleardoublepage
-\bibliography{MyLibrary} % Path to your References.bib file
+% \cleardoublepage
+% \bibliography{MyLibrary} % Path to your References.bib file
 
 
 % If you would like to use BibLaTeX for your references, pass `custombib' as
@@ -173,7 +184,7 @@
 % specified in the preamble.tex file in the custombib section.
 % Comment out the lines related to natbib above and uncomment the following line.
 
-%\printbibliography[heading=bibintoc, title={References}]
+\printbibliography[heading=bibintoc, title={References}]
 
 
 \end{spacing}

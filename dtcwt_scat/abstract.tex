@@ -23,12 +23,12 @@ system have to rewrite the filter bank implementation themselves, ensuring they
 correctly handle boundary conditions and ensure correct filter tap alignment to
 achieve perfect reconstruction.
 
-This chapter describes how I have built a fast ScatterNet implementation in 
+This chapter describes how we have built a fast ScatterNet implementation in 
 PyTorch with the $\DTCWT$ as its core. At the core of that is an efficient 
 implementation of the DWT\@. The result is an open source library that provides
-all three, available on GitHub as \emph{PyTorch Wavelets} \cite{}.
+all three, available on GitHub as \emph{PyTorch Wavelets} \cite{pytorch_wavelets}.
 
-In parallel with my efforts, the original authors of the ScatterNet have
+In parallel with our efforts, the original authors of the ScatterNet have
 improved their implementation, also building it on PyTorch. My proposed
 $\DTCWT$ ScatterNet is $15-35$x faster than their improved implementation,
 depending on the padding style and wavelet length, while using less memory. 

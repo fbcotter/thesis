@@ -475,20 +475,20 @@ supported!}
 % ******************************* Bibliography *********************************
 \ifPHD@authoryear
   \ifPHD@biblatex
-    \RequirePackage[backend=biber, style=authoryear, citestyle=alphabetic, 
-      sorting=nty, natbib=true]{biblatex}
+    % \RequirePackage[backend=biber, style=authoryear, citestyle=alphabetic, 
+      % sorting=nty, natbib=true]{biblatex}
     \setBiBLaTeXtrue
   \else
-    \RequirePackage[round, sort, numbers, authoryear]{natbib} %author year
+    % \RequirePackage[round, sort, numbers, authoryear]{natbib} %author year
   \fi
 \else
   \ifPHD@numbered
     \ifPHD@biblatex
-      \RequirePackage[backend=biber, style=numeric-comp, 
-        citestyle=numeric, sorting=none, natbib=true]{biblatex}
+      % \RequirePackage[backend=biber, style=numeric-comp, 
+        % citestyle=numeric, sorting=none, natbib=true]{biblatex}
       \setBiBLaTeXtrue
     \else
-      \RequirePackage[numbers,compress]{natbib} % numbered citation
+      % \RequirePackage[numbers,compress]{natbib} % numbered citation
     \fi
   \else
     \ifuseCustomBib
@@ -504,11 +504,11 @@ supported!}
         }
     \else                                            % set default to numbered
       \ifPHD@biblatex
-        \RequirePackage[backend=biber, style=numeric-comp,
-          citestyle=numeric, sorting=none, natbib=true]{biblatex}
+        % \RequirePackage[backend=biber, style=numeric-comp,
+          % citestyle=numeric, sorting=none, natbib=true]{biblatex}
         \setBiBLaTeXfalse
       \else
-        \RequirePackage[numbers,compress]{natbib} 
+        % \RequirePackage[numbers,compress]{natbib} 
       \fi % default
       \setBibfalse
     \fi % custombib

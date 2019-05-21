@@ -1,0 +1,17 @@
+\begin{tikzpicture}[every node/.style={node font=\large}]
+\definecolor{mycolor}{RGB}{252,247,189};
+\pgfmathsetmacro{\EDGE}{.5}
+\node [fill=mycolor, draw, minimum width=3cm, minimum height=2cm] (block) at (1,1) {$y=f(x,w)$};
+\coordinate[right=\EDGE of block.south west] (xin);
+\coordinate[left=\EDGE of block.south east] (dxin);
+\coordinate[below=\EDGE of block.north west] (win);
+\coordinate[above=\EDGE of block.south west] (dwin);
+\coordinate[right=\EDGE of block.north west] (yin);
+\coordinate[left=\EDGE of block.north east] (dyin);
+\draw[<-] (xin) -- +(0,-1) node[below] {$x$};
+\draw[->] (dxin) -- ++(0,-1) node[below] {$\dydx{\logloss}{x}$};
+\draw[<-] (win) -- ++(-1,0) node[left] {$w$};
+\draw[->] (dwin) -- ++(-1,0) node[left] {$\dydx{\logloss}{w}$};
+\draw[->] (yin) -- ++(0,1) node[above] {$y$};
+\draw[<-] (dyin) -- ++(0,1) node[above] {$\dydx{\logloss}{y}$};
+\end{tikzpicture}

@@ -1,4 +1,5 @@
-\documentclass{report}
+% \documentclass{report}
+\documentclass[a4paper,custombib,11pt,customfont,numbered,print]{PhDThesisPSnPDF}
 \setcounter{secnumdepth}{4}
 \usepackage{color}
 \usepackage{ifpdf}
@@ -9,6 +10,7 @@
 \usepackage[english]{babel}% Recommended
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage{csquotes}% Recommended
+% \usepackage[toc,page]{appendix}
 \usepackage[backend=biber, 
             style=ieee,
             isbn=false,
@@ -22,10 +24,11 @@
 
 \input{dtcwt_scat/main}
 
-\printbibheading
+% \printbibheading
 % \section*{References}
-\printbibliography[heading=none]
+\printbibliography[heading=bibintoc, title={References}]
 
+\cleardoublepage\makeatletter\@openrightfalse\makeatother
 \begin{appendices}
   \input{dtcwt_scat/appendix}
 \end{appendices}

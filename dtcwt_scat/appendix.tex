@@ -8,7 +8,7 @@ included in the main text for the interested reader.
 \begin{algorithm}[tb]
 \caption{2-D Inverse DWT and its gradient}\label{alg:ch3:idwt}
 \begin{algorithmic}[1]
-\Function{IDWT}{$ll,\ lh,\ hl,\ hl,\ g_0,\ g_1,\ mode$}
+\Function{AG:IDWT:FWD}{$ll,\ lh,\ hl,\ hl,\ g_0,\ g_1,\ mode$}
   \State \textbf{save} $g_0,\ g_1,\ mode$ \Comment{For the backwards pass} \label{line:ch3:idwt_save}
   \State $lo \gets \F{sfb1d}(ll,\ lh,\ g_0,\ g_1,\ mode,\ axis=-2) $
   \State $hi \gets \F{sfb1d}(hl,\ hh,\ g_0,\ g_1,\ mode,\ axis=-2) $
@@ -17,7 +17,7 @@ included in the main text for the interested reader.
 \EndFunction
 \end{algorithmic}\vspace{10pt}
 \begin{algorithmic}[1]
-\Function{IDWT\_backprop}{$\delta y$}
+\Function{AG:IDWT:BWD}{$\delta y$}
   \State \textbf{load} $g_0,\ g_1,\ mode$
   \State $ g_0,\ g_1 \gets \F{flip}(g_0),\ \F{flip}(g_1) $\Comment{flip the filters as in \eqref{eq:ch3:backprop}}
   \State $\Delta lo,\ \Delta hi \gets \F{afb1d}(\delta y,\ g_0,\ g_1,\ mode,\ axis=-2)$ 
@@ -31,7 +31,7 @@ included in the main text for the interested reader.
 \begin{algorithm}[tb]
 \caption{Smooth Magnitude}\label{alg:ch3:mag_smooth}
 \begin{algorithmic}[1]
-\Function{mag\_smooth}{$x,\ y,\ b$}
+\Function{AG:MAG\_SMOOTH:FWD}{$x,\ y,\ b$}
   \State $b \gets \max(b,\ 0)$
   \State $r \gets \sqrt{x^2 + y^2 + b^2}$
   \State $\dydx{r}{x} \gets \frac{x}{r}$
@@ -41,11 +41,25 @@ included in the main text for the interested reader.
 \EndFunction
 \end{algorithmic}\vspace{10pt}
 \begin{algorithmic}[1]
-\Function{mag\_smooth\_backprop}{$\Delta r$}
+\Function{AG:MAG\_SMOOTH:BWD}{$\Delta r$}
   \State \textbf{load} $\dydx{r}{x},\ \dydx{r}{y}$
   \State $\Delta x \gets \Delta r \dydx{r}{x}$
   \State $\Delta y \gets \Delta r \dydx{r}{y}$
   \State \textbf{return} $\Delta x,\ \Delta y$
 \EndFunction
 \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[tb]
+\caption{Q2C}\label{alg:ch3:q2c}
+\begin{algorithmic}[1]
+\Function{MOD:Q2C}{$x,\ y,\ b$}
+  \State $b \gets \max(b,\ 0)$
+  \State $r \gets \sqrt{x^2 + y^2 + b^2}$
+  \State $\dydx{r}{x} \gets \frac{x}{r}$
+  \State $\dydx{r}{y} \gets \frac{y}{r}$
+  \State \textbf{save} $\dydx{r}{x},\ \dydx{r}{x}$
+  \State \textbf{return} $r - b$
+\EndFunction
+\end{algorithmic}\vspace{10pt}
 \end{algorithm}

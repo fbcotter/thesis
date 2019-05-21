@@ -1,36 +1,35 @@
 \section{The Design Constraints}
-The original authors implemented their ScatterNet in matlab \cite{} using
+The original authors implemented their ScatterNet in matlab \cite{oyallon_deep_2015} using
 a Fourier based Morlet wavelet transform. 
-
 The standard procedure for using ScatterNets in a deep learning
 framework up until recently has been to:
 \begin{enumerate}
   \item Pre scatter a dataset and store the features to disk. This can take
     several hours to several days depending on the size of the dataset and the
     number of CPU cores available.
-  \item Build a network in another framework, usually Tensorflow \cite{}
-    or Pytorch \cite{}.
+  \item Build a network in another framework, usually Tensorflow \cite{abadi_tensorflow:_2015}
+    or Pytorch \cite{paszke_automatic_2017}.
   \item Load the scattered data from disk and train on it.
 \end{enumerate} 
 We saw that this approach was suboptimal for a number of reasons:
 \begin{itemize}
-  \item It was slow and needed to be run on CPUs.
-  \item It was inflexible to any changes you wanted to investigate in the
+  \item It is slow and must run on CPUs.
+  \item It is inflexible to any changes you wanted to investigate in the
     Scattering design; you would have to re-scatter all the data and save
     elsewhere on disk.
-  \item You could not easily do preprocessing techniques like random shifts and
+  \item You can not easily do preprocessing techniques like random shifts and
     flips, as each of these would change the scattered data.
-  \item The scattered features were often larger than the original images, and 
-    required you to store entire datasets twice (or more) times.
-  \item The features were fixed and could only be used as a front end to any
+  \item The scattered features are often larger than the original images, and 
+    require you to store entire datasets twice (or more) times.
+  \item The features are fixed and can only be used as a front end to any
     deep learning system.
 \end{itemize}
 
-To address these shortcomings, all of the above limitations became design
+To address these shortcomings, all of the above limitations become design
 constraints. In particular, the new software should be:
 \begin{itemize}
   \item Able to run on GPUs (ideally on multiple GPUs in parallel).
-  \item Flexible and fast so that it could be run as part of the forward pass of
+  \item Flexible and fast so that it can run as part of the forward pass of
     a neural network (allowing preprocessing techniques like random shifts and
     flips).
   \item Able to pass gradients through, so that it could be part of a larger
@@ -46,11 +45,11 @@ ScatterNets without having to use or learn extra software.
 
 As mentioned earlier, the original authors of the ScatterNet also noticed the
 shortcomings with their Scattering software, and recently released a new package
-that could do Scattering in PyTorch \cite{kymatio} addressing the above design
-constraints. The key difference between our proposed and their
-improved packages is the use of the $\DTCWT$ as the core (their software still
-uses the original Morlet wavelet design).
-
-As part of our explanation we give pseudo code for the forward and backward
-passes of all our key layers. This will help us later when we want to build on
-simpler designs.
+that can do Scattering in PyTorch called KyMatIO\cite{andreux_kymatio:_2018}, addressing the
+above design constraints. The key difference between our proposed and their
+improved packages is the use of the $\DTCWT$ as the core rather than 
+Morlet wavelets. While the key focus of this chapter is in detailing how we have
+built a fast, GPU-ready, and deep learning compatible library that can do the
+DWT, $\DTCWT$, and $\DTCWT$ ScatterNet, we also compare the speeds and performance
+of our package to this new one, as it provides some interesting
+insights into some of the design choices that can be made with a ScatterNet.
