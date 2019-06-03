@@ -251,14 +251,15 @@ we would have to handle the $j=0$ case separately.
 \begin{algorithm}[tb]
 \caption{2-D $\DTCWT$}\label{alg:ch3:dtcwt}
 \begin{algorithmic}[1]
-\Function{MOD:DTCWT}{$x,\ J,\ h_0^a,\ h_1^a, h_0^b, h_1^b\ mode$}
+\Function{MOD:DTCWT}{$x,\ J,\ mode$}
+\State \textbf{load} $h_0^a,\ h_1^a,\ h_0^b,\ h_1^b$
 \State $ll^{aa},\ ll^{ab},\ ll^{ba},\ ll^{bb} \gets x$
 % \State $H = \left[h_
 \For{$0 \le j < J$}
-  \State $ll^{aa},\ lh^{aa},\ hl^{aa},\ hh^{aa} \gets \F{AG:DWT}(ll^{aa}, h_0^a,\ h_1^a,\ h_0^a,\ h_1^a,\ mode)$
-  \State $ll^{ab},\ lh^{ab},\ hl^{ab},\ hh^{ab} \gets \F{AG:DWT}(ll^{ab}, h_0^a,\ h_1^a,\ h_0^b,\ h_1^b,\ mode)$
-  \State $ll^{ba},\ lh^{ba},\ hl^{ba},\ hh^{ba} \gets \F{AG:DWT}(ll^{ba}, h_0^b,\ h_1^b,\ h_0^a,\ h_1^a,\ mode)$
-  \State $ll^{bb},\ lh^{bb},\ hl^{bb},\ hh^{bb} \gets \F{AG:DWT}(ll^{bb}, h_0^b,\ h_1^b,\ h_0^b,\ h_1^b,\ mode)$
+  \State $ll^{aa},\ lh^{aa},\ hl^{aa},\ hh^{aa} \gets \F{AG:DWT}(ll^{aa},\ h_0^a,\ h_1^a,\ h_0^a,\ h_1^a,\ mode)$
+  \State $ll^{ab},\ lh^{ab},\ hl^{ab},\ hh^{ab} \gets \F{AG:DWT}(ll^{ab},\ h_0^a,\ h_1^a,\ h_0^b,\ h_1^b,\ mode)$
+  \State $ll^{ba},\ lh^{ba},\ hl^{ba},\ hh^{ba} \gets \F{AG:DWT}(ll^{ba},\ h_0^b,\ h_1^b,\ h_0^a,\ h_1^a,\ mode)$
+  \State $ll^{bb},\ lh^{bb},\ hl^{bb},\ hh^{bb} \gets \F{AG:DWT}(ll^{bb},\ h_0^b,\ h_1^b,\ h_0^b,\ h_1^b,\ mode)$
   \State \begin{varwidth}[t]{\linewidth}
     $yh[j] \gets \F{Q2C}( $\par 
         \hskip\algorithmicindent $lh^{aa},\ hl^{aa},\ hh^{aa},$ \par
@@ -371,14 +372,18 @@ performance from doing the true $\DTCWT$ and the decimated one.
   \mycaption{$\DTCWT$ ScatterNet Layer}{High level block using the above
   autograd functions to calculate a first order scattering}\label{alg:ch3:dtcwt_scat}
 \begin{algorithmic}[1]
-\Function{MOD:DTCWT\_SCAT}{$x$}
-  \State $yl,\ yh \gets \DTCWT(x)$
-  \State $S_0 \gets \F{avg\_pool}(yl, 2)$ \Comment{the lowpass is double the sample
-  size of the bandpass}
-  \State $U_1 \gets \F{mag}(\real{yh},\ \imag{yh})$ 
-  \State $Z \gets \F{concatenate}(S_0,\ U_1)$ \Comment{stack 1 lowpass with 6
-  magnitudes}
-  \State \textbf{return} $Z$
+\Function{MOD:DTCWT\_SCAT}{$x,\ J=2,\ M=2$}
+\State $Z \gets x$
+\For{$0 \le m < M$}
+  \State $yl,\ yh \gets \DTCWT(Z,\ J=1,\ mode=\F{`symmetric'})$
+  \State $S \gets \F{avg\_pool}(yl,\ 2)$
+  \State $U \gets \F{mag}(\real{yh},\ \imag{yh})$ 
+  \State $Z \gets \F{concatenate}(S,\ U,\ axis=1)$ \Comment{stack 1 lowpass with 6 magnitudes}
+\EndFor
+\If{$J > M$}
+\State $Z \gets \F{avg\_pool}(Z,\ 2^{J-M})$
+\EndIf
+\State \textbf{return} $Z$
 \EndFunction
 \end{algorithmic}
 \end{algorithm}

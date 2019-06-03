@@ -1,0 +1,37 @@
+% \documentclass{report}
+\documentclass[a4paper,custombib,11pt,customfont,numbered,print]{PhDThesisPSnPDF}
+\setcounter{secnumdepth}{4}
+\usepackage{color}
+\usepackage{ifpdf}
+\usepackage{geometry}
+\include{preamble}
+\include{defs}
+\usepackage{xcolor}
+\usepackage[english]{babel}% Recommended
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage{csquotes}% Recommended
+% \usepackage[toc,page]{appendix}
+\usepackage[backend=biber, 
+            style=ieee,
+            isbn=false,
+            url=true,
+            doi=false]{biblatex}
+\addbibresource{MyLibrary.bib}
+\AtEveryBibitem{%
+  \clearfield{note}%
+}
+\begin{document}
+
+\input{dtcwt_scat/main}
+
+% \printbibheading
+% \section*{References}
+\printbibliography[heading=bibintoc, title={References}]
+
+\cleardoublepage\makeatletter\@openrightfalse\makeatother
+\begin{appendices}
+  \input{visualizations/appendix}
+\end{appendices}
+
+\end{document}
+

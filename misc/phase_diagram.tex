@@ -1,0 +1,280 @@
+% \documentclass{article}
+% \input{preamble}
+% \input{defs}
+% \begin{document}
+
+% Define the angles and magnitudes
+\def\ra{0.4}
+\def\rb{0.9}
+\def\rc{0.6}
+\def\rd{1.0}
+\def\ta{60}
+\def\tb{130}
+\def\tc{-160}
+\def\td{-50}
+\def\sig{2}
+
+% \begin{tikzpicture}
+  % \begin{axis}[hide axis]
+    % \addplot3[surf] {1/(2*pi*\sig) * e^(-0.5/\sig^2*(x^2+y^2))};
+  % \end{axis}
+% \end{tikzpicture}
+
+\begin{tikzpicture}[tdplot_main_coords,scale=1,
+	% Styles
+	grida/.style={ultra thin},
+	gridb/.style={very thin,dotted},
+	circle/.style={dashed,gray,thin},
+	vector/.style={->,blue,line width=2pt}]
+
+	%draw a grid in the x-y plane
+	\foreach \x in {-2, 0, 2}
+		\foreach \y in {-2, 0, 2}
+		{
+			\draw[grida] (\x,-2) -- (\x,2);
+			\draw[grida] (-2,\y) -- (2,\y);
+		}
+	\foreach \x in {-1, 1}
+		\foreach \y in {-1, 1}
+		{
+			\draw[gridb] (\x,-2) -- (\x,2);
+			\draw[gridb] (-2,\y) -- (2,\y);
+		}
+
+  \draw[<->, thin] (2.2,2.0) -- (2.2,-2) node[midway,below,sloped] {$\imag{W_m}$};
+  \draw[<->, thin] (-2,-2.2) -- (2,-2.2) node[midway,below,sloped] {$\real{W_m}$};
+	\draw[circle] (1,1) circle [radius=\ra];
+	\draw[circle] (-1,1) circle [radius=\rb];
+	\draw[circle] (-1,-1) circle [radius=\rc];
+	\draw[circle] (1,-1) circle [radius=\rd];
+
+	\draw[vector] (1,1) -- +(\ta:\ra);
+	\draw[vector] (-1,1) -- +(\tb:\rb);
+	\draw[vector] (-1,-1) -- +(\tc:\rc);
+	\draw[vector] (1,-1) -- +(\td:\rd);
+\end{tikzpicture}
+
+\vspace{1cm}
+\begin{tikzpicture}[tdplot_main_coords,scale=1,
+	% Styles
+	grida/.style={ultra thin},
+	gridb/.style={very thin,dotted},
+  cube/.style={black,fill=red,fill opacity=0.8}]
+
+  \pgfmathsetmacro{\cubexy}{0.3}
+
+	%draw a grid in the x-y plane
+	\foreach \x in {-2, 0, 2}
+		\foreach \y in {-2, 0, 2}
+		{
+			\draw[grida] (\x,-2) -- (\x,2);
+			\draw[grida] (-2,\y) -- (2,\y);
+		}
+
+	\foreach \x in {-1, 1}
+		\foreach \y in {-1, 1}
+		{
+			\draw[gridb] (\x,-2) -- (\x,2);
+			\draw[gridb] (-2,\y) -- (2,\y);
+		}
+  
+  \draw[->, thin] (-2,-2,0) -- (-2,-2,1.5) node[midway,left] {$U_m$};
+  % \draw[->, thin] (0,0,0) -- (0,0,1.5) node[midway,right] {$U_m$};
+  \foreach \x/\y/\height in {1/1/1.5*\ra, -1/1/1.5*\rb, -1/-1/1.5*\rc, 1/-1/1.5*\rd}
+  {
+    \draw[cube] (\x-\cubexy,\y-\cubexy,0) -- ++(2*\cubexy,0,0) 
+                -- ++(0,0,\height) -- ++(-2*\cubexy,0,0) -- cycle;
+    \draw[cube] (\x+\cubexy,\y-\cubexy,0) -- ++(0,2*\cubexy,0)
+                -- ++(0,0,\height) -- ++(0,-2*\cubexy,0) -- cycle;
+    \draw[cube] (\x-\cubexy,\y-\cubexy,\height) -- ++(0,2*\cubexy,0)
+                -- ++(2*\cubexy,0,0) -- ++(0,-2*\cubexy,0) -- cycle;
+  }
+
+
+\end{tikzpicture}
+% Plot the positions with phases removed first
+
+\vspace{1cm}
+\def\ra{0.8}
+\def\rb{0.8}
+\def\rc{0.8}
+\def\rd{0.8}
+{
+\tdplotsetmaincoords{0}{0}
+\begin{tikzpicture}[tdplot_main_coords,scale=0.6,
+	% Styles
+	grida/.style={ultra thin},
+	gridb/.style={very thin,dotted},
+	circle/.style={dashed,gray,thin},
+	vector/.style={->,violet,line width=2pt}]
+
+	%draw a grid in the x-y plane
+	\foreach \x in {-2, 0, 2}
+		\foreach \y in {-2, 0, 2}
+		{
+			\draw[grida] (\x,-2) -- (\x,2);
+			\draw[grida] (-2,\y) -- (2,\y);
+		}
+	\foreach \x in {-1, 1}
+		\foreach \y in {-1, 1}
+		{
+			\draw[gridb] (\x,-2) -- (\x,2);
+			\draw[gridb] (-2,\y) -- (2,\y);
+		}
+
+	\draw[circle] (1,1) circle [radius=\ra];
+	\draw[circle] (-1,1) circle [radius=\rb];
+	\draw[circle] (-1,-1) circle [radius=\rc];
+	\draw[circle] (1,-1) circle [radius=\rd];
+
+	\draw[vector] (1,1) -- +(\ta:\ra);
+	\draw[vector] (-1,1) -- +(\tb:\rb);
+	\draw[vector] (-1,-1) -- +(\tc:\rc);
+	\draw[vector] (1,-1) -- +(\td:\rd);
+\end{tikzpicture}
+}
+
+\vspace{1cm}
+\def\ra{0.8}
+\def\rb{0.3}
+\def\rc{0.6}
+\def\rd{0.3}
+\begin{tikzpicture}[tdplot_main_coords,scale=1,
+	% Styles
+	grida/.style={ultra thin},
+	gridb/.style={very thin,dotted},
+  cube/.style={black,fill=red,fill opacity=0.8}]
+
+  \pgfmathsetmacro{\cubexy}{0.3}
+
+	%draw a grid in the x-y plane
+	\foreach \x in {-2, 0, 2}
+		\foreach \y in {-2, 0, 2}
+		{
+			\draw[grida] (\x,-2) -- (\x,2);
+			\draw[grida] (-2,\y) -- (2,\y);
+		}
+
+	\foreach \x in {-1, 1}
+		\foreach \y in {-1, 1}
+		{
+			\draw[gridb] (\x,-2) -- (\x,2);
+			\draw[gridb] (-2,\y) -- (2,\y);
+		}
+  
+    \draw[->, thin] (-2,-2,0) -- (-2,-2,1.5) node[midway,left] {$\hat{U}_m$};
+  \foreach \x/\y/\height in {1/1/1.5*\ra, -1/1/1.5*\rb, -1/-1/1.5*\rc, 1/-1/1.5*\rd}
+  {
+    \draw[cube] (\x-\cubexy,\y-\cubexy,0) -- ++(2*\cubexy,0,0) 
+                -- ++(0,0,\height) -- ++(-2*\cubexy,0,0) -- cycle;
+    \draw[cube] (\x+\cubexy,\y-\cubexy,0) -- ++(0,2*\cubexy,0)
+                -- ++(0,0,\height) -- ++(0,-2*\cubexy,0) -- cycle;
+    \draw[cube] (\x-\cubexy,\y-\cubexy,\height) -- ++(0,2*\cubexy,0)
+                -- ++(2*\cubexy,0,0) -- ++(0,-2*\cubexy,0) -- cycle;
+  }
+
+
+\end{tikzpicture}
+
+% Plot the coordinates with phase reinserted
+\vspace{1cm}
+\begin{tikzpicture}[tdplot_main_coords,scale=1,
+	% Styles
+	grida/.style={ultra thin},
+	gridb/.style={very thin,dotted},
+	circle/.style={dashed,gray,thin},
+	vector/.style={->,blue,line width=2pt}]
+
+	%draw a grid in the x-y plane
+	\foreach \x in {-2, 0, 2}
+		\foreach \y in {-2, 0, 2}
+		{
+			\draw[grida] (\x,-2) -- (\x,2);
+			\draw[grida] (-2,\y) -- (2,\y);
+		}
+	\foreach \x in {-1, 1}
+		\foreach \y in {-1, 1}
+		{
+			\draw[gridb] (\x,-2) -- (\x,2);
+			\draw[gridb] (-2,\y) -- (2,\y);
+		}
+
+	\draw[circle] (1,1) circle [radius=\ra];
+	\draw[circle] (-1,1) circle [radius=\rb];
+	\draw[circle] (-1,-1) circle [radius=\rc];
+	\draw[circle] (1,-1) circle [radius=\rd];
+
+  \draw[<->, thin] (2.2,2.0) -- (2.2,-2) node[midway,below,sloped] {$\imag{\hat{W}_m}$};
+  \draw[<->, thin] (-2,-2.2) -- (2,-2.2) node[midway,below,sloped] {$\real{\hat{W}_m}$};
+	\draw[vector] (1,1) -- +(\ta:\ra);
+	\draw[vector] (-1,1) -- +(\tb:\rb);
+	\draw[vector] (-1,-1) -- +(\tc:\rc);
+	\draw[vector] (1,-1) -- +(\td:\rd);
+\end{tikzpicture}
+
+\vspace{1cm}
+\begin{tikzpicture}[tdplot_main_coords,
+	% Styles
+	grida/.style={ultra thin},
+	gridb/.style={ultra thin,dashed},
+	arc/.style={->,orange,thick}]
+
+	%draw a grid in the x-y plane
+	\foreach \x in {-2, 0, 2}
+		\foreach \y in {-2, 0, 2}
+		{
+			\draw[grida] (\x,-2) -- (\x,2);
+			\draw[grida] (-2,\y) -- (2,\y);
+		}
+	\foreach \x in {-1, 1}
+		\foreach \y in {-1, 1}
+		{
+			\draw[gridb] (\x,-2) -- (\x,2);
+			\draw[gridb] (-2,\y) -- (2,\y);
+		}
+
+	% \tdplotdrawarc[arc]{0,0,0}{\ra}{0}{\ta}{}{};
+	\draw[arc] (1,1) +(0:0.5) arc (0:\ta:0.5);
+	\draw[arc] (-1,1) +(0:.5) arc (0:\tb:0.5);
+	\draw[arc] (-1,-1) +(0:.5) arc (0:\tc:0.5);
+	\draw[arc] (1,-1) +(0:.5) arc (0:\td:.5);
+\end{tikzpicture}
+\vspace{1cm}
+
+\def\ra{0.8}
+\def\rb{0.8}
+\def\rc{0.8}
+\def\rd{0.8}
+\begin{tikzpicture}[tdplot_main_coords,scale=1,
+	% Styles
+	grida/.style={ultra thin},
+	gridb/.style={very thin,dotted},
+	circle/.style={dashed,gray,thin},
+	vector/.style={->,violet,line width=2pt}]
+
+	%draw a grid in the x-y plane
+	\foreach \x in {-2, 0, 2}
+		\foreach \y in {-2, 0, 2}
+		{
+			\draw[grida] (\x,-2) -- (\x,2);
+			\draw[grida] (-2,\y) -- (2,\y);
+		}
+	\foreach \x in {-1, 1}
+		\foreach \y in {-1, 1}
+		{
+			\draw[gridb] (\x,-2) -- (\x,2);
+			\draw[gridb] (-2,\y) -- (2,\y);
+		}
+
+	\draw[circle] (1,1) circle [radius=\ra];
+	\draw[circle] (-1,1) circle [radius=\rb];
+	\draw[circle] (-1,-1) circle [radius=\rc];
+	\draw[circle] (1,-1) circle [radius=\rd];
+
+	\draw[vector] (1,1) -- +(\ta:\ra);
+	\draw[vector] (-1,1) -- +(\tb:\rb);
+	\draw[vector] (-1,-1) -- +(\tc:\rc);
+	\draw[vector] (1,-1) -- +(\td:\rd);
+\end{tikzpicture}
+\end{document}
+

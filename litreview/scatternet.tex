@@ -1,0 +1,362 @@
+\section{Scatternets}\label{ch:scatternets}
+% Let us define the pairs of authors here
+
+  Scatternets have been a very large influence on
+  our work, as well as being quite distinct from the previous discussions on
+  learned methods. They were first introduced by  
+  \citeauthor{bruna_classification_2011} in their work 
+  \citep{bruna_classification_2011}, and then were rigorously defined by Mallat
+  in \citep{mallat_group_2012}. Several updates and newer models have since
+  been released by Mallat's group, which we will review in this chapter.
+  
+  It is helpful to introduce this chapter with one further note. Unlike the
+  CNNs introduced in \autoref{sec:cnns}, which were set up to minimize some
+  cost function which had certain constraints to promote certain properties,
+  the scattering operator may be thought of as an operator $\Phi$ which has
+  some desirable properties for image understanding. These properties may
+  ultimately help us minimize some cost function and improve our image
+  understanding system, which we explore more in
+  \autoref{ch:scat_deep}.
+
+
+  \section{Translation Invariant Scatternets}
+  The translation invariant Scatternets were mostly covered in
+  \citep{bruna_invariant_2013}. This section summarises the method of this
+  paper.
+
+  \subsection{Defining the Properties}
+  The first release of Scatternets aimed at building a translation invariant
+  operator, which was also stable to additive noise and deformations. Translation
+  is often defined as being uninformative for classification --- an object
+  appearing in the centre of the image should be treated the same way as an
+  the same object appearing in the corner of an image, i.e.,\ $\Phi x$ is
+  invariant to translations $x_c(\bmu{u}) = x(\bmu{u}-\bmu{c})$\footnote{here
+  we adopt a slight variation on \Bruna's notation, by using boldface letters to
+  represent vectors, as is the custom in Signal Processing} by 
+  $\bmu{c}=(c_1,c_2) \in \mathbb{R}^2$ if
+  % The first requirement for Scatternets - translation invariance
+  \begin{equation}\label{eq:scat_trans_invariance}
+    \Phi x_c = \Phi x
+  \end{equation}
+
+  Stability to additive noise is another good choice to include in this operator,
+  as it is a common feature in measured signals. Stability is defined in terms of
+  Lipschitz continuity, which is a strong form of uniform continuity for
+  functions, which we briefly introduce here.
+
+  Formally, a Lipschitz continuous function is limited in how fast it can change;
+  there exists an upper bound on the gradient the function can take, although it
+  doesn't necessarily need to be differentiable everywhere. The modulus operator
+  $|x|$ is a good example of a function that has a bounded derivative and so is
+  Lipschitz continuous, but isn't differentiable everywhere.
+
+  \begin{figure}
+    \begin{center}
+      % \includegraphics[scale=0.8]{images/Lipschitz_continuity.png}
+      \caption[A Lipschitz continuous function]
+              {A Lipschitz continuous function is shown. There is a cone for this
+              function (shown in white) such that the graph always remains entirely outside
+              the cone as it's shifted across. The minimum gradient needed for this to hold
+              is called the `best Lipschitz constant'.}
+      \label{fig:lipschitz}
+    \end{center}
+  \end{figure}
+
+  Returning again to stability to additive noise, \Bruna\ state that for a new
+  signal $x'(\bmu{u}) = x(\bmu{u}) + \epsilon(\bmu{u})$, there must exist
+  a bounded $C>0$ s.t.
+  % The second requirement - noise stability
+  \begin{equation}\label{eq:scat_noise_stability}
+    \|\Phi x' - \Phi x\| \leq C \|x' - x\|
+  \end{equation}
+  The final requirement is to be stable to small deformations. Enough so that we
+  can ignore intra-class variations, but not so invariant that an object can
+  morph into another (in the case of MNIST for example, we do not want to be so
+  stable to deformations that 7s can map to 1s). Formally, for a new signal
+  $x_{\tau}(\bmu{u}) = x(\bmu{u}-\tau(\bmu{u}))$, where $\tau(\bmu{u})$ is a non
+  constant displacement field (i.e.,\ not just a translation) that deforms the
+  image, we require a $C>0$ s.t.
+  % The third requirement - deformation stability
+  \protect\begin{equation}\label{eq:scat_deformation_stability}
+    \|\Phi x_{\tau} - \Phi x \| \leq C \|x\| \sup_{\bmu{u}} |\nabla\tau(\bmu{u})|
+  \protect\end{equation}
+  The term on the right $|\nabla\tau(\bmu{u})|$ measures the deformation
+  amplitude, so the supremum of it is a limit on the global defomation amplitude.
+
+\subsection{Finding the Right Operator}
+  A Fourier modulus satisfies the first two of these requirements, in that it is
+  both translation invariant and stable to additive noise, but it is unstable to
+  deformations due to the infinite support of the sinusoid basis functions it
+  uses. It also loses too much information --- very different signals can all
+  have the same Fourier modulus, e.g.\ a chirp, white noise and the Dirac delta
+  function all have flat spectra.
+
+  Unlike the Fourier modulus, a wavelet transform
+  is stable to deformations due to the grouping together frequencies into dyadic
+  packets \citep{mallat_group_2012}, however, the wavelet transform is not invariant to
+  shifts. 
+  
+  We saw in \autoref{ch:freq_analysis} that the modulus of complex, analytic
+  wavelets commuted with shifts. The real and imaginary parts are also
+  commutative with shifts, but these vary much quicker than the modulus
+  (\autoref{fig:pulse_response}).  Interestingly, the modulus operator, in this
+  case, does not lose any information \citep{waldspurger_phase_2012} (due to the
+  redundancies of the wavelet transform), which is why it may be nice to think
+  of it as a \emph{demodulator}.
+
+  \begin{figure}
+    \begin{center}
+      \newlength\figureheight 
+      \newlength\figurewidth 
+      \setlength\figureheight{6cm} 
+      \setlength\figurewidth{8cm}
+      % \input{scripts/scatternet_freqresp_plot1.tikz} 
+      \caption{Real, Imaginary and Modulus of complex wavelet convolved with
+               an impulse.}
+      \label{fig:pulse_response}
+    \end{center}
+  \end{figure}
+  
+
+  % A tikz diagram to draw what the operator looks like so far
+  %\input{tikz/invariant}
+
+  The modulus can be made fully invariant by integrating, i.e.,:
+  $$\int F x(\bmu{u})d\bmu{u}= \int | x \ast \psi_{\lambda}(\bmu{u})| d\bmu{u}$$
+  is translation invariant. 
+  Total invariance to shifts means integrating over the entire function, which
+  may not be ideal as it loses a significant amount of information in doing this. Instead
+  \citeauthor{bruna_invariant_2013} define scales $2^J$, over which their operator
+  is invariant to shifts. Now instead of integrating, the output $\|x \ast \psi_{\lambda}\|$ is
+  convolved with an averaging window, or conveniently, the scaling function for
+  the chosen wavelet:
+  $$\phi_{2^J}(\bmu{u}) = 2^{-2J}\phi(2^{-J}\bmu{u})$$
+
+  Even still, this averaging means that a lot of information is lost from the
+  first layer outputs ($\|x \ast \psi_{\lambda}\|$).
+  \citeauthor{bruna_invariant_2013} combat this by also convolving the output
+  with wavelets that cover the rest of the frequency space, giving  
+  $$U[p]x = U[\lambda_2]U[\lambda_1]x = \| | x \ast \psi_{\lambda_1}| 
+    \ast \psi_{\lambda_2} \|$$
+  The choice of wavelet functions $\lambda_{1}$ and $\lambda_{2}$ is combined
+  into a path variable, $p = (\lambda_1, \lambda_2, \ldots \lambda{m})$.
+
+  Local invariants can be again computed by convolving this with another scaling
+  function $\phi$. The result is now a multiscale scattering transform, with
+  coefficients:
+  $$ S[p]x = U[p]x \ast \phi_{2^J}(\bmu{u}) $$
+  A graphical representation of this is shown in
+  \autoref{fig:scatternet_mallat}.
+
+  \begin{figure}
+    \centering
+      \includegraphics[width=\textwidth]{images/scatternet_diagram.png}
+      \caption[Translation Invariant Scatternet Layout]
+              {The translation invariant Scattering Transform. Scattering outputs
+               are the leftward pointing arrows $S[p]x$, and the intermediate 
+               coefficients $U[p]x$ are the centre nodes of the tree. Taken
+               from \citep{bruna_invariant_2013}.}
+      \label{fig:scatternet_mallat}
+  \end{figure}
+
+  % \begin{eqnarray*}
+  % \bm{lambda} &=& (j, \theta)
+  % % Scattering transform equation
+  % \begin{eqnarray*}
+  % \Phi x & = & \{S[\bmu{p}]x(\bmu{u}) | \bmu{p} = (\bmu{\lambda_{1}},
+  % \bmu{\lambda_{2}}, \ldots \bmu{\lambda_{m}})
+
+\section{Rotation and Translation Invariant Scatternets}
+  Mallat's group refined their Scatternet architecture by expanding their list
+  of invariants to also include rotation. They also experimented with adding
+  scale invariance in \citep{sifre_rotation_2013}, but it was limited to only
+  averaging over scale once, and they were no longer using
+  it in \citep{oyallon_deep_2015}, so for brevity we omit it. 
+  
+  This work was done by two authors, each tackling different
+  challenges. The first is texture analysis with Sifre in
+  \citep{sifre_combined_2012, sifre_rotation_2013, sifre_rigid-motion_2014,
+  sifre_rigid-motion_2014-1}, and the second is image classification with
+  Oyallon in \citep{oyallon_generic_2013, oyallon_deep_2015}. In this section,
+  we outline the properties and structure of this extended Scatternet.
+
+\subsection{An Important note on Joint vs. Separable Invariants}
+  When building multiple invariants, some thought must be given as to how to
+  combine them --- separably or jointly? Let us call the group of operations we
+  want to be invariant to $G$, with $g \in G$ a single realization from this
+  group --- in this case, $G$ is the group of affine transformations. We want
+  our operator $\Phi$ to be invariant to all  $g \in G$, i.e.,\ $\Phi(gx)
+  = \Phi(x)$. Building separable invariants would mean representing the group
+  as $G=G_2G_1$ (an assumption of the group, not of our model), and building
+  $\Phi = \Phi_2 \Phi_1$, where $\Phi_1$ is invariant to members of $G_1$ and
+  covariant to members of $G_2$, and $\Phi_2$ is invariant to members of $G_2$.
+  I.e.,\
+  \begin{equation}
+    \Phi_2(\Phi_1(g_1g_2x)) = \Phi_2(g_2\Phi_1(x)) = \Phi_2(\Phi_1(x))
+  \end{equation}
+  An example of this would be in the group $G$ of 2D translations, building
+  horizontal invariance first, then building vertical invariance second.
+  \Bruna\ warn about this approach, however, as it cannot capture the action
+  of $G_2$ relative to $G_1$. In the case of veritcal and horizontal
+  translations, for example, it would not be able to distinguish if the
+  patterns had moved apart as well as being shifted, whereas a joint
+  horizontal and vertical translation invariant would be able to distinguish
+  these two cases.
+
+  % \begin{figure}[t!]
+    % \centering
+  % %    \captionsetup[subfigure]{width=0.3\textwdith}
+      % \subfloat[]{\includegraphics[width=0.3\textwidth]{scripts/separable_invariance_1.png}
+                  % \label{fig:joint_pattern1}}
+  % %    \quad   
+      % \subfloat[]{\includegraphics[width=0.3\textwidth]{scripts/separable_invariance_2.png}
+                  % \label{fig:joint_pattern2}}
+  % %    \quad
+      % \subfloat[]{\includegraphics[width=0.3\textwidth]{scripts/separable_invariance_3.png}
+                  % \label{fig:joint_pattern3}}
+      % \caption[Patterns illustrating the difference between joint and separable invariants]
+              % {Patterns illustrating the difference between joint and separable
+              % invariants. \subref{fig:joint_pattern1} the reference pattern.
+              % \subref{fig:joint_pattern2} pattern shifted horizontally and
+              % vertically.  \subref{fig:joint_pattern3} pattern shifted apart.
+              % A joint invariant would be able to distinguish
+              % between~\subref{fig:joint_pattern2}
+              % and~\subref{fig:joint_pattern3}, but a separable invariant would
+              % not.}
+      % \label{fig:joint_pattern}
+  % \end{figure}
+
+  In this vein, \Bruna\ suggest that in the case of rotation and translation
+  invariance, a joint invariant should be used, building on the work in
+  \citep{citti_cortical_2006, boscain_anthropomorphic_2010,
+  sgallari_scale_2007}. 
+
+  % \begin{figure}
+    % \centering
+      % \includegraphics[width=7cm]{images/scatternet_roto_scale_block.png}
+      % \caption{Roto-Translation and Scale Invariant Scatternet block diagram. The
+               % log operation between roto-translation and scale invariances is used to
+               % linearize the power law of the Scatternet coefficient energies across 
+               % scales. Taken from \citep{sifre_rotation_2013}.}
+      % \label{fig:roto_scat_block}
+  % \end{figure}
+
+\subsection{Defining the Properties}
+  A translation $g = (v, \theta)$ of the roto-translation group $G_{rt}$ acting on
+  $\bmu{u} \in \mathbb{R}^2$ combines translation by $v$ and rotation by
+  $R_{\theta}$ as:
+  \begin{equation}
+    g\bmu{u} = v + R_{\theta}\bmu{u}
+  \end{equation}
+  The product of two successive roto-translations $h=(v',
+  \theta ')$ and $g = (v, \theta) $is:
+  \begin{equation}
+    gh = (v + R_{\theta}v', \theta + \theta')
+  \end{equation}
+  In much the similar approach to the simple translation invariant Scatternet defined
+  above, \Bruna\ calculate successive layers of signal coefficients $U[p]x$ that
+  are covariant to the actions of all $g \in G_{rt}$ --- i.e.,\ 
+  \begin{equation}
+    U[p](gx) = gU[p]x
+  \end{equation}
+  Creating invariants of order $m = \mathrm{length}(p)
+  = \mathrm{length}([\lambda_1, \lambda_2, \ldots, \lambda_m])$ is then done by
+  averaging $hU[p]x$ for all h in $G_{rt}$
+  \begin{equation}
+    S[p]x(g) = \sum_{h \in G_{rt}} hU[p]x \Phi_J(h^{-1}g)
+  \end{equation}
+  This convolution averages $hU[p]x$ over all rotation angles in a spatial
+  neighbourhood of $\bmu{u}$ of size proportional to $2^J$.
+
+\subsection{The Operator}
+\subsubsection{Roto-Translation Invariance}
+  Although we want to have a joint invariant for rotations and translations,
+  this can be done with a cascade of wavelet transforms --- so long as the
+  final averaging operation is done over both rotation and translation. \Sifre\
+  do just this, building a 3 layer scattering transform, the first layer of
+  which is exactly identical to the previous translation scattering transform,
+  i.e.,\
+  \begin{equation}
+    \tilde{W}_1 x = \left( x \ast \phi_J, \{|x \ast \psi_{\theta, j}|\} \right)
+      = (S_0x, U_1x)
+  \end{equation}
+  The second and third layers are, however, new. The invariant part of $U_1$ is
+  computed with an averaging over spatial and angle variables. \emph{This
+  averaging is implemented at fixed scales j} (see our note earlier about
+  choosing separable scale invariance). For an action $g = (v, \theta)$, the
+  averaging kernel is defined as:
+  \begin{equation}
+    \Phi_J(g) =  \bar{\phi}(\theta) \ast \phi_J(u)
+  \end{equation}
+  Where $\phi_J(u)$ is a kernel that averages each $U_1x$ over scale $2^J$,
+  and $ \bar{\phi}(\theta= (2\pi)^{-1})$ averages the result of that average over all angles.
+
+  To clarify, we look at an example architecture with $J=2$ scales and $L=4$
+  orientations. The output of the first layer $U_1x$ would be a set of
+  coefficients:
+  \begin{equation}
+    U_1x = \left\{ |x \ast \psi_{j, \theta} | \, \middle| \, j=\{0,1\}, \,
+    \theta=k\pi/4, \, k= \{0,1,2,3\} ,\right\}
+  \end{equation}
+  i.e.,\ there would be 4 high frequency coefficients, which were created with
+  wavelets centred at $|\bm{\omega}| = 3\pi/4$, and 4 medium frequency components
+  created with wavelets centred at $|\bm{\omega}| = 3\pi/8$. Each of these 8 will
+  be averaged across the entire image, then each pair of 4 will be averaged
+  across all 4 rotations, leaving 2 invariants.
+
+  To recover the information lost from averaging, \Sifre\ also convolve $U_1x$
+  with corresponding rotation and scale wavelets to pass on the high frequency
+  information. These roto-translation wavelets, while joint, can also be computed
+  with the cascade of separable wavelets. It may be helpful to consider the
+  spatial variable $\bmu{u}$ as single dimensional, and consider the rotation
+  variable $\theta$ as a second dimension. The above equation calculated the low-low
+  frequency component of these two variables, the remaining components are the
+  low-high, high-low, and high-high. 
+
+  We define the low frequency spatial scaling functions $\phi_J(u)$\footnote{we
+  temporarily drop the boldface from the spatial parameter u to make it clearer
+  it can be considered as single dimensional}, the spatial wavelets
+  $\psi_{\theta, j}(u)$, the rotation scaling function $\bar{\phi}(\theta)$
+  (which is just the constant $(2\pi)^{-1}$, but we write out in generic form
+  nonetheless), and the rotation wavelet $\bar{\psi}_k(\theta)$, which is
+  a $2\pi$ periodic wavelet.
+
+  Then, the remaining low-high, high-low, and high-high information is:
+  \begin{eqnarray}
+    \Psi_{0, J, k_2}(u, \theta) & = & \phi_J(u) \ast \bar{\psi}_{k_2}(\theta) \\
+    \Psi_{\theta_2, j_2, } (u, \theta) & = & \psi_{\theta_2, j_2}(u) \ast
+      \bar{\phi}(\theta) \\
+    \Psi_{\theta_2, j_2, k_2}(u, \theta) & = & \psi_{\theta_2, j_2}(u) \ast
+      \bar{\psi}_{k_2}(\theta)
+  \end{eqnarray}
+  The k parameter is newly introduced here, and it represents the number of
+  scales the rotation wavelet has (a typical value used by \Sifre\ was $K=3$).
+  We call this combined operator $\Psi_{\theta_m, j_m, k_m}$. See
+  \autoref{fig:srs_3d} for what this looks like.
+
+  \begin{figure}
+    \centering
+      \includegraphics[width=9cm]{images/scatternet_roto_scale_3dwavelet.png}
+      \caption[Three dimensional convolution with roto-scale wavelet]
+              {Three dimensional convolution with  $\Psi_{\theta_m, j_m,
+              k_m}(u_1, u_2, \theta)$ factorised into a two dimensional convolution with
+              $\psi_{\theta_m, j_m}(u_1, u_2)$ and a one dimensional convolution with
+              $\psi_{k_m}(\theta)$. Colours represent the amplitude of the 3D
+              wavelet. Image taken from \citep{sifre_rotation_2013}.}
+      \label{fig:srs_3d}
+  \end{figure}
+
+  The wavelet-modulus operator then is:
+  \begin{equation}
+    \tilde{W}_m Y = \left( Y \ast \Phi_J(g), |Y \ast \Psi_{\theta_m, j_m, k_m}
+      (g)| \right)
+  \end{equation}
+  for $m\ge 2$ and the final third order roto-translation Scatternet is:
+  \begin{equation}
+    Sx = (x\ast \phi_J(\bmu{u}), U_1x \ast \Phi_J(p_1), U_2x \ast \Phi_J(p_2))
+    \label{eq:roto_shift}
+  \end{equation}
+  with $p_1 = (\bmu{u}, \theta_1, j_1)$ and $p_2=(\bmu{u}, \theta_1, j_1,
+  \theta_2, j_2, k_2)$.
+
+
