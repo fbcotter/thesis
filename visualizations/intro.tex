@@ -40,6 +40,11 @@
               % values at the correct location. Figure taken from \citep{zeiler_visualizing_2014}.}
       % \label{fig:ch4:deconv_switches}
   % \end{figure}
+  \citeauthor{mahendran_understanding_2015} take a slightly different route on
+  deconvolution networks \cite{mahendran_understanding_2015}. They do not
+  store this extra information but instead define a cost function to maximize. 
+  This results in visualization images that look very surreal, and can be
+  quite different from the input.
 
   \cite{springenberg_striving_2014-3} design an \emph{all convolutional} model,
   where they replace the max pooling layers commonly seen in CNNs with a
@@ -107,8 +112,3 @@
               % complex structures. Taken from \cite{zeiler_visualizing_2014}.}
   % \end{figure}
 
-  \citeauthor{mahendran_understanding_2015} take a slightly different route on
-  deconvolution networks \cite{mahendran_understanding_2015}. They do not
-  store this extra information but instead define a cost function to maximize
-  to. This results in visualization images that look very surreal, and can be
-  quite different from the input.

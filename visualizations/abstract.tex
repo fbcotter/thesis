@@ -39,16 +39,23 @@ visualize how and why they are making decisions.
 % input image that caused a high output for that particular class --- see
 % \autoref{fig:ch4:interpretability}. 
 
-Some good initial work has been done in this area. 
+Some good work has been done in this area. In particular,
 Zeiler and Fergus \cite{zeiler_visualizing_2014} 
 design a DeConvNet to visualize what a filter in a given layer is mostly highly
 activated by. \cite{mahendran_understanding_2015} learn to invert
 representations by updating a noisy input until its latent feature vector
 matches a desired target. \cite{simonyan_deep_2014} develop saliency maps by
-\textbf{Finish me}.
+projecting gradients back to the input space and measuring where they have
+largest magnitude.
 
-ScatterNets have been shown to perform very well as image classifiers. In
-particular, they can outperform CNNs for classification tasks with reduced
+In recent years, ScatterNets have been shown to perform very well as image
+classifiers and have received a fair share of attention themselves. They have
+been one of the biggest developments and successes in applying wavelets in
+deep learning systems, and are particularly inspiring due to their well defined
+properties.  They are typically used as unsupervised feature extractors
+\cite{bruna_invariant_2013, oyallon_deep_2015, 
+singh_dual-tree_2017, singh_multi-resolution_2016} and 
+can outperform CNNs for classification tasks with reduced
 training set sizes, e.g.\ in CIFAR-10 and CIFAR-100 (Table 6 from
 \cite{oyallon_scaling_2017} and Table 4 from \cite{singh_dual-tree_2017}).  
 They are also near state-of-the-art for Texture Discrimination tasks
@@ -67,37 +74,27 @@ CNNs, we build a DeScatterNet to visualize what the second order features are.
 We also heuristically probe a trained Hybrid Network and quantify the importance
 of the individual features.
 
-Scattering transforms, or ScatterNets, have recently gained much attention and
-use due to their ability to extract generic and descriptive features in well
-defined way. They can be used as unsupervised feature extractors
-for image classification \cite{bruna_invariant_2013, oyallon_deep_2015, 
-singh_dual-tree_2017, singh_multi-resolution_2016} and texture classification
-\cite{sifre_rotation_2013}, or in combination with supervised methods such as
-Convolutional Neural Networks (CNNs) to make the latter learn quicker, and in
-a more stable way \cite{oyallon_scaling_2017}. 
-
-
 We first revise the operations that form a ScatterNet in
-\autoref{sec:scatternet}. We then introduce our DeScatterNet
-(\autoref{sec:descatternet}), and show how we can use it to examine the layers of ScatterNets
-(using a similar technique to the CNN visualization in
-\cite{zeiler_visualizing_2014}). We use this analysis tool to
-highlight what patterns a ScatterNet is sensitive to
-(\autoref{sec:visualization}), showing that they are very
-different from what their CNN counterparts are sensitive to, and possibly less
-useful for discriminative tasks. 
+\autoref{sec:ch4:scatternet}. We then introduce our DeScatterNet
+(\autoref{sec:ch4:descatternet}), and show how we can use it to examine the
+layers of ScatterNets (using a similar technique to the CNN visualization in
+\cite{zeiler_visualizing_2014}). We use this analysis tool to highlight what
+patterns a ScatterNet is sensitive to (\autoref{sec:ch4:visualization}), showing
+that they are very different from what their CNN counterparts are sensitive to,
+and possibly less useful for discriminative tasks. 
+
+We then measure the ScatterNet channel saliency by peforming an occlusion test
+on a trained hybrid network ScatterNet-CNN, iteratively switching off individual
+Scattering channels and measuring the effect this has on the validation accuracy
+in \autoref{sec:ch4:occlusion}. The results from the occlusion tests strengthen
+the idea that some of the ScatterNet patterns may not be well suited for deep 
+learning systems.
 
 We use these observations to propose an architectural change to ScatterNets,
-which have not changed much since their inception in \cite{mallat_group_2012}. 
-Two changes of note however are the work of Sifre and Mallat in
-\cite{sifre_rotation_2013}, and the work of Singh and Kingsbury in
-\cite{singh_dual-tree_2017}.  Sifre and Mallat introduced Rotationally Invariant
-ScatterNets which took ScatterNets in a new direction, as the architecture now
-included filtering across the wavelet orientations (albeit with heavy
-restrictions on the fitlers used).  Singh and Kingsbury achieved improvements in
-performance in a Scattering system using the spatially implementable \DTCWT
-\cite{kingsbury_complex_2001} wavelets instead of the Fourier Transform (FFT)
-based Morlet previously used.
+which have not changed much since their inception in \cite{mallat_group_2012}, 
+and show that it is possible to get visually more appealing shapes by filtering
+across the orientations of the ScatterNet. We present this in
+\autoref{sec:ch4:corners}.
 
 % One of the key benefits of CNNs is their ability to take raw images and learn
 % features --- i.e.,\ they do not require you to construct feature vectors. The

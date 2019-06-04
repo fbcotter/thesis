@@ -13,17 +13,18 @@ level FB:
 \end{equation}
 This is invariant to translations of up to $2^J$ pixels\footnote{From here on,
 we drop the $\xy$ notation when indexing $x$, for clarity.}. In exchange for
-gaining invariance, the $S_0$ coefficients have lost a lot of information
+gaining invariance, the $S_0$ coefficients have lost information
 (contained in the rest of the frequency space). The remaining energy of $x$ is
 contained within the first order \textbf{wavelet} coefficients:
 \begin{equation}
   W_1x(\xy, j_1, \theta_1) \definedas x \conv \psi_{j_1, \theta_1}
 \end{equation}
-for $j_1\in\{1, 2\}, \theta_1\in\{1,2, \ldots, 6\}$. We will want to
+for $j_1\in\{1, 2\}, \theta_1\in\{15\degs, 45\degs \ldots, 165\degs\}$ (we may 
+sometimes index $\theta$ with $1 \leq k \leq K$). We will want to
 retain this information in these coefficients to build a useful classifier.
 
 Let us call the set of available scales and orientations $\Lambda_1$ and use
-$\lambda_1$ to index it.  For both Morlet and $\DTCWT$ implementations, $\psi$
+$\lambda_1$ to index it. For both Morlet and $\DTCWT$ implementations, $\psi$
 is complex-valued, i.e., $\psi = \psi^r + j\psi^i$ with $\psi_r$ and $\psi_i$
 forming a Hilbert Pair, resulting in an analytic $\psi$.
  This analyticity provides a source of invariance --- small input shifts in $x$
@@ -43,7 +44,7 @@ scale $J$ by averaging it:
 \begin{equation}
   S_1x(\lambda_1, \xy) \definedas |x \conv \psi_{\lambda_1}| \conv \phi_J
 \end{equation}
-This has $6\x 2 = 12$ output channels for each input channel. Later in this
+This has $KJ = 6\x 2 = 12$ output channels for each input channel. Later in this
 chapter we will want to distinguish between the first and second scale
 coefficients of the $S_1$ terms, which we will do by moving the $j$ index
 to a superscript. I.e., $S_1^1$ and $S_1^2$ refer to the set of 6 $S_1$ terms
@@ -71,29 +72,29 @@ Our output is then a stack of these 3 outputs:
 \begin{equation}
   Sx = \{S_0x, S_1x, S_2x\}
 \end{equation}
-with $1+12+36=49$ channels.
+with $1+12+36=49$ channels per input channel.
 
-\subsection{Scattering Color Images}\label{sec:ch4:colour}
+\subsection{Scattering Colour Images}\label{sec:ch4:colour}
 A wavelet transform like the $\DTCWT$ accepts single channel input, while we
 often work on RGB images. This leaves us with a choice. We can either:
 \begin{enumerate}
   \item Apply the wavelet transform (and the subsequent scattering operations)
     on each channel independently. This would triple the output size to $3C$.
-  \item Define a frequency threshold below which we keep color information, and
+  \item Define a frequency threshold below which we keep colour information, and
     above which, we combine the three channels.
 \end{enumerate}
 The second option uses the well known fact that the human eye is far less sensitive 
-to higher spatial frequencies in color channels than in luminance channels. 
+to higher spatial frequencies in colour channels than in luminance channels. 
 This also fits in with the first layer filters seen in the well known
 Convolutional Neural Network, AlexNet. Roughly one half of the filters were low
-frequency color `blobs', while the other half were higher frequency, grayscale,
+frequency colour `blobs', while the other half were higher frequency, greyscale,
 oriented wavelets. 
 
 For this reason, we choose the second option for the
-architecture described in this chapter. We keep the 3 color
-channels in our $S_0$ coefficients, but work only on grayscale for high orders 
+architecture described in this chapter. We keep the 3 colour
+channels in our $S_0$ coefficients, but work only on greyscale for high orders 
 (the $S_0$ coefficients are the lowpass bands of a J-scale wavelet transform, so
-we have effectively chosen a color cut-off frequency of $2^{-J} \frac{f_s}{2}$).
+we have effectively chosen a colour cut-off frequency of $2^{-J} \frac{f_s}{2}$).
 
 We combine the three channels by modifying our magnitude operation from \eqref{eq:ch3:magbias} 
 to now be:
@@ -132,11 +133,11 @@ spatial input size.
   \label{fig:ch4:descat}
 \end{figure}
 
-We now introduce our inverse scattering network. This allows us to back project
-scattering coefficients to the image plane; it is inspired by the
+We now introduce our inverse scattering network. This allows us to back-project
+scattering coefficients to the image space; it is inspired by the
 DeconvNet used by Zeiler and Fergus in
 \cite{zeiler_visualizing_2014} to look into the deeper layers of CNNs. Like
-the DeConvNet, the inverse Scattering Network is similar to backpropping a
+the DeConvNet, the inverse Scattering Network is similar to backpropagating a
 single strong activation (rather than usual gradient terms). 
 
 We emphasize that instead of thinking about perfectly reconstructing $x$ from
@@ -158,7 +159,11 @@ transpose convolution described in \cite{zeiler_visualizing_2014}).
   \hat{S}_{m} = S_{m} \conv \widetilde{\phi}_J
 \end{equation}
 This will not recover $U$ as it was on the forward pass, but will recover all
-the information in $U$ that caused a strong response in $S$.
+the information in $U$ that caused a strong response in $S$. 
+% However this has
+% the undesirable effect of creating multiple impulses in the next layer down's
+% activations. When the next layer down is the image space this is not a problem,
+% but when it is 
 
 \subsection{Inverting the Magnitude Operation}
 In the same vein as \cite{zeiler_visualizing_2014}, we face a difficult
@@ -262,7 +267,7 @@ as part of a classification system.
 % \subsection{Hybrid ScatterNet Visualization}
 % Visualize some of the features of a convnet.
 
-\section{Channel Saliency}
+\section{Channel Saliency}\label{sec:ch4:occlusion}
 To get another heuristic on the importance of the ScatterNet channels, let us examine
 the effect on inference scores observed when zeroing out Scattering channels.
 \cite{zeiler_visualizing_2014, zhou_object_2014} have done similar studies but
@@ -270,13 +275,12 @@ over patches of the input image, with the former using a patch of grey values as
 the occlusion mask, and the latter using a set of random pixels. 
 
 We must be careful to occlude with a sensible mask, the $S_0x$, $S_1x$ and $S_2x$
-all have very different probability densities. Assuming $x~\mathcal{N}(0, \sigma^2I)$ 
+all have very different probability densities. Assuming $x \sim \mathcal{N}(0, \sigma^2I)$ 
 (already a fairly weak assumption),
 the pdf of $S_0x$ will also be a zero mean gaussian. However, the distributions
 of $S_1x$ and $S_2x$ are more complex - the real and imaginary parts of the
-$\DTCWT$ are sparse, with a Laplacian distribution a commonly used estimate for each,
-however they are strongly correlated. Choosing a sensible random mask is
-therefore difficult, so we instead use a constant mask. Analysis of the
+$\DTCWT$ are sparse but are strongly correlated. Choosing a sensible random mask is
+therefore difficult so we instead use a constant mask. Analysis of the
 datasets show that zero is very close to the maximum likelihood value for each
 channel so we occlude channels by simply setting them to zero at every spatial
 location.
@@ -295,13 +299,13 @@ network trained on Tiny ImageNet. This gives us a second perspective on the
 channel importance by looking at the relative weights of the ScatterNet channels
 passed on to the successive 100 channels. The weight matrix is convolutional
 filter of size $w \in \reals[100\x 51\x 3\x 3]$. We define:
-\begin{equation}
+\begin{equation}\label{eq:ch4:arms}
   A^{rms}_{c, f} &=& \sqrt{\frac{\sum_{i,j} w[f, c, i, j]^2}{{\sum_f \sum_{i,j} w[f, c, i, j]^2}}}
 \end{equation}
 This gives us a matrix $A^{rms}$ (for root mean squared) which has columns of
 unit energy representing the different output channels after conv1. The row
 values then show how much each scattering channel contributes to each output
-channel. This is shown in \autoref{}.
+channel. This is shown in \autoref{fig:ch4:weights}.
 
 \subsection{Discussion}
 First we look at Tiny ImageNet in \autoref{fig:ch4:occlusion1}.
@@ -313,7 +317,7 @@ For both the first and second scales of the first order coefficients,
 $S_1^1$ and $S_1^2$, there are two channels that seem less
 important - the second and fifth channels, corresponding to the $45\degs$ and
 $135\degs$ wavelets. Often the high-high portion of the first scale coefficients
-are considered mostly noise \cite{}, but this does not explain why the $45\degs$
+are considered mostly noise, but this does not explain why the $45\degs$
 and $135\degs$ channels for the second scale coefficients are also less
 important. A possible interesting conclusion to be drawn from this is that the
 dataset does not have as many diagonal edges in it as horizontal and vertical
@@ -330,16 +334,25 @@ salient because of the effects of the higher bandwidth for the diagonal
 wavelets.
 
 Comparatively, the $S_2$ channels have little effect on the classification score
-when individually masked. Interestingly, the four largest drops in accuracy for
-$S_2$ happen when $\theta_1 = \theta_2 = 15\degs, 75\degs, 105\degs, 165\degs$.
+when individually masked. The four largest drops in accuracy for
+$S_2$ happen when $\theta_1 = \theta_2 \in \{15\degs, 75\degs, 105\degs, 165\degs\}$.
 When $\theta_1 \neq \theta_2$ we saw the ripple like patterns in
-\autoref{fig:ch4:visualizations}, and we see here that the network has mostly
+\autoref{fig:ch4:reconstructions}, and we see here that the network has mostly
 learned to not depend on them.
 
+\autoref{fig:ch4:weights} tells a similar tale for the Scattering channels. Here
+we see directly how much and how little each of the channels is used by the
+first layer of the network, with the low intensity values in $S_2$ indicating that the
+next layer's outputs are less dependent on these coefficients.
 
+We include the same analysis for the two CIFAR datasets in
+\autoref{fig:ch4:cifar_occlusion} for completion, although the insight gained
+here is the same - the $S_2$ coefficients are the least important. One notable difference to
+\autoref{fig:ch4:occlusion1} is in the $S_1^2$ coefficients, which have reduced importance 
+in CIFAR, but with the smaller input spatial size, this comes as no surprise.
 
 \begin{figure}
-  \vspace{-2cm}
+  \vspace{0cm}
   \centering
   \subfloat[Tiny ImageNet]{\vspace{-1cm}
     \includegraphics[width=15cm,height=8cm]{\imgpath/ti_occlusion_colour.pdf}
@@ -358,18 +371,49 @@ learned to not depend on them.
   drops sharply, note that the middle channel, corresponding to green, is
   unsurprisingly the most important of the three colours. The first scale, first
   order scattering coefficients $S_1^1$ are slightly more important than the
-  second scale coefficients. Interestingly, the second and fifth orientations
-  for both of these are comparatively less important orientations. These
-  correspond to the $45\degs$ and $135\degs$ wavelets. The 36 $S_2$ coefficients
-  have very little individual effect on the}
+  second scale coefficients. The 36 $S_2$ coefficients
+  have very little individual effect on the validation score when removed.
+  \subref{fig:ch4:ti_rotated_occlusion} The same network trained with input
+  samples rotated by $\pm 30\degs$. In \subref{fig:ch4:ti_occlusion} 
+  the second and fifth orientations for both $S_1^1$ and $S_1^2$,
+  corresponding to the $45\degs$ and $135\degs$ wavelets,
+  are comparatively less important than other orientations at the same scale.
+  This suggests that perhaps the dataset does not have much diagonal
+  information. When rotated this trend changes and the diagonal
+  wavelets at both scales become more important.}
   \label{fig:ch4:occlusion1}
 \end{figure}
-take a trained hybrid network, l
-take the ScatterNet built in the previous chapter \autoref{tab:ch3:scat_arch}, and
-iterate through the output channels , turning them off one by one and measuring the effect this
-has on classification score. 
 
-We do this for the ScatterNet 
+\begin{figure}
+  \centering
+  \hspace{-1cm}\includegraphics[width=15cm,height=8cm]{\imgpath/ti_conv1_weights.pdf}
+  \mycaption{Channel weights for first learned layer}{A visualiztion of the
+  matrix $A^{rms}$ from \eqref{eq:ch4:arms}. The columns of the matrix all have
+  unit norm and represent how much relative energy comes from each scattering
+  output channel. Most of the filters are heavily dependent on $S_0$, many are 
+  dependent on $S_1$ and only a few take information from $S_2$.}\label{fig:ch4:weights}
+\end{figure}
+
+\begin{figure}
+  \vspace{0cm}
+  \centering
+  \subfloat[CIFAR-10]{\vspace{0cm}
+    \includegraphics[width=15cm,height=8cm]{\imgpath/cifar10_occlusion_colour.pdf}
+    \label{fig:ch4:cifar10_occlusion}
+    }
+    \\
+  \subfloat[CIFAR-100]{
+    \includegraphics[width=15cm,height=8cm]{\imgpath/cifar100_occlusion_colour.pdf}
+    \label{fig:ch4:cifar100_occlusion}
+    }\vspace{-0.3cm}
+  \mycaption{CIFAR changes in accuracy from channel occlusion}{Numbers
+  reported are the drop in final classification accuracy when a channel is set
+  to zero. The bars are coloured relative to their magnitude to aid seeing the
+  differences for the $S_1$ coefficients. Unlike \autoref{fig:ch4:occlusion1}
+  the $S_1^2$ coefficients are less important. CIFAR has a smaller image size than
+  Tiny ImageNet so this is not surprising.}
+  \label{fig:ch4:cifar_occlusion}
+\end{figure}
 
 
 \section{Corners, Crosses and Curves}
@@ -387,19 +431,15 @@ We do this for the ScatterNet
   the same $U'$, something that would not be possible without the complex
   filters of a ScatterNet.  Top left - reconstructions from $U_1$ (i.e.\ no
   cross-orientation filtering). Top right- reconstructions from $U_1'$ using
-  a $1\x 1\x 12$ Morlet Wavelet, similar to what was done in the `Roto-Translation'
+  a $12\x 1\x 1$ Morlet Wavelet, similar to what was done in the `Roto-Translation'
   ScatterNet described in \cite{sifre_rotation_2013, oyallon_deep_2015}. Bottom
-  left - reconstructions from $U_1'$ made with a more general $1\x 1\x 12$
+  left - reconstructions from $U_1'$ made with a more general $12\x 1\x 1$
   filter, described in \autoref{eq:ch4:simple_corner}. Bottom
-  right - some reconstructions possible by filtering a general $3\x 3\x 12$ filter.}
+  right - some reconstructions possible by filtering a general $12\x 3\x 3$ filter.}
   \label{fig:ch4:newshapes}
 \end{figure}
 
 
-We build on these two systems, showing that with carefully designed complex
-filters applied across the complex spatial coefficients of a 2-D $\DTCWT$,  
-we can build filters that are sensitive to more recognizable shapes like
-those commonly seen in CNNs, such as corners and curves (\autoref{sec:ch4:corners}). 
 % The work in \cite{oyallon_deep_2015} demonstrated that second order scattering
 % coefficients are necessary, and give a large increase in accuracy over using
 % just the first order coefficients.
@@ -407,30 +447,36 @@ those commonly seen in CNNs, such as corners and curves (\autoref{sec:ch4:corner
 % ScatterNet with ease, which generates filters sensitive to these higher order
 % shapes. In fact, we have a great deal of flexibility with what shapes we can be
 % sensitive to.
+As a final part of this chapter, we would like to highlight some of the filters 
+possible by making small modifications to the ScatterNet design. The
+visualizations shown here are mostly inspirational, as we did not see any marked
+improvement in using them as a fixed front end for the ScatterNet system.
+However they are the basis for the next chapter of work in adding learning in
+between Scattering layers.
 
 \cite{sifre_rotation_2013} and \cite{oyallon_deep_2015} introduced the idea of
 a `Roto-Translation' ScatterNet. Invariance to rotation could be made by
-applying averaging (and bandpass) filters across the $L$ orientations 
+applying averaging (and bandpass) filters across the $K$ orientations 
 from the wavelet transform \emph{before} applying the complex modulus.
 Momentarily ignoring the form of the filters they apply, referring to them
-as $F_k\in \complexes[L]$, we can think of this stage as stacking the $L$
+as $h\in \complexes[K]$, we can think of this stage as stacking the $K$
 outputs of a complex wavelet transform on top of each other, and convolving
-these filters $F_k$ over all spatial locations of the wavelet coefficients $W_m
+these filters $h$ over all spatial locations of the wavelet coefficients $W_m
 x$ (this is equivalent to how filters in a CNN are fully connected
 in depth):
 \begin{equation}
-  V_m x(\bm{u}, j, k) = W_{m}x \conv F_k = \sum_{\theta} W_{m}x(\bm{u}, j, \theta)
-F_k(\theta)
+  V_m x(\lambda, \bm{u}) = W_{m}x \conv h = \sum_{\theta} W_{m}x(\lambda, \bm{u})
+h(\theta)
 \end{equation}
 We then take the modulus of these complex outputs to make a second propagated
 signal:
 \begin{equation}
-  U_{m}'x \definedas |V_{m}x| = |W_{m}x \conv F_k| = |U_{m-1}x
-  \conv \psi_{\lambda_{m}} \conv F_k|
+  U_{m}'x \definedas |V_{m}x| = |W_{m}x \conv h| = |U_{m-1}x
+  \conv \psi_{\lambda_{m}} \conv h|
 \end{equation}
 We present a variation on this idea, by filtering with a more general 
-$F\in \complexes[H\x W\x 12]$. We use $F$ of length 12 rather than 6, as we use
-the $L=6$ orientations and their complex conjugates; each wavelet is a 30$\degs$
+$h\in \complexes[12\x H\x W]$. We use 12 channels rather than 6, as we use
+the $K=6$ orientations and their complex conjugates; each wavelet is a 30$\degs$
 rotation of the previous, so with 12 rotations, we can cover the full
 $360\degs$. 
 % The filters can be shared across scales J to produce the same shapes at
@@ -455,28 +501,28 @@ other).
 
 In the top left, we display the 6 wavelet filters for reference (these were
 reconstructed from $U_1$, not $V_1$). In the top right of the figure we see some
-of the shapes made by using the $F$'s from the Roto-Translation ScatterNet
+of the shapes made by using the $h$'s from the Roto-Translation ScatterNet
 \cite{sifre_rotation_2013, oyallon_deep_2015}.  The bottom left is where we
 present some of our novel kernels. These are simple corner-like shapes made 
-by filtering with ${F\in \complexes[1\x 1\x 12]}$
+by filtering with ${h\in \complexes[12\x 1\x 1]}$
 % \vspace{-10pt}
 \begin{equation} \label{eq:ch4:simple_corner}
-  F = [1, j, j, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+  h = [1, j, j, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 \end{equation}
-The six orientations are made by rolling the coefficients in $F$ along one
+The six orientations are made by rolling the coefficients in $h$ along one
 sample (i.e. $[0, 1, j, j, 1, 0,\ldots]$, $[0,0,1,j,j,1,0,\ldots]$,
 $[0,0,0,1,j,j,1,0, \ldots]$ \ldots). Coefficients roll back around (like
 circular convolution) when they reach the end.
 
 Finally, in the bottom right we see shapes made by 
-${F \in \complexes[3\x 3\x 12]}$. Note that with the exception of the 
+${h \in \complexes[12\x 3\x 3]}$. Note that with the exception of the 
 ring-like shape which has 12 non-zero coefficients, all of these shapes were
-reconstructed with $F$'s that have 4 to 8 non-zero coefficients of a possible 
+reconstructed with $h$'s that have 4 to 8 non-zero coefficients of a possible 
 64. These shapes are now beginning to more closely resemble the more complex
 shapes seen in the middle stages of CNNs. 
 
 \section{Discussion}
-This paper presents a way to investigate what the higher orders of a ScatterNet
+This chapter presents a way to investigate what the higher orders of a ScatterNet
 are responding to - the DeScatterNet described in \autoref{sec:ch4:descatternet}.
 Using this, we have shown that the second `layer' of a ScatterNet 
 responds strongly to patterns that are very dissimilar to those that highly activate the
@@ -485,10 +531,17 @@ ScatterNet's patterns reveal that they may be less useful for discriminative
 tasks, and we believe this may be causing the current gaps in state-of-the-art
 performance between the two. 
 
-We have presented an architectural change to ScatterNets that can make it
-sensitive to more recognizable shapes. We believe that using this new layer is
-how we can start to close the gap, making more generic and descriptive
-ScatterNets while keeping control of their desirable properties. 
+Additionally, we performed occlusion tests to heuristically measure the
+importance of the individual scattering channels. The results of this test
+reaffirmed the suspicions raised from the visualizations. In particular, many of
+the second order Scattering coefficients may not be very useful in a CNN. Those
+that were visible were typically when the second order wavelet had the same
+orientation as the first.
+
+Finally, we demonstrated the possible shapes attainable when we filtering 
+across orientations with complex mixing coefficients. We believe that this 
+mixing is a key step in the development of ScatterNets and wavelets in deep
+learning systems.
 
 % \pagebreak
 % References should be produced using the bibtex program from suitable
