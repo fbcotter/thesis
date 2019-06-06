@@ -1,0 +1,87 @@
+\section{Supervised Machine Learning}
+Consider a sample space over inputs and labels $\mathcal{X} \times \mathcal{Y}$
+and a data generating distribution $p_data$. Given inputs $x \in \mathcal{X}$ we
+would like to make predictions about $p_data(y|x)$. A common way to do this is
+to build a discriminative model $f$ that estimates this conditional probability directly. 
+We then want to maximize the likelihood of this model under the data
+distribution:
+\begin{equation}
+\end{equation}
+% We then want to minimize the KL-divergence between the model $f(x, \theta)$ to the
+% maximize the likelihood of this model, 
+
+We parameterize this model
+This thesis focuses mainly on supervised tasks, where we would like to learn a
+mapping $f$ from inputs $x$ to targets $y$ given a dataset of pairs $\mathcal{D} = 
+\{(x^{(n)}, y^{(n)})\}_{n=1}^N$. In particular, we would like our mapping to
+generalize to unseen test data
+
+\subsubsection{Loss Functions}
+  For a given sample $q=(x, y)$, the loss
+  function is used to measure the cost of predicting $\hat{y}$ when the
+  true label was $y$. We define a loss function $\loss (y, \hat{y})$. 
+  A CNN is a deterministic
+  function of its weights and inputs, $f(x,w)$ so this can be written as $\loss
+  (y, f(x,w))$, or simply $\loss(y, x, w)$.
+  
+  It is important to remember that we can choose
+  to penalize errors however we please, although for CNNs, the vast majority of
+  networks use the same loss function --- the softmax loss. Some networks have
+  experimented with using the hinge loss function (or `SVM loss'), stating they
+  could achieve improved results \citep{gu_recent_2015,tang_deep_2013}. 
+  \begin{enumerate}
+
+  \item \emph{Softmax Loss:} The more common of the two, the softmax turns
+    predictions into non-negative, unit summing values, giving the sense of
+    outputting a probability distribution. The softmax function is applied to
+    the $C$ outputs of the network (one for each class):
+    \begin{equation}
+      p_j = \frac{e^{(f(x, w))(j)}}{\sum\limits_{k=1}^{C}e^{(f(x,w))(k)}}
+    \end{equation}
+    where we have indexed the $c$-th element of the output vector $f(x,w)$ with
+      $(f(x,w))(c)$. The softmax \emph{loss} is then defined as:
+    \begin{equation}
+      \loss (y_i, x, w)
+      = \sum_{j=1}^{C} \mathbbm{1}\{y_i=j\} \log p_j
+    \end{equation}
+    Where $\mathbbm{1}$ is the indicator function, and $y_i$ is the true label
+    for input $i$.
+
+  \item \emph{Hinge Loss:} The same loss function from Support Vector
+    Machines (SVMs) can be used to train a large margin classifier in a CNN:
+    \begin{equation}
+      \loss(y,x,w) = \sum_{l=1}^{C} 
+        {\left[ \max(0, 1 - \delta(y_i,l) w^{T}x_{i}) \right]}^p \label{eq:ch2:nn_hinge_loss}
+    \end{equation}
+    Using a hinge loss like this introduces extra parameters, which would
+    typically replace the final fully connected layer. The $p$ parameter in
+    \autoref{eq:ch2:nn_hinge_loss} can be used to choose $\ell^1$ Hinge-Loss, or
+    $\ell^2$ Squared Hinge-Loss. 
+
+  \end{enumerate}
+  
+
+\subsubsection{Regularization}
+  Weight regularization, such as an $\ell^2$ penalty is often given to the
+  learned parameters of a system. This applies to the parameters of the fully
+  connected, as well as the convolutional layers in a CNN\@. These are added to
+  the loss function. Often the two loss components are differentiated between by
+  their monikers - `data loss' and `regularization loss'. The above 
+  equation then becomes:
+  \begin{equation}
+    \mathcal{L} = \mathcal{L}_{data} + \underbrace{\frac{1}{2}\lambda_{fc}
+    \sum_{i=1}^{L_{fc}} \sum_{j} \sum_{k} {(w_{i}[j,k])}^2}_{\text{fully connected
+    loss}} +
+    \underbrace{\frac{1}{2}\lambda_{c} \sum_{i=1}^{L_c} \sum_{u_1} \sum_{u_2} \sum_{d}
+    \sum_{n} \left(f_i[u_1,u_2,d,n]\right)^2}_{\text{convolutional loss}}
+  \end{equation}
+
+  Where $\lambda_{fc}$ and $\lambda_{c}$ control the regularization parameters
+  for the network. These are often also called `weight decay' parameters.
+
+  The choice to split the $\lambda$'s between fully connected and convolutional
+  layers was relatively arbitrary. More advanced networks can make $\lambda$
+  a function of the layer. 
+
+
+

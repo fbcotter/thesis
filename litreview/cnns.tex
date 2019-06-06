@@ -1,8 +1,8 @@
-\section{Neural Networks}\label{sec:cnns}
+\section{Neural Networks}\label{sec:ch2:cnns}
 
 \subsection{The Neuron and Single Layer Neural Networks}
 
-The neuron, shown in \autoref{fig:singlelayer} is the core building block of
+The neuron, shown in \autoref{fig:ch2:singlelayer} is the core building block of
 Neural Networks. It takes the dot product between an  input vector $\vec{x} \in
 \reals[N]$ and a weight vector $\vec{b}$, before applying a chosen nonlinearity,
 $f$. I.e.
@@ -38,7 +38,7 @@ its inner product value.
 
 \begin{figure}
   \centering
-  \input{litreview/images/singlelayer}\label{fig:singlelayer}
+  \input{litreview/images/singlelayer}\label{fig:ch2:singlelayer}
   \mycaption{A single neuron}{The neuron is composed of inputs $x_i$, weights
     $w_i$ (and a bias term), as well as an activation function. Typical activation
     functions include the sigmoid function, tanh function and the ReLU}
@@ -48,8 +48,6 @@ Consider a single neuron acting as logistic regressor. I.e.\ we have
 $\mathcal{D} = \{\vec{x}_i, y_i\}$ where $y_i \in \{0, 1\}$. 
 We can easily find the maximum likelihood estimates for $\vec{w}$ by minimizing
 the loss
-
-\subsection{Loss or Error Term}
 
 \subsection{Backpropagation}
 
@@ -104,11 +102,11 @@ empirical risk ($R_{EMP}$):
 
 \begin{equation}
   R_{EMP}(f(x,w)) = \frac{1}{N} \sum_{i=1}^{N} \loss( y^{(i)},f(x^{(i)}, w))
-  \label{eq:empirical_risk}
+  \label{eq:ch2:empirical_risk}
 \end{equation}
 
 \subsection{Gradient descent vs Stochastic Gradient Descent vs Mini-Batches}
-  We can minimize \autoref{eq:empirical_risk} with \emph{gradient descent}
+  We can minimize \eqref{eq:ch2:empirical_risk} with \emph{gradient descent}
   \citep{rumelhart_parallel_1986}. Updates can be made on a generic network
   parameter $w$ with:
   \begin{equation}
@@ -145,74 +143,6 @@ empirical risk ($R_{EMP}$):
   \begin{equation}
     w_{t+1} = w_{t} - \eta \sum_{n=1}^{N_B} \dydx{\loss}{w}
   \end{equation}
-
-\subsubsection{Loss Functions}
-  For a given sample $q=(x, y)$, the loss
-  function is used to measure the cost of predicting $\hat{y}$ when the
-  true label was $y$. We define a loss function $\loss (y, \hat{y})$. 
-  A CNN is a deterministic
-  function of its weights and inputs, $f(x,w)$ so this can be written as $\loss
-  (y, f(x,w))$, or simply $\loss(y, x, w)$.
-  
-  It is important to remember that we can choose
-  to penalize errors however we please, although for CNNs, the vast majority of
-  networks use the same loss function --- the softmax loss. Some networks have
-  experimented with using the hinge loss function (or `SVM loss'), stating they
-  could achieve improved results \citep{gu_recent_2015,tang_deep_2013}. 
-  \begin{enumerate}
-
-  \item \emph{Softmax Loss:} The more common of the two, the softmax turns
-    predictions into non-negative, unit summing values, giving the sense of
-    outputting a probability distribution. The softmax function is applied to
-    the $C$ outputs of the network (one for each class):
-    \begin{equation}
-      p_j = \frac{e^{(f(x, w))(j)}}{\sum\limits_{k=1}^{C}e^{(f(x,w))(k)}}
-    \end{equation}
-    where we have indexed the $c$-th element of the output vector $f(x,w)$ with
-      $(f(x,w))(c)$. The softmax \emph{loss} is then defined as:
-    \begin{equation}
-      \loss (y_i, x, w)
-      = \sum_{j=1}^{C} \mathbbm{1}\{y_i=j\} \log p_j
-    \end{equation}
-    Where $\mathbbm{1}$ is the indicator function, and $y_i$ is the true label
-    for input $i$.
-
-  \item \emph{Hinge Loss:} The same loss function from Support Vector
-    Machines (SVMs) can be used to train a large margin classifier in a CNN:
-    \begin{equation}
-      \loss(y,x,w) = \sum_{l=1}^{C} 
-        {\left[ \max(0, 1 - \delta(y_i,l) w^{T}x_{i}) \right]}^p \label{eq:nn_hinge_loss}
-    \end{equation}
-    Using a hinge loss like this introduces extra parameters, which would
-    typically replace the final fully connected layer. The $p$ parameter in
-    \autoref{eq:nn_hinge_loss} can be used to choose $\ell^1$ Hinge-Loss, or
-    $\ell^2$ Squared Hinge-Loss. 
-
-  \end{enumerate}
-  
-
-\subsubsection{Regularization}
-  Weight regularization, such as an $\ell^2$ penalty is often given to the
-  learned parameters of a system. This applies to the parameters of the fully
-  connected, as well as the convolutional layers in a CNN\@. These are added to
-  the loss function. Often the two loss components are differentiated between by
-  their monikers - `data loss' and `regularization loss'. The above 
-  equation then becomes:
-  \begin{equation}
-    \mathcal{L} = \mathcal{L}_{data} + \underbrace{\frac{1}{2}\lambda_{fc}
-    \sum_{i=1}^{L_{fc}} \sum_{j} \sum_{k} {(w_{i}[j,k])}^2}_{\text{fully connected
-    loss}} +
-    \underbrace{\frac{1}{2}\lambda_{c} \sum_{i=1}^{L_c} \sum_{u_1} \sum_{u_2} \sum_{d}
-    \sum_{n} \left(f_i[u_1,u_2,d,n]\right)^2}_{\text{convolutional loss}}
-  \end{equation}
-
-  Where $\lambda_{fc}$ and $\lambda_{c}$ control the regularization parameters
-  for the network. These are often also called `weight decay' parameters.
-
-  The choice to split the $\lambda$'s between fully connected and convolutional
-  layers was relatively arbitrary. More advanced networks can make $\lambda$
-  a function of the layer. 
-
 
 \subsection{Learning}
 
@@ -271,7 +201,7 @@ empirical risk ($R_{EMP}$):
               {Differences in non-linearities. Green --- the \emph{sigmoid} function, 
                Blue --- the \emph{tanh} function, and Red --- the \emph{ReLU}. The ReLU
                solves the problem of small gradients outside of the activation
-               region (around $x=0$) as well as promoting sparsity.}\label{fig:nonlinearities}
+               region (around $x=0$) as well as promoting sparsity.}\label{fig:ch2:nonlinearities}
   \end{figure}
 
 
@@ -287,7 +217,7 @@ empirical risk ($R_{EMP}$):
   quoting that it gave them an increase in accuracy of roughly $0.5\%$ and
   helped prevent their network from `overfitting'. More recent networks will
   typically employ either this or the original $2\x 2$ pooling with stride 2,
-  see \autoref{fig:maxpool}. A review of pooling methods in
+  see \autoref{fig:ch2:maxpool}. A review of pooling methods in
   \citep{mishkin_systematic_2016} found them both to perform equally well.
   
   \begin{figure}
@@ -301,12 +231,12 @@ empirical risk ($R_{EMP}$):
         % \input{tikz/maxpool_overlap.tex}\label{fig:maxpool_overlap}
     % }
     \caption[Tight vs.\ overlapping pooling]
-            {\subref{fig:maxpool_tight} Tight $2\x 2$ pooling with stride 2, vs
-            \subref{fig:maxpool_overlap} overlapping $3\x 3$ pooling with
+            {\subref{fig:ch2:maxpool_tight} Tight $2\x 2$ pooling with stride 2, vs
+            \subref{fig:ch2:maxpool_overlap} overlapping $3\x 3$ pooling with
             stride 2. Overlapping pooling has the possibility of having one
             large activation copied to two positions in the reduced size
             feature map, which places more emphasis on the odd columns.}
-    \label{fig:maxpool}
+    \label{fig:ch2:maxpool}
   \end{figure}
 
 \subsubsection{Batch Normalization}
@@ -315,11 +245,10 @@ empirical risk ($R_{EMP}$):
       that, it has become quite popular and has been found to be very useful.
       At its core, it is doing what standard normalization is doing, but also
       introduces two learnable parameters --- scale ($\gamma$) and offset
-      ($\beta$).
-      \autoref{eq:normalization} becomes:
+      ($\beta$). \eqref{eq:ch2:normalization} becomes:
       \begin{equation}
         \tilde{z}(u_1,u_2,d) = \gamma\frac{z-E[z]}{\sqrt{Var[z]}} + \beta 
-				\label{eq:batch_normalization}
+				\label{eq:ch2:batch_normalization}
       \end{equation}
       These added parameters make it a \emph{renormalization} scheme, as instead of
       centring the data around zero with unit variance, it can be centred
@@ -334,7 +263,7 @@ empirical risk ($R_{EMP}$):
       $\beta$ are calculated per sample, and then averaged over the whole
       batch.
 
-      From \autoref{eq:batch_normalization}, let us briefly use the hat
+      From \autoref{eq:ch2:batch_normalization}, let us briefly use the hat
       notation to represent the standard normalized input:
       $\hat{z} = (z-E[z])/\sqrt{Var[z]}$, then:
       \begin{eqnarray}
@@ -389,7 +318,7 @@ empirical risk ($R_{EMP}$):
   performance.
 
   To promote the chance of learning the identity mapping, they define
-  a residual unit, shown in \autoref{fig:residual_unit}. If a desired mapping
+  a residual unit, shown in \autoref{fig:ch2:residual_unit}. If a desired mapping
   is denoted $\mathcal{H}(x)$, instead of trying to learn this, they instead
   learn $\mathcal{F}(x) = \mathcal{H}(x) - x$. 
   \begin{figure}
@@ -399,7 +328,7 @@ empirical risk ($R_{EMP}$):
           {A residual unit. The identity mapping is always present, and the
             network learns the difference from the identity mapping, $\mathcal{F}(x)$.
             Taken from \citep{he_deep_2015}.}
-      \label{fig:residual_unit}
+      \label{fig:ch2:residual_unit}
   \end{figure}
 
 
@@ -442,16 +371,16 @@ empirical risk ($R_{EMP}$):
   \end{itemize}
 
   Despite the many variations of CNN architectures currently being used, most
-  follow roughly the same recipe (shown in \autoref{fig:cnn_generic}):
+  follow roughly the same recipe (shown in \autoref{fig:ch2:cnn_generic}):
   \begin{figure}
     \centering
       % \includegraphics[width=\textwidth]{images/cnns.png}
       \caption[Standard CNN architecture]
               {Standard CNN architecture. Taken
-              from~\citep{lecun_gradient-based_1998}}\label{fig:cnn_generic}
+              from~\citep{lecun_gradient-based_1998}}\label{fig:ch2:cnn_generic}
   \end{figure}
 
-\subsection{Fully Connected Layers}\label{sec:cnn_fullyconnected}
+\subsection{Fully Connected Layers}\label{sec:ch2:cnn_fullyconnected}
   The convolution, pooling, and activation layers all
   conceptually form part of the \emph{feature extraction} stage of a CNN. One
   or more fully connected layers are usually placed after these layers to form

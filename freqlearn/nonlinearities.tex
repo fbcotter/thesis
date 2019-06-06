@@ -40,3 +40,47 @@ selecting one quadrant of the complex plane.
 One potential problem with this is
 that applying a ReLU independently to the real and imaginary components
 
+\subsection{Non-Linearity}
+  %% Define the variables we will use in this section
+\renewcommand{\SigIn}{w}
+\renewcommand{\SigOut}{y}
+
+	\begin{figure}[!h]
+    \centering
+    \input{\imgpath/activation}
+	\end{figure}
+	
+As a first attempt at a non-linearity, we will try a modified L2-norm. In 
+particular, for input $\SigIn$ (coming from the convolutional layer), the
+output $\SigOut$ is:
+\begin{equation}
+	\SigOut = g(\SigIn, b) = \sqrt{\max(0, \SigIn_R^2 + \SigIn_I^2 - b^2)}
+\end{equation}
+This is an attempt to modify the ReLU nonlinearity by rotating it
+around the complex plane. Really this is more like the complex generalization
+of the function $y = \max(0, |x| -b)$, as the ReLU rejects half of the real
+line, whereas this function only rejects small magnitude values. I justify
+this like so:
+\begin{itemize}
+  \item If a patch of pixels strongly correlates with
+    a filter\footnote{really this should read `strongly correlates with the
+    mirror image of a filter', but the meaning is the same}, it will
+    produce a large output. 
+  \item A large output will be caught by the ReLU and `passed' through, with
+    a small subtraction penalty, $b$.
+  \item If a patch of pixels does not correlate with a filter, it produces
+    a small output, which gets clipped to 0 by the ReLU.
+  \item If a patch of pixels negatively correlates with a filter, say if we
+    multiply a strongly correlated input with -1, then
+    \textbf{this should be distinguishable from zero correlation}. A way to
+    do this would be use a soft limiting function ($y=\min(0,x+b)
+    + \max(0,x-b)$), or the rectified version of the soft limiter
+    ($y=\max(0,|x| - b)$.
+  \item The only downside to these non-linearities is that they theoretically
+    `fire' on much more of the input, which could mean a dramatic change in
+    network behaviour, but really it shouldn't be so drastically different.
+    We can verify this by measuring the probability distribution at the 
+    input to non-linearities in a real valued CNN. It is easy to show that
+    they are roughly normally distributed.
+\end{itemize}
+

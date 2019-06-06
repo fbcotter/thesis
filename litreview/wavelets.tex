@@ -8,7 +8,7 @@
   objects. What is most important in an image are the local variations
   of image intensity. In particular, the location or phase of the waves that make
   up the image. A simple experiments to demonstrate this is shown in 
-  \autoref{fig:lena_morph}. 
+  \autoref{fig:ch2:lena_morph}. 
 
   \begin{figure}
     \centering
@@ -19,7 +19,7 @@
          transform of the second image and reconstructed. Note that the
          first image has entirely won out and nothing is left visible of
          the cameraman.}
-      \label{fig:lena_morph}
+      \label{fig:ch2:lena_morph}
   \end{figure}
 
 \subsection{The Fourier Transform}
@@ -77,7 +77,7 @@
 % applying
 % CWT to real problems becomes very difficult.
 % 
-\subsection{Discrete Wavelet Transform and its Shortcomings}\label{sec:dwt_problems}
+\subsection{Discrete Wavelet Transform and its Shortcomings}\label{sec:ch2:dwt_problems}
   A particularly efficient implementation of the 
   DWT is Mallat's maximally decimated dyadic filter tree, commonly used with
   an orthonormal basis set.  Orthonormal basis sets are non-redundant, which
@@ -88,16 +88,16 @@
     \item The DWT is sensitive to the zero crossings of its wavelets. We would
       like singularities in the input to yield large wavelet coefficients, but
       if they fall at a zero crossing of a wavelet, the output can be small. See
-      \autoref{fig:dwt_zero_crossing}.
+      \autoref{fig:ch2:dwt_zero_crossing}.
     \item They have poor directional selectivity. As the wavelets are purely
       real, they have passbands in all four quadrants of the frequency plane.
       While they can pick out edges aligned with the frequency axis, they do
       not have admissibility for other orientations. See
-      \autoref{fig:dwt_wavelets}.
+      \autoref{fig:ch2:dwt_wavelets}.
     \item They are not shift invariant. In particular, small shifts greatly
-      perturb the wavelet coefficients. \autoref{fig:dwt_zero_crossing} shows
+      perturb the wavelet coefficients. \autoref{fig:ch2:dwt_zero_crossing} shows
       this for the centre-left and centre-right images.
-      \autoref{fig:dtcwt_shift_invariance} (right) also shows this.
+      \autoref{fig:ch2:dtcwt_shift_invariance} (right) also shows this.
   \end{itemize}
 
   The lack of shift invariance and the possibility of low outputs at
@@ -121,7 +121,7 @@
         transform, this means that this extra energy has come from other scales. In comparison, the
       energy of the magnitude of the $\DTCWT$ coefficients has remained far more constant, as has the
     shape of the envelope of the output.  Image taken from \citep{selesnick_dual-tree_2005}.}
-      \label{fig:dwt_zero_crossing}
+      \label{fig:ch2:dwt_zero_crossing}
   \end{figure}
 
   \begin{figure}
@@ -133,10 +133,10 @@
               favoured orientation. Bottom: Idealized support of the spectra of
               each of the wavelets. Image taken from
             \citep{selesnick_dual-tree_2005}.}
-      \label{fig:dwt_wavelets}
+      \label{fig:ch2:dwt_wavelets}
   \end{figure}
 
-\subsection{Complex Wavelets}\label{sec:complex_wavelets}
+\subsection{Complex Wavelets}\label{sec:ch2:complex_wavelets}
   So the DWT has overcome the problem of space-frequency localisation, but it
   has introduced new problems.  Fortunately, we can improve on the DWT with
   complex wavelets, as they can solve these new shortcomings while maintaining
@@ -163,7 +163,7 @@
   We can achieve these nice properties if the mother wavelet for our wavelet
   transform is analytic:
   \begin{equation}
-    \psi_{c}(t) = \psi_{r}(t) + j\psi_{c}(t) \label{eq:complex_wavelet}
+    \psi_{c}(t) = \psi_{r}(t) + j\psi_{c}(t) \label{eq:ch2:complex_wavelet}
   \end{equation}
   where $\psi_{r}(t)$ and $\psi_{c}(t)$ form a Hilbert Pair (i.e.,\ they are
   $90\degs$ out of phase with each other).
@@ -179,7 +179,7 @@
   kingsbury_dual-tree_1998-1,  kingsbury_image_1999, kingsbury_shift_1999,
   kingsbury_dual-tree_2000, kingsbury_complex_2001, selesnick_dual-tree_2005}.
 
-\subsection{Fourier Based Wavelet Transform}\label{sec:morlet_fourier}
+\subsection{Fourier Based Wavelet Transform}\label{sec:ch2:morlet_fourier}
   The Fourier Based method used by Mallat et.\ al.\ is an efficient
   implementation of the Gabor Transform. Mallat tends to prefer to use a close
   relative of the Gabor wavelet --- the Morlet wavelet --- as the mother wavelet
@@ -194,7 +194,7 @@
   \begin{equation}
     \psi(\bmu{u}) = \frac{1}{2\pi\sigma^2} {(e^{i\bmu{u}\xi} - \beta)}
                      e^{-\frac{|\bmu{u}|^2}{2\sigma^2}} 
-    \label{eq:morlet}
+    \label{eq:ch2:morlet}
   \end{equation}
   where $\beta$ is usually $<<1$ and is this extra degree of freedom, 
   $\sigma$ is the size of the gaussian window, and $\xi$ is the
@@ -207,7 +207,7 @@
   \begin{equation}
     \psi(\bmu{u}) = \frac{\gamma}{2\pi\sigma^2}{(e^{i\bmu{u}\xi} - \beta)}
                   e^{-\bmu{u^t}\Sigma^{-1}  \bmu{u}} 
-    \label{eq:morlet_slant}
+    \label{eq:ch2:morlet_slant}
   \end{equation}
   Where
   $$\Sigma^{-1} = \left[ \begin{smallmatrix} 
@@ -215,12 +215,12 @@
       0 & \frac{\gamma^2}{2\sigma^2} 
       \end{smallmatrix} \right] $$
   The effects of modifying the eccentricity parameter $\gamma$ and the window size
-  $\sigma$ are shown in \autoref{fig:morlet_filters}. To have a full two
+  $\sigma$ are shown in \autoref{fig:ch2:morlet_filters}. To have a full two
   dimensional wavelet transform, we need to rotate this mother wavelet by angle
   $\theta$ and scale it by $j/Q$, where $Q$ is the number of scales per octave
   (usually 1 in image processing). 
   This can be done by doing the following
-  substitutions in \autoref{eq:morlet_slant}:
+  substitutions in \eqref{eq:ch2:morlet_slant}:
   \begin{eqnarray*}
     R_{\theta}& = &\left[ \begin{smallmatrix}
                     \cos(\theta) & -\sin(\theta) \\
@@ -247,7 +247,7 @@
               {Top left --- $45\degs$ plane wave (real part only). Top right --- plane wave with
               $\sigma=3,\gamma=1$. Bottom left --- plane wave with $\sigma=3,\gamma=0.5$. Bottom
             right --- plane wave with $\sigma=2,\gamma=0.5$.}
-      \label{fig:morlet_filters}
+      \label{fig:ch2:morlet_filters}
     \end{center}
   \end{figure}
 
@@ -261,13 +261,13 @@
               correspond to scale $j=1$, increasing up to $j=4$. The first column corresponding to
             $\theta = 0$, rotating through $\pi/8$ up to the eighth column of $7\pi/8$,
           $\gamma=1/2$.} 
-      \label{fig:morlet_wavelets_full}
+      \label{fig:ch2:morlet_wavelets_full}
     \end{center}
   \end{figure}
 
-\subsubsection{Implementation}\label{sec:morlet_implementation}
+\subsubsection{Implementation}\label{sec:ch2:morlet_implementation}
   The Fourier Implementation of this Morlet decomposition is shown in
-  \autoref{fig:morlet_fourier_process}. It is based on the fact that 
+  \autoref{fig:ch2:morlet_fourier_process}. It is based on the fact that 
   \begin{equation}
     \mathcal{F}(x \ast \psi)(\omega)
     = \mathcal{F}x(\omega)\mathcal{F}\psi(\omega)
@@ -285,7 +285,7 @@
   \begin{itemize}
     \item $O(N^{2} \log N)$ for the forward FFT of $x$.
     \item $O(JLN^{2})$ for the multiplication in the frequency domain. We can see
-      this from \autoref{fig:morlet_fourier_process}, there are $J$ scales to
+      this from \autoref{fig:ch2:morlet_fourier_process}, there are $J$ scales to
       do multiplication at, and each scale has $L$ orientations, except for the
       low-low.
     \item $O(L \sum_j (2^{-2j}N^{2}) \log {2^{-2j}N^{2}})$ for the inverse FFTs. The
@@ -295,7 +295,7 @@
   And altogether:
   \begin{equation}
     T(N) = O(N^2 \log N) + O (JLN^{2}) + O(L \sum_{j} N^{2} log 2^{-j} N)
-    \label{eq:morlet_efficiency}
+    \label{eq:ch2:morlet_efficiency}
   \end{equation}
 
   \begin{figure}
@@ -310,7 +310,7 @@
               results are periodized according to the target resolution, and
               then the inverse Fourier transform is applied. Image taken from
               \citep{sifre_rigid-motion_2014-1}.}
-      \label{fig:morlet_fourier_process}
+      \label{fig:ch2:morlet_fourier_process}
   \end{figure}
 
 \subsubsection{Invertibility and Energy Conservation}
@@ -348,7 +348,7 @@
   Both of these conditions make invertibility difficult\footnote{In practise,
   if $A(\omega)$ is only slightly greater 1 for only a few small areas of
   $\omega$, approximate inversion can be achieved}.
-  \autoref{fig:morlet_littlewood_paley} show the invertibility of a few
+  \autoref{fig:ch2:morlet_littlewood_paley} show the invertibility of a few
   families of wavelets used by \Mallat. Invertibility is possible, but not
   guaranteed for all configurations. The Fourier transform of the inverse
   filters are defined by:
@@ -374,7 +374,7 @@
               diagrams) or $Q$ gives better frequency localization but at the
               cost of spatial localization and added complexity. Image taken
               from \citep{sifre_rigid-motion_2014-1}.}
-      \label{fig:morlet_littlewood_paley}
+      \label{fig:ch2:morlet_littlewood_paley}
   \end{figure}
 
 
@@ -432,13 +432,13 @@
     noninvertible, or both.
   \end{quote}
   This nicely summarises the difference between this method and the Fourier
-  based method outlined in \autoref{sec:morlet_fourier}. The $\DTCWT$ is
+  based method outlined in \autoref{sec:ch2:morlet_fourier}. The $\DTCWT$ is
   a filter bank (FB) based wavelet transform. It is faster
   to implement than the Morlet analysis, as well as being more readily invertible.
 
 \subsubsection{Deisgn Criteria for the $\DTCWT$}
   It was stated in
-  \autoref{sec:complex_wavelets} that if the mother (and daughter) wavelets
+  \autoref{sec:ch2:complex_wavelets} that if the mother (and daughter) wavelets
   were complex, with their real and imaginary parts forming a Hilbert pair,
   then the wavelet transform of a signal with these $\{\psi_{j,n}\}_{j,n}$
   would give a representation that had nice shift properties\footnote{in
@@ -446,8 +446,8 @@
   wavelet coefficients, and a linear phase shift}, was insensitive to zero crossings of the
   wavelet, and had good directional selectivity. 
   
-  As in \autoref{sec:complex_wavelets}, we want to have a complex mother
-  wavelet $\psi_c$ that satisfies \autoref{eq:complex_wavelet}, but now
+  As in \autoref{sec:ch2:complex_wavelets}, we want to have a complex mother
+  wavelet $\psi_c$ that satisfies \eqref{eq:ch2:complex_wavelet}, but now
   achieved with filter banks. A slight deviation from standard filter bank
   notation, where $h_0, h_1$ are the analysis and $g_0,g_1$ are the synthesis
   filters. We define:
@@ -469,7 +469,7 @@
     \phi_g(t) & = & \sqrt{2} \sum_n g_0(n) \phi_g(2t-n) \\
     \psi_g(t) & = & \sqrt{2} \sum_n g_1(n) \phi_g(2t-n) 
   \end{eqnarray}
-  This implementation is shown in \autoref{fig:dtcwt_1d_fb}.
+  This implementation is shown in \autoref{fig:ch2:dtcwt_1d_fb}.
 
   \begin{figure}
     \centering
@@ -479,7 +479,7 @@
               component of the complex wavelet $\psi_r$, and the bottom tree forms the
               imaginary (Hilbert pair) component $\psi_i$. Image taken from
               \citep{selesnick_dual-tree_2005}.}
-      \label{fig:dtcwt_1d_fb}
+      \label{fig:ch2:dtcwt_1d_fb}
   \end{figure}
 
   Designing a filter bank implementation that results in Hilbert symmetric
@@ -513,52 +513,52 @@
   beauty of the $\DTCWT$ is in its ability to make a separable 2D wavelet
   transform with oriented wavelets. 
   
-  \autoref{fig:dwt_hh} shows the spectrum of
+  \autoref{fig:ch2:dwt_hh} shows the spectrum of
   the wavelet when the separable product uses purely real wavelets, as is the
-  case with the DWT\@. \autoref{fig:dtcwt_hh} however, shows the separable
+  case with the DWT\@. \autoref{fig:ch2:dtcwt_hh} however, shows the separable
   product of two complex, analytic wavelets resulting in a localized and
   oriented 2D wavelet.  
   
-  I.e.,\ for the $+45\degs$ wavelet\footnote{note that \autoref{fig:dtcwt_hh}
+  I.e.,\ for the $+45\degs$ wavelet\footnote{note that \autoref{fig:ch2:dtcwt_hh}
   shows the $135\degs$ wavelet} (which is high
   in both $\omega_1$ and $\omega_2$), the separable product is:
   \begin{eqnarray}
     \psi(\omega_1,\omega_2) & = & \psi_c (\omega_1) \overline{\psi_c
-      (\omega_2) } \label{eq:wavelet_separable_product}\\
+      (\omega_2) } \label{eq:ch2:wavelet_separable_product}\\
     & = & (\psi_h(\omega_1) + j \psi_g(\omega_1) \overline{\left(\psi_h(\omega_2)
       + \psi_g(\omega_2) \right)} \nonumber\\
     & = & \psi_h(\omega_1) \psi_h(\omega_2) + \psi_g(\omega_1)
       \psi_g(\omega_2)\nonumber\\
     &&  + j\left( \psi_g(\omega_1) \psi_h(\omega_2) - \psi_h(\omega_1)
-        \psi_g(\omega_2) \right)  \label{eq:dtcwt_2d_product}
+        \psi_g(\omega_2) \right)  \label{eq:ch2:dtcwt_2d_product}
   \end{eqnarray}
   Similar equations can be obtained for the other five wavelets and the scaling
   function, by replacing
   $\psi$ with $\phi$ for both directions, and not taking the complex conjugate
-  in \autoref{eq:wavelet_separable_product} to get the right hand side of the
+  in \eqref{eq:ch2:wavelet_separable_product} to get the right hand side of the
   frequency plane. 
   
-  \autoref{fig:dtcwt_wavelets} shows the resulting wavelets both in the spatial
+  \autoref{fig:ch2:dtcwt_wavelets} shows the resulting wavelets both in the spatial
   domain and their idealized support in the frequency domain.
 
-  \autoref{fig:dtcwt_shift_invariance} shows how the $\DTCWT$ compares with the
+  \autoref{fig:ch2:dtcwt_shift_invariance} shows how the $\DTCWT$ compares with the
   DWT with a shifting input.
 
   \begin{figure}
 %      \centering
       \subfloat[]{\makebox[\textwidth][c]{%
         % \includegraphics[width=0.8\textwidth]{images/dwt_hh.png}
-        \label{fig:dwt_hh}}}
+        \label{fig:ch2:dwt_hh}}}
       \newline
       \subfloat[]{\makebox[\textwidth][c]{%
         % \includegraphics[width=0.8\textwidth]{images/dtcwt_hh.png}
-        \label{fig:dtcwt_hh}}}
+        \label{fig:ch2:dtcwt_hh}}}
       \caption[The DWT high-high vs the $\DTCWT$ high-high frequency support]
-              {\subref{fig:dwt_hh} The high-high DWT wavelet having a passband in
-              all 4 corners of the frequency plane vs \subref{fig:dtcwt_hh} the
+              {\subref{fig:ch2:dwt_hh} The high-high DWT wavelet having a passband in
+              all 4 corners of the frequency plane vs \subref{fig:ch2:dtcwt_hh} the
               high-high $\DTCWT$ wavelet frequency support only existing in one
               quadrant. Taken from \citep{selesnick_dual-tree_2005}}
-      \label{fig:dwt_dtcwt_hh}
+      \label{fig:ch2:dwt_dtcwt_hh}
   \end{figure}
 
   \begin{figure}
@@ -571,7 +571,7 @@
       frequency plane. Spectra of the the real wavelets are shown --- the
       spectra of the complex wavelets ($\psi_h + j\psi_g$) only has support in the top
       half of the plane. Image taken from \citep{selesnick_dual-tree_2005}.}
-      \label{fig:dtcwt_wavelets}
+      \label{fig:ch2:dtcwt_wavelets}
   \end{figure}
   \begin{figure}
     \centering
@@ -582,14 +582,14 @@
               {The shift invariance of the $\DTCWT$ (left) vs.\ the real DWT
               (right). The $\DTCWT$ linearizes shifts in the phase change of the complex
               wavelet. Image taken from \citep{kingsbury_dual-tree_1998}.}
-      \label{fig:dtcwt_shift_invariance}
+      \label{fig:ch2:dtcwt_shift_invariance}
   \end{figure}
 
-\subsubsection{Implementation and Efficiency}\label{sec:dtcwt_efficiency}
-  \autoref{fig:dtcwt_1d_fb} showed the layout for the $\DTCWT$ for 1D signals. We
-  saw from \autoref{eq:dtcwt_2d_product} that the 2D separable product of wavelets
+\subsubsection{Implementation and Efficiency}\label{sec:ch2:dtcwt_efficiency}
+  \autoref{fig:ch2:dtcwt_1d_fb} showed the layout for the $\DTCWT$ for 1D signals. We
+  saw from \eqref{eq:ch2:dtcwt_2d_product} that the 2D separable product of wavelets
   involved the product of $\psi_g$, $\psi_h$, $\phi_g$, and $\phi_h$ terms, with
-  some summing and differencing operations. \autoref{fig:dtcwt_fb} shows how to
+  some summing and differencing operations. \autoref{fig:ch2:dtcwt_fb} shows how to
   efficiently implement this with FBs.
   
   \begin{figure}
@@ -600,10 +600,10 @@
       \caption[The filter bank implementation of the $\DTCWT$]
               {The filter bank implementation of the $\DTCWT$@. Image taken from 
               \citep{kingsbury_image_1999}}
-      \label{fig:dtcwt_fb}
+      \label{fig:ch2:dtcwt_fb}
   \end{figure}
 
-  As we did for \autoref{sec:morlet_implementation}, we calculate and compare
+  As we did for \autoref{sec:ch2:morlet_implementation}, we calculate and compare
   the complexity of the $\DTCWT$@. To do this, we must know the length of our
   $h$ and $g$ filters. It is also important to know that we must use different
   filters for the first scale to the deeper scales, as this achieves better
@@ -634,7 +634,7 @@
         \item Row filtering to make $15\degs$ and $165\degs$ requires
           $5N^2+4N^2$
           multiply-adds (the 4 here comes from the $\Sigma/\Delta$ function
-          block in \autoref{fig:dtcwt_fb}).
+          block in \autoref{fig:ch2:dtcwt_fb}).
         \item Row filtering to make the $45\degs$ and $135\degs$ requires $7N^2
           +4N^2$ multiply-adds
         \item Row filtering to make the $75\degs and 105\degs$ requires
@@ -651,7 +651,7 @@
         \item Row filtering to make $15\degs$ and $165\degs$ requires
           $10M^2+4M^2$
           multiply-adds (the 4 here comes from the $\Sigma/\Delta$ function
-          block in \autoref{fig:dtcwt_fb}).
+          block in \autoref{fig:ch2:dtcwt_fb}).
         \item Row filtering to make the $45\degs$ and $135\degs$ requires
           $10M^2 +4M^2$ multiply-adds
         \item Row filtering to make the $75\degs$ and $105\degs$ requires
@@ -669,7 +669,7 @@
 
   It is difficult to compare this with the complexity of the Fourier-based
   implementation of the Morlet wavelet transform we have derived in
-  \autoref{sec:morlet_implementation}, as we cannot readily estimate the big-O
+  \autoref{sec:ch2:morlet_implementation}, as we cannot readily estimate the big-O
   order constants for the 2D FFT method. However, the central term, $JLN^2$,
   would cost $24N^2$ multiplies for four scales and six orientations. These are
   complex multiplies, as they are in the Fourier domain, which requires
@@ -698,7 +698,7 @@
   \end{equation}
   and the implementation is perfectly invertible as the Littlewood-Paley
   function is unity (or very near unity) $\forall \omega$. See
-  \autoref{fig:dtcwt_lwoodpaley}. This is not a surprise, as it is a design
+  \autoref{fig:ch2:dtcwt_lwoodpaley}. This is not a surprise, as it is a design
   constraint in choosing the filters, but nonetheless is important to note. 
 
   A beneficial property of energy conservation is that the noise in the input
@@ -708,7 +708,7 @@
   of the recent investigations in \citep{szegedy_intriguing_2013}. This paper
   saw that it is easy to find cases in CNNs where a small amount of input
   perturbation results in a completely different class label (see
-  \autoref{fig:difference}). Having a unitary transform limits the
+  \autoref{fig:ch2:difference}). Having a unitary transform limits the
   amount the features can change, which will make the entire network more
   stable to distortion and noise.
 
@@ -721,8 +721,8 @@
     }}
     \caption[$\DTCWT$ basis functions and their frequency coverage]
     {Four scales of the $\DTCWT$ (left) and its associated frequency
-    coverage, or $A(\omega)$ (right). Note the reduced scale compared to \autoref{fig:morlet_littlewood_paley}.}
-    \label{fig:dtcwt_lwoodpaley}
+    coverage, or $A(\omega)$ (right). Note the reduced scale compared to \autoref{fig:ch2:morlet_littlewood_paley}.}
+    \label{fig:ch2:dtcwt_lwoodpaley}
   \end{figure}
 
   \begin{figure}
@@ -734,13 +734,13 @@
     predicted example, and the centre column the difference between the two
     images, magnified 10 times. Image taken from
     \citep{szegedy_intriguing_2013}.}
-    \label{fig:difference}
+    \label{fig:ch2:difference}
   \end{figure}
 \subsection{Summary of Methods}
   One final comparison to make between the $\DTCWT$ and the Morlet wavelets is
   their frequency coverage. The Morlet wavelets can be made to be tighter than
   the $\DTCWT$, which gives better angular resolution --- see
-  \autoref{fig:wavelet_freq_resp}. However it is not always
+  \autoref{fig:ch2:wavelet_freq_resp}. However it is not always
   better to keep getting finer and finer resolutions, indeed the Fourier
   transform gives the ultimate in angular resolution, but as mentioned, this
   makes it less stable to shifts and deformations. 
@@ -786,7 +786,7 @@
             resolution, which can give better discrimination, at the cost of
             decreasing stability to deformations, and requiring larger spatial
             support.}
-    \label{fig:wavelet_freq_resp}
+    \label{fig:ch2:wavelet_freq_resp}
   \end{figure}
 % \begin{table}[h]
   % \caption{A comparison of wavelet transform methods}
@@ -844,12 +844,12 @@
   \mycaption{Block Diagram of 1-D $\DTCWT$}{Note the top and bottom paths are
   through the wavelet or scaling functions from just level m ($M=2^m$). Figure
   based on Figure~4 in \cite{kingsbury_complex_2001}.}
-  \label{fig:ch6:dtcwt_two_tree}
+  \label{fig:ch2:dtcwt_two_tree}
 \end{figure}
 
 Firstly, let us look at what would happen if we retained only 1 of the subbands.
 Note that we have to keep the same band from each tree. For any pair of
-coefficients on the tree, this would look like \autoref{fig:ch6:dtcwt_two_tree}.
+coefficients on the tree, this would look like \autoref{fig:ch2:dtcwt_two_tree}.
 E.g.\ if we kept $x_{001a}$ and $x_{001b}$ then $M=8$ and $A(z) =
 H_{0a}(z)H_{00a}(z^2)H_{001a}(z^4)$ is the transfer fucntion from $x$ to
 $x_{001a}$. The transfer functions for $B(z)$, $C(z)$ and $D(z)$ are obtained

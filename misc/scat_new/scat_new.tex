@@ -22,12 +22,12 @@ that in the neighbourhood of $u$, $\tau$ introduces a translation by $\tau(u)$
 and a warping that differes from 1 by $\nabla \tau(u)$. This warping can be
 quantified as 
 
-$$\norm{\nabla \tau}_{\infty} = \sup_{u\in \reals[2]} \norm{\nabla \tau(u)}$$
+$$\norm{\nabla \tau}_{\infty} = \sup_{u\in \reals[2]} \norm{\nabla \tau(u)} $$
 
 A representation is stable to deformations if we can define to small constants,
 $C_1, C_2$ such that for all $x\in L^2(\reals[2]$:
 
-$$ \norm{ \Phi L_\tau x - \Phi x } \leq (C_1 \norm{\tau}_\infty + C_2 \norm{ \nabla \tau }_\infty) \lnrom{x}$$
+$$ \norm{ \Phi L_\tau x - \Phi x } \leq \left(C_1 \norm{\tau}_\infty + C_2 \norm{ \nabla \tau }_{\infty}\right) \lnorm{x} $$
 
 Note that if $C_1 =0$ then we have full translation invariance (translation is
 when $\tau(u) = C$, $\nabla \tau(u) = 0$). Full translation invariance does not
@@ -69,7 +69,7 @@ $$ W[\lambda] x(u) =  e^{j\lambda \eta u} \left( x^{\lambda} \conv \phi_\lambda 
 with $x^\lambda (u) = e^{-j\lambda \eta u} x(u)$. A simple non-linearity would
 be to cancel the wavelet and the signals modulating term, i.e.
 
-$$  M[\lambda] h(x) & = & e^{-j\lambda \etau} e^{-j\Phi( \hat{h}(\lambda \eta))} h(x) $$
+$$  M[\lambda] h(x)  = e^{-j\lambda \eta u} e^{-j\Phi( \hat{h}(\lambda \eta))} h(x) $$
 
 where $\Phi (\hat{h} (\lambda \eta ))$ is the complex phase of 
 $\hat{h}(\lambda \eta)$. Then 
@@ -125,9 +125,9 @@ the norm of the signal.
 Define the $L^1$ and $L^2$ norms and the average energy of $\cnnact{x}{c}{\xy}$ to be:
 
 \begin{eqnarray}
-  & \norm{x}_1 &=& \sum_{c = 1}^{C} \int_{\reals[2]} |\cnnact{x}{c}{\xy}| d\xy \\
-  & \norm{x}_2^{2} &=& \sum_{c = 1}^{C} \int_{\reals[2]} |\cnnact{x}{c}{\xy}|^2 d\xy  \\
-  & \norm{x}^2_{av} &=& \frac{1}{C |\Omega|} \norm{x}^2 
+  \norm{x}_1 &=& \sum_{c = 1}^{C} \int_{\reals[2]} |\cnnact{x}{c}{\xy}| d\xy \\
+  \norm{x}_2^{2} &=& \sum_{c = 1}^{C} \int_{\reals[2]} |\cnnact{x}{c}{\xy}|^2 d\xy  \\
+  \norm{x}^2_{av} &=& \frac{1}{C |\Omega|} \norm{x}^2 
 \end{eqnarray}
 
 Let the number of channels at layer $l$ be $M_l$, the largest filter norm is:
@@ -135,8 +135,7 @@ Let the number of channels at layer $l$ be $M_l$, the largest filter norm is:
 \begin{eqnarray}
   A_l & = &  \sup_{f} \sum_{c=1}^{M_{l-1}} \norm{ \cnnfilt{l}{f}{c}{\xy} }_1 \\
   B_l & = & \sup_{c} \frac{M_{l-1}}{M_l} \sum_{f=1}^{M_l} \norm{ \cnnfilt{l}{f}{c}{\xy} }_1 \\
-  C_l & = & \max \{ A_l, B_l \} \\
-
+  C_l & = & \max \{ A_l, B_l \} 
 \end{eqnarray}
 Consider the largest filter norm over the $f$ filters at layer $l$:
 
