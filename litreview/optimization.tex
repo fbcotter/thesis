@@ -1,87 +1,245 @@
 \section{Supervised Machine Learning}
 Consider a sample space over inputs and labels $\mathcal{X} \times \mathcal{Y}$
-and a data generating distribution $p_data$. Given inputs $x \in \mathcal{X}$ we
-would like to make predictions about $p_data(y|x)$. A common way to do this is
-to build a discriminative model $f$ that estimates this conditional probability directly. 
-We then want to maximize the likelihood of this model under the data
-distribution:
+and a data generating distribution $p_data$. Given a dataset of input-label
+pairs $\mathcal{D} = \{(x^{(n)}, y^{(n)})\}_{n=1}^N$ we would like to make
+predictions about $p_data(y|x)$ that generalize well to unseen data. A common
+way to do this is to build a parametric model to directly estimate this
+conditional probability.  For example, regression asserts the data are
+distributed according to a function of the inputs plus a noise term $\epsilon$:
 \begin{equation}
+  y = f(x, \theta) + \epsilon
 \end{equation}
-% We then want to minimize the KL-divergence between the model $f(x, \theta)$ to the
-% maximize the likelihood of this model, 
+This noise is often modelled as a zero mean Gaussian random variable, $\epsilon
+\sim \mathcal{N}(0, \sigma^2)$, which means we can write:
+\begin{equation}\label{eq:ch2:regression}
+  p_{model}(y|x, \theta) = \mathcal{N}(y;\ f(x, \theta), \sigma^2)
+\end{equation}
+with $(\theta, \sigma^2)$ are the parameters of the model. 
 
-We parameterize this model
-This thesis focuses mainly on supervised tasks, where we would like to learn a
-mapping $f$ from inputs $x$ to targets $y$ given a dataset of pairs $\mathcal{D} = 
-\{(x^{(n)}, y^{(n)})\}_{n=1}^N$. In particular, we would like our mapping to
-generalize to unseen test data
+We can find point estimates of the parameters by maximizing the likelihood of
+$p_{model}(y|x, \theta)$ (or equivalently, minimizing the KL-divergence between
+$p_{model}$ and $p_{data}$ $KL(p_{model}||p_{data})$). As the data are all
+i.i.d., we can multiply individual likelihoods, and solve for $\theta$:
+\begin{eqnarray}
+  \theta_{MLE} &=& \argmax_{\theta} p_{model}(y|x, \theta) \\
+              &=& \argmax_{\theta} \prod_{n=1}^{N} p_{model}(y^{(n)}|x^{(n)}, \theta) \\
+              &=& \argmax_{\theta} \sum_{n=1}^N \log p_{model}(y^{(n)}|x^{(n)}, \theta)
+\end{eqnarray}
+Using the regression model from above, this becomes:
+\begin{eqnarray} 
+  \theta_{MLE} &=& \argmax_{\theta} \sum_{n=1}^N \log p_{model}(y^{(n)}|x^{(n)}, \theta) \\
+              &=& \argmax_{\theta} \left(-N\log \sigma - \frac{N}{2}\log (2\pi) - \sum_{n=1}^{N}
+                  \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2\sigma^2}\right) \\
+  &=& \argmin_{\theta}\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2}
+\end{eqnarray}
+which gives us the well known result that we would like to find parameters that
+minimize the mean squared error (MSE) between observations $y$ and predictions
+$\hat{y} = f(x, \theta)$.
 
-\subsubsection{Loss Functions}
-  For a given sample $q=(x, y)$, the loss
-  function is used to measure the cost of predicting $\hat{y}$ when the
-  true label was $y$. We define a loss function $\loss (y, \hat{y})$. 
-  A CNN is a deterministic
-  function of its weights and inputs, $f(x,w)$ so this can be written as $\loss
-  (y, f(x,w))$, or simply $\loss(y, x, w)$.
-  
-  It is important to remember that we can choose
-  to penalize errors however we please, although for CNNs, the vast majority of
-  networks use the same loss function --- the softmax loss. Some networks have
-  experimented with using the hinge loss function (or `SVM loss'), stating they
-  could achieve improved results \citep{gu_recent_2015,tang_deep_2013}. 
-  \begin{enumerate}
+For binary classification, ($y \in \{0, 1\}$) instead of the model in
+\eqref{eq:ch2:regression} we have: 
+\begin{equation} \label{eq:ch2:logistic}
+  p_{model}(y|x, \theta) = \F{Ber}(y;\ \sigma(f(x, \theta)))
+\end{equation}
+where $\sigma$ is the sigmoid function:
+\begin{equation}
+  \sigma(x) = \frac{1}{1+e^{-x}}
+\end{equation}
+This expands naturally to multi-class classification ($y \in \{0, 1\}^C$) by
+swapping the Bernoulli distribution for the categorical and the sigmoid for a
+softmax function, defined by:
+\begin{equation}
+  \sigma(z)_i = \frac{e^{z_i}}{\sum_{k=1}^C e^{z_k}}
+\end{equation}
+If we let $\hat{y}_i = \sigma(f(x, \theta))_i$, this makes \eqref{eq:ch2:logistic}:
+\begin{eqnarray}\label{eq:ch2:classification}
+  p_{model}(y|x, \theta) &=& \F{Cat}(y;\ \sigma(f(x, \theta))) \\
+                         &=& \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right)^{\mathbb{I}(y^{(n)} = c)}
+\end{eqnarray}
+where $\mathbb{I}(x)$ is the indicator function. Maximizing this likelihood to
+find the ML estimate for $\theta$:
+\begin{eqnarray}
+  \theta_{MLE} &=& \argmin_\theta \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right){\mathbb{I}(y^{(n)} = c)} \\
+               &=& \argmin_\theta \sum_{n=1}^N \sum_{c=1}^C \mathbb{I}(y^{(n)} = c)\log \hat{y}_c^{(n)} 
+\end{eqnarray}
+which we recognize as the cross-entropy between $y$ and $\hat{y}$.
 
-  \item \emph{Softmax Loss:} The more common of the two, the softmax turns
-    predictions into non-negative, unit summing values, giving the sense of
-    outputting a probability distribution. The softmax function is applied to
-    the $C$ outputs of the network (one for each class):
-    \begin{equation}
-      p_j = \frac{e^{(f(x, w))(j)}}{\sum\limits_{k=1}^{C}e^{(f(x,w))(k)}}
-    \end{equation}
-    where we have indexed the $c$-th element of the output vector $f(x,w)$ with
-      $(f(x,w))(c)$. The softmax \emph{loss} is then defined as:
-    \begin{equation}
-      \loss (y_i, x, w)
-      = \sum_{j=1}^{C} \mathbbm{1}\{y_i=j\} \log p_j
-    \end{equation}
-    Where $\mathbbm{1}$ is the indicator function, and $y_i$ is the true label
-    for input $i$.
+\subsection{Priors on Parameters and Regularization}
+  Maximum likelihood estimates for parameters, while straightforward, can often
+  lead to overfitting. A common practice is to regularize learnt parameters
+  $\theta$ by putting a prior over them. If we do not have any prior information
+  about what we expect the parameters to be, it is still useful to put an
+  uninformative prior on the weights. For example, if our weights are in the
+  reals, a commonly used prior is a Gaussian.
 
-  \item \emph{Hinge Loss:} The same loss function from Support Vector
-    Machines (SVMs) can be used to train a large margin classifier in a CNN:
-    \begin{equation}
-      \loss(y,x,w) = \sum_{l=1}^{C} 
-        {\left[ \max(0, 1 - \delta(y_i,l) w^{T}x_{i}) \right]}^p \label{eq:ch2:nn_hinge_loss}
-    \end{equation}
-    Using a hinge loss like this introduces extra parameters, which would
-    typically replace the final fully connected layer. The $p$ parameter in
-    \autoref{eq:ch2:nn_hinge_loss} can be used to choose $\ell^1$ Hinge-Loss, or
-    $\ell^2$ Squared Hinge-Loss. 
-
-  \end{enumerate}
-  
-
-\subsubsection{Regularization}
-  Weight regularization, such as an $\ell^2$ penalty is often given to the
-  learned parameters of a system. This applies to the parameters of the fully
-  connected, as well as the convolutional layers in a CNN\@. These are added to
-  the loss function. Often the two loss components are differentiated between by
-  their monikers - `data loss' and `regularization loss'. The above 
-  equation then becomes:
-  \begin{equation}
-    \mathcal{L} = \mathcal{L}_{data} + \underbrace{\frac{1}{2}\lambda_{fc}
-    \sum_{i=1}^{L_{fc}} \sum_{j} \sum_{k} {(w_{i}[j,k])}^2}_{\text{fully connected
-    loss}} +
-    \underbrace{\frac{1}{2}\lambda_{c} \sum_{i=1}^{L_c} \sum_{u_1} \sum_{u_2} \sum_{d}
-    \sum_{n} \left(f_i[u_1,u_2,d,n]\right)^2}_{\text{convolutional loss}}
+  Let us extend the regression example from above by saying we would like the
+  prior on the weights $\theta$ to be a Gaussian, i.e. 
+  $p(\theta) = \mathcal{N}(0, \tau^2)$. The corresponding maximum a posteriori
+  (MAP) estimate is then obtained by finding:
+  \begin{equation}\label{eq:ch2:map}
+   \theta_{MAP} &=& \argmin_{\theta}\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} + \lambda ||\theta||_2^2
   \end{equation}
+  where $\lambda = \sigma^2/\tau^2$, which is equivalent to minimizing the MSE
+  with an $\ell_2$ penalty on the parameters. $\lambda$ is often called \textbf{weight
+  decay} in the neural network literature, which we will also use in this
+  thesis.
+  
+\subsection{Loss Functions and Minimizing the Objective}
+  It may be useful to rewrite \eqref{eq:ch2:map} as an objective function on the
+  parameters $J(\theta)$:
+  \begin{eqnarray}
+    J(\theta) &=&\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} + \lambda ||\theta||_2^2 \\
+              &=& L_{data}(y, f(x, \theta)) + L_{reg}(\theta)
+  \end{eqnarray}
+  where $L_{data}$ is the data loss defined, such as MSE or cross-entropy and
+  $L_{reg}$ is the regularization, such as $\ell_2$ or $\ell_1$ penalized loss. 
+  
+  Now $\theta_{MAP} = \argmin J(\theta)$. Finding the minimum of the objective
+  function is task-dependent and is often not straightforward. One commonly used
+  technique is called \emph{gradient descent} (GD). This is straightforward to do as
+  it only involves calculating the gradient at a given point and taking a small
+  step in the direction of steepest descent. The difference equation defining 
+  this can be written as:
+  \begin{equation}\label{eq:ch2:gd}
+    \theta_{t+1} = \theta_t - \eta \dydx{J}{\theta}
+  \end{equation}
+  Unsurprisingly, such a simple technique has limitations. In particular, it
+  has a slow convergence rate when the condition number (ratio of largest to 
+  smallest eigenvalues) of the Hessian around the optimal point is large
+  \cite{boyd_convex_2004}. An example of this is shown in
+  \autoref{fig:ch2:gd_bounce}. In this figure, the step size is chosen with
+  exact line search, i.e.
+  \begin{equation}\label{eq:ch2:search}
+    \eta = \argmin_s f(x + s \dydx{f}{x})
+  \end{equation}  
+  
+  To truly overcome this problem, we must know the curvature
+  of the objective function $\frac{\partial^2 J}{\partial \theta^2}$. An example
+  optimization technique that uses the second order information is Newton's
+  method. Such techniques sadly do not scale with size, as computing the Hessian
+  is proportional to the number of parameters squared, and most neural networks
+  have hundreds of thousands, if not millions of parameters. In this thesis, we
+  only consider \emph{first-order optimization} algorithms.
 
-  Where $\lambda_{fc}$ and $\lambda_{c}$ control the regularization parameters
-  for the network. These are often also called `weight decay' parameters.
+  \begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\textwidth]{\imgpath/sgd_bounce.png}
+  \mycaption{Trajectory of gradient descent in an ellipsoidal parabola}{Some contour lines of
+  the function $f(x)=1/2\left(x_1^2 + 10x_2^2 \right)$ and the trajectory of GD
+  optimization using exact line search.
+  This space has condition number 10, and shows the slow convergence of GD in
+  spaces with largely different eigenvalues.
+  Image taken from \cite{boyd_convex_2004} Figure 9.2.}
+  \label{fig:ch2:gd_bounce}
+\end{figure}
 
-  The choice to split the $\lambda$'s between fully connected and convolutional
-  layers was relatively arbitrary. More advanced networks can make $\lambda$
-  a function of the layer. 
+\subsection{Stochastic Gradient Descent}
+Aside from the problems associated the curvature of the function $J(\theta)$,
+another common issue faced with the gradient descent of \eqref{eq:ch2:gd} is the
+cost of computing $\dydx{J}{\theta}$. In particular, the first term:
+\begin{eqnarray}\label{eq:ch2:ldata}
+  L_{data}(y, f(x, \theta)) &=& \mathbb{E}_{x,y \sim p_{data}}\left[ L_{data}(y, f(x, \theta))\right] \\
+&=& \frac{1}{N}\sum_{n=1}^N L_{data}\left(y^{(n)}, f(x^{(n)}, \theta)\right) 
+\end{eqnarray}
+involves evaluating the entire dataset at the current values of $\theta$. As the
+training set size grows into the thousands or millions of examples, this
+approach becomes prohibitively slow. 
 
+\eqref{eq:ch2:ldata} writes the data loss as an expectation, hinting at the fact that 
+we can remedy this problem by using fewer samples $N_b < N$ to evaluate $L_{data}$. 
+This variation is called Stochastic Gradient Descent (SGD).
 
+Choosing the batch size is a hyperparameter choice that we must think carefully
+about. Setting the value very low, e.g. $N_b = 1$ can be advantageous as the
+noisy estimates for the gradient have a regularizing effect on the network
+\cite{wilson_general_2003}. Increasing the batch size to larger values allows
+you to easily parallelize computation as well as increasing your accuracy for
+the gradient, allowing you to take larger step sizes \cite{smith_dont_2017}.
+A good initial starting point is to set the batch size to about 100 samples and
+increase/decrease from there \cite{goodfellow_deep_2016}.
 
+\subsection{Gradient Descent and Learning Rate}
+The step size parameter, $\eta$ in \eqref{eq:ch2:gd} is commonly referred to as
+the learning rate. Choosing the right value for the learning rate is key.
+Unfortunately, the line search algorithm in \eqref{eq:ch2:search} would be too
+expensive to compute for neural networks (as would involve evaluating the
+function several times at different values), each of which takes about as long
+as calculating the gradients themselves. Additionally, as the gradients are
+typically estimated over a mini-batch and are hence noisy there may be
+little added benefit in optimizing the step sizes in the estimated direction. 
+
+\autoref{fig:ch2:sgd_lr} illustrates the effect the learning rate can have over
+a contrived convex example. Optimizing over more complex loss surfaces only
+exacerbates the problem. Sadly, choosing the initial learning rate is 
+`more of an art than a science' \cite{goodfellow_deep_2016}, but
+\cite{bottou_stochastic_2012, montavon_neural_2012} have some tips on what to
+set this at. We have found in our work that searching for a large learning 
+rate that causes the network to diverge and reducing it hence can be a good
+search strategy. This agrees with Section 1.5 of \cite{lecun_efficient_2012}
+which states that for regions of the loss space which are roughly quadratic,
+$\eta_{max} = 2\eta_{opt}$ and any learning rate above $2\eta_{opt}$ causes
+divergence.
+
+On top of the initial learning rate, the convergence of SGD methods require:
+\begin{eqnarray}
+  \sum_{t=1}^{\infty} \eta_t &\rightarrow &\infty \\
+  \sum_{t=1}^{\infty} \eta_t^2 &=& M
+\end{eqnarray}
+where $M$ is finite. Choosing how to do this also contains a good amount of artistry,
+and there is no one scheme that works best. A commonly used greedy method is to
+keep the learning rate constant until the training loss stabilizes and then to
+enter the next phase of training by setting $\eta_{k+1} = \gamma \eta_{k}$ where
+$\gamma$ is a decay factor. Choosing $\gamma$ and the thresholds for triggering
+a step however must be chosen by monitoring the training loss curve and trial
+and error.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{\imgpath/sgd_lr.png}
+  \mycaption{Trajectories of SGD with different initial learning rates}{This
+  figure illustrates the effect the step size has over the optimization process
+  by showing the trajectory for $\eta = \lambda_i$ from equivalent starting
+  points on a symmetric loss surface. Increasing the step size beyond
+  $\lambda_3$ can cause the optimization procedure to diverge. Image
+  taken from \cite{Ioannou2017thesis} Figure 2.7.}
+  \label{fig:ch2:sgd_lr}
+\end{figure}
+
+\subsection{Momentum and Adam}
+One simple and very popular modification to SGD is to add \emph{momentum}.
+Momentum accumulates past gradients with an exponentially moving average and
+continues to move in their direction. The name comes from the analogy of finding
+a minimum of a function to rolling a ball over a loss surface --
+any new force (newly computed gradients) must overcome the past motion of the
+ball. To do this, we create a \emph{velocity} variable $v_{t}$ and modify
+\eqref{eq:ch2:gd} to be:
+\begin{eqnarray}
+  v_{t+1} &=& \alpha v_t - \eta_k\dydx{J}{\theta} \label{eq:ch2:velocity}\\
+  \theta_{t+1} &=& \theta_t + v_{t+1} \\
+\end{eqnarray}
+where $0\leq\alpha<1$ is the momentum term indicating how quickly to `forget'
+past gradients.
+
+Another popular modification to SGD is the adaptive learning rate technique Adam
+\cite{kingma_adam:_2014}. There are several other adaptive schemes such as
+AdaGrad \cite{duchi_adaptive} and AdaDelta \cite{zeiler_adadelta:_2012}, but
+they are all quite similar, and Adam is often considered the most robust of the
+three \cite{goodfellow_deep_2016}. The goal of all of these adaptive schemes is
+to take larger update steps in directions of low variance, helping to minimize
+the effect of large condition numbers we saw in \autoref{fig:ch2:sgd_bounce}.
+Adam does this by keeping track of the first $m_t$ and second $v_t$ moments of the
+gradients:
+\begin{eqnarray}
+  g_{t+1} &=& \dydx{J}{\theta} \\
+  m_{t+1} &=& \beta_1 m_{t} + (1-\beta_1)g_{t+1} \label{eq:ch2:adam_first}\\
+  v_{t+1} &=& \beta_2 m_{t} + (1-\beta_2)g_{t+1} \\
+\end{eqnarray}
+where $0 \leq \beta_1, \beta_2 < 1$. Note the similarity between updating the
+mean estimate in \eqref{eq:ch2:adam_first} and the velocity term in
+\eqref{eq:ch2:velocity}\footnote{The $m_{t+1}$ and $v_{t+1}$ terms are then
+bias-corrected as they are biased towards zero at the beginning of training. We
+do not include this for conciseness.}. The parameters are then updated with:
+\begin{equation}
+  \theta_{t+1} = \theta_t - \eta \frac{m_{t+1}}{\sqrt{v_{t+1}} + \epsilon}
+\end{equation}
+where $\epsilon$ is a small value to avoid dividing by zero. 
