@@ -42,7 +42,7 @@ For binary classification, ($y \in \{0, 1\}$) instead of the model in
   p_{model}(y|x, \theta) = \F{Ber}(y;\ \sigma(f(x, \theta)))
 \end{equation}
 where $\sigma$ is the sigmoid function:
-\begin{equation}
+\begin{equation}\label{eq:ch2:sigmoid}
   \sigma(x) = \frac{1}{1+e^{-x}}
 \end{equation}
 This expands naturally to multi-class classification ($y \in \{0, 1\}^C$) by
