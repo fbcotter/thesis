@@ -30,7 +30,7 @@ Using the regression model from above, this becomes:
   \theta_{MLE} &=& \argmax_{\theta} \sum_{n=1}^N \log p_{model}(y^{(n)}|x^{(n)}, \theta) \\
               &=& \argmax_{\theta} \left(-N\log \sigma - \frac{N}{2}\log (2\pi) - \sum_{n=1}^{N}
                   \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2\sigma^2}\right) \\
-  &=& \argmin_{\theta}\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2}
+                  &=& \argmin_{\theta}\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} \label{eq:ch2:mle_reg}
 \end{eqnarray}
 which gives us the well known result that we would like to find parameters that
 minimize the mean squared error (MSE) between observations $y$ and predictions
@@ -51,16 +51,17 @@ softmax function, defined by:
 \begin{equation}
   \sigma(z)_i = \frac{e^{z_i}}{\sum_{k=1}^C e^{z_k}}
 \end{equation}
-If we let $\hat{y}_i = \sigma(f(x, \theta))_i$, this makes \eqref{eq:ch2:logistic}:
+If we let $\hat{y}_i = \sigma_i(f(x, \theta))$, this makes \eqref{eq:ch2:logistic}:
 \begin{eqnarray}\label{eq:ch2:classification}
   p_{model}(y|x, \theta) &=& \F{Cat}(y;\ \sigma(f(x, \theta))) \\
-                         &=& \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right)^{\mathbb{I}(y^{(n)} = c)}
+                         &=& \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right)^{\mathbb{I}(y^{(n)}_c = 1)}
 \end{eqnarray}
-where $\mathbb{I}(x)$ is the indicator function. Maximizing this likelihood to
+where $\mathbb{I}(x)$ is the indicator function. As $y^{(n)}_c$ is either 0 or
+1, we remove the indicator function. Maximizing this likelihood to
 find the ML estimate for $\theta$:
 \begin{eqnarray}
-  \theta_{MLE} &=& \argmin_\theta \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right){\mathbb{I}(y^{(n)} = c)} \\
-               &=& \argmin_\theta \sum_{n=1}^N \sum_{c=1}^C \mathbb{I}(y^{(n)} = c)\log \hat{y}_c^{(n)} 
+  \theta_{MLE} &=& \argmin_\theta \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right)^{y^{(n)}_c} \\
+               &=& \argmin_\theta \frac{1}{N}\sum_{n=1}^N \sum_{c=1}^C y^{(n)}_c\log \hat{y}_c^{(n)} \label{eq:ch2:mle_class}
 \end{eqnarray}
 which we recognize as the cross-entropy between $y$ and $\hat{y}$.
 
@@ -88,8 +89,8 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   It may be useful to rewrite \eqref{eq:ch2:map} as an objective function on the
   parameters $J(\theta)$:
   \begin{eqnarray}
-    J(\theta) &=&\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} + \lambda ||\theta||_2^2 \\
-              &=& L_{data}(y, f(x, \theta)) + L_{reg}(\theta)
+    J(\theta) &=&\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} + \lambda ||\theta||_2^2 \label{eq:ch2:regression_ob} \\
+              &=& L_{data}(y, f(x, \theta)) + L_{reg}(\theta) \label{eq:ch2:objective}
   \end{eqnarray}
   where $L_{data}$ is the data loss defined, such as MSE or cross-entropy and
   $L_{reg}$ is the regularization, such as $\ell_2$ or $\ell_1$ penalized loss. 
@@ -222,7 +223,7 @@ past gradients.
 
 Another popular modification to SGD is the adaptive learning rate technique Adam
 \cite{kingma_adam:_2014}. There are several other adaptive schemes such as
-AdaGrad \cite{duchi_adaptive} and AdaDelta \cite{zeiler_adadelta:_2012}, but
+AdaGrad \cite{duchi_adaptive_2011} and AdaDelta \cite{zeiler_adadelta:_2012}, but
 they are all quite similar, and Adam is often considered the most robust of the
 three \cite{goodfellow_deep_2016}. The goal of all of these adaptive schemes is
 to take larger update steps in directions of low variance, helping to minimize

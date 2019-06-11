@@ -1,0 +1,45 @@
+% colors
+\definecolor{snowymint}{HTML}{E3F8D1}
+\definecolor{wepeep}{HTML}{FAD2D2}
+\definecolor{portafino}{HTML}{F5EE9D}
+\definecolor{plum}{HTML}{DCACEF}
+\definecolor{sail}{HTML}{A3CEEE}
+\definecolor{highland}{HTML}{6D885A}
+
+\tikzstyle{signal}=[arrows={-latex},draw=black,line width=1pt,rounded corners=4pt]
+
+\def\iolen{24pt}
+\def\intergape{2pt}
+
+% MLP and CNN
+\tikzstyle{netnode}=[circle, inner sep=0pt, text width=22pt, align=center, line width=1.0pt]
+\tikzstyle{inputnode}=[netnode, fill=sail,draw=black]
+\tikzstyle{hiddennode}=[netnode, fill=snowymint,draw=black]
+\tikzstyle{outputnode}=[netnode, fill=plum,draw=black]
+
+% Architecture
+\def\layerwidth{90pt}
+\def\layerheight{14pt}
+
+\tikzstyle{layer}=[style=block, draw, fill=black!20!white,
+    inner sep=1pt,outer sep=0, font=\footnotesize,
+    text centered, 
+    minimum width=\layerwidth, minimum height=\layerheight]
+
+\tikzstyle{fc}=[style=layer, fill=blue!30!white]
+\tikzstyle{conv}=[style=layer, fill=green!30!white]
+\tikzstyle{activation}=[style=layer, fill=orange!30!white]
+\tikzstyle{pool}=[style=layer, fill=red!30!white]
+\tikzstyle{bn}=[style=layer, fill=cyan!30!white]
+\tikzstyle{recurrent}=[style=layer, fill=purple!30!white]
+\tikzstyle{softmax}=[style=layer, fill=yellow!30!white]
+\tikzstyle{point}=[]
+\tikzstyle{branch}=[coordinate]
+
+\def\vlayerwidth{30pt}
+\def\vlayerheight{3pt}
+\def\vblockheight{28pt}
+
+\tikzstyle{vlayer}=[minimum width=\vlayerwidth, minimum height=\vlayerheight]
+\tikzstyle{vblock}=[minimum width=\vlayerwidth, minimum height=\vblockheight, text width=1cm, align=center]
+

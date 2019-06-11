@@ -1,26 +1,29 @@
 \section{Neural Networks}\label{sec:ch2:cnns}
 \subsection{The Neuron and Single Layer Neural Networks}
+
 \begin{figure}
   \centering
-  \input{litreview/images/singlelayer}\label{fig:ch2:singlelayer}
+  \input{\imgpath/singlelayer}
   \mycaption{A single neuron}{The neuron is composed of inputs $x_i$, weights
     $w_i$ (and a bias term), as well as an activation function. Typical activation
     functions include the sigmoid function, tanh function and the ReLU}
+  \label{fig:ch2:singlelayer}
 \end{figure}
+
 The neuron, shown in \autoref{fig:ch2:singlelayer} is the core building block of
 Neural Networks. It takes the dot product between an input vector $\vec{x} \in
-\reals[D]$ and a weight vector $\vec{b}$, before applying a chosen nonlinearity,
-$f$. I.e.
+\reals[D]$ and a weight vector $\vec{w}$, before applying a chosen nonlinearity,
+$g$. I.e.
+%
 \begin{equation}
-y = f(\langle\vec{x}, \vec{w}\rangle) = f\left(\sum_{i=0}^{D} x_i w_i \right) 
+  y = g(\langle\vec{x}, \vec{w}\rangle) = g\left(\sum_{i=0}^{D} x_i w_i \right) 
 \end{equation}
-where we have used the shorthand $b=w_0$ and $x_0 = 1$. 
-Note that if $\langle\vec{w}, \vec{w}\rangle = 1$ then $\langle\vec{x},
-\vec{w}\rangle$ is the distance from the point $\vec{x}$ to the hyperplane with
-normal $\vec{w}$. With general $\vec{w}$ this can be thought of as a scaled
-distance.  
+%
+where we have used the shorthand $b=w_0$ and $x_0 = 1$. Also note that we will
+use the neural network common practice of calling the \emph{weights} $w$,
+compared to the parameters $\theta$ we have been discussing thus far.
 
-Typical nonlinear functions $f$ are the sigmoid function (already presented in 
+Typical nonlinear functions $g$ are the sigmoid function (already presented in 
 \eqref{eq:ch2:sigmoid}), but also common are the tanh and ReLU functions:
 \begin{eqnarray}
   \F{tanh}(x) &=& \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}} \label{eq:ch2:tanh}\\
@@ -35,19 +38,36 @@ $\F{H}(x) = \mathbb{I}(x > 0)$. % The sigmoid nonlinearity
 % ReLU however is used more often in deeper architectures
 % \cite{nair_rectified_2010}.
 
-The weight vector $\vec{w}$ defines a hyperplane in $\reals[D]$ which splits the
-space into two. The choice of nonlinearity then affects how points on each side
-of the plane are treated. For a sigmoid, points far below the plane get mapped
-to 0 and points far above the plane get mapped to 1 (with points near the plane
-having a value of 0.5). For tanh nonlinearities, these points get mapped to -1
-and 1. For ReLU nonlinearities, every point below the plane ($\langle\vec{x},
-\vec{w}\rangle < 0$) gets mapped to zero and every point above the plane keeps
-its inner product value. Perhaps more importantly is to think about how the
-different nonlinearities behave on the backwards pass. The gradient for the ReLU
-is either 0 or 1 depending on whether it was activated on the forward pass. The
-tanh and sigmoid nonlinearities however have \emph{active} and \emph{saturated}
-regions, if the input is either close to or far away from 0. This is the right
-figure of \autoref{fig:ch2:nonlinearities}.
+Note that if $\langle\vec{w}, \vec{w}\rangle = 1$ then $\langle\vec{x},
+\vec{w}\rangle$ is the distance from the point $\vec{x}$ to the hyperplane with
+normal $\vec{w}$. With general $\vec{w}$ this can be thought of as a scaled
+distance. Thus, the weight vector $\vec{w}$ defines a hyperplane in $\reals[D]$
+which splits the space into two. The choice of nonlinearity then affects how
+points on each side of the plane are treated. For a sigmoid, points far below
+the plane get mapped to 0 and points far above the plane get mapped to 1 (with
+points near the plane having a value of 0.5). For tanh nonlinearities, these
+points get mapped to -1 and 1. For ReLU nonlinearities, every point below the
+plane ($\langle\vec{x}, \vec{w}\rangle < 0$) gets mapped to zero and every point
+above the plane keeps its inner product value. 
+
+Nearly all modern neural networks use the ReLU nonlinearity and it has
+been credited with being a key reason for the recent surge in deep learning
+success \cite{glorot_deep_2011, nair_rectified_2010}. In particular:
+\begin{enumerate}
+\item It is less sensitive to initial conditions as the gradients that
+  backpropagate through it will be large even if $x$ is large. A common
+  observation of sigmoid and tanh non-linearities was that their learning would
+  be slow for quite some time until the neurons came out of saturation, and then
+  their accuracy would increase rapidly before levelling out again at
+  a minimum~\citep{glorot_understanding_2010}. The ReLU, on the other hand, has
+  constant gradient.
+\item It promotes sparsity in outputs, by setting them to a hard 0. Studies
+  on brain energy expenditure suggest that neurons encode information in
+  a sparse manner. \citet{lennie_cost_2003} estimates the percentage of
+  neurons active at the same time to be between 1 and 4\%. Sigmoid and tanh
+  functions will typically have \emph{all} neurons firing, while 
+  the ReLU can allow neurons to fully turn off.
+\end{enumerate}
 
 \begin{figure}
     \qquad
@@ -66,86 +86,186 @@ figure of \autoref{fig:ch2:nonlinearities}.
   \label{fig:ch2:nonlinearities}
 \end{figure}
 
-\subsection{Multilayer Perceptrons and Backpropagation}
+\subsection{Multilayer Perceptrons}
 As mentioned in the previous section, a single neuron can be thought of as a
 separating hyperplane with an activation that maps the two halves of the space
-to different values. Such a linear separator is limited, and cannot solve the
-XOR problem \cite{minsky_perceptrons:_1988}.
+to different values. Such a linear separator is limited, and famously cannot
+solve the XOR problem \cite{minsky_perceptrons:_1988}. Fortunately, adding a
+single hidden layer like the one shown in \autoref{fig:ch2:hidden} can change
+this, and it is provable that with an infinitely wide hidden layer, a neural
+network can approximate any function \cite{hornik_multilayer_1989,
+cybenko_approximation_1989}. 
 
-\citep{rumelhart_parallel_1986} show how it is possible to update the delta
-rule to networks with hidden layers.
+The forward pass of such a network with one hidden layer of $H$ units is:
+%
+\begin{eqnarray}
+  h_i & = & g\left(\sum_{j=0}^{D} x_j w_{ij}^{(1)}\right) \\
+  y & = & \sum_{k=0}^{H} h_k w^{(2)}_{k}
+\end{eqnarray}
+%
+where $w^{(l)}$ denotes the weights for the $l$-th layer, of which
+\autoref{fig:ch2:hidden} has 2. Note that these individual layers are often
+called \emph{fully connected} as each node in the previous layer affects every
+node in the next.
 
-With a deep network like most CNNs, calculating $\dydx{L}{w}$ may not seem
-particularly obvious if $w$ is a weight in one of the lower layers.  Say we have
-a deep network, with $L$ layers. We need to define a rule for updating the
-weights in all $L$ layers of the network, however, only the weights $w_L$ are
-connected to the loss function, $\loss$. We assume for whatever function the
-last layer is that we can write down the derivative of the output with respect
-to the weights $\dydx{z_{L}}{w_{L}}$. We can then write down the weight-update
-gradient, $\dydx{\loss}{w_L}$ with application of the chain rule:
+If we were to expand this network to have $L$ such fully connected layers, we
+could rewrite the action of each layer in a recursive fashion:
+%
+\begin{eqnarray}
+  Y^{(l+1)} &=& W^{(l+1)}X^{(l)} \\
+  X^{(l+1)} &=& g\left(Y^{(l+1)}\right) 
+\end{eqnarray}
+where $W$ is now a weight matrix, acting on the vector of previous layer's
+outputs $X^{(l)}$. As we are now considering every layer an input to the next
+stage, we have removed the $h$ notation, and added the superscript $(l)$ to
+define the depth. $X^{(0)}$ is the network input and $Y^{(L)}$ is the network
+output. Let us say that the output has $C$ nodes, and a hidden layer $X^{(l)}$
+has $C_l$ nodes.
 
+\begin{figure}[t]
+  \centering
+  \input{\imgpath/network_mlp}
+  \mycaption{Multi-layer perceptron}{Expanding the single neuron from 
+  \autoref{fig:ch2:singlelayer} to a network of neurons. The internal
+  representation units are often referred to as the \emph{hidden layer} as they
+  are an intermediary between the input and output.}
+  \label{fig:ch2:hidden}
+\end{figure}
+
+\subsection{Backpropagation}
+It is important to truly understand backpropagation when designing neural
+networks, so we describe the core concepts now for a neural network with
+$L$ layers.
+
+The delta rule, initially designed for networks with no hidden layers 
+\cite{widrow_neurocomputing:_1988}, was expanded to what we now consider
+\emph{backpropagation} in \cite{rumelhart_parallel_1986}. While backpropagation
+is conceptually just the application of the chain rule, Rumelhart, Hinton, and
+Williams successfully updated the delta rule to networks with hidden layers,
+laying a key foundational step for deeper networks. 
+
+With a deep network, calculating $\dydx{J}{w}$ may not seem
+particularly obvious if $w$ is a weight in one of the earlier layers. We need
+to define a rule for updating the weights in all $L$ layers of the network,
+$W^{(1)}, W^{(2)}, \ldots W^{(L)}$ however, only the final set $W^{(L)}$ are
+connected to the objective function $J$. 
+
+\subsubsection{Regression Loss}
+Let us start with writing down the derivative of $J$ with respect to the network
+output $Y^{(L)}$ using the regression objective function \eqref{eq:ch2:mle_reg}. 
+As we now have two superscripts,
+one for the sample number and one for the layer number, we combine them into a
+tuple of superscripts. 
+\begin{eqnarray}
+  \dydx{J}{Y^{(L)}} &= & \dydx{}{Y^{(L)}} \left( \frac{1}{N}\sum_{n=1}^{N_b}\frac{1}{2} \left(y^{(n)} - Y^{(L, n)}\right)^2\right) \\
+                    &=& \frac{1}{N}\sum_{n=1}^{N_b} \left(Y^{(L, n)} - y^{(n)} \right) \\
+                    &=& e \in \reals \label{eq:ch2:reg_b1}
+\end{eqnarray}
+where we have used the fact that for the regression case, $y^{(n)}, Y^{(L,n)}
+\in \reals$. 
+
+\subsubsection{Classification Loss}
+For the classification case \eqref{eq:ch2:mle_class}, let us keep the output of
+the network $Y^{(L,n)} \in \reals[C]$ and define an intermediate value $\hat{y}$ the
+softmax applied to this vector $\hat{y}^{(n)}_c = \sigma_c\left(Y^{(L, n)}\right)$.
+Note that this is a vector valued function going from $\reals[C] \rightarrow
+\reals[C]$ so has a jacobian matrix $S_{ij} = \dydx{\hat{y}_i}{Y^{(L)}_j}$ with
+values:
 \begin{equation}
-  \dydx{\loss}{w_L} = \dydx{\loss}{z_L} \dydx{z_L}{w_L} + \underbrace{\lambda
-  w}_{\text{from the reg.\ loss}}
+  S_{ij} = \begin{cases}
+    \sigma_i (1-\sigma_j) & \text{if $i=j$}\\
+    -\sigma_i \sigma_j & \text{if $i\neq j$}\\
+  \end{cases}
 \end{equation}
 
-$\dydx{\loss}{z_L}$ can be done simply from the equation of the loss function
-used. Typically this is parameterless.
+Now, let us return to \eqref{eq:ch2:mle_class} and find the derivative of the
+objective function to this intermediate value $\hat{y}$:
+\begin{eqnarray}
+  \dydx{J}{\hat{y}} &= & \dydx{}{\hat{y}} \left( \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C 
+  y^{(n)}_c \log \hat{y}^{(n)}_c \right) \\
+  &=& \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C \frac{y^{(n)}_c}{\hat{y}^{(n)}_c} \\
+  &=& d \in \reals[C] \label{eq:ch2:class_b1}
+\end{eqnarray}
+Note that unlike \eqref{eq:ch2:reg_b1}, this derivative is vector valued. To
+find $\dydx{J}{Y^{(L)}}$ we use the chain rule. It is easier to find the
+partial derivative with respect to one node in the output first, and then expand
+from here. I.e.:
 
-Since all of the layers in a CNN are well-defined and
-differentiable\footnote{The ReLU is not differentiable at its corner, but
-backpropagation can still be done easily by simply looking at the sign of the
-input.} we assume that we can also write down what $\dydx{z_L}{z_{L-1}}$ is.
-Repeating this process for the next layer down, we have:
-
+\begin{eqnarray}
+  \dydx{J}{Y^{(L)}_j} &=& \sum_{i=1}^C \dydx{J}{\hat{y}_i}\dydx{\hat{y}_i}{Y^{(L)}_j} \\
+                      &=& S_i^T d
+\end{eqnarray}
+where $S_i$ is the $i$th column of the jacobian matrix $S$. It becomes clear now
+that to get the entire vector derivative for all nodes in $Y^{(L)}$, we must
+multiply the transpose of the jacobian matrix with the error term from
+\eqref{eq:ch2:class_b1}:
 \begin{equation}
-  \dydx{\loss}{w_{L-1}}
-  = \dydx{\loss}{z_L}\dydx{z_L}{z_{L-1}}\dydx{z_{L-1}}{w_{L-1}}
+  \dydx{J}{Y^{(L)}} = S^T d
 \end{equation}
 
-We can generalize this easily like so:
+\subsubsection{Final Layer Weight Gradient} \label{sec:ch2:weight}
+Let us continue by assuming $\dydx{J}{Y^{(L)}}$ is vector valued as was the case
+with classification. For regression, it is easy to set $C=1$ in the following to
+get the necessary results. Additionally for clarity, we will drop the layer
+superscript in the intermediate calculations.
 
-\begin{equation}
-  \dydx{\loss}{w_{l}}
-  = \dydx{\loss}{z_L} \underbrace{\prod_{i=L}^{l+1}
-  \dydx{z_i}{z_{i-1}}}_{\text{product to $l$'s output}} 
-  \dydx{z_{l}}{w_{l}}
-\end{equation}
+We call the gradient for the final layer weights the \emph{update} gradient. 
+It can be computed by the chain rule again:
+\begin{eqnarray}
+  \dydx{J}{W_{ij}} &=& \dydx{J}{Y_i} \dydx{Y_i}{W_{ij}} + 2\lambda W_{ij} \\
+  &=& \dydx{J}{Y_i} X_j + 2\lambda W_{ij}
+\end{eqnarray}
+where the second term in the above two equations comes from the regularization
+loss that is added to the objective. The gradient of the entire weight matrix is 
+then:
+\begin{eqnarray}
+  \dydx{J}{W^{(L)}} &=& \dydx{J}{\hat{y}} X^T +2\lambda W \\
+   &=& S^T d \left(X^{(L-1)}\right)^T + 2\lambda W^{(L)} \in \reals[C \x C_{L-1}]
+\end{eqnarray}
 
-So far we have defined the loss function for a given data point $(x^{(i)},
-y^{(i)})$. Typically, we want our network to be able to generalize to the true
-real world joint distribution $P(x,y)$, minimizing the expected risk ($R_E$) of
-loss:
+\subsubsection{Final Layer Passthrough Gradient} \label{sec:ch2:passthrough}
+Additionally, we want to find the \emph{passthrough} gradients of the final
+layer $\dydx{J}{X^{(L-1)}}$. In a similar fashion, we first find the gradient
+with respect to individual elements in $X^{(L-1)}$ before generalizing to the
+entire vector:
+\begin{eqnarray}
+  \dydx{J}{X_i} &=& \sum_{j=1}^{C} \dydx{J}{Y_j} \dydx{Y_j}{X_i} \\
+                &=& \sum_{j=1}^{C} \dydx{J}{Y_j} W_{j,i} \\
+                &=& W_{i}^T\dydx{J}{Y} \\
+\end{eqnarray}
+where $W_i$ is the $i$th column of $W$. Thus
+\begin{eqnarray}
+  \dydx{J}{X^{(L-1)}} &=& \left(W^{(L)}\right)^T \dydx{J}{Y^{(L)}} \\
+                      &=& \left( W^{(L)} \right)^T S^T d
+\end{eqnarray}
+This passthrough gradient then can be used to update the next layer's weights by
+repeating \autoref{sec:ch2:weight} and \autoref{sec:ch2:passthrough}.
 
-\begin{equation}
-  R_E(f(x,w)) = \int \loss(y,f(x,w)) dP(x,y)
-\end{equation}
-
-Instead, we are limited to the training set, so we must settle for the
-empirical risk ($R_{EMP}$):
-
-\begin{equation}
-  R_{EMP}(f(x,w)) = \frac{1}{N} \sum_{i=1}^{N} \loss( y^{(i)},f(x^{(i)}, w))
-  \label{eq:ch2:empirical_risk}
-\end{equation}
-
-\subsection{Gradient descent vs Stochastic Gradient Descent vs Mini-Batches}
-  We can minimize \eqref{eq:ch2:empirical_risk} with \emph{gradient descent}
-  . Updates can be made on a generic network
-  parameter $w$ with:
-  \begin{equation}
-    w_{t+1} = w_{t} - \eta \dydx{E_n}{w}
-  \end{equation}
-  where $\eta$ is caleld the learning rate. Calculating the gradient
-  $\dydx{E_n}{w}$ is done by averaging the individual gradients
-  $\dydx{\loss}{w}$ over the entire training dataset. This can be very slow,
-  particularly for large training sets.
-\subsection{Extending to multiple layers and different block types}
+\subsubsection{General Layer Update}
+The easiest way to handle this flow of gradients, and the basis for most
+automatic differentiation packages, is the block definition shown in
+\autoref{fig:ch2:block_form}. For all neural network components (even if they do
+not have weights), the operationg must not only be able to calculate the forward 
+pass $y=f(x, w)$ given weights $w$ and inputs $x$, but also calculate the
+\emph{update} and \emph{passthrough} gradients $\dydx{J}{w}, \dydx{J}{x}$ given
+an input gradient $\dydx{J}{y}$. The input gradient will have the same shape as
+$y$ as will the update and passthrough gradients match the shape of $w$ and $x$.
+This way, gradients for the entire network cam be computed in an iterative
+fashion starting at the loss function and moving backwards.
 
 \begin{figure}
   \centering
-  \input{litreview/images/deeplearn_block}
+  \input{\imgpath/deeplearn_block}
+  \mycaption{General block form for autograd}{All neural network functions
+  need to be able to calculate the forward pass $y=f(x,w)$ as well as the 
+  update and passthrough gradients $\dydx{J}{w}, \dydx{J}{x}$. Backpropagation
+  is then easily done by allowing data to flow backwards through these blocks
+  from the loss.}
+  \label{fig:ch2:block_form}
 \end{figure}
+
+\subsection{Extending to multiple layers and different block types}
+
 \subsubsection{Convolutional Layers}
   The image/layer of features is convolved by a set of filters.
   The filters are typically small, ranging from $3\x 3$ in ResNet and VGG
@@ -168,24 +288,6 @@ empirical risk ($R_{EMP}$):
   expressibility. Historically, they were sigmoid or tanh functions, but these
   have been replaced recently by the Rectified Linear Unit (ReLU), which has
   equation $g(x) = \max(0,x)$. A ReLU
-  non-linearity has two main advantages over its smoother predecessors~\citep{%
-  glorot_deep_2011, nair_rectified_2010}.
-  \begin{enumerate}
-  \item It is less sensitive to initial conditions as the gradients that
-    backpropagate through it will be large even if $x$ is large. A common
-    observation of sigmoid and tanh non-linearities was that their learning would
-    be slow for quite some time until the neurons came out of saturation, and then
-    their accuracy would increase rapidly before levelling out again at
-    a minimum~\citep{glorot_understanding_2010}. The ReLU, on the other hand, has
-    constant gradient.
-  \item It promotes sparsity in outputs, by setting them to a hard 0. Studies
-    on brain energy expenditure suggest that neurons encode information in
-    a sparse manner. \citet{lennie_cost_2003} estimates the percentage of
-    neurons active at the same time to be between 1 and 4\%. Sigmoid and tanh
-    functions will typically have \emph{all} neurons firing, while 
-    the ReLU can allow neurons to fully turn off.
-  \end{enumerate}
-
   \begin{figure}
     \centering
       % \input{tikz/nonlinearities.tex}

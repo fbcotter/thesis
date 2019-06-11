@@ -9,9 +9,9 @@
 \coordinate[right=\EDGE of block.north west] (yin);
 \coordinate[left=\EDGE of block.north east] (dyin);
 \draw[<-] (xin) -- +(0,-1) node[below] {$x$};
-\draw[->] (dxin) -- ++(0,-1) node[below] {$\dydx{\logloss}{x}$};
+\draw[->] (dxin) -- ++(0,-1) node[below] {$\dydx{J}{x}$};
 \draw[<-] (win) -- ++(-1,0) node[left] {$w$};
-\draw[->] (dwin) -- ++(-1,0) node[left] {$\dydx{\logloss}{w}$};
+\draw[->] (dwin) -- ++(-1,0) node[left] {$\dydx{J}{w}$};
 \draw[->] (yin) -- ++(0,1) node[above] {$y$};
-\draw[<-] (dyin) -- ++(0,1) node[above] {$\dydx{\logloss}{y}$};
+\draw[<-] (dyin) -- ++(0,1) node[above] {$\dydx{J}{y}$};
 \end{tikzpicture}
