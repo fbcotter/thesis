@@ -13,4 +13,6 @@
 *.auxlock
 chapter.pdf
 cache
-build
+!build
+build/*
+!build/*.pdf
