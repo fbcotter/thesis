@@ -112,8 +112,8 @@ If we were to expand this network to have $L$ such fully connected layers, we
 could rewrite the action of each layer in a recursive fashion:
 %
 \begin{eqnarray}
-  Y^{(l+1)} &=& W^{(l+1)}X^{(l)} \\
-  X^{(l+1)} &=& g\left(Y^{(l+1)}\right) 
+  Y^{(l+1)} &=& W^{(l+1)}X^{(l)}  \label{eq:ch2:fc1}\\
+  X^{(l+1)} &=& g\left(Y^{(l+1)}\right) \label{eq:ch2:fc2} 
 \end{eqnarray}
 where $W$ is now a weight matrix, acting on the vector of previous layer's
 outputs $X^{(l)}$. As we are now considering every layer an input to the next
@@ -264,42 +264,142 @@ fashion starting at the loss function and moving backwards.
   \label{fig:ch2:block_form}
 \end{figure}
 
-\subsection{Extending to multiple layers and different block types}
+\section{Convolutional Neural Networks}
+Convolutional Neural Networks (CNNs) are a special type of of Neural Network where the
+weights of the fully connected layer are shared across the layer. 
+In this way, a neuron at a given layer is only affected by
+nodes from the previous layer in a given neighbourhood rather than every node.
 
-\subsubsection{Convolutional Layers}
-  The image/layer of features is convolved by a set of filters.
-  The filters are typically small, ranging from $3\x 3$ in ResNet and VGG
-  to $11\x 11$ in AlexNet. We have quoted only spatial size
-  here, as the filters in a CNN are always \emph{fully connected in depth} ---
-  i.e.,\ they will match the number of channels their input has.
+First popularized in 1998 by LeCun et. al in \cite{lecun_gradient-based_1998},
+the convolutional layer was introduced to build invariance with respect to
+translations, as well as reduce the parameter size of early neural networks for
+pattern recognition. The idea of having a locally receptive field had already
+been shown to be a naturally occurring phenomen by Hubel and Wiesel
+\cite{hubel_receptive_1962}. They did not become popular immediately, and
+another spatially based keypoint extractor, SIFT \cite{lowe_distinctive_2004},
+was the mainstay of detection systems until the AlexNet CNN
+\cite{krizhevsky_imagenet_2012} won the 2012 ImageNet challenge
+\cite{russakovsky_imagenet_2014} by a large margin over the next competitors who
+used SIFT and Support Vector Machines \cite{cortes_support-vector_1995}. This
+CNN had 5 convolutional layers followed by 3 fully connected layers.
 
-  For an input $\bmu{x} \in \mathbb{R}^{H\x W\x D}$, and filters 
-  $\bmu{f} \in \mathbb{R}^{H'\x W'  \x D \x D''}$ ($D''$ is the 
-  number of filters), our output $\bmu{z} \in
-  \mathbb{R}^{H''\x W'' \x D''}$ will be given by:
-  \begin{equation}
-    z[u_1, u_2, d''] = b[d''] + \sum_{i=-\frac{H'}{2}}^{\frac{H'}{2}-1}
-                       \sum_{j=-\frac{W'}{2}}^{\frac{W'}{2}-1}  \sum_{k=0}^{D-1}  
-                        f[i, j, k, d''] x[u_1-i, u_2-j, k]
-  \end{equation}
+We will briefly describe the convolutional layer, as well as many other layers
+that have become popular in the past few years.
 
-\subsubsection{ReLUs}
-  Activation functions, neurons, or non-linearities, are the core of a neural networks
-  expressibility. Historically, they were sigmoid or tanh functions, but these
-  have been replaced recently by the Rectified Linear Unit (ReLU), which has
-  equation $g(x) = \max(0,x)$. A ReLU
-  \begin{figure}
-    \centering
-      % \input{tikz/nonlinearities.tex}
-      \caption[Differences in non-linearities]
-              {Differences in non-linearities. Green --- the \emph{sigmoid} function, 
-               Blue --- the \emph{tanh} function, and Red --- the \emph{ReLU}. The ReLU
-               solves the problem of small gradients outside of the activation
-               region (around $x=0$) as well as promoting sparsity.}\label{fig:ch2:nonlinearities}
-  \end{figure}
+\subsection{Convolutional Layers}
+In the presentation of neural networks so far, we have considered column vectors 
+$X^{(l)},Y^{(l)} \in \reals[C_{l}]$. Convolutional layers for image analysis
+have a different format. In particular, the spatial component of the input is
+preserved. 
 
+Let us first consider the definition of 2-D convolution for single channel
+images:
+\begin{eqnarray}
+  y[\nn] = (x\conv h)[\nn] &=& \sum_{\mathbf{k}} x[\mathbf{k}]h[\nn-\mathbf{k}] \label{eq:ch2:conv1}\\
+                      &=& \sum_{k_1, k_2} x[k_1,k_2]h[n_1-k_1, n_2-k_2]
+\end{eqnarray}
+where the sum is done over the support of $h$. For an input $x\in \reals[H\x W]$
+and filter $h\in \reals[K_1\x K_2]$ the output has spatial support $y\in
+\reals[H+K_1-1 \x W+K_2-1]$. 
 
-\subsubsection{Pooling}
+In the context of convolutional layers, this filter $h$ is a \emph{matched filter} 
+that gives its largest output when the input contains $h$. If the input has
+shapes similar to $h$ in many locations, each of these locations in $y$ will
+also have large outputs. 
+
+It is not enough to only have a single matched filter, often we would like to
+have a bank of them, each sensitive to different shapes. For example, if $h_1$
+was sensitive to horizontal edges, we may also want to detect vertical and
+diagonal edges. Without specifying what each of the filters do, we can however
+specify that we would like to detect $C$ different shapes over the spatial
+extent of an input.
+
+This then means that we have $C$ output channels:
+\begin{eqnarray*}
+  y_1[\nn] &=& (x \conv h_1)[\nn] \\
+  y_2[\nn] &=& (x \conv h_1)[\nn] \\
+           &\vdots & \\
+  y_C[\nn] &=& (x \conv h_1)[\nn] 
+\end{eqnarray*}
+
+If we stack red, green and blue input channels on top of each other, we have a 
+3-dimensional array $x \in \reals[C\x H\x W]$ with $C=3$.\footnote{In deep 
+learning literature, there is not consensus about whether to stack the outputs
+with the channel first ($\reals[C\x H\x W]$) or last ($\reals[H\x W\x C]$). The
+latter is more common in Image Processing for colour and spectral images,
+however the former is the standard for the deep learning framework we use --
+PyTorch \cite{paszke_automatic_2017}, so we use this in this thesis.} 
+In a CNN layer, each filter $h$ is 3 dimensional with spatial extent exactly
+equal to $C$. The \emph{convolution} is done over the remaining two dimensions
+and the $C$ outputs are summed at each pixel location. This makes
+\eqref{eq:ch2:conv1}:
+\begin{eqnarray}
+  y[\nn] &=& \sum_{c=1}^C \sum_{\mathbf{k}} x[\mathbf{k}]h[c, \nn-\mathbf{k}]
+  \label{eq:ch2:conv2}
+\end{eqnarray}
+
+Again, we would like to have many matched filters to find different shapes in
+the previous layer, so we repeat \autoref{eq:ch2:conv2} $F$ times and stack the
+output to give $y \in \reals[F \x H\x W]$: 
+%
+\begin{equation}
+  y[f, \nn] &=& \sum_{c=1}^C \sum_{\mathbf{k}} x[c, \mathbf{k}]h_f[c, \nn-\mathbf{k}]
+  \label{eq:ch2:conv3}
+\end{equation}
+
+After a convolutional layer, we can then apply a pointwise nonlinearity $g$ to
+each output location in $y$. Revisiting \eqref{eq:ch2:fc1} and \eqref{eq:ch2:fc2}, we can 
+rewrite this for a convolutional layer at depth $l$ with $C_l$ input and
+$C_{l+1}$ output channels:
+\begin{eqnarray}
+  Y^{(l+1)}[f, \nn] &=& \sum_{c=1}^{C_l} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn] \qquad 
+    \text{for } 1 \leq f \leq C_{l+1} \label{eq:ch2:conv4}\\
+  X^{(l+1)}[f, \nn] &=& g\left(Y^{(l)}[f, \nn]\right)
+\end{eqnarray}
+This is shown in \autoref{fig:ch2:conv_layer}.
+
+\begin{figure}
+  \centering
+  \input{\imgpath/conv}
+  \mycaption{A convolutional layer}{A convolutional layer followed by a
+  nonlinearity $g$. The previous layer's activations are convolved with a bank
+  of $C_{l+1}$ filters, each of which has spatial size $k_h\x k_w$ and depth
+  $C_l$. Note that there is no convolution across the channel dimension. Each
+  filter produces one output channel in $y^{(l+1)}$.}
+  \label{fig:ch2:conv_layer}
+\end{figure}
+
+\subsubsection{Padding and Stride}
+Regular 2-D convolution expands the input from size $H\x W$ to $(H+K_H-1)\x
+(W+K_W-1)$. In convolutional layers in neural networks, it is often desirable
+and common to have the same output size as input size. This is achieved by
+taking the central $H\x W$ outputs. We call this \emph{same-size convolution}.
+Another option commonly used is to only evaluate the kernels where they fully
+overlap the input signal, causing a reduction in the output size to $(H-K_H+1)
+\x (W-K_W+1)$. This is called \emph{valid convolution} and was used in the
+original LeNet-5 \cite{lecun_gradient-based_1998}.
+
+Signal extension is by default \emph{zero padding}, and most deep learning
+frameworks have no ability to choose other padding schemes as part of their
+convolution functions. Other padding such as \emph{symmetric padding} can be
+achieved by expanding the input signal before doing a valid convolution.
+
+Stride is a commonly used term in deep learning literature. A stride of 2 means
+that we evaluate the filter kernel at every other sample point. In signal
+processing, this is simply called decimation.
+
+\subsubsection{Gradients}
+To get the update and passthrough gradients for the convolutional layer we will need to expand
+\eqref{eq:ch2:conv4}. Again we will drop the layer superscripts for clarity. For
+simplicity, let us assume that the convolutional filters are square and only have
+support in the region $a \leq n_1, n_2 \leq b$
+
+\begin{equation}
+  Y[f, n_1, n_2] &=& \sum_{c=1}^C \sum_{k_1=a}^{b} \sum_{k_2=a}^b x[c, k_1, k_2]
+  h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
+\end{equation}
+
+\subsection{Pooling}
   Typically following a convolutional layer (but not strictly), activations are subsampled with
   max pooling. Pooling adds some invariance to shifts smaller than the pooling
   size at the cost of information loss. For this reason, small pooling is
@@ -316,20 +416,8 @@ fashion starting at the loss function and moving backwards.
   
   \begin{figure}
     \centering
-    % \subfloat[]{%
-        % \input{tikz/maxpool.tex}\label{fig:maxpool_tight}
-    % }
-%    \newline
-    \centering
-    % \subfloat[]{%
-        % \input{tikz/maxpool_overlap.tex}\label{fig:maxpool_overlap}
-    % }
-    \caption[Tight vs.\ overlapping pooling]
-            {\subref{fig:ch2:maxpool_tight} Tight $2\x 2$ pooling with stride 2, vs
-            \subref{fig:ch2:maxpool_overlap} overlapping $3\x 3$ pooling with
-            stride 2. Overlapping pooling has the possibility of having one
-            large activation copied to two positions in the reduced size
-            feature map, which places more emphasis on the odd columns.}
+    \input{\imgpath/pooling_both}
+    \mycaption{Max vs Average $2\x 2$ pooling}{}
     \label{fig:ch2:maxpool}
   \end{figure}
 

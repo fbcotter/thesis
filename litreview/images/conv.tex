@@ -1,0 +1,109 @@
+  \begin{tikzpicture}[%
+    path image/.style={
+      path picture={
+        \node at (path picture bounding box.center) {
+          \includegraphics[height=2.0cm]{#1}
+        };
+      }
+    }, 
+    path pic/.style={
+      path picture={
+        \node at (path picture bounding box.center) {
+          \includegraphics[height=1.2cm]{#1}
+        };
+      }
+    }, 
+    path pic2/.style={
+      path picture={
+        \node at (path picture bounding box.center) {
+          \includegraphics[height=0.8cm]{#1}
+        };
+      }
+    }, 
+    scale=0.8]
+
+    \tikzcuboid{
+    shiftx=0cm,
+    shifty=-1cm,
+    scale=0.5,
+    dimx=2, dimy=2, dimz=12,
+    densityx=2, densityy=2, densityz=2,
+    dimxval=W, dimyval=H, dimzval=C_l,
+    drawxdims=true, drawydims=true, drawzdims=true,
+    front/.style={draw=blue!50!white,fill=blue!50!white},%
+    right/.style={draw=blue!50!white,fill=blue!50!white},%
+    top/.style={draw=blue!50!white,fill=blue!50!white},%
+    shade=false,
+    emphedge=true,
+    shadeopacity=0,
+    emphstyle/.style={rounded corners=0.2pt,line width=0.3mm},
+    }
+    \draw (1.6, 1.7, 0) node {\large{$x^{(l)}$}};
+    \draw (5.5, 2.9, 0) node {\large{$h^{(l+1)}$}};
+    \draw (9.7, 1.6, 0) node {\large{$y^{(l+1)}$}};
+    \draw (13.7, 1.6, 0) node {\large{$x^{(l+1)}$}};
+    \draw (2.2, -.8, 0) node {\Large{$\conv$}};
+
+    \tikzcuboid{
+    shiftx=4cm,
+    shifty=1cm,
+    scale=0.5,
+    dimx=.7, dimy=.7, dimz=12,
+    dimxval=k_w, dimyval=k_h,
+    densityx=5, densityy=5, densityz=2,
+    drawxdims=false,
+    drawydims=false,
+    drawzdims=false,
+    front/.style={draw=red!50!white,fill=red!50!white},%
+    right/.style={draw=red!50!white,fill=red!50!white},%
+    top/.style={draw=red!50!white,fill=red!50!white},%
+    }
+    \tikzcuboid{
+    shifty=0cm,
+    }
+    \tikzcuboid{
+    shifty=-2.0cm,
+    scale=0.5,
+    drawxdims=true,
+    drawydims=true,
+    drawzdims=true,
+    dimzval=C_l,
+    }
+    \draw (3.2, -1.7, -2.8) node {$\vdots$};
+    \draw [<->] (3.3, 0.1, -6) -- (3.3, -3.2, -6) node[near start, right] {$C_{l+1}$};
+    \draw [->, fill=gray!30,ultra thick] (5, -1.5, -2.5) -- (6, -1.5, -2.5);
+
+    \tikzcuboid{
+    shiftx=8cm,
+    shifty=-1cm,
+    scale=0.5,
+    dimx=2, dimy=2, dimz=10,
+    densityx=4, densityy=4, densityz=2,
+    dimzval=C_{l+1},
+    drawzdims=true,
+    drawxdims=false,
+    drawydims=false,
+    front/.style={draw=blue!50!white,fill=blue!50!white},%
+    right/.style={draw=blue!50!white,fill=blue!50!white},%
+    top/.style={draw=blue!50!white,fill=blue!50!white},%
+    }
+    \draw [->, fill=gray!30,ultra thick] (9, -1.5, -2.5) -- (10, -1.5, -2.5)
+      node[midway, above] {$g$};
+
+    \tikzcuboid{
+    shiftx=12cm,
+    shifty=-1cm,
+    scale=0.5,
+    dimx=2, dimy=2, dimz=10,
+    densityx=4, densityy=4, densityz=2,
+    drawzdims=true,
+    dimzval=C_{l+1},
+    drawxdims=false,
+    drawydims=false,
+    drawzdims=false,
+    front/.style={draw=blue!50!white,fill=blue!50!white},%
+    right/.style={draw=blue!50!white,fill=blue!50!white},%
+    top/.style={draw=blue!50!white,fill=blue!50!white},%
+    }
+
+  \end{tikzpicture}
