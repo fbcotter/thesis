@@ -59,11 +59,11 @@ success \cite{glorot_deep_2011, nair_rectified_2010}. In particular:
   observation of sigmoid and tanh non-linearities was that their learning would
   be slow for quite some time until the neurons came out of saturation, and then
   their accuracy would increase rapidly before levelling out again at
-  a minimum~\citep{glorot_understanding_2010}. The ReLU, on the other hand, has
+  a minimum~\cite{glorot_understanding_2010}. The ReLU, on the other hand, has
   constant gradient.
 \item It promotes sparsity in outputs, by setting them to a hard 0. Studies
   on brain energy expenditure suggest that neurons encode information in
-  a sparse manner. \citet{lennie_cost_2003} estimates the percentage of
+  a sparse manner. \cite{lennie_cost_2003} estimates the percentage of
   neurons active at the same time to be between 1 and 4\%. Sigmoid and tanh
   functions will typically have \emph{all} neurons firing, while 
   the ReLU can allow neurons to fully turn off.
@@ -390,193 +390,256 @@ processing, this is simply called decimation.
 
 \subsubsection{Gradients}
 To get the update and passthrough gradients for the convolutional layer we will need to expand
-\eqref{eq:ch2:conv4}. Again we will drop the layer superscripts for clarity. For
-simplicity, let us assume that the convolutional filters are square and only have
-support in the region $a \leq n_1, n_2 \leq b$
-
+\eqref{eq:ch2:conv4}. Again we will drop the layer superscripts for clarity: 
 \begin{equation}
-  Y[f, n_1, n_2] &=& \sum_{c=1}^C \sum_{k_1=a}^{b} \sum_{k_2=a}^b x[c, k_1, k_2]
+  % Y[f, n_1, n_2] &=& \sum_{c=1}^C \sum_{k_1=a}^{b} \sum_{k_2=a}^b x[c, k_1, k_2]
+  % h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
+  Y[f, n_1, n_2] &=& \sum_{c=1}^C \sum_{k_1} \sum_{k_2} x[c, k_1, k_2]
   h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
 \end{equation}
+It is clear from this that a single activation $X[c, n_1, n_2]$ affects
+many output values. In particular, the derivative for an activation in $Y$
+w.r.t.\ an activation in $X$ is the sum of all the chain rule applied to all
+these positions:
+\begin{equation}
+  \dydx{Y_{f, n_1, n_2}}{X_{c, k_1, k_2}} = h_f[c, n_1 - k_1, n_2 - k_2]
+\end{equation}
+and the derivative from the loss is then:
+\begin{eqnarray}
+  \dydx{J}{X_{c,k_1,k_2}} &=& \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}}
+  \dydx{Y_{f, n_1, n_2}}{X_{c,k_1,k_2}} \\
+  &=& \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} h_f[c, n_1 - k_1, n_2 - k_2] \label{eq:ch2:conv6}
+\end{eqnarray}
+Now we let $\Delta Y[f, n_1, n_2] = \dydx{J}{Y_{f, n_1, n_2}}$ be the passthrough gradient
+signal from the next layer, and $\tilde{h}_\alpha[\beta, \gamma, \delta] = h_\beta[\alpha, -\gamma, -\delta]$
+be a set of filters that have been mirror imaged in the spatial domain and had
+their channel and filter number ordering swapped. Combining these two and
+subbing into \eqref{eq:ch2:conv6} we get the \emph{passthrough gradient} for the
+convolutional layer:
+\begin{eqnarray}
+  \dydx{J}{X_{c,k_1,k_2}} &=& \sum_f \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] \tilde{h}_c[f, k_1-n_1, k_2-n_2 ] \\
+                          &=& \sum_f \Delta Y[f, \nn] \conv \tilde{h}_c[f, \nn]
+\end{eqnarray}
+which is the same as \eqref{eq:ch2:conv4}. I.e. we can backpropagate the
+gradients through a convolutional block by mirror imaging the filters,
+transposing them in the channel and filter dimensions, and doing a forward
+convolutional layer with $\tilde{h}$ applied to $\Delta Y$. Similarly, we 
+find the \emph{update gradients} to be:
+\begin{eqnarray}
+  \dydx{J}{h_{f,c,k_1,k_2}} &=& \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} \dydx{Y_{f, n_1, n_2}}{h_{f, c, k_1, k_2}} \\
+                            &=& \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] X[x, n_1-k_1, n_2-k_2 ] \\
+                            &=& \left(\Delta Y[f, \nn] \star X[c, \nn]\right)[k_1, k_2]
+\end{eqnarray}
+where $\star$ is the cross-correlation operation. 
+
 
 \subsection{Pooling}
-  Typically following a convolutional layer (but not strictly), activations are subsampled with
-  max pooling. Pooling adds some invariance to shifts smaller than the pooling
-  size at the cost of information loss. For this reason, small pooling is
-  typically done often $2\x 2$ or $3\x 3$, and the invariance to larger shifts
-  comes after multiple pooling (and convolutional) layers.
+Pooling layers are common in CNNs where we want to reduce the spatial size. As
+we go deeper into a CNN, it is common for the spatial size of the activation to
+decrease, and the channel dimension to increase. The $C_l$ values at a given
+spatial location can then be thought of as a feature vector describing the
+presence of shapes in a given area in the input image.
+
+Pooling is useful to add some invariance to smaller shifts when downsampling. It
+is often done over small spatial sizes, such as $2\x 2$ or $3\x 3$. Invariance
+to larger shifts can be built up with multiple pooling (and convolutional) layers.
+
+Two of the most common pooling techniques are \emph{max pooling} and
+\emph{average pooling}. Max pooling takes the largest value in its spatial area,
+whereas average pooling takes the mean. A visual explanation is shown in 
+\autoref{fig:ch2:maxpool}. Note that pooling is typically a spatial operation,
+and only in rare cases is done over the channel dimension.
+
+A review of pooling methods in \cite{mishkin_systematic_2016} found them both
+to perform equally well. While max pooling was the most popular in earlier state
+of the art networks \cite{krizhevsky_imagenet_2012, simonyan_very_2014},
+there has been a recent trend towards using average pooling \cite{huang_densely_2017}
+or even to do away with pooling altogether in favour of strided convolutions
+(this idea was originally proposed in \cite{springenberg_striving_2014-3} and
+used notably in \cite{he_deep_2016, xie_aggregated_2017,
+zagoruyko_wide_2016-1}).
   
-  While initial designs of max pooling would do it in non-overlapping regions, 
-  AlexNet used $3\x 3$ pooling with stride 2 in their breakthrough design,
-  quoting that it gave them an increase in accuracy of roughly $0.5\%$ and
-  helped prevent their network from `overfitting'. More recent networks will
-  typically employ either this or the original $2\x 2$ pooling with stride 2,
-  see \autoref{fig:ch2:maxpool}. A review of pooling methods in
-  \citep{mishkin_systematic_2016} found them both to perform equally well.
-  
-  \begin{figure}
-    \centering
-    \input{\imgpath/pooling_both}
-    \mycaption{Max vs Average $2\x 2$ pooling}{}
-    \label{fig:ch2:maxpool}
-  \end{figure}
+\begin{figure}
+  \centering
+  \input{\imgpath/pooling_both}
+  \mycaption{Max vs Average $2\x 2$ pooling}{}
+  \label{fig:ch2:maxpool}
+\end{figure}
 
-\subsubsection{Batch Normalization}
-      Batch normalization proposed only very recently in
-      \citep{ioffe_batch_2015} is a conceptually simpler technique. Despite
-      that, it has become quite popular and has been found to be very useful.
-      At its core, it is doing what standard normalization is doing, but also
-      introduces two learnable parameters --- scale ($\gamma$) and offset
-      ($\beta$). \eqref{eq:ch2:normalization} becomes:
-      \begin{equation}
-        \tilde{z}(u_1,u_2,d) = \gamma\frac{z-E[z]}{\sqrt{Var[z]}} + \beta 
-				\label{eq:ch2:batch_normalization}
-      \end{equation}
-      These added parameters make it a \emph{renormalization} scheme, as instead of
-      centring the data around zero with unit variance, it can be centred
-      around an arbitrary value with arbitrary variance. S etting
-      $\gamma = \sqrt{Var[z]}$ and $\beta = E[z]$, we would get the identity
-      transform. Alternatively, setting $\gamma = 1$ and $\beta = 0$ (the
-      initial conditions for these learnable parameters), we get standard
-      normalization.
-      
-      The parameters $\gamma$ and $\beta$ are learned through backpropagation.
-      As data are usually processed in batches, the gradients for $\gamma$ and
-      $\beta$ are calculated per sample, and then averaged over the whole
-      batch.
+\subsection{Dropout}
+Dropout is a particularly harsh regularization scheme that randomly turns off
+or zeros out neurons in a neural network \cite{hinton_improving_2012, srivastava_dropout:_2014}.
+Each neuron has probability $p$ of having its value set to 0 during training
+time, forcing the network to be more general and preventing `co-adaption' of
+neurons. The main explanation given in \cite{srivastava_dropout:_2014} is
+that dropout averages over several `thinner' models.
 
-      From \autoref{eq:ch2:batch_normalization}, let us briefly use the hat
-      notation to represent the standard normalized input:
-      $\hat{z} = (z-E[z])/\sqrt{Var[z]}$, then:
-      \begin{eqnarray}
-        \tilde{z}^{(i)} & = & \gamma \hat{z}^{(i)} + \beta \nonumber\\
-        \frac{\partial \mathcal{L}}{\partial \gamma}& =&
-        \frac{1}{N}\sum_{i=1}^{N} \frac{\partial
-        \mathcal{L}^{(i)}}{\partial \tilde{z}^{(i)}} \cdot \hat{z}^{(i)} \\
-        \frac{\partial \mathcal{L}}{\partial \beta}& =&
-        \frac{1}{N}\sum_{i=1}^{N} \frac{\partial
-        \mathcal{L}^{(i)}}{\partial \tilde{z}^{(i)}} 
-      \end{eqnarray}
+During test time, dropout is typically turned off, but can still be
+used to get an estimate on the uncertainty of the network by averaging over
+several runs \cite{gal_dropout_2016}.
 
-      Batch normalization layers are typically placed \emph{between} convolutional layers
-      and non-linearities. I.e.,\ if $Wu+b$ is the output of a convolutional
-      layer, and $z=g(Wu+b)$ is the output of the non-linearity, then with the
-      batch normalization step, we have:
-      \begin{eqnarray}
-        z &=& g(BN(Wu+b)) \nonumber\\
-          &=& g(BN(Wu))
-      \end{eqnarray}
-      Where the bias term was ignored in the convolutional layer, as it can be
-      fully merged with the `offset' parameter $\beta$.
+\subsection{Batch Normalization}
+Batch normalization proposed in \cite{ioffe_batch_2015} is a conceptually 
+simple technique. Despite this, it has become very popular and has been found
+to be very useful to train \emph{deeper} CNNs. 
 
-      This has particular benefit of removing the sensitivity of our network to
-      our initial weight scale, as for scalar $a$,
-      \begin{equation}
-        BN(Wu) = BN((aW)u)
-      \end{equation}
-      It is also particularly useful for backpropagation, as an increase in
-      weights leads to \emph{smaller} gradients \citep{ioffe_batch_2015}, making
-      the network far more resilient to the problems of vanishing and exploding
-      gradients:
-      \begin{eqnarray}
-        \frac{\partial BN((aW)u)}{\partial u} & = & \frac{\partial
-        BN(Wu)}{\partial u} \nonumber\\
-        \frac{\partial BN((aW)u)}{\partial (aW)} & = & \frac{1}{a} \cdot \frac{\partial
-        BN(Wu)}{\partial W} 
-      \end{eqnarray}
+Batch Normalization rescales CNN activations by channel. Define the mean
+and standard deviations for a channel across the entire dataset as:
+\begin{eqnarray}
+  \mu_c &=& \frac{1}{N} \sum_\nn X^{(n)}[c, \nn] \\
+  \sigma_c^2 &=&  \frac{1}{N} \sum_\nn \left(X^{(n)}[c, \nn]\right)^2 - \mu^2_c 
+\end{eqnarray}
+where $\mu, \sigma \in \reals[C]$.
+Batch norm removes the natural mean and variance of the data, scales the data
+by a learnable gain $\gamma$, and shifts it to a learnable position $\beta$,
+with $\gamma, \beta \in \reals[C]$:
+\begin{equation}
+  Y[c, \nn] = \frac{X[c, \nn] - \mu_c}{\sigma_c + \epsilon}\gamma_c + \beta_c
+\end{equation}
+where $\epsilon$ is a small value to avoid dividing by 0.
 
+Of course, during training, we do not have access to the dataset $\mu, \sigma$
+and these values must be estimated from the batch statistics. A typical practice
+is to keep an exponential moving average estimate of these values to give us
+$\tilde{\mu}, \tilde{\sigma}$. 
+
+The passthrough and update gradients are:
+\begin{eqnarray}
+  \dydx{J}{X_{c, n_1, n_2}} &=& \dydx{J}{Y_{c, n_1, n_2}}\frac{\gamma}{\sigma + \epsilon}\\
+  \dydx{J}{\beta_c} &=&  \sum_\nn \dydx{J}{Y_{c, \nn}}\\
+  \dydx{J}{\gamma_c} &=& \sum_\nn \dydx{J}{Y_{c, \nn}}\frac{X_{c, \nn} - \mu_c}{\gamma_c + \epsilon}
+\end{eqnarray}
+
+Batch normalization layers are typically placed \emph{between} convolutional layers
+and non-linearities. I.e. consider the input $X=WU$ for some linear operation
+on the previous layer's activations $U$ with weights $W$.
+
+We see that it has the particular benefit of removing
+the sensitivity of our network initial weight scale, as on the forward pass
+$BN(aWU) = BN(WU)$.  
+It is also particularly useful for backpropagation, as an increase in
+weights leads to \emph{smaller} gradients \cite{ioffe_batch_2015}, making
+the network far more resilient to the problems of vanishing and exploding
+gradients:
+\begin{eqnarray}
+  \frac{\partial BN((aW)U)}{\partial U} & = & \frac{\partial
+  BN(WU)}{\partial u} \nonumber\\
+  \frac{\partial BN((aW)U)}{\partial (aW)} & = & \frac{1}{a} \cdot \frac{\partial
+  BN(WU)}{\partial W} 
+\end{eqnarray}
 
 \section{Relevant Architectures}
+In this section we briefly review some relevant CNN architectures that will be
+helpful to refer back to in this thesis.
 
 \subsection{LeNet}
+LeNet-5 \cite{lecun_gradient-based_1998} is a good network to start with: it
+is simple yet contains many of the layers used in modern CNNs. Shown in
+\autoref{fig:ch2:lenet} it has two convolutional and three fully connected
+layers. The outputs of the convolutional layers are passed through a sigmoid
+nonlinearity and downsampled with average pooling. The first two fully-connected
+layers also have sigmoid nonlinearities. The loss function used is a combination
+of tanh fucntions and MSE loss.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{\imgpath/cnns.png}
+  \mycaption{LeNet-5 architecture}{The `original' CNN architecture used for
+  handwriting recognition. LeNet has 2 convolutional and 3 fully connected
+  layers making 5 parameterized layers. After the second convolutional layer,
+  the $16\x 5\x 5$ pixel output is unravelled to a $400$ long vector. Image
+  taken from \cite{lecun_gradient-based_1998.}}
+  \label{fig:ch2:lenet}
+\end{figure}
+
 \subsection{AlexNet}
-\subsection{VGG}
+AlexNet \cite{krizhevsky_imagenet_2012} shown in \autoref{fig:ch2:alexnet} is
+arguably one of the most important architectures in the development in CNNs as it 
+was able to experimentally prove that CNNs can be used for complex tasks. This
+required many innovations. In particular, they used multiple GPUs to do fast
+processing on large images, used the ReLU to avoid saturation, and added dropout
+to aid generalization. Training of AlexNet on 2 GPUs available in 2012 takes
+roughly a week.
+
+The first layer uses convolutions with a spatial support of $11\x11$, followed
+by $5\x 5$ and $3\x 3$ for the final three layers.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{\imgpath/alexnet}
+  \mycaption{The AlexNet architecture}{Designed for the ImageNet challenge, 
+  AlexNet may look like \autoref{fig:ch2:lenet} but is
+  much larger. Composed of 5 convolutional layers and 3 fully connected layers.
+  Figure taken from \cite{krizhevsky_imagenet_2012}.}
+  \label{fig:ch2:alexnet}
+\end{figure}
+
+\subsection{VGGnet}
+The Visual Geometry Group (VGG) at Oxford came second in the ILSVRC challenge in
+2014 with their VGG-nets \cite{simonyan_very_2014}, but remains an important
+network for some of the design choices it inspired. In particular, their optimal
+network was much deeper than AlexNet, with 19 convolutional layers on top of
+each other before 3 fully connected layers. These convolutional layers all used
+the smaller $3\x 3$ seen only at the back of AlexNet.
+
+This network is particularly attractive due its simplicity, compared to the 
+more complex Inception Network \cite{szegedy_going_2015} which won the 2014
+ILSVRC challenge. VGG-16, the 16 layer variant of VGG stacks two or three
+convolutional layers (and ReLUs) on top of each other before reducing spatial
+size with max pooling. After processing at five scales, the resulting $512 \x 14
+\x 14$ activation is unravelled and passed through a fully connected layer.
+
+These VGG networks also marked the start of a trend that has since become
+common, where channel depth is doubled after pooling layers. The doubling of
+channels and quartering the spatial size still causes a net reduction in the
+number of activations.
+
+\subsection{The All Convolutional Network}
+The All Convolutional Network \cite{springenberg_striving_2014-3} introduced two
+popular modifications to the VGG networks:
+%
+\begin{itemize}
+  \item They argued for the removal of max pooling layers, saying that a $3\x 3$
+    convolutional layer with stride 2 works just as well.
+  \item They removed the fully connected layers at the end of the network,
+    replacing them with $1\x 1$ convolutions. Note that a $1\x 1$ convolution
+    still has shared weights across all spatial locations. The output layer then
+    has size $C_L \x H \x W$, where $H, W$ are many times smaller than the input
+    image size, and the vector of $C_L$ coefficients at each spatial location
+    can be interpreted as a vector of scores marking the presence/absence of
+    $C_L$ different shapes. For classification, the output can be averaged over
+    all spatial locations, whereas for localization it may be useful to keep
+    this spatial information.
+\end{itemize}
+The new network was able to achieve 
+
 \subsection{Residual Networks}
-  The current state of the art design introduced a clever novel feature called
-  a residual unit\citep{he_deep_2015,he_identity_2016}. The inspiration for their design came from the difficulties
-  experienced in training deeper networks. Often, adding an extra layer would
+  Resiudal Networks or ResNets won the 2015 ILSVRC challenge, introducing the
+  residual layer. Most state of the art models today use this residual mapping
+  in some way \cite{zagoruyko_wide_2016-1, xie_aggregated_2017}.
+
+  The inspiration for the residual layer came came from the difficulties
+  experienced in training deeper networks.  Often, adding an extra layer would
   \emph{decrease} network performance. This is counter-intuitive as the deeper
   layers could simply learn the identity mapping, and achieve the same
   performance.
 
-  To promote the chance of learning the identity mapping, they define
-  a residual unit, shown in \autoref{fig:ch2:residual_unit}. If a desired mapping
-  is denoted $\mathcal{H}(x)$, instead of trying to learn this, they instead
-  learn $\mathcal{F}(x) = \mathcal{H}(x) - x$. 
+  To promote the chance of learning the identity mapping, they define a residual
+  unit, shown in \autoref{fig:ch2:residual_unit}. If a desired mapping is
+  denoted $\mathcal{H}(x)$, instead of trying to learn this, they instead learn
+  $\mathcal{F}(x) = \mathcal{H}(x) - x$. Doing this promotes a strong diagonal
+  in the Jacobian matrix which improve conditioning for gradient descent. 
+  
+  Recent analysis of a ResNet without nonlinearities
+  \cite{bartlett_representing_2018, bartlett_gradient_2018} proves that SGD
+  fails to converge for deep networks when the network mapping is far away from
+  the identity, suggesting that a residual mapping is a good thing to do.
   \begin{figure}
     \centering
-    % \includegraphics[width=0.5\textwidth]{images/residual_unit.png}
-    \caption[The residual unit from ResNet]
+    \includegraphics[width=0.5\textwidth]{\imgpath/residual_unit.png}
+    \mycaption{The residual unit from ResNet}
           {A residual unit. The identity mapping is always present, and the
             network learns the difference from the identity mapping, $\mathcal{F}(x)$.
-            Taken from \citep{he_deep_2015}.}
+            Taken from \cite{he_deep_2016}.}
       \label{fig:ch2:residual_unit}
   \end{figure}
-
-
-\subsection{old}
-  Convolutional Neural Networks (CNNs) were initially introduced by \citet{lecun_backpropagation_1989} in
-  \citep{lecun_backpropagation_1989}. Due to the difficulty of training and
-  initializing them, they failed to be popular for more than two decades.  This
-  changed in 2012, when advancements in pre-training with unsupervised networks
-  \citep{bengio_greedy_2007}, the use of an improved non-linearity --- the Rectified Linear
-  Unit, or ReLU, new regularization methods\citep{hinton_improving_2012}, and
-  access to more powerful computers in graphics cards, or GPUs, allowed
-  Krizhevsky, Sutskever and Hinton  to develop
-  AlexNet\citep{krizhevsky_imagenet_2012}. This network nearly halved the
-  previous state of the art's error rate.  Since then, interest in them has
-  expanded very rapidly, and they have been successfully applied to object
-  detection~\citep{ren_object_2015} and human pose estimation
-  \citep{tompson_efficient_2015}. It would take a considerable amount of effort
-  to document the details of all the current enhancements and tricks many
-  researches are using to squeeze extra accuracy, so for the purposes of this
-  report we restrict ourselves to their generic design, with some time spent
-  describing some of the more promising enhancements. 
-  
-  We would like to make note of some of the key architectures
-  in the history of CNNs, which we, unfortunately, do not have space to describe:
-  \begin{itemize}
-    \item Yann LeCun's LeNet-5~\citep{lecun_gradient-based_1998}, the state of the art
-      design for postal digit recognition on the MNIST dataset.
-    \item Google's GoogLeNet~\citep{szegedy_going_2015} achieved $6.67\%$ top-5
-      error on ILSVRC2014, introducing the new `inception' architecture, which
-      uses combinations of $1\x 1$, $3\x 3$ and $5\x 5$ convolutions.
-    \item Oxford's VGG~\citep{simonyan_very_2014} --- $6.8\%$ and runner up in
-      ILSVRC2014. The VGG design is very similar to AlexNet but was roughly
-      twice as deep. More convolutional layers were used, but with smaller
-      support --- only $3\x 3$. These were often stacked directly on top of
-      each other without a non-linearity in between, to give the effective
-      support of a $5\x 5$ filter.
-    \item Microsoft Research's ResNet~\citep{he_deep_2015} achieved $4.5\%$ top-5 
-      error and was the winner of ILSVRC2015. This network we will talk briefly
-      about, as it introduced a very nice novel layer --- the residual layer.
-  \end{itemize}
-
-  Despite the many variations of CNN architectures currently being used, most
-  follow roughly the same recipe (shown in \autoref{fig:ch2:cnn_generic}):
-  \begin{figure}
-    \centering
-      % \includegraphics[width=\textwidth]{images/cnns.png}
-      \caption[Standard CNN architecture]
-              {Standard CNN architecture. Taken
-              from~\citep{lecun_gradient-based_1998}}\label{fig:ch2:cnn_generic}
-  \end{figure}
-
-\subsection{Fully Connected Layers}\label{sec:ch2:cnn_fullyconnected}
-  The convolution, pooling, and activation layers all
-  conceptually form part of the \emph{feature extraction} stage of a CNN. One
-  or more fully connected layers are usually placed after these layers to form
-  the \emph{classifier}. One of the most elegant and indeed most powerful
-  features of CNNs is this seamless connection between the \emph{feature
-  extraction} and \emph{classifier} sub-networks, allowing the backpropagation
-  of gradients through all layers of the entire network.
-
-  The fully connected layers in a CNN are the same as those in a classical
-  Neural Network (NN), in that they compute a dot product between their input
-  vector and a weight vector:
-  \begin{equation}
-    z_i = \sum_{j} W_{ij}x_j
-  \end{equation}
-  The final output of the Fully Connected layer typically has the same number
-  of outputs as the number of classes $C$ in the classification problem.
-

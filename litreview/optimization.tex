@@ -233,7 +233,7 @@ gradients:
 \begin{eqnarray}
   g_{t+1} &=& \dydx{J}{\theta} \\
   m_{t+1} &=& \beta_1 m_{t} + (1-\beta_1)g_{t+1} \label{eq:ch2:adam_first}\\
-  v_{t+1} &=& \beta_2 m_{t} + (1-\beta_2)g_{t+1} \\
+  v_{t+1} &=& \beta_2 m_{t} + (1-\beta_2)g_{t+1} 
 \end{eqnarray}
 where $0 \leq \beta_1, \beta_2 < 1$. Note the similarity between updating the
 mean estimate in \eqref{eq:ch2:adam_first} and the velocity term in
