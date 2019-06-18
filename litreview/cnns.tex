@@ -168,7 +168,7 @@ where we have used the fact that for the regression case, $y^{(n)}, Y^{(L,n)}
 For the classification case \eqref{eq:ch2:mle_class}, let us keep the output of
 the network $Y^{(L,n)} \in \reals[C]$ and define an intermediate value $\hat{y}$ the
 softmax applied to this vector $\hat{y}^{(n)}_c = \sigma_c\left(Y^{(L, n)}\right)$.
-Note that this is a vector valued function going from $\reals[C] \rightarrow
+Note that the softmax is a vector valued function going from $\reals[C] \rightarrow
 \reals[C]$ so has a jacobian matrix $S_{ij} = \dydx{\hat{y}_i}{Y^{(L)}_j}$ with
 values:
 \begin{equation}
@@ -193,9 +193,9 @@ from here. I.e.:
 
 \begin{eqnarray}
   \dydx{J}{Y^{(L)}_j} &=& \sum_{i=1}^C \dydx{J}{\hat{y}_i}\dydx{\hat{y}_i}{Y^{(L)}_j} \\
-                      &=& S_i^T d
+                      &=& S_j^T d
 \end{eqnarray}
-where $S_i$ is the $i$th column of the jacobian matrix $S$. It becomes clear now
+where $S_j$ is the $j$th column of the jacobian matrix $S$. It becomes clear now
 that to get the entire vector derivative for all nodes in $Y^{(L)}$, we must
 multiply the transpose of the jacobian matrix with the error term from
 \eqref{eq:ch2:class_b1}:
@@ -614,6 +614,15 @@ popular modifications to the VGG networks:
 The new network was able to achieve 
 
 \subsection{Residual Networks}
+  \begin{figure}[tb]
+    \centering
+    \includegraphics[width=0.5\textwidth]{\imgpath/residual_unit.png}
+    \mycaption{The residual unit from ResNet}
+          {A residual unit. The identity mapping is always present, and the
+            network learns the difference from the identity mapping, $\mathcal{F}(x)$.
+            Taken from \cite{he_deep_2016}.}
+      \label{fig:ch2:residual_unit}
+  \end{figure}
   Resiudal Networks or ResNets won the 2015 ILSVRC challenge, introducing the
   residual layer. Most state of the art models today use this residual mapping
   in some way \cite{zagoruyko_wide_2016-1, xie_aggregated_2017}.
@@ -634,12 +643,3 @@ The new network was able to achieve
   \cite{bartlett_representing_2018, bartlett_gradient_2018} proves that SGD
   fails to converge for deep networks when the network mapping is far away from
   the identity, suggesting that a residual mapping is a good thing to do.
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{\imgpath/residual_unit.png}
-    \mycaption{The residual unit from ResNet}
-          {A residual unit. The identity mapping is always present, and the
-            network learns the difference from the identity mapping, $\mathcal{F}(x)$.
-            Taken from \cite{he_deep_2016}.}
-      \label{fig:ch2:residual_unit}
-  \end{figure}

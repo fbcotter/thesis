@@ -1,12 +1,11 @@
 \section{Scatternets}\label{ch:scatternets}
 % Let us define the pairs of authors here
-
   Scatternets have been a very large influence on
   our work, as well as being quite distinct from the previous discussions on
   learned methods. They were first introduced by  
   \citeauthor{bruna_classification_2011} in their work 
-  \citep{bruna_classification_2011}, and then were rigorously defined by Mallat
-  in \citep{mallat_group_2012}. Several updates and newer models have since
+  \cite{bruna_classification_2011}, and then were rigorously defined by Mallat
+  in \cite{mallat_group_2012}. Several updates and newer models have since
   been released by Mallat's group, which we will review in this chapter.
   
   It is helpful to introduce this chapter with one further note. Unlike the
@@ -19,12 +18,12 @@
   \autoref{ch:scat_deep}.
 
 
-  \section{Translation Invariant Scatternets}
+\subsection{Translation Invariant Scatternets}
   The translation invariant Scatternets were mostly covered in
-  \citep{bruna_invariant_2013}. This section summarises the method of this
+  \cite{bruna_invariant_2013}. This section summarises the method of this
   paper.
 
-  \subsection{Defining the Properties}
+\subsubsection{Defining the Properties}
   The first release of Scatternets aimed at building a translation invariant
   operator, which was also stable to additive noise and deformations. Translation
   is often defined as being uninformative for classification --- an object
@@ -52,9 +51,8 @@
 
   \begin{figure}
     \begin{center}
-      % \includegraphics[scale=0.8]{images/Lipschitz_continuity.png}
-      \caption[A Lipschitz continuous function]
-              {A Lipschitz continuous function is shown. There is a cone for this
+      \includegraphics[scale=0.8]{\imgpath/Lipschitz_continuity.png}
+      \mycaption{A Lipschitz continuous function}{There is a cone for this
               function (shown in white) such that the graph always remains entirely outside
               the cone as it's shifted across. The minimum gradient needed for this to hold
               is called the `best Lipschitz constant'.}
@@ -83,7 +81,7 @@
   The term on the right $|\nabla\tau(\bmu{u})|$ measures the deformation
   amplitude, so the supremum of it is a limit on the global defomation amplitude.
 
-\subsection{Finding the Right Operator}
+\subsubsection{Finding the Right Operator}
   A Fourier modulus satisfies the first two of these requirements, in that it is
   both translation invariant and stable to additive noise, but it is unstable to
   deformations due to the infinite support of the sinusoid basis functions it
@@ -93,14 +91,14 @@
 
   Unlike the Fourier modulus, a wavelet transform
   is stable to deformations due to the grouping together frequencies into dyadic
-  packets \citep{mallat_group_2012}, however, the wavelet transform is not invariant to
+  packets \cite{mallat_group_2012}, however, the wavelet transform is not invariant to
   shifts. 
   
   We saw in \autoref{ch:freq_analysis} that the modulus of complex, analytic
   wavelets commuted with shifts. The real and imaginary parts are also
   commutative with shifts, but these vary much quicker than the modulus
   (\autoref{fig:pulse_response}).  Interestingly, the modulus operator, in this
-  case, does not lose any information \citep{waldspurger_phase_2012} (due to the
+  case, does not lose any information \cite{waldspurger_phase_2012} (due to the
   redundancies of the wavelet transform), which is why it may be nice to think
   of it as a \emph{demodulator}.
 
@@ -110,14 +108,12 @@
       \newlength\figurewidth 
       \setlength\figureheight{6cm} 
       \setlength\figurewidth{8cm}
-      % \input{scripts/scatternet_freqresp_plot1.tikz} 
+      \input{\imgpath/scatternet_freqresp_plot1.tikz} 
       \caption{Real, Imaginary and Modulus of complex wavelet convolved with
                an impulse.}
       \label{fig:pulse_response}
     \end{center}
   \end{figure}
-  
-
   % A tikz diagram to draw what the operator looks like so far
   %\input{tikz/invariant}
 
@@ -150,12 +146,12 @@
 
   \begin{figure}
     \centering
-      \includegraphics[width=\textwidth]{images/scatternet_diagram.png}
+      \includegraphics[width=\textwidth]{\imgpath/scatternet_diagram.png}
       \caption[Translation Invariant Scatternet Layout]
               {The translation invariant Scattering Transform. Scattering outputs
                are the leftward pointing arrows $S[p]x$, and the intermediate 
                coefficients $U[p]x$ are the centre nodes of the tree. Taken
-               from \citep{bruna_invariant_2013}.}
+               from \cite{bruna_invariant_2013}.}
       \label{fig:scatternet_mallat}
   \end{figure}
 
@@ -169,15 +165,15 @@
 \section{Rotation and Translation Invariant Scatternets}
   Mallat's group refined their Scatternet architecture by expanding their list
   of invariants to also include rotation. They also experimented with adding
-  scale invariance in \citep{sifre_rotation_2013}, but it was limited to only
+  scale invariance in \cite{sifre_rotation_2013}, but it was limited to only
   averaging over scale once, and they were no longer using
-  it in \citep{oyallon_deep_2015}, so for brevity we omit it. 
+  it in \cite{oyallon_deep_2015}, so for brevity we omit it. 
   
   This work was done by two authors, each tackling different
   challenges. The first is texture analysis with Sifre in
-  \citep{sifre_combined_2012, sifre_rotation_2013, sifre_rigid-motion_2014,
+  \cite{sifre_combined_2012, sifre_rotation_2013, sifre_rigid-motion_2014,
   sifre_rigid-motion_2014-1}, and the second is image classification with
-  Oyallon in \citep{oyallon_generic_2013, oyallon_deep_2015}. In this section,
+  Oyallon in \cite{oyallon_generic_2013, oyallon_deep_2015}. In this section,
   we outline the properties and structure of this extended Scatternet.
 
 \subsection{An Important note on Joint vs. Separable Invariants}
@@ -228,7 +224,7 @@
 
   In this vein, \Bruna\ suggest that in the case of rotation and translation
   invariance, a joint invariant should be used, building on the work in
-  \citep{citti_cortical_2006, boscain_anthropomorphic_2010,
+  \cite{citti_cortical_2006, boscain_anthropomorphic_2010,
   sgallari_scale_2007}. 
 
   % \begin{figure}
@@ -237,7 +233,7 @@
       % \caption{Roto-Translation and Scale Invariant Scatternet block diagram. The
                % log operation between roto-translation and scale invariances is used to
                % linearize the power law of the Scatternet coefficient energies across 
-               % scales. Taken from \citep{sifre_rotation_2013}.}
+               % scales. Taken from \cite{sifre_rotation_2013}.}
       % \label{fig:roto_scat_block}
   % \end{figure}
 
@@ -322,29 +318,29 @@
   a $2\pi$ periodic wavelet.
 
   Then, the remaining low-high, high-low, and high-high information is:
-  \begin{eqnarray}
-    \Psi_{0, J, k_2}(u, \theta) & = & \phi_J(u) \ast \bar{\psi}_{k_2}(\theta) \\
-    \Psi_{\theta_2, j_2, } (u, \theta) & = & \psi_{\theta_2, j_2}(u) \ast
+  \begin{align}
+    \Psi_{0, J, k_2}(u, \theta) & =  \phi_J(u) \ast \bar{\psi}_{k_2}(\theta) \\
+    \Psi_{\theta_2, j_2, } (u, \theta) & =  \psi_{\theta_2, j_2}(u) \ast
       \bar{\phi}(\theta) \\
-    \Psi_{\theta_2, j_2, k_2}(u, \theta) & = & \psi_{\theta_2, j_2}(u) \ast
+    \Psi_{\theta_2, j_2, k_2}(u, \theta) & =  \psi_{\theta_2, j_2}(u) \ast
       \bar{\psi}_{k_2}(\theta)
-  \end{eqnarray}
+  \end{align}
   The k parameter is newly introduced here, and it represents the number of
   scales the rotation wavelet has (a typical value used by \Sifre\ was $K=3$).
   We call this combined operator $\Psi_{\theta_m, j_m, k_m}$. See
   \autoref{fig:srs_3d} for what this looks like.
 
-  \begin{figure}
-    \centering
-      \includegraphics[width=9cm]{images/scatternet_roto_scale_3dwavelet.png}
-      \caption[Three dimensional convolution with roto-scale wavelet]
-              {Three dimensional convolution with  $\Psi_{\theta_m, j_m,
-              k_m}(u_1, u_2, \theta)$ factorised into a two dimensional convolution with
-              $\psi_{\theta_m, j_m}(u_1, u_2)$ and a one dimensional convolution with
-              $\psi_{k_m}(\theta)$. Colours represent the amplitude of the 3D
-              wavelet. Image taken from \citep{sifre_rotation_2013}.}
-      \label{fig:srs_3d}
-  \end{figure}
+  % \begin{figure}
+    % \centering
+      % \includegraphics[width=9cm]{images/scatternet_roto_scale_3dwavelet.png}
+      % \caption[Three dimensional convolution with roto-scale wavelet]
+              % {Three dimensional convolution with  $\Psi_{\theta_m, j_m,
+              % k_m}(u_1, u_2, \theta)$ factorised into a two dimensional convolution with
+              % $\psi_{\theta_m, j_m}(u_1, u_2)$ and a one dimensional convolution with
+              % $\psi_{k_m}(\theta)$. Colours represent the amplitude of the 3D
+              % wavelet. Image taken from \cite{sifre_rotation_2013}.}
+      % \label{fig:srs_3d}
+  % \end{figure}
 
   The wavelet-modulus operator then is:
   \begin{equation}
@@ -358,44 +354,3 @@
   \end{equation}
   with $p_1 = (\bmu{u}, \theta_1, j_1)$ and $p_2=(\bmu{u}, \theta_1, j_1,
   \theta_2, j_2, k_2)$.
-
-
-\section{Gradients of Complex Activations}
-\subsection{Cauchy-Riemann Equations}
-None of these will be solved. However, we can still find the partial derivatives \wrt the real and
-imaginary parts.
-
-\subsection{Complex Magntitude}
-Care must be taken when calculating gradients for the complex magnitude, as the
-gradient is undefined at the origin. We take the common approach of setting the
-gradient at the corner point to be 0. 
-
-Let us call the real and imaginary inputs to a magnitude block $x$ and $y$,
-and we define the real output $r$ as:
-
-$$ r = |x + jy| = \sqrt{x^2 + y^2} $$
-
-Then the partial derivatives \wrt the real and imaginary inputs are:
-\begin{eqnarray*}
-  \dydx{r}{x} & = & \frac{x}{\sqrt{x^2 + y^2}} = \frac{x}{r} \\
-  \dydx{r}{y} & = & \frac{y}{\sqrt{x^2 + y^2}} = \frac{y}{r} \\
-\end{eqnarray*}
-
-Except for the singularity at the origin, these partial derivatives are restricted to be in the
-range $[-1, 1]$. The complex magnitude is convex in $x$ and $y$ as:
-
-$$\nabla^2 r(x,y) = \frac{1}{r^3} 
-\begin{bmatrix}
-  y^2 & -xy \\
-  -xy & x^2
-\end{bmatrix}
- = \frac{1}{r^3} \begin{bmatrix} y \\ -x \end{bmatrix} 
- \begin{bmatrix} y & -x \end{bmatrix} \geq 0 
-$$
-These partial derivatives are very variable around 0. \textbf{Show a plot of this}. We can smooth it out by
-adding a smoothing term:
-
-$$ r_s = \sqrt{x^2 + y^2 + b} - \sqrt{b} $$
-
-This keeps the magnitude zero for small $x,y$ but does slightly shrink larger values. The gain we
-get however is a new smoother gradient surface \textbf{Plot this}.
