@@ -1,8 +1,8 @@
 \section{Supervised Machine Learning}
 Consider a sample space over inputs and labels $\mathcal{X} \times \mathcal{Y}$
-and a data generating distribution $p_data$. Given a dataset of input-label
+and a data generating distribution $p_{data}$. Given a dataset of input-label
 pairs $\mathcal{D} = \{(x^{(n)}, y^{(n)})\}_{n=1}^N$ we would like to make
-predictions about $p_data(y|x)$ that generalize well to unseen data. A common
+predictions about $p_{data}(y|x)$ that generalize well to unseen data. A common
 way to do this is to build a parametric model to directly estimate this
 conditional probability.  For example, regression asserts the data are
 distributed according to a function of the inputs plus a noise term $\epsilon$:
@@ -227,7 +227,7 @@ AdaGrad \cite{duchi_adaptive_2011} and AdaDelta \cite{zeiler_adadelta:_2012}, bu
 they are all quite similar, and Adam is often considered the most robust of the
 three \cite{goodfellow_deep_2016}. The goal of all of these adaptive schemes is
 to take larger update steps in directions of low variance, helping to minimize
-the effect of large condition numbers we saw in \autoref{fig:ch2:sgd_bounce}.
+the effect of large condition numbers we saw in \autoref{fig:ch2:gd_bounce}.
 Adam does this by keeping track of the first $m_t$ and second $v_t$ moments of the
 gradients:
 \begin{eqnarray}
