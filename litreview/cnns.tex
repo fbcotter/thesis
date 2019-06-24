@@ -530,7 +530,49 @@ gradients:
 
 \section{Relevant Architectures}
 In this section we briefly review some relevant CNN architectures that will be
-helpful to refer back to in this thesis.
+helpful to refer back to in this thesis. 
+
+\subsection{Datasets}
+When doing image analysis tasks, it is important to know comparatively how well
+different networks perform on the same challenege. To achieve this, the
+community has developed several datasets that are commonly used to report
+metrics. For image classification, there are five such datasets, listed here in
+increasing order of difficulty:
+\begin{enumerate}
+  \item \textbf{MNIST}: 10 classes, 6000 images per class, $28\x 28$ pixels per image. 
+    The images contain the digits 0--9 in greyscale on a blank background. The
+    digits have been size normalized and centred. Dataset description and files can be obtained 
+    at \cite{lecun_modified_1998}.
+  \item \textbf{CIFAR-10}: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
+    The images contain classes of everyday objects like cars, dogs, planes etc.
+    The images are colour and have little clutter or background. Dataset
+    description can be found in \cite{krizhevsky_learning_2009} and files at
+    \cite{krizhevsky_cifar_2009}.
+  \item \textbf{CIFAR-100}: 100 classes, 500 images per class, $32\x 32$ pixels per image. 
+    Similar to CIFAR-10, but now with fewer images per class and ten times as
+    many classes. Dataset description can be found in
+    \cite{krizhevsky_learning_2009} and files at \cite{krizhevsky_cifar_2009}.
+  \item \textbf{Tiny ImageNet}: 200 classes, 500 images per class, 
+    $64 \x 64$ pixels per image. A more recently introduced dataset that bridges
+    the gap between CIFAR and ImageNet. Images are larger than CIFAR and there
+    are more categories. Dataset description and files can be obtained at \cite{li_tiny_2017}.
+  \item \textbf{ImageNet CLS}: There are multiple types of challenges in ImageNet, but CLS
+    is the classification challenge, and is most commonly reported in papers. 
+    It has 1000 classes of objects with a varying amount of images per class.
+    Most classes have 1300 examples in the training set, but a few have less
+    than 1000. The images have variable size, typically a couple of hundred
+    pixels wide and a couple of hundred pixels high. The images can have varying
+    amounts of clutter and can be at different scales, making it a particularly
+    difficult challenge. Dataset description is in
+    \cite{russakovsky_imagenet_2014} and the most reliable source of the data
+    can be found at \cite{stanford_vision_lab_imagenet_2017}.
+\end{enumerate}
+Several other classification datasets do exist but are not commonly used, such
+as PASCAL VOC \cite{Everingham15} and Caltech-101 and Caltech-256
+\cite{li_fei-fei_learning_2004}\footnote{Tiny ImageNet is also not commonly 
+used as it is quite new. We have included it the main list as we have found it 
+to be quite a useful step up from CIFAR without requiring the weeks to train
+experimental configurations on ImageNet.}.
 
 \subsection{LeNet}
 LeNet-5 \cite{lecun_gradient-based_1998} is a good network to start with: it
@@ -548,7 +590,7 @@ of tanh fucntions and MSE loss.
   handwriting recognition. LeNet has 2 convolutional and 3 fully connected
   layers making 5 parameterized layers. After the second convolutional layer,
   the $16\x 5\x 5$ pixel output is unravelled to a $400$ long vector. Image
-  taken from \cite{lecun_gradient-based_1998.}}
+  taken from \cite{lecun_gradient-based_1998}.}
   \label{fig:ch2:lenet}
 \end{figure}
 
@@ -611,7 +653,9 @@ popular modifications to the VGG networks:
     all spatial locations, whereas for localization it may be useful to keep
     this spatial information.
 \end{itemize}
-The new network was able to achieve 
+The new network was able to achieve state of the art results on CIFAR-10 and
+CIFAR-100 and competetive performance on ImageNet, while only use a fraction of
+the parameters of other networks.
 
 \subsection{Residual Networks}
   \begin{figure}[tb]
