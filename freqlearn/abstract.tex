@@ -33,28 +33,27 @@ transform.
 
 Our experiments show that \ldots \textbf{FINISH ME}
 
+% \section{A Summary of Choices}
+% As mentioned in the inspiration for this chapter, many filters that
+% have complex support in the pixel domain would have simple support in the
+% wavelet domain, but as the previous section showed, naively reparameterizing
+% things in a different domain may not afford us any benefit in the optimization
+% procedure.
 
-\section{A Summary of Choices}
-As mentioned in the inspiration for this chapter, many filters that
-have complex support in the pixel domain would have simple support in the
-wavelet domain, but as the previous section showed, naively reparameterizing
-things in a different domain may not afford us any benefit in the optimization
-procedure.
+% There are two possible ways we can try to leverage the wavelet domain for
+% learning: 
 
-There are two possible ways we can try to leverage the wavelet domain for
-learning: 
+% \begin{enumerate}
+  % \item We can reparameterize filters in the wavelet domain if we use nonlinear
+  % optimizers like ADAM, or $\ell_1$ regularization to impose sparsity. This is
+  % presented in \autoref{sec:ch6:reparameterization}.
+  % \item We can take wavelet transforms of the inputs and learn filters on the
+    % wavelet coefficients. We can also apply nonlinearities to the wavelet coefficients
+    % such as wavelet shrinkage. On the output of this, we have the choice of either
+    % staying in the wavelet domain or returning to the pixel domain with an
+    % inverse wavelet transform. This is presented in \autoref{sec:ch6:gainlayer}
+% \end{enumerate}
 
-\begin{enumerate}
-  \item We can reparameterize filters in the wavelet domain if we use nonlinear
-  optimizers like ADAM, or $\ell_1$ regularization to impose sparsity. This is
-  presented in \autoref{sec:ch6:reparameterization}.
-  \item We can take wavelet transforms of the inputs and learn filters on the
-    wavelet coefficients. We can also apply nonlinearities to the wavelet coefficients
-    such as wavelet shrinkage. On the output of this, we have the choice of either
-    staying in the wavelet domain or returning to the pixel domain with an
-    inverse wavelet transform. This is presented in \autoref{sec:ch6:gainlayer}
-\end{enumerate}
-
-This chapter explores both possible methods and the merits and drawbacks of
-each.
+% This chapter explores both possible methods and the merits and drawbacks of
+% each.
 

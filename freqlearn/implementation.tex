@@ -1,10 +1,10 @@
-\section{Implementation Details}
+\subsection{Implementation Details}
 
 Before analyzing its performance, we compare the implementation properties of
 our two new proposed layers (for the DWT and $\DTCWT$) to a standard
 convolutional layer.
 
-\subsection{Parameter Memory Cost}\label{sec:ch6:memory}
+\subsubsection{Parameter Memory Cost}\label{sec:ch6:memory}
 A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output channels
 and kernel size $L\x L$ has $L^2C_{l}C_{l+1}$ parameters, with $L=3$ or $L=5$
 common choices for the spatial size.
@@ -47,7 +47,7 @@ Note that using a second scale ($J=2$) with $1\x 1$ filters would increase
 \eqref{eq:ch6:memcost1} to $15C_lC_{l+1}$ and \eqref{eq:ch6:memcost2} to
 $25C_lC_{l+1}$.  
 
-\subsection{Activation Memory Cost}\label{sec:ch6:act_memory}
+\subsubsection{Activation Memory Cost}\label{sec:ch6:act_memory}
 A standard convolutional layer needs to save the activation $x^{(l)}$ to
 convolve with the backpropagated gradient $\dydx{L}{y^{(l+1)}}$ on the backwards
 pass (to give $\dydx{L}{w^{(l)}}$). For an input with $C_l$ channels of spatial
@@ -89,7 +89,7 @@ only need to save the $x^(l)$ coefficients and can calculate the $u$'s on the
 fly during the backwards pass. Note that a two scale $\DTCWT$ gain layer would
 still only require $4HWC_l$ floats.
 
-\subsection{Computational Cost}\label{sec:ch6:computation}
+\subsubsection{Computational Cost}\label{sec:ch6:computation}
 A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
 multiplies per input pixel (of which there are $C_{l}\x H\x W$).
 
@@ -128,7 +128,7 @@ have set $J=1$ and $k_{lp} = 3$ then the total cost for the gain layer is:
 \end{equation}
 This is marginally smaller than a $3\x 3$ convolutional layer.
 
-\subsection{Parameter Initialization}
+\subsubsection{Parameter Initialization}
 For both layer types we use the Glorot Initialization scheme \cite{glorot_understanding_2010}
 with $a=1$: 
 %

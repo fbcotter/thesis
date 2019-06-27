@@ -1,14 +1,13 @@
 \section{Wavelet Based Nonlinearities and Multiple Gain Layers}
 So far we have only considered doing the mixing operations in the wavelet
 domain. This is a good starting point, and it is nice to see that we can do
-apply the gain layer that
-preserve some of the nice properties of the $\DTCWT$. Let us call the layer
-considered so far a \textbf{first order gain layer}. Recall this is where a
-$\DTCWT$ is done, followed by a single linear convolution and then straight away
-returning to the pixel domain with the inverse $\DTCWT$. While it is good to see
-that it is possible to do and even achieves some benefit over a convolutional
-layer, the proposed layer \eqref{eq:ch6:end2end} can be implemented in the pixel domain
-as a single convolution.
+apply the gain layer that preserve some of the nice properties of the $\DTCWT$.
+Let us call the layer considered so far a \textbf{first order gain layer}.
+Recall this is where a $\DTCWT$ is done, followed by a single linear convolution
+and then straight away returning to the pixel domain with the inverse $\DTCWT$.
+While it is good to see that it is possible to do and even achieves some benefit
+over a convolutional layer, the proposed layer \eqref{eq:ch6:end2end} can be
+implemented in the pixel domain as a single convolution.
 
 It would be particularly interesting if we could find a sensible nonlinearity to
 do in the wavelet domain. This would mean it would be no longer possibile to do the

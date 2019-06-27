@@ -64,26 +64,26 @@ there may be a problem in using a DWT, but proceed nonetheless.
 For each subband in our $J$ scale system, we introduce a gain term $\mathtt{g}$. Let us specify our
 input $\mathtt{u}$ has $C_l$ channels, and we would like our output $\mathtt{v}$
 to have $C_{l+1}$ channels, then $\mathtt{g}$ is made up of:
-\begin{eqnarray}
-  \mathtt{g}_{lp} &\in& \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:dwt_gstart} \\
-  \mathtt{g}_{1,1} &\in& \reals[C_{l+1}\x C_l\x k_{1}\x k_{1}] \\
-  \mathtt{g}_{1,2} &\in& \reals[C_{l+1}\x C_l\x k_{1}\x k_1] \\
-      & \vdots &\\
-  \mathtt{g}_{J,3} &\in& \reals[C_{l+1}\x C_l\x k_J\x k_J] \label{eq:ch6:dwt_gend}
-\end{eqnarray}
+\begin{align}
+  \mathtt{g}_{lp} &\in \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:dwt_gstart} \\
+  \mathtt{g}_{1,1} &\in \reals[C_{l+1}\x C_l\x k_{1}\x k_{1}] \\
+  \mathtt{g}_{1,2} &\in \reals[C_{l+1}\x C_l\x k_{1}\x k_1] \\
+      & \vdots  \nonumber \\
+  \mathtt{g}_{J,3} &\in \reals[C_{l+1}\x C_l\x k_J\x k_J] \label{eq:ch6:dwt_gend}
+\end{align}
 %
 Note that we have allowed for different kernel spatial sizes for the lowpass and for
 each bandpass scale $\mathtt{g}_j$. This is to allow for the flexibility of
 putting more emphasis on certain frequency areas if desired.
 
 With these gains, we define $\mathtt{v}=\mathtt{Gu}$ to be:
-\begin{eqnarray}
-  \mathtt{v}_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{lp}[c, \nn] \conv \mathtt{g}_{lp}[f, c, \nn] \\
-  \mathtt{v}_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{1,1}[c, \nn] \conv \mathtt{g}_{1,1}[f, c, \nn] \\
-  \mathtt{v}_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{1,2}[c, \nn] \conv \mathtt{g}_{1,2}[f, c, \nn] \\
-                  & \vdots & \\
-  \mathtt{v}_{J,3}[f, \nn] &= & \sum_{c=0}^{C_l-1} \mathtt{u}_{J,3}[c, \nn] \conv \mathtt{g}_{J,3}[f, c, \nn] 
-\end{eqnarray}
+\begin{align}
+  \mathtt{v}_{lp}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{lp}[c, \nn] \conv \mathtt{g}_{lp}[f, c, \nn] \\
+  \mathtt{v}_{1,1}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{1,1}[c, \nn] \conv \mathtt{g}_{1,1}[f, c, \nn] \\
+  \mathtt{v}_{1,2}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{1,2}[c, \nn] \conv \mathtt{g}_{1,2}[f, c, \nn] \\
+                  & \vdots  \nonumber \\
+  \mathtt{v}_{J,3}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{J,3}[c, \nn] \conv \mathtt{g}_{J,3}[f, c, \nn] 
+\end{align}
 %
 I.e., we do independent mixing at each of the different subbands. For $1\x 1$
 kernels, this is simply a matrix multiply of the wavelet coefficients. This is shown
@@ -176,7 +176,7 @@ single number we only need to calculate $\left.\Delta G(z)\right\rvert_{z=0}$.
 
 \input{\path/figure2}
  
-\subsection{The $\DTCWT$ Gain Layer}
+\subsubsection{The $\DTCWT$ Gain Layer}
 
 The $\DTCWT$ gain layer is the same in principle to the action of the DWT gain
 layer, but due to the different properties of the two transforms, the
@@ -188,30 +188,30 @@ dimension.
 To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
 output channels, we introduce the learnable filters:
 %
-\begin{eqnarray}
-  g_{lp} &\in& \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:glp} \\
-  g_{1,1} &\in& \complexes[C_{l+1}\x C_l\x k_1\x k_1] \\
-  g_{1,2} &\in& \complexes[C_{l+1}\x C_l\x k_1\x k_1] \\
-      & \vdots &\\
-  g_{J,6} &\in& \complexes[C_{l+1}\x C_l\x k_J\x k_J]  \label{eq:ch6:gj6}
-\end{eqnarray}
+\begin{align}
+  g_{lp} &\in \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:glp} \\
+  g_{1,1} &\in \complexes[C_{l+1}\x C_l\x k_1\x k_1] \\
+  g_{1,2} &\in \complexes[C_{l+1}\x C_l\x k_1\x k_1] \\
+      & \vdots \nonumber \\
+  g_{J,6} &\in \complexes[C_{l+1}\x C_l\x k_J\x k_J]  \label{eq:ch6:gj6}
+\end{align}
 %
 where $k, k$ are the sizes of the mixing kernels. These could be $1\x 1$ for
 simple gain control, or could be larger, say $3\x 3$, to do more complex
 filtering on the subbands. 
 
 With these gains we define $v = Gu$ to be:
-\begin{eqnarray}
-  v_{lp}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
-  v_{1,1}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
-  v_{1,2}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
-                  & \vdots & \\
-  v_{J,6}[f, \nn] &= & \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
-\end{eqnarray}
+\begin{align}
+  v_{lp}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
+  v_{1,1}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
+  v_{1,2}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
+                  & \vdots \nonumber \\
+  v_{J,6}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
+\end{align}
 
 Note that for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
 b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$. This is shown 
-in \autoref{fig:ch6:dtcwt_blk_diagram}.
+in Figure~\autoref{fig:ch6:dtcwt_blk_diagram}.
 
 \subsubsection{The Output}
 Unlike the DWT gain layer, the $\DTCWT$ gain layer can achieve aliasing
