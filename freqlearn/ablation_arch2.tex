@@ -1,0 +1,36 @@
+\begin{table}[t]
+  \renewcommand{\arraystretch}{1.4}
+  % \centering
+  \mycaption{Ablation Base Architecture}{Reference architecture
+  used for experiments on CIFAR-10, CIFAR-100 and Tiny ImageNet. The activation
+  size rows are offset from the layer description rows to convey the input and
+  output shapes. Unlike \autoref{tab:ch5:cifar_tiny_arch}, this architecture
+  is shallower and uses $5\x 5$ convolutional
+  kernels as a base. 
+  $C$ is a hyperparameter that controls the network width, we use
+  $C=64$ for our initial tests.}
+  \label{tab:ch6:ablation_arch}
+  {
+    \begin{tabular}{l l}
+      \toprule
+      Activation Size & Layer Name + Info \\
+      \midrule
+      \begin{tabular}{@{}l@{}} % This supresses the space on the left and right
+        $3\x 32\x 32$ \\ $C\x 32\x 32$ \\ $C \x 16\x 16$ \\ $2C\x 16\x 16$ \\
+        $2C\x 8 \x 8$ \\ $4C\x 8\x 8$ \\ $4C\x 1\x 1$ \\ $10$, $100$ 
+      \end{tabular} &
+      \begin{tabular}{@{}l@{}}
+        conv1, $w \in \reals[C\x 3\x 5\x 5]$ \\       
+        pool1, max pool $2\x 2$ \\
+        conv2, $w \in \reals[2C\x C\x 5\x 5]$ \\ %, $\F{stride} = 2$\\       
+        pool2, max pool $2\x 2$ \\
+        conv3, $w \in \reals[4C\x 2C\x 5\x 5]$\\ % , $\F{stride} = 2$\\       
+        avg, $8\x 8$ average pool \\
+        fc1, fully connected 
+      \end{tabular}\\
+      \bottomrule
+    \end{tabular}
+  }
+\end{table}
+
+
