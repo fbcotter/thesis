@@ -54,9 +54,9 @@ softmax function, defined by:
 If we let $\hat{y}_i = \sigma_i(f(x, \theta))$, this makes \eqref{eq:ch2:logistic}:
 \begin{eqnarray}\label{eq:ch2:classification}
   p_{model}(y|x, \theta) &=& \F{Cat}(y;\ \sigma(f(x, \theta))) \\
-                         &=& \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right)^{\mathbb{I}(y^{(n)}_c = 1)}
+                         &=& \prod_{c=1}^C \prod_{n=1}^N \left(\hat{y}_c^{(n)}\right)^{\indic(y^{(n)}_c = 1)}
 \end{eqnarray}
-where $\mathbb{I}(x)$ is the indicator function. As $y^{(n)}_c$ is either 0 or
+where $\indic(x)$ is the indicator function. As $y^{(n)}_c$ is either 0 or
 1, we remove the indicator function. Maximizing this likelihood to
 find the ML estimate for $\theta$:
 \begin{eqnarray}

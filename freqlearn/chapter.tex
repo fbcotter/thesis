@@ -184,10 +184,10 @@ can stay in the wavelet domain and apply a wavelet based nonlinearity $\sigma_w$
 to give $u^{(l+1)}$. Ultimately we would like to explore
 architecture design with arbitrary sections in the wavelet and pixel domain, but
 to do this we must first explore: 
-\begin{itemize}
+\begin{enumerate}
   \item How effective $G$ is at replacing $H$.
   \item How effective $\sigma_w$ is at replcaing $\sigma$.
-\end{itemize}
+\end{enumerate}
 
 \subsection{The $\DTCWT$ Gain Layer}
 To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
@@ -435,7 +435,7 @@ common choices for the spatial size.
 
 We must choose the spatial sizes of both the lowpass and bandpass
 mixing kernels. In our work, we set the spatial support of the lowpass 
-filters for the $\DTCWT$ gain layer to be $1\x 1$ and the support of the 
+filters for the $\DTCWT$ gain layer to be $k\x k$ (with $k=1,3,5$) and the support of the 
 complex bandpass filters to be $1\x 1$.
 %
 Further, we typically limit ourselves initially to only considering a single scale
@@ -484,7 +484,7 @@ the lowpass was downsampled in the previous chapter, requiring only
 $\frac{1}{4}HWC_l$, whereas we keep the full sample rate costing $HWC_l$.
 
 If memory is an issue and the computation of the $\DTCWT$ is very fast, then we
-only need to save the $x^(l)$ coefficients and can calculate the $u$'s on the
+only need to save the $x^{(l)}$ coefficients and can calculate the $u$'s on the
 fly during the backwards pass. Note that a two scale $\DTCWT$ gain layer would
 still only require $4HWC_l$ floats.
 
@@ -527,6 +527,23 @@ for the wavelet gain layer. This is the first objective in
 \autoref{sec:ch6:learning}, comparing $G$ to $H$.
 
 \subsection{CNN activation regression}\label{sec:ch6:regression}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\imgpath/AlexNet_layer1_regression.pdf}
+  \mycaption{Mean Squared Error for Conv and Wavelet Gain Layer Regression with
+  AlexNet first layer filters}{After minimization of \eqref{eq:ch6:conv_regression} and
+  \eqref{eq:ch6:gain_regression}, this plot shows the final MSE score compared
+  to the number of learnable parameters. The original conv layer has spatial
+  support $11\x 11$, and the equivalent number of parameters is shown as a blue
+  dotted line. The four points labelled `conv$n$' correspond to filters with
+  $n\x n$ spatial support. The four points labelled `gl$abc$' correspond to two
+  scale gain layers with $a\x a$ support in the lowpass, $b\x b$ spatial support
+  in the first scale, and $c\x c$ spatial support in the second scale. The gain
+  layer can regress to the AlexNet filters quite capably. In this example, it is
+  important to have at least $3\x3$ lowpass support for the gain layer, and the
+  second scale coefficients are more important than the first scale.}
+  \label{fig:ch6:gainlayer_regression}
+\end{figure}
 One of the early inspriations for using wavelets in CNNs was the visualizations
 of the first layer filters learned in AlexNet. These $11\x 11$ colour filters
 (see \autoref{fig:}) look very much like a 2-D oriented wavelet transform.
@@ -540,9 +557,9 @@ and our gain layer $G$. Let $\lnorm{H}{2}$, $\lnorm{G}{2}$ be the $\ell_2$ norm
 of the weights for each layer. We would like assume that we do not have direct
 access to $H_0$ but only the convolved outputs $Y=H_0 X$. Then, we would like to solve:
 \begin{align}
-  & \argmin_{H}\ (Y - HX)^2 + \lambda \lnorm{H}{2}^2 
+  & \argmin_{H}\ (Y - HX)^2 + \frac{\lambda}{2} \lnorm{H}{2}^2 
   \condition{s.t. $h[c, \nn] = 0,\ \forall \nn \notin \mathcal{R}$} \label{eq:ch6:conv_regression}\\
-  & \argmin_{G}\ (Y - W^{-1}GWX)^2 + \lambda \lnorm{G}{2}^2 
+  & \argmin_{G}\ (Y - W^{-1}GWX)^2 + \frac{\lambda}{2} \lnorm{G}{2}^2 
   \condition{s.t. $g_{j,k}[c, \nn] = 0,\ \forall \nn \notin \mathcal{R'}$} \label{eq:ch6:gain_regression}
 \end{align}
 for some support regions $\mathcal{R},\mathcal{R'}$. E.g. $\mathcal{R}$ could be a $3\x3$ or $5\x5$ 
@@ -566,24 +583,6 @@ than the first scale -- see the difference between gl310 and gl301, two
 instances that have the same number of parameters, but gl310 has $g_1$ with non-zero 
 support, and gl301 has $g_2$ with non-zero support.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=\textwidth]{\imgpath/AlexNet_layer1_regression.pdf}
-  \mycaption{Mean Squared Error for Conv and Wavelet Gain Layer Regression with
-  AlexNet first layer filters}{
-  After minimization of \eqref{eq:ch6:conv_regression} and
-  \eqref{eq:ch6:gain_regression}, this plot shows the final MSE score compared
-  to the number of learnable parameters. The original conv layer has spatial
-  support $11\x 11$, and the equivalent number of parameters is shown as a blue
-  dotted line. The four points labelled `conv$n$' correspond to filters with
-  $n\x n$ spatial support. The four points labelled `gl$abc$' correspond to two
-  scale gain layers with $a\x a$ support in the lowpass, $b\x b$ spatial support
-  in the first scale, and $c\x c$ spatial support in the second scale. The gain
-  layer can regress to the AlexNet filters quite capably. In this example, it is
-  important to have at least $3\x3$ lowpass support for the gain layer, and the
-  second scale coefficients are more important than the first scale.}
-  \label{fig:ch6:gainlayer_regression}
-\end{figure}
 
 \subsection{Ablation Studies}
 \autoref{fig:ch6:gainlayer_regression} is a useful guide on how the gainlayer
@@ -594,36 +593,220 @@ MSEs. Additionally gl310, gl301, and conv5 all achieve similar MSEs.
 
 Most modern CNNs are built with $3\x 3$ kernels, which may not well be the best
 use for the gain layer. For this reason, we deviate from the ablation study done
-in the previous chapter, and build a shallower network with larger kernel sizes,
-described in \autoref{tab:ch6:ablation_arch}.
-
-We also include the experiment results for a deeper network with smaller kernels
-in \autoref{app:ch6:more_results}.
-
-\input{\path/ablation_arch2}
+in the previous chapter, and build a shallower network with larger kernel sizes
+\footnote{We also include the experiment results for a deeper network with
+smaller kernels in \autoref{app:ch6:more_results}.}.
 
 \subsubsection{Large Kernel Ablation}
-Although the gain layers with no gain in the first scale and
-gain in the second scale (gl301, gl501) performed better than gl310 and gl510 in
-\autoref{sec:ch6:regression}, we saw them perform consinstently worse in the
-following ablation studies. For ease of presentation, we have shown only the
-results from the single scale gain layer.
+\input{\path/ablation_arch2}
+\renewcommand{\_}{\textscale{.6}{\textunderscore}}
+
+In this experiment, we build a 3 layer
+CNN with $5\x 5$ convolutional kernels, described in \autoref{tab:ch6:ablation_arch}.
+To help differentiate with the small kernel network introudeced in the 
+ablation study of the previous chapter, we have labelled the convolutions here
+`conv1', `conv2' and `conv3' (as opposed to `convA', `convB', `convC',
+\ellipsis).
+
+We then test the difference in accuracy achieved by replacing each of the three
+convolution layers with gl310\footnote{Although the gain layers with no gain in
+the first scale and gain in the second scale performed better than those with
+gain gl310 and gl510 in \autoref{sec:ch6:regression}, we saw them perform
+consinstently worse in the following ablation studies. For ease of presentation,
+we have shown only the results from the single scale gain layer.}. 
+On the two CIFAR datasets, we train for 120 epochs, decaying learning rate by a
+factor of 0.2 at 60, 80 and 100 epochs, and for the Tiny ImageNet dataset, we
+train for 45 epochs, decaying learning rate at 18, 30 and 40 epochs. The
+experiment code is available at \cite{}.
+
+The results of various swaps for our three datasets are shown in
+\autoref{fig:ch6:gl_results}.
+Note that as before, swapping `conv1' with a gain layer is marked by `gain1',
+and swapping the first two conv layers with two gain layers is marked by
+`gain1\_2' and so forth.  
+
+The results are not too promising. Across all three datasets, changing a
+convolutional layer for a gain layer of similar number of parameters
+results in a small decrease in accuracy at all depths, and the more layers
+swapped out the more this degradation compounds.
 
 \begin{figure}[t]
   \centering
-  % \subfloat[CIFAR-10]{%
-    % \includegraphics[width=\textwidth]{\imgpath/cifar10_gainlayer.pdf}
-    % \label{fig:ch6:cifar10_gl}
-  % }\\
+  \subfloat[CIFAR-10]{%
+    \includegraphics[width=\textwidth]{\imgpath/cifar10_gainlayer_large.pdf}
+    \label{fig:ch6:cifar10_gl}
+  }\\
   \subfloat[CIFAR-100]{%
     \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_large.pdf}
     \label{fig:ch6:cifar100_gl}
+  }\\
+  \subfloat[Tiny ImageNet]{%
+    \includegraphics[width=\textwidth]{\imgpath/ti_gainlayer_large.pdf}
+    \label{fig:ch6:ti_gl}
   }
-  % \subfloat[Tiny ImageNet]{%
-    % \includegraphics[width=0.8\textwidth]{\imgpath/ti_gainlayer.pdf}
-    % \label{fig:ch6:ti_gl}
-  % }\\
-  \mycaption{Small kernel ablation results CIFAR}{}
+  \mycaption{Large kernel ablation results CIFAR and Tiny ImageNet}{}
   \label{fig:ch6:gl_results}
 \end{figure}
+
+\subsection{Network Analysis}
+It is nonetheless interesting to see that a network with only gain layers
+(`gain1\_2\_3') can get accuracies within a couple of percentage points of a
+purely convolutional architecture. 
+
+In this section, we look at some of the properties of the `gain1\_2\_3' for
+CIFAR-100 and compare them to the reference architecture.
+
+\subsubsection{Bandpass Coefficients}
+When analyzing the `gain1\_2\_3' architecture, the most noticeable thing is the
+distribution of the bandpass gain magnitudes. \autoref{fig:ch6:bp_dists} shows
+these for the second gain layer, gain2. Of the $64\x 128=8192$ complex
+coefficients most have very small magnitude, in particular the diagonal wavelet
+gains. This raises an interesting question -- how many of these coefficients are
+important for classification? What if we were to apply a hard thresholding
+scheme to the weights, would setting some of these values to 0 impact the
+entire network accuracy? 
+
+We measure the dropoff in accuracy when a hard threshold $t$ is applied to the 
+bandpass gains $g_1$ for the three gain layers of `gain1\_2\_3'. The resulting sparsity
+of each layer and the network performance is shown in \autoref{fig:ch6:threshs}.
+This figure shows that despite the high cost of the bandpass gains --
+$12C_{l}C_{l+1}$ for a $1\x1$ gain, very few of these need to be nonzero.
+
+\begin{figure}[t]
+  \centering
+  \vspace{-0.5cm}
+  \subfloat[Bandpass Magnitude Distributions]{
+    \includegraphics[width=\textwidth]{\imgpath/complex_mag_dists.pdf}
+    \label{fig:ch6:bp_dists}
+  }\\
+  \subfloat[Accuracy Dropoff from Thresholding]{
+    \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_threshs.pdf}
+    \label{fig:ch6:threshs}
+    }
+    \mycaption{Bandpass Gain Properties}{\subref{fig:ch6:bp_dists} shows the
+    distribution of the magnitudes for bandpass coefficients for the second
+    layer (gain2). Each orientation has $128\x 64=8192$ complex weights, most of
+    which are close to or near 0. The $45\degs$ and $135\degs$ weights have many 
+    fewer large coefficients. \subref{fig:ch6:threshs} shows the increase in
+    sparsity and dropoff in classification accuracy when the weights are
+    hard-thresholded with value $t$ (same threshold applied to all 3 layers).
+    For a threshold value of $t=0.4$, 80\% of the weights in gain1 are 0, 99\%
+    of the weights in gain2 are 0, 99.98\% of the weights in gain3 are 0 and
+    classification accuracy is 0.5\% lower than the non-thresholded accuracy.}
+  \label{fig:ch6:bp_info}
+\end{figure}
+
+\subsubsection{DeConvolution and Filter Sensitivity}
+
+\section{Wavelet Based Nonliearities}
+Returning to the goals from \autoref{sec:ch6:learning}, the experiments from the
+previous section have shown that while it is possible to use a wavelet gain
+layer ($G$) in place of a convolutional layer ($H$), this may come with a small
+performance penalty. Ignoring this effect for the moment, in this section, we
+continue with our investigations into learning in the wavelet domain. In
+particular, is it possible to replace a pixel domain nonlinearity $\sigma$ with
+a wavelet based one $\sigma_w$?
+
+But what sensible nonlinearity to use? Two particular options are good initial
+candidates:
+\begin{enumerate}
+  \item The ReLU: this is a mainstay of most modern neural networks and has
+    proved invaluable in the pixel domain. Perhaps its sparsifying properties
+    will work well on wavelet coefficients too. 
+  \item Thresholding: a technique commonly applied to wavelet
+    coefficients for denoising and compression. Many proponents of compressed
+    sensing and dictionary learning even like to compare soft thresholding to a
+    two sided ReLU \cite{papyan_theoretical_2018, papyan_convolutional_2016}.
+\end{enumerate}
+
+In this section we will look at each, see if they add to the gain
+layer, and see if they open the possibility of having multiple layers in the
+wavelet domain. 
+
+\subsection{ReLUs in the Wavelet Domain}
+Applying the ReLU to the real lowpass coefficients is not difficult, but it does
+not generalize so easily to complex coefficients. The simplest option is to apply
+it independently to the real and imaginary coefficients, effectively only
+selecting one quadrant of the complex plane:
+\begin{align}
+  u_{lp} &= \F{max}(0,\ v_{lp}) \\
+  u_{j} &= \F{max}(0,\ \real{v_{j}}) + j\F{max}(0,\ \imag{v_j}) 
+\end{align}
+
+Another option is to apply it to the magnitude of the bandpass coefficients. Of
+course these are all strictly positive so the ReLU on its own would not do
+anything. However, they can be arbitrarily scaled and shifted by using a batch
+normalization layer. Then the magnitude could shift to (invalid) negative
+values, which could then be rectified by the ReLU. This also works nicely on the
+lowpass coefficients:
+%
+\begin{align}
+  u_{lp} &= \F{max}(0,\ BN(v_{lp})) \\
+  \theta_j &= \arctan \left(\frac{\imag{v_j}}{\real{v_{j}}} \right) \\
+  r_j &= \sqrt{\real{v_j}^2 + \imag{v_j}^2} \\
+  r_j' &= \max (0, BN(r_j)) = \max(0, \gamma \frac{r_j-\mu_r}{\sigma_r} + \beta) \label{eq:ch6:relu_bp}\\
+  u_j &= r_j' e^{j\theta_j}
+\end{align}
+%
+\subsection{Thresholding}
+The soft and hard thresholding operators for a threshold $t>0$ are defined as:
+\begin{align}
+  \mathcal{H}(x, t) &= \indic(|x| > t)x \\
+  \mathcal{S}(x, t) &= \max(0, |x| - t) \label{eq:ch6:relu_st}
+\end{align}
+Note that \eqref{eq:ch6:relu_st} is very similar to \label{eq:ch6:relu_bp}. We
+can rewrite \eqref{eq:ch6:relu_bp} by taking the strictly positive terms
+$\gamma$, $\sigma$ outside of the $\max$ operator:
+\begin{align}
+  r_j' &= \max(0, \gamma \frac{r_j-\mu}{\sigma} + \beta) \\
+       &= \frac{\gamma}{\sigma_r}\max\left(0, r_j - \mu_r + \frac{\sigma_r\beta}{\gamma}\right) 
+\end{align}
+then if $t' = \mu_r - \frac{\sigma_r\beta}{\gamma} > 0$ we have a soft shrinkage
+function with threshold $t'$ scaled by a factor $\frac{\gamma}{\sigma_r}$. 
+
+\subsection{Non-Linearity Experiments}
+
+\subsection{Non-Linearity}
+  %% Define the variables we will use in this section
+\renewcommand{\SigIn}{w}
+\renewcommand{\SigOut}{y}
+
+	\begin{figure}[!h]
+    \centering
+    \input{\imgpath/activation}
+	\end{figure}
+	
+As a first attempt at a non-linearity, we will try a modified L2-norm. In 
+particular, for input $\SigIn$ (coming from the convolutional layer), the
+output $\SigOut$ is:
+\begin{equation}
+	\SigOut = g(\SigIn, b) = \sqrt{\max(0, \SigIn_R^2 + \SigIn_I^2 - b^2)}
+\end{equation}
+This is an attempt to modify the ReLU nonlinearity by rotating it
+around the complex plane. Really this is more like the complex generalization
+of the function $y = \max(0, |x| -b)$, as the ReLU rejects half of the real
+line, whereas this function only rejects small magnitude values. I justify
+this like so:
+\begin{itemize}
+  \item If a patch of pixels strongly correlates with
+    a filter\footnote{really this should read `strongly correlates with the
+    mirror image of a filter', but the meaning is the same}, it will
+    produce a large output. 
+  \item A large output will be caught by the ReLU and `passed' through, with
+    a small subtraction penalty, $b$.
+  \item If a patch of pixels does not correlate with a filter, it produces
+    a small output, which gets clipped to 0 by the ReLU.
+  \item If a patch of pixels negatively correlates with a filter, say if we
+    multiply a strongly correlated input with -1, then
+    \textbf{this should be distinguishable from zero correlation}. A way to
+    do this would be use a soft limiting function ($y=\min(0,x+b)
+    + \max(0,x-b)$), or the rectified version of the soft limiter
+    ($y=\max(0,|x| - b)$.
+  \item The only downside to these non-linearities is that they theoretically
+    `fire' on much more of the input, which could mean a dramatic change in
+    network behaviour, but really it shouldn't be so drastically different.
+    We can verify this by measuring the probability distribution at the 
+    input to non-linearities in a real valued CNN. It is easy to show that
+    they are roughly normally distributed.
+\end{itemize}
 
