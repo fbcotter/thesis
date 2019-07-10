@@ -302,10 +302,10 @@ the synthesis filters $S = S_r + jS_i$ (these are normally called $H$ and
 $G$, but we keep those letters reserved for the CNN and gain layer filters). The
 gain for a specific subband previously was called $g_{j,k}$ but we here refer to
 it simply as $G = G_r + jG_i$. The output of this layer is:
-\begin{dmath}\label{eq:ch6:dtcwt_fwd}
-  Y(z) = \frac{2}{M}X(z) \left[ & G_r(z^{M}) \left(A_r(z)S_r(z) + A_i(z)S_i(z)\right) \\
-   + & G_i(z^{M}) \left(A_r(z)S_i(z) - A_i(z)S_r(z)\right) \right] 
-\end{dmath}
+\begin{align}\label{eq:ch6:dtcwt_fwd}
+  Y(z) = \frac{2}{M}X(z) \left[\vphantom{z^{M}} \right. &  G_r(z^{M}) \left(A_r(z)S_r(z) + A_i(z)S_i(z)\right) \nonumber \\
+  +  & \left. G_i(z^{M}) \left( A_r(z)S_i(z) - A_i(z)S_r(z)\right) \right] 
+\end{align}
 See \autoref{app:ch6:dtcwt} for the derivation. The $G_r$ term modifies the
 subband gain $A_rS_r + A_iS_i$ and the $G_i$ term modifies its Hilbert Pair
 $A_rS_i - A_iS_r$. \autoref{fig:ch6:dtcwt_bands} show the contour plots for the
@@ -601,6 +601,30 @@ smaller kernels in \autoref{app:ch6:more_results}.}.
 \input{\path/ablation_arch2}
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
 
+\begin{figure}[ht]
+  \centering
+  \subfloat[CIFAR-10]{%
+    \includegraphics[width=\textwidth]{\imgpath/cifar10_gainlayer_large.pdf}
+    \label{fig:ch6:cifar10_gl}
+  }\\
+  \subfloat[CIFAR-100]{%
+    \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_large.pdf}
+    \label{fig:ch6:cifar100_gl}
+  }\\
+  \subfloat[Tiny ImageNet]{%
+    \includegraphics[width=\textwidth]{\imgpath/ti_gainlayer_large.pdf}
+    \label{fig:ch6:ti_gl}
+  }
+  \mycaption{Large kernel ablation results CIFAR and Tiny ImageNet}{Results
+  showing the accuracies obtained by swapping combinations of the three conv
+  layers in the reference architecture from \autoref{tab:ch6:ablation_arch} with
+  gain layers. Results shown are averages of 3 runs with the standard deviations
+  shown as dark blue lines. These results show that changing a convolutional
+  layer for a gain layer is possible, but comes with a small accuracy cost which 
+  compounds as more layers are swapped.}
+  \label{fig:ch6:gl_results}
+\end{figure}
+
 In this experiment, we build a 3 layer
 CNN with $5\x 5$ convolutional kernels, described in \autoref{tab:ch6:ablation_arch}.
 To help differentiate with the small kernel network introudeced in the 
@@ -630,23 +654,6 @@ convolutional layer for a gain layer of similar number of parameters
 results in a small decrease in accuracy at all depths, and the more layers
 swapped out the more this degradation compounds.
 
-\begin{figure}[t]
-  \centering
-  \subfloat[CIFAR-10]{%
-    \includegraphics[width=\textwidth]{\imgpath/cifar10_gainlayer_large.pdf}
-    \label{fig:ch6:cifar10_gl}
-  }\\
-  \subfloat[CIFAR-100]{%
-    \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_large.pdf}
-    \label{fig:ch6:cifar100_gl}
-  }\\
-  \subfloat[Tiny ImageNet]{%
-    \includegraphics[width=\textwidth]{\imgpath/ti_gainlayer_large.pdf}
-    \label{fig:ch6:ti_gl}
-  }
-  \mycaption{Large kernel ablation results CIFAR and Tiny ImageNet}{}
-  \label{fig:ch6:gl_results}
-\end{figure}
 
 \subsection{Network Analysis}
 It is nonetheless interesting to see that a network with only gain layers
@@ -676,13 +683,14 @@ $12C_{l}C_{l+1}$ for a $1\x1$ gain, very few of these need to be nonzero.
   \centering
   \vspace{-0.5cm}
   \subfloat[Bandpass Magnitude Distributions]{
-    \includegraphics[width=\textwidth]{\imgpath/complex_mag_dists.pdf}
+    \includegraphics[width=.9\textwidth]{\imgpath/complex_mag_dists.pdf}
     \label{fig:ch6:bp_dists}
-  }\\
+    }\\\vspace{-0.3cm}
   \subfloat[Accuracy Dropoff from Thresholding]{
     \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_threshs.pdf}
     \label{fig:ch6:threshs}
     }
+    % \mycaption{}{}
     \mycaption{Bandpass Gain Properties}{\subref{fig:ch6:bp_dists} shows the
     distribution of the magnitudes for bandpass coefficients for the second
     layer (gain2). Each orientation has $128\x 64=8192$ complex weights, most of
@@ -730,83 +738,193 @@ it independently to the real and imaginary coefficients, effectively only
 selecting one quadrant of the complex plane:
 \begin{align}
   u_{lp} &= \F{max}(0,\ v_{lp}) \\
-  u_{j} &= \F{max}(0,\ \real{v_{j}}) + j\F{max}(0,\ \imag{v_j}) 
+  u_{j} &= \F{max}(0,\ \real{v_{j}}) + j\F{max}(0,\ \imag{v_j}) \label{eq:ch6:relu_bp}
 \end{align}
 
 Another option is to apply it to the magnitude of the bandpass coefficients. Of
 course these are all strictly positive so the ReLU on its own would not do
 anything. However, they can be arbitrarily scaled and shifted by using a batch
 normalization layer. Then the magnitude could shift to (invalid) negative
-values, which could then be rectified by the ReLU. This also works nicely on the
-lowpass coefficients:
-%
+values, which could then be rectified by the ReLU. %
 \begin{align}
-  u_{lp} &= \F{max}(0,\ BN(v_{lp})) \\
   \theta_j &= \arctan \left(\frac{\imag{v_j}}{\real{v_{j}}} \right) \\
   r_j &= \sqrt{\real{v_j}^2 + \imag{v_j}^2} \\
-  r_j' &= \max (0, BN(r_j)) = \max(0, \gamma \frac{r_j-\mu_r}{\sigma_r} + \beta) \label{eq:ch6:relu_bp}\\
+  r_j' &= \max (0,\ BN(r_j)) = \max(0,\ \gamma \frac{r_j-\mu_r}{\sigma_r} + \beta) \label{eq:ch6:magrelu_bp}\\
   u_j &= r_j' e^{j\theta_j}
 \end{align}
+This also works nicely on the lowpass coefficients:
+\begin{equation}
+  u_{lp} &= \F{max}(0,\ BN(v_{lp})) \label{eq:ch6:bnrelu_lp}
+\end{equation}
 %
 \subsection{Thresholding}
 The soft and hard thresholding operators for a threshold $t>0$ are defined as:
 \begin{align}
   \mathcal{H}(x, t) &= \indic(|x| > t)x \\
-  \mathcal{S}(x, t) &= \max(0, |x| - t) \label{eq:ch6:relu_st}
+  \mathcal{S}(x, t) &= \sgn(x)\max(0,\ |x| - t)  \\
+                    &= \frac{x}{|x|}\max(0,\ |x|-t) \label{eq:ch6:relu_st}
 \end{align}
-Note that \eqref{eq:ch6:relu_st} is very similar to \label{eq:ch6:relu_bp}. We
-can rewrite \eqref{eq:ch6:relu_bp} by taking the strictly positive terms
+Note that \eqref{eq:ch6:relu_st} is very similar to \eqref{eq:ch6:magrelu_bp} as $r_j \geq 0$. We
+can rewrite \eqref{eq:ch6:magrelu_bp} by taking the strictly positive terms
 $\gamma$, $\sigma$ outside of the $\max$ operator:
 \begin{align}
   r_j' &= \max(0, \gamma \frac{r_j-\mu}{\sigma} + \beta) \\
        &= \frac{\gamma}{\sigma_r}\max\left(0, r_j - \mu_r + \frac{\sigma_r\beta}{\gamma}\right) 
 \end{align}
-then if $t' = \mu_r - \frac{\sigma_r\beta}{\gamma} > 0$ we have a soft shrinkage
-function with threshold $t'$ scaled by a factor $\frac{\gamma}{\sigma_r}$. 
+then if $t' = \mu_r - \frac{\sigma_r\beta}{\gamma} > 0$, doing batch
+normalization followed by a ReLU on the magnitude of the coefficients is the
+same as soft shrinkage with threshold $t'$, scaled by a factor
+$\frac{\gamma}{\sigma_r}$.  The same analogy does not apply to the lowpass
+coefficients, as $v_{lp}$ is not strictly positive. 
+
+To get strict soft or hard thresholding for the low and bandpass coefficients,
+we have the option of learning the threshold $t$ or setting it to achieve a
+desired sparsity level. We can do the latter by keeping a track of the moments
+of the activations with an exponential moving average and finding quantiles by
+assuming the distribution of the activations. For the bandpass coefficients,
+the activations very nearly follow an exponential distribution. The lowpass
+coefficients are a bit more varied, following a generalized Gaussian
+distribution (GGD) with shape parameter $\beta$ ranging from 0.7 for the earlier
+layers to 1.3 for the later layers.
 
 \subsection{Non-Linearity Experiments}
+Taking the same `gain1\_2\_3' architecture used for CIFAR-100, we combine the
+action of the gain layer with the pixel nonlinearity into one bigger layer
+dubbed a `WaveLayer', described in \autoref{alg:ch6:wavelayer}. In the wave
+layer, we have 3 different nonliearities: the pixel nonliearity, the lowpass and
+the bandpass.
 
-\subsection{Non-Linearity}
-  %% Define the variables we will use in this section
-\renewcommand{\SigIn}{w}
-\renewcommand{\SigOut}{y}
+For these experiments, we test over a grid of possible options for these three
+functions:
+\begin{table}[h!]
+  \centering
+\begin{tabular}{l l l l l l l}
+  \toprule
+  Nonlinearity & \hphantom{abc} & \multicolumn{5}{c}{Values} \\
+  \midrule
+  Pixel && None & BN+ReLU \\
+  Lowpass && None & ReLU & BN+ReLU & $\mathcal{S}$ & $\mathcal{H}$  \\
+  Bandpass && None & ReLU & BN+MagReLU & $\mathcal{S}$ & $\mathcal{H}$ 
+  \\\bottomrule
+\end{tabular}
+\end{table}
 
-	\begin{figure}[!h]
-    \centering
-    \input{\imgpath/activation}
-	\end{figure}
-	
-As a first attempt at a non-linearity, we will try a modified L2-norm. In 
-particular, for input $\SigIn$ (coming from the convolutional layer), the
-output $\SigOut$ is:
-\begin{equation}
-	\SigOut = g(\SigIn, b) = \sqrt{\max(0, \SigIn_R^2 + \SigIn_I^2 - b^2)}
-\end{equation}
-This is an attempt to modify the ReLU nonlinearity by rotating it
-around the complex plane. Really this is more like the complex generalization
-of the function $y = \max(0, |x| -b)$, as the ReLU rejects half of the real
-line, whereas this function only rejects small magnitude values. I justify
-this like so:
+Where:
 \begin{itemize}
-  \item If a patch of pixels strongly correlates with
-    a filter\footnote{really this should read `strongly correlates with the
-    mirror image of a filter', but the meaning is the same}, it will
-    produce a large output. 
-  \item A large output will be caught by the ReLU and `passed' through, with
-    a small subtraction penalty, $b$.
-  \item If a patch of pixels does not correlate with a filter, it produces
-    a small output, which gets clipped to 0 by the ReLU.
-  \item If a patch of pixels negatively correlates with a filter, say if we
-    multiply a strongly correlated input with -1, then
-    \textbf{this should be distinguishable from zero correlation}. A way to
-    do this would be use a soft limiting function ($y=\min(0,x+b)
-    + \max(0,x-b)$), or the rectified version of the soft limiter
-    ($y=\max(0,|x| - b)$.
-  \item The only downside to these non-linearities is that they theoretically
-    `fire' on much more of the input, which could mean a dramatic change in
-    network behaviour, but really it shouldn't be so drastically different.
-    We can verify this by measuring the probability distribution at the 
-    input to non-linearities in a real valued CNN. It is easy to show that
-    they are roughly normally distributed.
+  \item `None' means no nonlinearity -- $\sigma(x) = x$.
+  \item `BN+ReLU' is batch normalization and ReLU (applies only to real valued
+    activations) e.g. \eqref{eq:ch6:bnrelu_lp}.
+  \item `ReLU' is a ReLU without batch normalization. Can be applied to the real
+    and imaginary parts of a complex activation independently i.e.
+    \eqref{eq:ch:relu_bp}.
+  \item `BN+MagReLU' applies batch normalization to the magnitude of complex
+    coefficients and then makes them strictly positive with a ReLU. See
+    \eqref{eq:ch6:magrelu_bp}.
+  \item $\mathcal{S}$ and $\mathcal{H}$ are the soft and hard thresholding
+    operators applied to the magnitudes of coefficients.
 \end{itemize}
 
+As the pixel nonliearity has only two options, the results are best displayed as
+a pair of tables, firstly for no nonlinearity and secondly for the
+the standard batch normalization and ReLU. See
+\autoref{tab:ch6:nonlinearities} for these two tables. 
+
+Digesting this information gives us some useful insights. Firstly, soft and hard
+thresholding the lowpass and bandpass coefficients does not perform 
+%
+\begin{algorithm}[t]
+\caption{Nonlinear experiment `WaveLayer'}\label{alg:ch6:wavelayer}
+\begin{algorithmic}[1]
+  \Procedure{WaveLayer}{$x$}
+  \State $u_{lp},\ u_{1} \gets \DTCWT(x, \mbox{nlevels}=1) $ 
+  \State $v_{lp},\ v_{1} \gets G(u_{lp},\ u_{1}) $ \Comment{the normal wave gain layer}
+  \State $w_{lp} \gets \sigma_{lp}(v_{lp})$ \Comment{lowpass nonlinearity}
+  \State $w_{1} \gets \sigma_{bp}(v_{1})$ \Comment{bandpass nonlinearity}
+  \State $y \gets \DTCWT^{-1}(w_{lp},\ w_{1})$
+  \State $x \gets \sigma_{pixel}(y)$ \Comment{pixel nonlinearity}
+  \State \textbf{return} $x$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+% \begin{table}[t]
+  % \centering
+  % \renewcommand{\arraystretch}{1.2}
+% \begin{tabular}{ll| l l l l l}
+  % && \multicolumn{5}{c}{$\sigma_{bp}$} \\
+  % && None & ReLU & BN+MagReLU & $\mathcal{S}$ & $\mathcal{H}$ \\
+  % \midrule
+  % \multirow{5}{*}{$\sigma_{lp}$} & None & \\
+                          % &ReLU & \\
+                           % &BN+ReLU & \\
+                           % &$\mathcal{S}$ & \\
+                           % & $\mathcal{H}$ & \\ 
+% \end{tabular}
+% \end{table}
+
+\begin{table}[t]
+  \renewcommand{\arraystretch}{1.2}
+  \small
+  \centering
+  \renewcommand{\mywidth}{1.4cm}
+  \mycaption{Different Nonlinearities in the Gain Layer}{Top-1 Accuracies for
+  `gain1\_2\_3' network trained on CIFAR-100 using different wavelet and pixel nonlinearities.
+  The rows of the table correspond to different bandpass nonlinearities and the
+  columns correspond to different lowpass nonlinearities.
+  $\sigma_{pixel}=\sigma_{lp}=\sigma_{bp}=\text{None}$ is a linear system (with
+  max pooling). $\sigma_{pixel}=\F{ReLU},\ \sigma_{lp}=\sigma_{bp}=\text{None}$
+  is the system used in earlier experiments which is linear in the wavelet
+  domain and has a nonlinearity in the pixel domain.}
+  \label{tab:ch6:nonlinearities}
+  \subfloat[$\sigma_{pixel} = \text{None}$]{%
+  \centering
+  \makebox[\textwidth][c]{
+  \begin{tabular}{l |p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} }
+      \toprule
+      \diagbox[width=3cm]{$\sigma_{bp}$}{$\sigma_{lp}$}& None & ReLU & BN+ReLU & $\mathcal{S}$ & $\mathcal{H}$ \\
+      \hline
+      None & 45.0 & 63.1 & 64.4 & 54.1 & 42.5 \\
+      ReLU & 42.6 & 62.4 & 63.9 & 54.4 & 41.8\\
+      BN+MagReLU & \\
+      $\mathcal{S}$\\
+      $\mathcal{H}$ & 41.3 & 60.7 & & 52.0 & 40.6\\ 
+      \bottomrule
+    \end{tabular}
+  }}\newline
+  \subfloat[$\sigma_{pixel} = \F{ReLU}$]{
+  \centering
+  \makebox[\textwidth][c]{
+  \begin{tabular}{l |p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} }
+      \toprule
+      \diagbox[width=3cm]{$\sigma_{bp}$}{$\sigma_{lp}$}& None & ReLU & BN+ReLU & $\mathcal{S}$ & $ \mathcal{H}$ \\
+      \hline
+      None & 63.1 & 62.0 & 65.0 & 62.8 & 62.9 \\
+      ReLU & 62.8 & 61.4 & 64.6 & 61.6 & 61.8 \\
+      BN+MagReLU & \\
+      $\mathcal{S}$ \\
+      $\mathcal{H}$ & 59.7 & 58.7 & & 59.6 & 59.7\\ 
+      \bottomrule
+    \end{tabular}
+    }}
+\end{table}
+
+\section{Conclusion}
+In this chapter we have presented the novel idea of learning filters by taking
+activations into the wavelet domain. In the wavelet domain then we can apply
+the proposed gain layer $G$ instead of a pixel wise convolution, and can apply
+wavelet based nonlinearities $\sigma_w$. We have considered the possible
+challenges this proposes and described how a multirate system can learn through
+backpropagation. 
+%We ultimately hope that learning in both the wavelet and pixel
+%space will have many advantages. 
+Our experiments have been promising but not convincing. We have shown that our layer can learn in an
+end-to-end system, achieving similar accuracies on CIFAR-10, CIFAR-100 and Tiny
+ImageNet to the same system with convolutional layers instead. This is a good
+start and shows the plausibility of the wavelet gain layer, but we have not yet
+seen a benefit to learning in the wavelet space. 
+
+We have searched for good candidates for wavelet nonlinearities, and saw that
+using Batch Normalization followed by a ReLU on the lowpass coefficients, and
+Batch Normalization and a ReLU on the magnitudes of the bandpass coefficients
+improved the performance of the gain layer considerably, but still not enough to
+warrant 

@@ -116,8 +116,8 @@
 \usetikzlibrary{external}
 \input{tikz_settings}
 % Allow tikz images to be compiled once
-\tikzexternalize         
-\tikzsetexternalprefix{cache/}
+\tikzexternalize[prefix=cache/]
+% \tikzsetexternalprefix{cache/}
 % Make examples in your document
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -157,6 +157,7 @@
 \usepackage{array}
 \newcolumntype{b}{X}
 \newcolumntype{s}{>{\hsize=.5\hsize}X}
+\newcolumntype{x}[1]{>{\centering\hspace{0pt}}p{#1}}%
 \newcommand{\heading}[1]{\multicolumn{1}{c}{#1}}
 \renewcommand{\theoremautorefname}{Theorem}
 \newcommand{\algorithmautorefname}{Algorithm}
@@ -169,3 +170,4 @@
 \usepackage{breqn}
 \input{misc/cubes}
 \usepackage{relsize}
+\usepackage{diagbox}
