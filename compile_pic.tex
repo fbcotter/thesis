@@ -1,11 +1,23 @@
-\documentclass{article}
-\usepackage{color}
-\usepackage{ifpdf}
-\usepackage{geometry}
-\include{preamble}
-\include{defs}
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots}
+\usepackage{tikz-3dplot}
+\usetikzlibrary{matrix,positioning,arrows,shapes,calc,scopes}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{dsp,chains,fit}
+\usetikzlibrary{external}
+\input{tikz_settings}
+\usepackage{mathtools} % Replaced the amsmath package
+\usepackage{upgreek}
+\usepackage{amssymb}
+\usepackage{mathptmx} % Replaced the times package
+% Keep the old calligraphic math font
+\DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+\usepackage{amsthm}
+
+\input{misc/cubes}
 
 \tdplotsetmaincoords{60}{30}
+\input{defs}
 \begin{document}
 
 \input{freqlearn/images/block_diagram_dtcwt}

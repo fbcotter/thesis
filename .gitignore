@@ -9,6 +9,7 @@
 *.bbl
 *.blg
 *.bcf
+*.nlo
 *.run.xml
 *.auxlock
 chapter.pdf
