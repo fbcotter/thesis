@@ -5,10 +5,11 @@
   learned methods. They were first introduced by  
   \citeauthor{bruna_classification_2011} in their work 
   \cite{bruna_classification_2011}, and then were rigorously defined by Mallat
-  in \cite{mallat_group_2012}.   
+  in \cite{mallat_group_2012}. Perhaps the clearest explanation of them, and the most
+  relevant to our work is in \cite{bruna_invariant_2013}. 
 
-  While CNNs have the ability to learn invariances to nuiscance variabilities, 
-  the properties and optimal configurations are not well understood. 
+  While CNNs have the ability to learn invariances to nuisance variabilities, 
+  their properties and optimal configurations are not well understood. 
   It typically takes multiple trials
   by an expert to find the correct hyperparameters for these networks. A
   scattering transform instead builds well understood and well defined invariances. 
@@ -18,9 +19,9 @@
 
 \subsection{Desirable Properties}
 \subsubsection{Translation Invariance}
-  Translation is often defined as being uninformative for classification --- an
+  Translation is often said to be uninformative for classification --- an
   object appearing in the centre of the image should be treated the same way as
-  an the same object appearing in the corner of an image, i.e.,\ a
+  an the same object appearing near the corner of an image, i.e.,\ a
   representation $\Phi x$ is invariant to global translations $x_c(\bmu{u}) =
   x(\bmu{u}-\bmu{c})$ by 
   $\bmu{c}=(c_1,c_2) \in \mathbb{R}^2$ if
@@ -33,14 +34,14 @@
   restrict the distance $|\bmu{c}|$ for which \eqref{eq:scat_trans_invariance}
   is true. 
   
-  Note that CNNs are naturally covariant to translations in the pixel space, 
+  Note that convolutional filters are naturally covariant to translations in the pixel space, 
   so $\Phi x_c = (\Phi x)_c,\ \bmu{c} \in \mathbb{Z}^2$. Of course, natural objects
   exist in continuous space and are sampled, and any two images of the same
-  scene taking with small camera disturbances are unlikely to be at integer pixel 
+  scene taken with small camera disturbances are unlikely to be at integer pixel 
   shifts of each other.
 
 \subsubsection{Stability to Noise}
-  Stability to additive noise is another useful invariance to build,
+  Stability to additive noise is another useful invariance to incorporate,
   as it is a common feature in sampled signals. Stability is defined in terms of
   Lipschitz continuity, which is a strong form of uniform continuity for
   functions, which we briefly introduce here.
@@ -74,10 +75,10 @@
 
 \subsubsection{Stability to Deformations}
   Small deformations are important to be invariant to. However, this must be
-  limited. It is important to ignore intra-class variations 
-  but not so invariant that an object can
-  morph into another (in the case of MNIST for example, we do not want to be so
-  stable to deformations that 7s can map to 1s). 
+  limited. It is important to keep intra-class variations small but not be so 
+  invariant that an object can morph into another (in the case of MNIST for
+  example, we do not want to be so stable to deformations that 7s can map to
+  1s). 
   
   Formally, for a new signal
   $x_{\tau}(\bmu{u}) = x(\bmu{u}-\tau(\bmu{u}))$, where $\tau(\bmu{u})$ is a non
@@ -93,7 +94,7 @@
 \subsection{Definition}
   A Fourier modulus satisfies the first two of these requirements, in that it is
   both translation invariant and stable to additive noise, but it is unstable to
-  deformations due to the infinite support of the sinusoid basis functions it
+  deformations due to the large support (infinite in theory) of the sinusoid basis functions it
   uses. It also loses too much information --- very different signals can all
   have the same Fourier modulus, e.g.\ a chirp, white noise and the Dirac delta
   function all have flat spectra.
@@ -111,7 +112,7 @@ contains all the information of $x$, whereas the zeroth scattering coefficient
 is simply the lowpass portion of $W$. 
 
 This high frequency content can be `recovered' by keeping the wavelet
-coefficients. The wavelet terms, like a convolutional layer in a CNN, is only
+coefficients. The wavelet terms, like a convolutional layer in a CNN, are only
 covariant to shifts rather than invariant. This covariance happens in the real 
 and imaginary parts which both vary rapidly. Fortunately, its modulus is much
 smoother and gives a good measure for the frequency-localized energy content at
@@ -119,7 +120,7 @@ a given spatial location\footnote{Interestingly, the modulus operator can often 
 inverted, and hence does not lose any information, due to the redundancies of
 the complex wavelet transform \cite{waldspurger_phase_2012}}. Unlike
 the Fourier modulus, the complex wavelet modulus is stable to deformations due
-to the grouping together frequencies into dyadic packets
+to the grouping together of frequencies into dyadic packets
 \cite{mallat_group_2012}. 
 
 We combine the wavelet transform and modulus operators into one operator
@@ -130,7 +131,7 @@ $\tilde{W}$:
 \end{align}
 where the $U$ terms are called the \emph{propagated} signals and $\lambda =
 (j,k)$ indexes the scale and orientation of wavelet used.
-These $U$ terms are invariant for shifts of up to $2^j$. \Mallat\ choose to
+These $U$ terms are approximately invariant for shifts of up to $2^j$. \Mallat\ choose to
 keep the same level of invariance as the zeroth order coefficients ($2^J$) 
 by further averaging. This makes the first ordering scattering coefficients:
 \begin{equation}
@@ -188,7 +189,8 @@ then by Plancherel's formula
   (1-\epsilon)\energy{x} \leq \energy{Wx} \leq \energy{x}
 \end{equation}
 For the Morlet wavelets originally used in \cite{bruna_invariant_2013},
-$\epsilon=0.25$, for the $\DTCWT$ $\epsilon = 0$.
+$\epsilon=0.25$, for the $\DTCWT$ $\epsilon \approx 0$ (for the q-shift $\DTCWT$
+it is 0, but for the biorthogonal $\DTCWT$ it is close to but not exactly 0).
 
 
 \subsubsection{Translation Invariance}
@@ -210,7 +212,7 @@ where $\lnorm{\nabla \phitd}{1}$ is the $\ell_1$ norm of the grad of $\phitd$.
 For simplicity, let us define $A_J x = \phitd_J \conv x$ and $Sx = A_J Ux$. Then we get:
 \begin{align}
   \norm{S\shift x - Sx} & = \norm{\shift A_J Ux - A_J Ux} \\
-                         &\leq \norm{\shift A_j - A_j}\norm{Ux} \\
+                         &\leq \norm{\shift A_J - A_J}\norm{Ux} \\
                          & \leq 2^{-J+2}\lnorm{\nabla \phitd}{1}|\bmu{c}|\norm{x}
 \end{align}
 % as $\norm{Ux} \leq \norm{x}$. 
@@ -218,42 +220,46 @@ For simplicity, let us define $A_J x = \phitd_J \conv x$ and $Sx = A_J Ux$. Then
 \subsubsection{Stability to Noise}
 As $W$ is non-expansive and the complex modulus is also non-expansive
 \begin{equation}
-  \norm{\tilde{W}x - \tilde{W}y} \leq \norm{x-y}
+  \norm{\tilde{W}x - \tilde{W}y} \leq \norm{x-y} \label{eq:ch2:w_nonexpanse}
 \end{equation}
 As we have already shown that $S$ is the repeated application of $\tilde{W}$ in
 \eqref{eq:ch2:recursive}, we can then say
 \begin{equation}
-  \norm{Sx - Sy} \leq \norm{x-y}
+  \norm{Sx - Sy} \leq \norm{x-y}\label{eq:ch2:s_nonexpanse}
 \end{equation}
-making scattering non-expansive and stable to noise.
+making scattering non-expansive and stable to noise. With the $\DTCWT$, both
+\eqref{eq:ch2:w_nonexpanse} and \eqref{eq:ch2:s_nonexpanse} are nearly
+inequalties as $\epsilon$ is close to 0.
 
 \subsubsection{Stability to deformations}
-From \cite{mallat_group_2012}, if $\mathcal{L}_\tau x = x(\xy -\tau(\xy))$ is a
-diffeomorphism which is bounded with $\norm{\nabla \tau}_{\infty} \leq 1/2$,
-then there exists a $K_L > 0$ such that:
+If $\mathcal{L}_\tau x = x(\xy -\tau(\xy))$ is an image deformed 
+by a diffeomorphism $\tau$ with $\norm{\tau}_\infty = \sup_u |\tau(\xy)|$
+and $\norm{\nabla \tau}_\infty = \sup_u |\nabla \tau(\xy)| < 1$ then it is
+proven in \cite{mallat_group_2012} that:
 %
 \begin{equation}
-  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq K_L P F(\tau) \norm{x}
-  \label{eq:stability}
+  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq C P \norm{x}
+  (2^{-J}\norm{\tau}_\infty + \norm{\nabla \tau}_\infty ) 
 \end{equation}
 %
-where $P = \F{length}(p)$ is the scattering order, and $F(\tau)$ is a function
-of the size of the displacement, derivative and Hessian of $\tau$, $H(\tau)$
-\cite{mallat_group_2012}: 
+where $P = \F{length}(p)$ is the scattering order and $C$ is a constant
+(dependent on $J$). For deformations with small absolute displacement relative
+to $2^J$, the first term disappears and we have:
 \begin{equation}
-  F(\tau) = 2^{-J} \norm{\tau}_{\infty} + \norm{\nabla \tau}_{\infty} \max\left(\log
-  \frac{\norm{\Delta \tau}_{\infty} }{\norm{\nabla \tau}_{\infty}}, 1 \right) +
-  \norm{H(\tau)}_{\infty}
+  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq C P \norm{x} \norm{\nabla \tau}_\infty  \label{eq:stability}
 \end{equation}
+This theorem shows that $S$ is locally Lipschitz stable to diffeomorphisms and in
+the case of small deformations, linearizes them.
 
 \subsubsection{Energy Decay}
 As $m \rightarrow \infty$ the invariant cofficients of path length $m$, $U_m$,
-decay towards zero:
+decay towards zero \cite{mallat_group_2012}:
 \begin{equation}
   \lim_{m \rightarrow \infty} U_m = 0
 \end{equation}
 This is an important property that suggests that we can stop scattering beyond a
-certain point. For image sizes on the order of a few hundred pixels by a few
+certain point. Experimental results \cite{bruna_invariant_2013} for 
+image sizes on the order of a few hundred pixels by a few
 hundred pixels, $m=3$ captures about $99\%$ of the input energy. For many works
 using scattering transforms after \cite{bruna_invariant_2013} such as
 \cite{oyallon_deep_2015, oyallon_hybrid_2017, oyallon_scaling_2017}, setting
@@ -282,7 +288,30 @@ $\psitd_\lambda$. This means, we can discard over half of the scattering paths a
 their value will be near zero.
 
 Summing up the above three equations and factoring in the reduced sample rate
-allowable due to averaging, for an input with $N$ pixels, the scattering
-representation will have $\frac{N}{2^J}\left(1+JK+\frac{1}{2}J(J-1)K^2 \right)$
-pixels.
+allowable due to averaging, for an input with $N$ pixels, a second order scattering
+representation will have $N2^{-2J}\left(1+JK+\frac{1}{2}J(J-1)K^2 \right)$
+pixels. \autoref{tab:ch2:scat_redundancy} shows some example values of the
+ScatterNet redundancy for different $J,K$ and scattering order $m$.
 
+\begin{table}
+  \centering
+  \mycaption{Redundancy of Scattering Transform}{Shows the number of output
+  channels $C_{out}$ and number of pixels per channel $N_{out}$ for different
+  scattering orders $m$, scales $J$, and orientations $K$ for a single channel
+  input image with $N$ pixels.}
+  \label{tab:ch2:scat_redundancy}
+\begin{tabular}{l l l l l l l}
+  \toprule
+  m & J & K & \hphantom{abc} & $C_{out}$ & $N_{out}$ \\
+  \midrule
+  1 & 2 & 6 && 13 & $N/16$ \\
+  1 & 2 & 8 && 17 & $N/16$\\
+  2 & 2 & 6 && 49 & $N/16$\\
+  2 & 2 & 8 && 81 & $N/16$ \\
+  2 & 3 & 6 && 127 & $N/64$\\
+  2 & 3 & 8 && 217 & $N/64$\\
+  3 & 3 & 6 && 343 & $N/64$\\
+  3 & 3 & 8 && 729 & $N/64$\\
+  \bottomrule
+\end{tabular}
+\end{table}

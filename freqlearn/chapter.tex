@@ -916,7 +916,7 @@ convolutional architecture, however this network has slightly fewer parameters.
       \hline
       None & 45.0 & 63.1 & 64.4 & 54.1 & 42.5 \\
       ReLU & 42.6 & 62.4 & 63.9 & 54.4 & 41.8\\
-      BN+MagReLU & 48.5 & 65.5 & 65.0 & X & X\\
+      BN+MagReLU & 48.5 & 65.0 & 65.1 & X & X\\
       $\mathcal{S}$ & X & X & X & X & X \\
       $\mathcal{H}$ & 41.3 & 60.7 & X & 52.0 & 40.6\\ 
       \bottomrule
@@ -929,7 +929,7 @@ convolutional architecture, however this network has slightly fewer parameters.
       \toprule
       \diagbox[width=3cm]{$\sigma_{bp}$}{$\sigma_{lp}$}& None & ReLU & BN+ReLU & $\mathcal{S}$ & $ \mathcal{H}$ \\
       \hline
-      None & 62.8 & 62.0 & 65.0 & 62.8 & 62.9 \\
+      None & 62.8 & 62.0 & 65.1 & 62.8 & 62.9 \\
       ReLU & 62.8 & 61.4 & 64.6 & 61.6 & 61.8 \\
       BN+MagReLU & 64.5 & 63.1 & 64.5 \\
       $\mathcal{S}$ \\
@@ -957,5 +957,4 @@ seen a benefit to learning in the wavelet space.
 We have searched for good candidates for wavelet nonlinearities, and saw that
 using Batch Normalization followed by a ReLU on the lowpass coefficients, and
 Batch Normalization and a ReLU on the magnitudes of the bandpass coefficients
-improved the performance of the gain layer considerably, but still not enough to
-warrant 
+improved the performance of the gain layer considerably.
