@@ -1,12 +1,12 @@
 \section{The Design Constraints}
 The original authors implemented their ScatterNet in matlab \cite{oyallon_deep_2015} using
-a Fourier based Morlet wavelet transform. 
+a Fourier-domain based Morlet wavelet transform. 
 The standard procedure for using ScatterNets in a deep learning
 framework up until recently has been to:
 \begin{enumerate}
-  \item Pre scatter a dataset and store the features to disk. This can take
-    several hours to several days depending on the size of the dataset and the
-    number of CPU cores available.
+  \item Pre scatter a dataset using conventional CPU-based hardware and software
+    and store the features to disk. This can take several hours to several days
+    depending on the size of the dataset and the number of CPU cores available.
   \item Build a network in another framework, usually Tensorflow \cite{abadi_tensorflow:_2015}
     or Pytorch \cite{paszke_automatic_2017}.
   \item Load the scattered data from disk and train on it.
@@ -32,24 +32,24 @@ constraints. In particular, the new software should be:
   \item Flexible and fast so that it can run as part of the forward pass of
     a neural network (allowing preprocessing techniques like random shifts and
     flips).
-  \item Able to pass gradients through, so that it could be part of a larger
+  \item Able to pass gradients through, so that it can be part of a larger
     network and have learning stages before scattering.
 \end{itemize}
 
 To achieve all of these goals, we choose to build our software on PyTorch, 
 a popular open source deep learning framework that can do many operations on
 GPUs with native support for automatic differentiation. PyTorch uses the CUDA 
-and cuDNN \cite{} libraries for its GPU-accelerated primitives. Its popularity
+and cuDNN libraries for its GPU-accelerated primitives. Its popularity
 is of key importance, as it means users can build complex networks involving
 ScatterNets without having to use or learn extra software.
 
 As mentioned earlier, the original authors of the ScatterNet also noticed the
 shortcomings with their Scattering software, and recently released a new package
 that can do Scattering in PyTorch called KyMatIO\cite{andreux_kymatio:_2018}, addressing the
-above design constraints. The key difference between our proposed and their
+above design constraints. The key difference between our proposed package and their
 improved packages is the use of the $\DTCWT$ as the core rather than 
 Morlet wavelets. While the key focus of this chapter is in detailing how we have
 built a fast, GPU-ready, and deep learning compatible library that can do the
 DWT, $\DTCWT$, and $\DTCWT$ ScatterNet, we also compare the speeds and performance
-of our package to this new one, as it provides some interesting
+of our package to KyMatIO, as it provides some interesting
 insights into some of the design choices that can be made with a ScatterNet.

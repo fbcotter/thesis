@@ -72,7 +72,28 @@ convolutions of \eqref{eq:ch5:conv} have been replaced by a matrix multiply
 
 \autoref{fig:ch5:block_diagram} shows a block diagram for this process. 
 
-\input{\imgpath/figure1}
+\begin{figure}[t!]
+  \centering
+  % \small
+  % \resizebox{\textwidth}{!} {
+    % \input{\imgpath/figure1} 
+  % }
+  \includegraphics[width=\textwidth]{\imgpath/figure1.pdf}
+  \mycaption{Block Diagram of Proposed Invariant Layer for $j=J=1$}{Activations are shaded
+  blue, fixed parameters yellow and learned parameters red. Input
+  $x^{(l)}\in \mathbb{R}^{C_l\x H\x W}$ is filtered by real and imaginary oriented
+  wavelets and a lowpass filter and is downsampled. The channel dimension
+  increases from $C_l$ to $(2K+1)C_l$, where the number of orientations is $K=6$.
+  The real and imaginary parts are combined by taking their magnitude (an
+  example of what this looks like in 1D is shown above the magnitude operator) -
+  the components oscillating in quadrature are combined to give $z^{(l+1)}$. The
+  resulting activations are concatenated with the lowpass filtered activations,
+  mixed across the channel dimension, and then passed through a nonlinearity
+  $\sigma$ to give $x^{(l+1)}$.  If the desired output spatial size is $H\x W$,
+  $x^{(l+1)}$ can be bilinearly upsampled paying only a few multiplies per
+  pixel.}
+  \label{fig:ch5:block_diagram}
+\end{figure}
 
 \subsection{Properties}
 \subsubsection{Recovering the original ScatterNet Design}

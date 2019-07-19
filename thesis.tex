@@ -150,7 +150,7 @@
 \mainmatter
 
 \include{intro/intro}
-\include{litreview/litreview}
+\include{litreview/main}
 \include{dtcwt_scat/main}
 \include{visualizations/main}
 \include{invariantlayer/main}
@@ -191,10 +191,17 @@
 
 % ********************************** Appendices ********************************
 
+\cleardoublepage\makeatletter\@openrightfalse\makeatother
+\begin{appendices}
+  \input{dtcwt_scat/appendix}
+  \input{visualizations/appendix}
+  \input{invariantlayer/appendix}
+  \input{freqlearn/appendix}
+\end{appendices}
 %\begin{appendices} % Using appendices environment for more functunality
 
-%\include{appendix1}
-%\include{appendix2}
+% \include{appendix1}
+% \include{appendix2}
 
 %\end{appendices}
 

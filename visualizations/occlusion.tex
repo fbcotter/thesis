@@ -10,8 +10,10 @@ all have very different probability densities. Assuming $x \sim \mathcal{N}(0, \
 (already a fairly weak assumption),
 the pdf of $S_0x$ will also be a zero mean gaussian. However, the distributions
 of $S_1x$ and $S_2x$ are more complex - the real and imaginary parts of the
-$\DTCWT$ are sparse but are strongly correlated. Choosing a sensible random mask is
-therefore difficult so we instead use a constant mask. Analysis of the
+$\DTCWT$ are sparse but are strongly correlated in energy. Further, after the modulus operation,
+there is a strong positive bias to all the pdfs until the signal passes through
+another bandpass filter. Choosing a sensible random mask is
+therefore difficult, so we instead use a constant mask. Analysis of the
 datasets show that zero is very close to the maximum likelihood value for each
 channel so we occlude channels by simply setting them to zero at every spatial
 location.
@@ -20,7 +22,8 @@ location.
 We take a network similar to the one from
 \autoref{tab:ch3:scat_arch} but using the colour operation described in 
 \autoref{sec:ch4:colour} so the scattering output has 51 output channels. We further
-set $C=50$ so the conv1 layer has 100 channels. We train this network
+choose to set $C=50$ so the conv1 layer has 100 channels, a nice width to
+display. We train this network
 on the same 3 datasets - CIFAR-10, CIFAR-100 and Tiny ImageNet, and report the
 drop in classification scores on the validation set after removing one channel at
 a time. 
@@ -31,7 +34,7 @@ channel importance by looking at the relative weights of the ScatterNet channels
 passed on to the successive 100 channels. The weight matrix is convolutional
 filter of size $w \in \reals[100\x 51\x 3\x 3]$. We define:
 \begin{equation}\label{eq:ch4:arms}
-  A^{rms}_{c, f} &=& \sqrt{\frac{\sum_{i,j} w[f, c, i, j]^2}{{\sum_f \sum_{i,j} w[f, c, i, j]^2}}}
+  A^{rms}_{c, f} = \sqrt{ \frac{\sum_{i,j} w[f, c, i, j]^2}{{\sum_f \sum_{i,j} w[f, c, i, j]^2}} }
 \end{equation}
 This gives us a matrix $A^{rms}$ (for root mean squared) which has columns of
 unit energy representing the different output channels after conv1. The row
@@ -77,7 +80,7 @@ first layer of the network, with the low intensity values in $S_2$ indicating th
 next layer's outputs are less dependent on these coefficients.
 
 We include the same analysis for the two CIFAR datasets in
-\autoref{fig:ch4:cifar_occlusion} for completion, although the insight gained
+\autoref{fig:ch4:cifar_occlusion} for completeness, although the insight gained
 here is the same - the $S_2$ coefficients are the least important. One notable difference to
 \autoref{fig:ch4:occlusion1} is in the $S_1^2$ coefficients, which have reduced importance 
 in CIFAR, but with the smaller input spatial size, this comes as no surprise.
@@ -119,7 +122,8 @@ in CIFAR, but with the smaller input spatial size, this comes as no surprise.
   \centering
   \hspace{-1cm}\includegraphics[width=15cm,height=8cm]{\imgpath/ti_conv1_weights.pdf}
   \mycaption{Channel weights for first learned layer}{A visualiztion of the
-  matrix $A^{rms}$ from \eqref{eq:ch4:arms}. The columns of the matrix all have
+  matrix $A^{rms}$ from \eqref{eq:ch4:arms} for a network trained on Tiny
+  ImageNet. The columns of the matrix all have
   unit norm and represent how much relative energy comes from each scattering
   output channel. Most of the filters are heavily dependent on $S_0$, many are 
   dependent on $S_1$ and only a few take information from $S_2$.}\label{fig:ch4:weights}

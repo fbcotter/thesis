@@ -124,15 +124,15 @@ $\dydx{P}{y}=-\dydx{Q}{x}$
   % e^{j\omega_1 x} \times e^{j\omega_2 y} =F(z_x)F(z_y)= e^{j(\omega_1 x + \omega_2 y)} = F(z_x+z_y)
 % \end{equation}
 
-\section{Working with Complex weights in CNNs}\label{ch6:app:complex_weights}
-  As a first pass, I think I shouldn't concern myself too much with analytic
-  functions and having the Cauchy-Riemann equations met. Instead, I will focus
-  on implementing the CNN with a real and imaginary component to the filters,
-  and have these stored as independent variables.\\\\
-  Unfortunately, most current neural network tools only work with real numbers,
-  so we must write out the equations for the forward and backwards passes, and
-  ensure ourselves that we can achieve the equivalent of a complex valued
-  filter.
+% \section{Working with Complex weights in CNNs}\label{ch6:app:complex_weights}
+  % As a first pass, I think I shouldn't concern myself too much with analytic
+  % functions and having the Cauchy-Riemann equations met. Instead, I will focus
+  % on implementing the CNN with a real and imaginary component to the filters,
+  % and have these stored as independent variables.\\\\
+  % Unfortunately, most current neural network tools only work with real numbers,
+  % so we must write out the equations for the forward and backwards passes, and
+  % ensure ourselves that we can achieve the equivalent of a complex valued
+  % filter.
 
 \section{Forward pass}
 \subsection{Convolution}
@@ -212,7 +212,7 @@ Unsurprisingly, complex convolution is then the sum and difference of 4 real con
 % find, so let us only focus on the data loss for now.
 
 \subsection{Regularization}
-Also, I must be careful with regularizing complex weights. We want to set some
+We must be careful with regularizing complex weights. We want to set some
 of the weights to 0, and let the remaining ones evolve to whatever phase they
 please. To do this, either use the L-2 norm on the real and imaginary parts
 independently, or be careful about using the L-1 norm. This is because we
@@ -220,5 +220,66 @@ really want to be penalising the magnitude of the complex weights, $r$ and:
 \begin{equation}
   \lnorm{r}{2}^2 = \lnorm{\sqrt{x^2+y^2}}{2}^2 = \sum x^2 + y^2 = \sum x^2 + \sum y^2 = \lnorm{x}{2}^2 + \lnorm{y}{2}^2
 \end{equation}
-But this wouldn't necessarily be the case for the L-1 norm case.
+But for $\ell_1$ regularization:
+\begin{equation}
+  \lnorm{r}{2} = \lnorm{\sqrt{x^2+y^2}}{1} = \sum \sqrt{x^2 + y^2} \neq \lnorm{x}{1} + \lnorm{y}{1}
+\end{equation}
 
+\section{Soft Shrinkage}
+Let $z = x + jy$ and $w = u+jv = \mathcal{S}(z, t)$ where we define the soft
+shrinkage on a complex number $z = re^{j\theta}$ by a real threshold $t$ as:
+\begin{equation}
+  \mathcal{S}(z, t) = \left\{ \begin{array}{ll}
+      0 & r < t \\
+      (r-t)e^{j\theta} & r \geq t\\
+\end{array}
+\right. 
+\end{equation}
+This can alternatively be written as:
+\begin{align}
+  \mathcal{S}(z, t) &= \frac{\max(r-t, 0)}{r} z \\
+                    &= gz
+\end{align}
+To find the pass through gradients $\dydx{L}{x}, \dydx{L}{y}$ we need to find
+all the real and imaginary partial derivatives.
+\begin{align}
+  \dydx{g}{x} &= \left\{ \begin{array}{ll}
+      0 & r < t \\
+      \frac{r \dydx{r}{x} - (r-t)\dydx{r}{x}}{r^2}  & r \geq t
+  \end{array} \right.  \\
+  &= \frac{xt\indic(g > 0)}{r^3} \\
+  \dydx{g}{y}&= \frac{yt\indic(g > 0)}{r^3} \\
+  \dydx{g}{t}&= \frac{-\indic(g > 0)}{r} 
+\end{align}
+Then from the definition of $w = u+jv$ we have $u=gx$ and $v=gy$, giving us:
+
+\begin{minipage}{.48\linewidth}
+\begin{align}
+  \dydx{u}{x} &= g + \frac{x^2t\indic(g > 0)}{r^3} \\
+  \dydx{u}{y} &= \frac{xyt\indic(g > 0)}{r^3} \\
+  \dydx{u}{t} &= \frac{-x\indic(g > 0)}{r}
+\end{align}
+\end{minipage}
+\begin{minipage}{.48\linewidth}
+\begin{align}
+  \dydx{v}{x} &= \frac{xyt\indic(g > 0)}{r^3} \\
+  \dydx{v}{y} &=g + \frac{y^2t\indic(g > 0)}{r^3} \\
+  \dydx{v}{t} &= \frac{-y\indic(g > 0)}{r}
+\end{align}
+\end{minipage}
+\vspace{10pt}
+And putting it all together we have:
+\begin{align}
+  \dydx{L}{x} &= \dydx{L}{u}\dydx{u}{x} + \dydx{L}{v}\dydx{v}{x} \\
+  \dydx{L}{y} &= \dydx{L}{u}\dydx{u}{y} + \dydx{L}{v}\dydx{v}{y} \\
+  \dydx{L}{t} &= \dydx{L}{u}\dydx{u}{t} + \dydx{L}{v}\dydx{v}{t} 
+\end{align}
+These equations are for point-wise application of soft-thresholding. When
+applied to an entire image, then we sum $\dydx{L}{t}$ over all locations.
+% \qquad
+% \begin{aligned}[c]
+  % \dydx{v}{x} &= \frac{xyt\indic(g > 0)}{r^3} = \dydx{u}{y} \\
+  % \dydx{v}{y} &= \frac{y^2t\indic(g > 0)}{r^3} \\
+  % \dydx{v}{t} &= \frac{-y\indic(g > 0)}{r}
+% \end{aligned}
+% \end{equation}

@@ -1,10 +1,10 @@
 \section{A Brief Description of Autograd}
-As part of modern deep learning framework, we need to define functional units like 
-the one shown in \autoref{fig:ch3:autograd_blk}. In particular, not only must we
-be able to calculate the forward evaluation of a block given an input $x$ and 
-possible some learnable weights $w$, $y=f(x,w)$, we must also be able to
-calculate the passthrough and update gradients $\dLdx{x}$, $\dLdx{w}$. This may
-involve saving $\dydx{y}{x}$ and $\dydx{y}{w}$ evaluated at the current
+As part of a modern deep learning framework, we need to define functional units like 
+the one shown in \autoref{fig:ch2:block_form}. In particular, not only must we
+be able to calculate the forward evaluation of a block $y=f(x,w)$ given an input $x$ and 
+(possibly) some learnable weights $w$, we must also be able to
+calculate the passthrough and update gradients $\dLdx{x}$, $\dLdx{w}$. This
+typically involves saving $\dydx{y}{x}$ and $\dydx{y}{w}$ evaluated at the current
 values of $x$ and $w$ when we calculate the forward pass. 
 
 For example, the simple ReLU $y = \F{max}(0,\ x)$ is not memory-less. On the
@@ -15,7 +15,7 @@ to manually calculate the gradients and design the most efficient way of
 programming them.
 
 For clarity and repeatability, we give pseudocode for all the core operations
-developed in \emph{PyTorch Wavelets}. We carry this through to other chapters
+developed in our package \emph{PyTorch Wavelets}. We carry this through to other chapters
 when we design different wavelet based blocks. By the end of this thesis, it should be
 clear how every attempted method has been implemented.
 
@@ -37,22 +37,21 @@ Note that the pseudo code can be one of three types of functions:
     and are named \texttt{MOD:<name>}. E.g. \autoref{alg:ch3:dtcwt}.
 \end{enumerate}
 
-\begin{figure}
-  \centering
-  \input{\imgpath/deeplearn_block}
-  \mycaption{An autograd block}{The building block of modern deep learning
-  frameworks. Every function needs to be able to not only take an input (and
-  possibly a weight parameter) to give an output $y=f(x,w)$, it must also 
-  be able to take a backpropagated input $\dLdx{y}$ and give
-  backpropagated outputs $\dLdx{x},\ \dLdx{w}$. The
-  former is then passed onto the previous block's backpropagated input, and the
-  latter, if it exists, is used to update weights. As a key step in 
-  doing this, the gradients $\dydx{y}{x},\ \dydx{y}{w}$ evaluated at the current
-  values of $x$ and $w$ must be saved on the forward pass. This takes up memory
-  which can then be freed once the backpropagated outputs have been calculated.}
-  \label{fig:ch3:autograd_blk}
-\end{figure}
-
+% \begin{figure}
+  % \centering
+  % \input{\imgpath/deeplearn_block}
+  % \mycaption{An autograd block}{The building block of modern deep learning
+  % frameworks. Every function needs to be able to not only take an input (and
+  % possibly a weight parameter) to give an output $y=f(x,w)$, it must also 
+  % be able to take a backpropagated input $\dLdx{y}$ and give
+  % backpropagated outputs $\dLdx{x},\ \dLdx{w}$. The
+  % former is then passed onto the previous block's backpropagated input, and the
+  % latter, if it exists, is used to update weights. As a key step in 
+  % doing this, the gradients $\dydx{y}{x},\ \dydx{y}{w}$ evaluated at the current
+  % values of $x$ and $w$ must be saved on the forward pass. This takes up memory
+  % which can then be freed once the backpropagated outputs have been calculated.}
+  % \label{fig:ch3:autograd_blk}
+% \end{figure}
 
 \section{Fast Calculation of the DWT and IDWT}\label{sec:ch3:dwt}
 \begin{figure}
@@ -70,10 +69,10 @@ the DWT as a basis for learning, so having an implementation that is fast and
 can pass gradients through will prove beneficial in and of itself.
 
 There has been much research into the best way to do the DWT on a GPU, in
-particular comparing the speed of Lifting \cite{sweldens_lifting_1998} or second
+particular comparing the speed of Lifting \cite{sweldens_lifting_1998}, or second
 generation wavelets, to the direct convolutional methods.
 \cite{tenllado_parallel_2008, galiano_improving_2011} are two notable such
-publications, both of which find that the convolution based implemetation are
+publications, both of which find that the convolution based implemetations are
 better suited for the massively parallel architecture found in modern GPUs. For
 this reason, we implement a convolutional based DWT.
 
@@ -146,7 +145,7 @@ dimensions are the spatial dimensions, of size $H\x W$.
 \subsubsection{1-D Filter Banks}
 Let us assume that the analysis ($h_0,\ h_1$) and synthesis ($g_0,\ g_1$)
 filters are already in the form needed to do column filtering. The necessary
-steps to do the 1-D analysis and synthesis steps are described in
+steps to do the 1-D analysis and synthesis are described in
 \autoref{alg:ch3:fb1d}. We do not need to define backpropagation functions for the
 \texttt{afb1d} and \texttt{sfb1d} functions as they are each others backwards
 step.
@@ -190,8 +189,9 @@ Furthermore we can now define the backwards steps of both the forward DWT
 and the inverse DWT using these filter banks. We show how to do do this in 
 \autoref{alg:ch3:dwt}. Note that we have allowed for different row and column
 filters in \autoref{alg:ch3:dwt}. Most commonly used wavelets will use the same 
-filter for both directions (e.g.\ the Daubechies family), but later when we use the $\DTCWT$, 
-we want to have different horizontal and vertical filtering. 
+filter for both directions (e.g.\ the orthogonal Daubechies family), but later
+when we use the $\DTCWT$, we will want to have different horizontal and vertical
+filters.
 
 The inverse transform logic is moved to the appendix
 \autoref{alg:ch3:idwt}. An interesting result is the similarity between the two 
@@ -210,9 +210,12 @@ implementation almost no memory overhead.
 \begin{algorithmic}[1]
 \Function{AG:DWT:FWD}{$x,\ h_0^c,\ h_1^c,\ h_0^r, h_1^r,\ mode$}
   \State \textbf{save} $h_0^c,\ h_1^c,\ h_0^r,\ h_1^r,\ mode$ \Comment{For the backwards pass} \label{line:ch3:dwt_save}
-  \State $lo,\ hi \gets \F{afb1d}(x,\ h_0^c,\ h_1^c,\ mode,\ axis=-2)$ \Comment{column filter}
-  \State $ll,\ lh \gets \F{afb1d}(lo,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
-  \State $hl,\ hh \gets \F{afb1d}(hi,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
+  % \State $lo,\ hi \gets \F{afb1d}(x,\ h_0^c,\ h_1^c,\ mode,\ axis=-2)$ \Comment{column filter}
+  % \State $ll,\ lh \gets \F{afb1d}(lo,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
+  % \State $hl,\ hh \gets \F{afb1d}(hi,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
+  \State $lo,\ hi \gets \F{afb1d}(x,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
+  \State $ll,\ lh \gets \F{afb1d}(lo,\ h_0^c,\ h_1^c,\ mode,\ axis=-1)$ \Comment{column filter}
+  \State $hl,\ hh \gets \F{afb1d}(hi,\ h_0^c,\ h_1^c,\ mode,\ axis=-1)$ \Comment{column filter}
   \State \textbf{return} $ll,\ lh,\ hl,\ hh$
 \EndFunction
 \end{algorithmic}\vspace{10pt}
@@ -284,24 +287,30 @@ gradients given the direct form, but we must be careful about their size. If $z
   r = |z| =  \sqrt{x^2 + y^2}
 \end{equation}
 
-This has two partial derivatives, $\dydx{z}{x},\ \dydx{z}{y}$:
+This has two partial derivatives, $\dydx{r}{x},\ \dydx{r}{y}$:
 \begin{eqnarray}
   \dydx{r}{x} & = & \frac{x}{\sqrt{x^2 + y^2}} = \frac{x}{r}\\
   \dydx{r}{y} & = & \frac{y}{\sqrt{x^2 + y^2}} = \frac{y}{r} 
 \end{eqnarray}
 
-Except for the singularity at the origin, these partial derivatives are restricted to be in the
-range $[-1, 1]$. Also note that the complex magnitude is convex in $x$ and $y$ as:
-
-\begin{equation}
-\nabla^2 r(x,y) = \frac{1}{r^3} 
-\begin{bmatrix}
-  y^2 & -xy \\
-  -xy & x^2
-\end{bmatrix}
- = \frac{1}{r^3} \begin{bmatrix} y \\ -x \end{bmatrix} 
- \begin{bmatrix} y & -x \end{bmatrix} \geq 0 
-\end{equation}
+These partial derivatives are restricted to be in the range $[-1, 1]$ but have a singularity at the origin. 
+In particular:
+\begin{align}
+  \lim_{x\rightarrow 0^{-},y\rightarrow 0}  \dydx{r}{x} &= -1 \\
+  \lim_{x\rightarrow 0^{+},y\rightarrow 0}  \dydx{r}{x} &= +1 \\
+  \lim_{x\rightarrow 0,y\rightarrow 0^{-}}  \dydx{r}{y} &= -1 \\
+  \lim_{x\rightarrow 0,y\rightarrow 0^{+}}  \dydx{r}{y} &= +1 
+\end{align}
+% Also note that the complex magnitude is convex in $x$ and $y$ as:
+% \begin{equation}
+% \nabla^2 r(x,y) = \frac{1}{r^3} 
+% \begin{bmatrix}
+  % y^2 & -xy \\
+  % -xy & x^2
+% \end{bmatrix}
+ % = \frac{1}{r^3} \begin{bmatrix} y \\ -x \end{bmatrix} 
+ % \begin{bmatrix} y & -x \end{bmatrix} \geq 0 
+% \end{equation}
 Given an input gradient, $\Delta r$, the passthrough gradient is:
 \begin{eqnarray}
   \Delta z & = & \Delta r \dydx{r}{x} + j\Delta r \dydx{r}{y} \\
@@ -313,21 +322,24 @@ well, as the backwards pass is simply reinserting the discarded phase
 information. The pseudo-code for this operation is shown in
 \autoref{alg:ch3:mag}.
 
-These partial derivatives are variable around 0, in particular the second
-derivative goes to infinity at the origin \textbf{Show a plot of this}. This is not a
-feature commonly seen with other nonlinearities such as the tanh, sigmoid and
-ReLU, however it is not necessarily a bad thing. The bounded nature of the first
-derivative means we will not have any problems so long as our optimizer does not
-use higher order derivatives; this is commonly the case. Nonetheless, we
-propose to slightly smooth the magnitude operator:
+These partial derivatives are very rapidly varying around 0 and the second
+derivatives go to infinity at the origin. This is not a
+feature commonly seen with other nonlinearities such as the tanh and sigmoid
+but it is seen with the ReLU. Small changes in the input can cause large changes
+in the propagated gradients.
+The bounded nature of the first derivative somewhat restricts the impact of
+possible problems so
+long as our optimizer does not use higher order derivatives (this is commonly
+the case). Nonetheless, we propose to slightly smooth the magnitude operator:
 
 \begin{equation}\label{eq:ch3:magbias}
  r_s = \sqrt{x^2 + y^2 + b^2} - b
 \end{equation}
 
 This keeps the magnitude near zero for small $x,y$ but does slightly shrink larger
-values. The gain we get however is a new smoother gradient surface \textbf{Plot
-this}. We can then increase/decrease the size of $b$ as a hyperparameter in
+values. The gain we get however is a new smoother gradient surface.
+% \textbf{Plot this}
+We can then choose the size of $b$ as a hyperparameter in
 optimization. The partial derivatives now become:
 \begin{eqnarray}
   \dydx{r_s}{x} & = & \frac{x}{\sqrt{x^2 + y^2+b^2}} = \frac{x}{r_s}\\
@@ -363,7 +375,8 @@ get a multilayer scatternet, we can call the same function again on $Z$, which
 would give $S_0,\ S_1$ and $U_2$ and so on for higher orders. 
 
 Note that for ease in handling the different sample rates of the lowpass and the
-bandpass, we have averaged the lowpass over a $2\x 2$ window. This slightly
+bandpass, we have averaged the lowpass over a $2\x 2$ window and downsampled it
+by 2 in each direction. This slightly
 affects the higher order coefficients, as the true $\DTCWT$ needs the doubly
 sampled lowpass for the second scale. We noticed little difference in
 performance from doing the true $\DTCWT$ and the decimated one.

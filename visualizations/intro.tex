@@ -46,7 +46,7 @@
   This results in visualization images that look very surreal, and can be
   quite different from the input.
 
-  \cite{springenberg_striving_2014-3} design an \emph{all convolutional} model,
+  In \cite{springenberg_striving_2014-3}, the authors design an \emph{all convolutional} model,
   where they replace the max pooling layers commonly seen in CNNs with a
   convolutional block with sride 2, i.e.\ a convolution followed by decimation.
   They did this by first adding an extra convolutional layer before the max
@@ -60,10 +60,11 @@
   action from deconv. They call this `guided backprop'.
   
   Another interrogation tool commonly used is occlusion or perturbation. 
-  \cite{zeiler_visualizing_2014} occlude regions in the
-  input image and measure the impact this has on classification score.
-  \cite{fong_interpretable_2017} use gradients to find the minimal mask to apply
-  to the input image that causes misclassification.
+  In \cite{zeiler_visualizing_2014}, \citeauthor{zeiler_visualizing_2014} occlude regions in the
+  input image and measure the impact this has on classification score. In
+  \cite{fong_interpretable_2017}, \citeauthor{fong_interpretable_2017} use
+  gradients to find the minimal mask to apply to the input image that causes
+  misclassification.
   % \autoref{fig:ch4:deconv_slices} gives a more detailed view of how the
   % deconvolution works for convolutional layers.
   % \begin{figure}

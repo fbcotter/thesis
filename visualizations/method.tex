@@ -3,19 +3,20 @@ While we have introduced the scattering trasnform before, we clarify the format
 we use for this chapter's analysis. 
 
 We use the $\DTCWT$ based scatternet introduced in the previous chapter 
-\autoref{alg:ch3:dtcwt_scat} as a front end  with $J=M=2$. Consider a single
-channel input signal $x(\xy)$, $\xy \in \reals[2]$.
+\autoref{alg:ch3:dtcwt_scat} as a front end, with $K=6$ orientations, $J=2$
+scales and $M=2$ orders. Consider a single channel input signal $x(\xy)$, $\xy
+\in \reals[2]$.
 
-The zeroth order \textbf{scatter} coefficient is the lowpass output of a $J$
+The zeroth order scatter coefficient is the lowpass output of a $J$
 level FB: 
 \begin{equation}
   S_0x(\xy) \definedas x(\xy) \conv \phi_J(\xy)
 \end{equation}
-This is invariant to translations of up to $2^J$ pixels\footnote{From here on,
+This is approximately invariant to translations of up to $2^J$ pixels\footnote{From here on,
 we drop the $\xy$ notation when indexing $x$, for clarity.}. In exchange for
 gaining invariance, the $S_0$ coefficients have lost information
 (contained in the rest of the frequency space). The remaining energy of $x$ is
-contained within the first order \textbf{wavelet} coefficients:
+contained within the first order \emph{wavelet} coefficients:
 \begin{equation}
   W_1x(\xy, j_1, \theta_1) \definedas x \conv \psi_{j_1, \theta_1}
 \end{equation}
@@ -33,14 +34,14 @@ forming a Hilbert Pair, resulting in an analytic $\psi$.
  as a CNN, which would have rapidly varying coefficients for small input shifts
  \cite{kingsbury_complex_2001}.}.
 
-Taking the magnitude of $W_1$ gives us the first order propagated
+Taking the magnitude of $W_1$ gives us the first order \emph{propagated}
 signals:
 \begin{equation}
   U_1x(\lambda_1, \xy) \definedas |x \conv \psi_{\lambda_1}| 
     = \sqrt{(x \conv \psi^r_{\lambda_1})^2 + (x \conv \psi^i_{\lambda_1})^2}
 \end{equation}
-The first order scattering coefficient makes $U_1$ invariant up to our
-scale $J$ by averaging it:
+The first order scattering coefficient make $U_1$ invariant up to 
+the coarsest scale $J$ by averaging it:
 \begin{equation}
   S_1x(\lambda_1, \xy) \definedas |x \conv \psi_{\lambda_1}| \conv \phi_J
 \end{equation}
@@ -60,12 +61,12 @@ averaging $U_1$, and are defined as:
 
 Previous work shows that for natural images we get diminishing returns after
 $m=2$. The second order scattering coefficients are defined only on paths of
-increasing energy\cite{bruna_invariant_2013} as:
+decreasing frequency\cite{bruna_invariant_2013} as:
 \begin{equation}
   S_2x(\lambda_1, \lambda_2, \xy) \definedas ||x \conv \psi_{\lambda_1}|
   \conv \psi_{\lambda_2}| \conv \phi_J
 \end{equation}
-As we only go on the paths of increasing energy $j_1 = 1$, $j_2=2$. This then
+As we only go on the paths of decreasing frequency $j_1 = 1$, $j_2=2$. This then
 has $6\x6 = 36$ output channels per input channel.
 
 Our output is then a stack of these 3 outputs:
@@ -110,7 +111,7 @@ An alternative to \eqref{eq:ch4:colour_mag} is to simply combine the colours
 before scattering into a luminance channel. However we choose to use \eqref{eq:ch4:colour_mag}
 instead as this has the ability to detect colour edges with constant luminance.
 
-The resulting scattering output now has $3 + 12 + 36 = 51$ channels at $1/16$ the
+With $J=2$ the resulting scattering output now has $3 + 12 + 36 = 51$ channels at $1/16$ the
 spatial input size.
 
 \section{The Inverse Scatter Network}\label{sec:ch4:descatternet}
@@ -148,8 +149,8 @@ Note that we do not use any of the log normalization layers described in
 \cite{oyallon_deep_2015, singh_dual-tree_2017}.
 
 \subsection{Inverting the Low-Pass Filtering}
-Going from the $U$ coefficients to the $S$ coefficients involved convolving by
-a low pass filter, $\phi_J$ followed by decimation to make the output $(H\x
+Going from the $U$ coefficients to the $S$ coefficients in the forward pass involved convolving by
+a low pass filter $\phi_J$, possibly followed by decimation to make the output $(H\x
 2^{-J})\x (W\x2^{-J})$.  $\phi_J$ is a purely real filter, and we can `invert'
 this operation by interpolating $S$ to the same spatial size as $U$ and convolving with
 the mirror image of $\phi_J$, $\widetilde{\phi}_J$ (this is equivalent to the
@@ -159,7 +160,9 @@ transpose convolution described in \cite{zeiler_visualizing_2014}).
   \hat{S}_{m} = S_{m} \conv \widetilde{\phi}_J
 \end{equation}
 This will not recover $U$ as it was on the forward pass, but will recover all
-the information in $U$ that caused a strong response in $S$. 
+the information in $U$ that caused a strong response in $S$. We note that
+interpolation usually involves lowpass smoothing of the signal, so this can all
+be one operation.
 % However this has
 % the undesirable effect of creating multiple impulses in the next layer down's
 % activations. When the next layer down is the image space this is not a problem,
@@ -219,8 +222,9 @@ inverse scattering is performed).
 
 Then, in the \emph{reconstruction}
 phase, we load in the $9\x C$ images, and scatter them one by one. We take the
-resulting 52 channel output vector and mask all but a single value in the
-channel we are currently examining.
+resulting 52 channel output vector and mask all but a single value (usually the
+largest) in the channel we are currently examining and all values in the other
+channels.
 
 This 1-sparse tensor is then presented to the inverse scattering network from
 \autoref{fig:ch4:descat} and projected back to the image space. Some results of this

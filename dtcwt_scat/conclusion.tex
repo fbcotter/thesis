@@ -8,7 +8,7 @@ of a deep learning package.
 We have derived the forward and backpropagation functions necessary to do 
 fast and memory efficient DWTs, $\DTCWT$s, and Scattering based on the $\DTCWT$, 
 and have made this code publically available at \cite{cotter_pytorch_2018}. We
-hope that this will reduce some of the barriers we faced in using wavelets and
+hope that this will reduce some of the barriers we initially faced in using wavelets and
 Scattering in deep learning.
 
 In parallel with our efforts, the original ScatterNet authors rewrote their
@@ -20,5 +20,5 @@ backend an order of magnitude faster than Fourier-based Morlet implementation
 \cite{andreux_kymatio:_2018}.
 
 Additionally, we have experimentally verified that using a different complex
-wavelet backend does not have a negative impact on the performance of the
+wavelet core does not have a negative impact on the performance of the
 ScatterNet as a frontend to Hybrid networks. 

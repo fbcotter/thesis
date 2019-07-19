@@ -1903,7 +1903,7 @@ Comment: Tech report}
 @inproceedings{zeiler_visualizing_2014,
   title = {Visualizing and {{Understanding Convolutional Networks}}},
   copyright = {\textcopyright{}2014 Springer International Publishing Switzerland},
-  isbn = {978-3-319-10589-5 978-3-319-10590-1},
+  isbn = {978-3-319-10589-5},
   abstract = {Large Convolutional Network models have recently demonstrated impressive classification performance on the ImageNet benchmark Krizhevsky et al. [18]. However there is no clear understanding of why they perform so well, or how they might be improved. In this paper we explore both issues. We introduce a novel visualization technique that gives insight into the function of intermediate feature layers and the operation of the classifier. Used in a diagnostic role, these visualizations allow us to find model architectures that outperform Krizhevsky et al on the ImageNet classification benchmark. We also perform an ablation study to discover the performance contribution from different model layers. We show our ImageNet model generalizes well to other datasets: when the softmax classifier is retrained, it convincingly beats the current state-of-the-art results on Caltech-101 and Caltech-256 datasets.},
   language = {en},
   booktitle = {Computer {{Vision}} \textendash{} {{ECCV}} 2014},
@@ -9230,6 +9230,166 @@ Tumor-educated blood platelets (TEPs) are implicated as central players in the s
   keywords = {Conditional Random Field,Empirical Risk,Learning Rate,Stochastic Gradient,Support Vector Machine},
   pages = {421-436},
   doi = {10.1007/978-3-642-35289-8_25}
+}
+
+@article{lenz_deep_2013,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1301.3592},
+  primaryClass = {cs},
+  title = {Deep {{Learning}} for {{Detecting Robotic Grasps}}},
+  abstract = {We consider the problem of detecting robotic grasps in an RGB-D view of a scene containing objects. In this work, we apply a deep learning approach to solve this problem, which avoids time-consuming hand-design of features. This presents two main challenges. First, we need to evaluate a huge number of candidate grasps. In order to make detection fast, as well as robust, we present a two-step cascaded structure with two deep networks, where the top detections from the first are re-evaluated by the second. The first network has fewer features, is faster to run, and can effectively prune out unlikely candidate grasps. The second, with more features, is slower but has to run only on the top few detections. Second, we need to handle multimodal inputs well, for which we present a method to apply structured regularization on the weights based on multimodal group regularization. We demonstrate that our method outperforms the previous state-of-the-art methods in robotic grasp detection, and can be used to successfully execute grasps on two different robotic platforms.},
+  journal = {arXiv:1301.3592 [cs]},
+  author = {Lenz, Ian and Lee, Honglak and Saxena, Ashutosh},
+  month = jan,
+  year = {2013},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Robotics},
+  file = {/Users/fergalcotter/Zotero/storage/8B9B63KV/Lenz et al. - 2013 - Deep Learning for Detecting Robotic Grasps.pdf;/Users/fergalcotter/Zotero/storage/VYJHGNYG/1301.html},
+  annote = {Comment: Current version was accepted to IJRR Special Issue on Robot Vision 2014 Workshop version accepted to ICLR 2013. Conference version accepted to RSS 2013}
+}
+
+@inproceedings{yun_jiang_efficient_2011,
+  title = {Efficient Grasping from {{RGBD}} Images: {{Learning}} Using a New Rectangle Representation},
+  shorttitle = {Efficient Grasping from {{RGBD}} Images},
+  abstract = {Given an image and an aligned depth map of an object, our goal is to estimate the full 7-dimensional gripper configuration-its 3D location, 3D orientation and the gripper opening width. Recently, learning algorithms have been successfully applied to grasp novel objects-ones not seen by the robot before. While these approaches use low-dimensional representations such as a `grasping point' or a `pair of points' that are perhaps easier to learn, they only partly represent the gripper configuration and hence are sub-optimal. We propose to learn a new `grasping rectangle' representation: an oriented rectangle in the image plane. It takes into account the location, the orientation as well as the gripper opening width. However, inference with such a representation is computationally expensive. In this work, we present a two step process in which the first step prunes the search space efficiently using certain features that are fast to compute. For the remaining few cases, the second step uses advanced features to accurately select a good grasp. In our extensive experiments, we show that our robot successfully uses our algorithm to pick up a variety of novel objects.},
+  booktitle = {2011 {{IEEE International Conference}} on {{Robotics}} and {{Automation}}},
+  doi = {10.1109/ICRA.2011.5980145},
+  author = {{Yun Jiang} and Moseson, S. and Saxena, A.},
+  month = may,
+  year = {2011},
+  keywords = {3D location,3D oriented rectangle,7-dimensional gripper configuration,Complexity theory,Grasping,gripper opening width,grippers,Grippers,Histograms,Image edge detection,image plane,image representation,learning algorithm,low-dimensional rectangle representation,RGBD image grasping rectangle,robot vision,Robots,search space,solid modelling,Three dimensional displays},
+  pages = {3304-3311},
+  file = {/Users/fergalcotter/Zotero/storage/2DZIHIJL/Yun Jiang et al. - 2011 - Efficient grasping from RGBD images Learning usin.pdf;/Users/fergalcotter/Zotero/storage/R9JV96XA/5980145.html}
+}
+
+@article{pinto_supersizing_2015,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1509.06825},
+  primaryClass = {cs},
+  title = {Supersizing {{Self}}-Supervision: {{Learning}} to {{Grasp}} from {{50K Tries}} and 700 {{Robot Hours}}},
+  shorttitle = {Supersizing {{Self}}-Supervision},
+  abstract = {Current learning-based robot grasping approaches exploit human-labeled datasets for training the models. However, there are two problems with such a methodology: (a) since each object can be grasped in multiple ways, manually labeling grasp locations is not a trivial task; (b) human labeling is biased by semantics. While there have been attempts to train robots using trial-and-error experiments, the amount of data used in such experiments remains substantially low and hence makes the learner prone to over-fitting. In this paper, we take the leap of increasing the available training data to 40 times more than prior work, leading to a dataset size of 50K data points collected over 700 hours of robot grasping attempts. This allows us to train a Convolutional Neural Network (CNN) for the task of predicting grasp locations without severe overfitting. In our formulation, we recast the regression problem to an 18-way binary classification over image patches. We also present a multi-stage learning approach where a CNN trained in one stage is used to collect hard negatives in subsequent stages. Our experiments clearly show the benefit of using large-scale datasets (and multi-stage training) for the task of grasping. We also compare to several baselines and show state-of-the-art performance on generalization to unseen objects for grasping.},
+  journal = {arXiv:1509.06825 [cs]},
+  author = {Pinto, Lerrel and Gupta, Abhinav},
+  month = sep,
+  year = {2015},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Robotics},
+  file = {/Users/fergalcotter/Zotero/storage/5VIHCNC6/Pinto and Gupta - 2015 - Supersizing Self-supervision Learning to Grasp fr.pdf;/Users/fergalcotter/Zotero/storage/MAVSHAK5/1509.html}
+}
+
+@inproceedings{boularias_learning_2015,
+  series = {{{AAAI}}'15},
+  title = {Learning to {{Manipulate Unknown Objects}} in {{Clutter}} by {{Reinforcement}}},
+  isbn = {978-0-262-51129-2},
+  abstract = {We present a fully autonomous robotic system for grasping objects in dense clutter. The objects are unknown and have arbitrary shapes. Therefore, we cannot rely on prior models. Instead, the robot learns online, from scratch, to manipulate the objects by trial and error. Grasping objects in clutter is significantly harder than grasping isolated objects, because the robot needs to push and move objects around in order to create sufficient space for the fingers. These pre-grasping actions do not have an immediate utility, and may result in unnecessary delays. The utility of a pre-grasping action can be measured only by looking at the complete chain of consecutive actions and effects. This is a sequential decision-making problem that can be cast in the reinforcement learning framework. We solve this problem by learning the stochastic transitions between the observed states, using nonparametric density estimation. The learned transition function is used only for re-calculating the values of the executed actions in the observed states, with different policies. Values of new state-actions are obtained by regressing the values of the executed actions. The state of the system at a given time is a depth (3D) image of the scene. We use spectral clustering for detecting the different objects in the image. The performance of our system is assessed on a robot with real-world objects.},
+  booktitle = {Proceedings of the {{Twenty}}-{{Ninth AAAI Conference}} on {{Artificial Intelligence}}},
+  publisher = {{AAAI Press}},
+  author = {Boularias, Abdeslam and Bagnell, J. Andrew and Stentz, Anthony},
+  year = {2015},
+  pages = {1336--1342},
+  file = {/Users/fergalcotter/Zotero/storage/PI5E5REY/Boularias et al. - Learning to Manipulate Unknown Objects in Clutter .pdf}
+}
+
+@phdthesis{lin_reinforcement_1992,
+  address = {{Pittsburgh, PA, USA}},
+  type = {{{PhD Thesis}}},
+  title = {Reinforcement {{Learning}} for {{Robots Using Neural Networks}}},
+  abstract = {Reinforcement learning agents are adaptive, reactive, and self-supervised. The aim of this dissertation is to extend the state of the art of reinforcement learning and enable its applications to complex robot-learning problems. In particular, it focuses on two issues. First, learning from sparse and delayed reinforcement signals is hard and in general a slow process. Techniques for reducing learning time must be devised. Second, most existing reinforcement learning methods assume that the world is a Markov decision process. This assumption is too strong for many robot tasks of interest.This dissertation demonstrates how we can possibly overcome the slow learning problem and tackle non-Markovian environments, making reinforcement learning more practical for realistic robot tasks: (1) Reinforcement learning can be naturally integrated with artificial neural networks to obtain high-quality generalization, resulting in a significant learning speedup. Neural networks are used in this dissertation, and they generalize effectively even in the presence of noise and a large of binary and real-valued inputs. (2) Reinforcement learning agents can save many learning trials by using an action model, which can be learned on-line. With a model, an agent can mentally experience the effects of its actions without actually executing them. Experience replay is a simple technique that implements this idea, and is shown to be effective in reducing the number of action executions required. (3) Reinforcement learning agents can take advantage of instructive training instances provided by human teachers, resulting in a significant learning speedup. Teaching can also help learning agents avoid local optima during the search for optimal control. Simulation experiments indicate that even a small amount of teaching can save agents many learning trials. (4) Reinforcement learning agents can significantly reduce learning time by hierarchical learning--they first solve elementary learning problems and then combine solutions to the elementary problems to solve a complex problem. Simulation experiments indicate that a robot with hierarchical learning can solve a complex problem, which otherwise is hardly solvable within a reasonable time. (5) Reinforcement learning agents can deal with a wide range of non-Markovian environments by having a memory of their past. Three memory architectures are discussed. They work reasonably well for a variety of simple problems. One of them is also successfully applied to a nontrivial non-Markovian robot task.The results of this dissertation rely on computer simulation, including (1) an agent operating in a dynamic and hostile environment and (2) a mobile robot operating in a noisy and non-Markovian environment. The robot simulator is physically realistic. This dissertation concludes that it is possible to build artificial agents than can acquire complex control policies effectively by reinforcement learning.},
+  school = {Carnegie Mellon University},
+  author = {Lin, Long-Ji},
+  year = {1992},
+  file = {/Users/fergalcotter/Dropbox/Papers/Lin - 1992 - Reinforcement Learning for Robots Using Neural Net.pdf},
+  annote = {UMI Order No. GAX93-22750}
+}
+
+@article{sutton_learning_1988,
+  title = {Learning to Predict by the Methods of Temporal Differences},
+  volume = {3},
+  issn = {1573-0565},
+  abstract = {This article introduces a class of incremental learning procedures specialized for prediction-that is, for using past experience with an incompletely known system to predict its future behavior. Whereas conventional prediction-learning methods assign credit by means of the difference between predicted and actual outcomes, the new methods assign credit by means of the difference between temporally successive predictions. Although such temporal-difference methods have been used in Samuel's checker player, Holland's bucket brigade, and the author's Adaptive Heuristic Critic, they have remained poorly understood. Here we prove their convergence and optimality for special cases and relate them to supervised-learning methods. For most real-world prediction problems, temporal-difference methods require less memory and less peak computation than conventional methods and they produce more accurate predictions. We argue that most problems to which supervised learning is currently applied are really prediction problems of the sort to which temporal-difference methods can be applied to advantage.},
+  language = {en},
+  number = {1},
+  journal = {Machine Learning},
+  doi = {10.1007/BF00115009},
+  author = {Sutton, Richard S.},
+  month = aug,
+  year = {1988},
+  keywords = {connectionism,credit assignment,evaluation functions,Incremental learning,prediction},
+  pages = {9-44},
+  file = {/Users/fergalcotter/Zotero/storage/AXA6CJAN/Sutton - 1988 - Learning to predict by the methods of temporal dif.pdf}
+}
+
+@inproceedings{hsu_path_1997,
+  title = {Path Planning in Expansive Configuration Spaces},
+  volume = {3},
+  abstract = {We introduce the notion of expansiveness to characterize a family of robot configuration spaces whose connectivity can be effectively captured by a roadmap of randomly-sampled milestones. The analysis of expansive configuration spaces has inspired us to develop a new randomized planning algorithm. This algorithm tries to sample only the portion of the configuration space that is relevant to the current query, avoiding the cost of precomputing a roadmap for the entire configuration space. Thus, it is well-suited for problems where a single query is submitted for a given environment. The algorithm has been implemented and successfully applied to complex assembly maintainability problems from the automotive industry.},
+  booktitle = {Proceedings of {{International Conference}} on {{Robotics}} and {{Automation}}},
+  doi = {10.1109/ROBOT.1997.619371},
+  author = {Hsu, D. and Latombe, J.- and Motwani, R.},
+  month = apr,
+  year = {1997},
+  keywords = {assembling,assembly,automobile industry,Automotive engineering,automotive industry,Buildings,Computational geometry,Costs,expansive configuration spaces,industrial manipulators,Joining processes,Orbital robotics,path planning,Path planning,random processes,random sampling,roadmap planner,Robotic assembly,robots,Sampling methods,Service robots},
+  pages = {2719-2726 vol.3},
+  file = {/Users/fergalcotter/Zotero/storage/T84GJN7Z/Hsu et al. - 1997 - Path planning in expansive configuration spaces.pdf;/Users/fergalcotter/Zotero/storage/JELBLMG7/619371.html;/Users/fergalcotter/Zotero/storage/QGX5P2MU/619371.html}
+}
+
+@inproceedings{phillips_guided_2004,
+  title = {Guided {{Expansive Spaces Trees}}: A Search Strategy for Motion- and Cost-Constrained State Spaces},
+  volume = {2004},
+  isbn = {978-0-7803-8232-9},
+  shorttitle = {Guided {{Expansive Spaces Trees}}},
+  abstract = {Motion planning for systems with constraints on controls or the need for relatively straight paths for real-time actions presents challenges for modern planners. This paper presents an approach which addresses these types of systems by building on existing motion planning approaches. Guided Expansive Spaces Trees are introduced to search for a low cost and relatively straight path in a space with motion constraints. Path Gradient Descent, which builds on the idea of Elastic Strips, finds the locally optimal path for an existing path. These techniques are tested on simulations of rendezvous and docking of the space shuttle to the International Space Station and of a 4-foot fan-controlled blimp in a factory setting.},
+  booktitle = {Proceedings - {{IEEE International Conference}} on {{Robotics}} and {{Automation}}},
+  doi = {10.1109/ROBOT.2004.1308890},
+  author = {Phillips, J.M. and Bedrossian, Nazareth and Kavraki, Lydia},
+  month = jan,
+  year = {2004},
+  pages = {3968-3973 Vol.4},
+  file = {/Users/fergalcotter/Zotero/storage/F6KMYPP7/Phillips et al. - 2004 - Guided Expansive Spaces Trees a search strategy f.pdf}
+}
+
+@inproceedings{ross_reduction_2011,
+  title = {A {{Reduction}} of {{Imitation Learning}} and {{Structured Prediction}} to {{No}}-{{Regret Online Learning}}},
+  abstract = {Sequential prediction problems such as imitation learning, where future observations depend on previous predictions (actions), violate the common i.i.d. assumptions made in statistical learning. This leads to poor performance in theory and often in practice. Some recent approaches (Daume III et al., 2009; Ross and Bagnell, 2010) provide stronger guarantees in this setting, but remain somewhat unsatisfactory as they train either non-stationary or stochastic policies and require a large number of iterations. In this paper, we propose a new iterative algorithm, which trains a stationary deterministic policy, that can be seen as a no regret algorithm in an online learning setting. We show that any such no regret algorithm, combined with additional reduction assumptions, must find a policy with good performance under the distribution of observations it induces in such sequential settings. We demonstrate that this new approach outperforms previous approaches on two challenging imitation learning problems and a benchmark sequence labeling problem.},
+  booktitle = {{{AISTATS}}},
+  author = {Ross, St{\'e}phane and Gordon, Geoffrey J. and Bagnell, J. Andrew},
+  year = {2011},
+  keywords = {Algorithm,Benchmark (computing),I. Michael Ross,Iteration,Iterative method,Machine learning,Regret (decision theory),Sequence labeling,Stationary process,Structured prediction,Word lists by frequency},
+  file = {/Users/fergalcotter/Zotero/storage/UCKH3HN9/Ross et al. - 2011 - A Reduction of Imitation Learning and Structured P.pdf}
+}
+
+@article{pinto_supervision_2016,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1610.01685},
+  primaryClass = {cs},
+  title = {Supervision via {{Competition}}: {{Robot Adversaries}} for {{Learning Tasks}}},
+  shorttitle = {Supervision via {{Competition}}},
+  abstract = {There has been a recent paradigm shift in robotics to data-driven learning for planning and control. Due to large number of experiences required for training, most of these approaches use a self-supervised paradigm: using sensors to measure success/failure. However, in most cases, these sensors provide weak supervision at best. In this work, we propose an adversarial learning framework that pits an adversary against the robot learning the task. In an effort to defeat the adversary, the original robot learns to perform the task with more robustness leading to overall improved performance. We show that this adversarial framework forces the the robot to learn a better grasping model in order to overcome the adversary. By grasping 82\% of presented novel objects compared to 68\% without an adversary, we demonstrate the utility of creating adversaries. We also demonstrate via experiments that having robots in adversarial setting might be a better learning strategy as compared to having collaborative multiple robots.},
+  journal = {arXiv:1610.01685 [cs]},
+  author = {Pinto, Lerrel and Davidson, James and Gupta, Abhinav},
+  month = oct,
+  year = {2016},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Machine Learning,Computer Science - Robotics},
+  file = {/Users/fergalcotter/Zotero/storage/NLIDN7FG/Pinto et al. - 2016 - Supervision via Competition Robot Adversaries for.pdf;/Users/fergalcotter/Zotero/storage/8JMYGA9G/1610.html},
+  annote = {Comment: Submission to ICRA 2017}
+}
+
+@article{levine_learning_2018,
+  title = {Learning Hand-Eye Coordination for Robotic Grasping with Deep Learning and Large-Scale Data Collection},
+  volume = {37},
+  issn = {0278-3649},
+  abstract = {We describe a learning-based approach to hand-eye coordination for robotic grasping from monocular images. To learn hand-eye coordination for grasping, we trained a large convolutional neural network to predict the probability that task-space motion of the gripper will result in successful grasps, using only monocular camera images independent of camera calibration or the current robot pose. This requires the network to observe the spatial relationship between the gripper and objects in the scene, thus learning hand-eye coordination. We then use this network to servo the gripper in real time to achieve successful grasps. We describe two large-scale experiments that we conducted on two separate robotic platforms. In the first experiment, about 800,000 grasp attempts were collected over the course of two months, using between 6 and 14 robotic manipulators at any given time, with differences in camera placement and gripper wear and tear. In the second experiment, we used a different robotic platform and 8 robots to collect a dataset consisting of over 900,000 grasp attempts. The second robotic platform was used to test transfer between robots, and the degree to which data from a different set of robots can be used to aid learning. Our experimental results demonstrate that our approach achieves effective real-time control, can successfully grasp novel objects, and corrects mistakes by continuous servoing. Our transfer experiment also illustrates that data from different robots can be combined to learn more reliable and effective grasping.},
+  language = {en},
+  number = {4-5},
+  journal = {The International Journal of Robotics Research},
+  doi = {10.1177/0278364917710318},
+  author = {Levine, Sergey and Pastor, Peter and Krizhevsky, Alex and Ibarz, Julian and Quillen, Deirdre},
+  month = apr,
+  year = {2018},
+  pages = {421-436},
+  file = {/Users/fergalcotter/Zotero/storage/ZLFKDFHU/Levine et al. - 2018 - Learning hand-eye coordination for robotic graspin.pdf}
 }
 
 

@@ -73,8 +73,8 @@ $360\degs$.
 \autoref{fig:ch4:newshapes} shows some reconstructions from these $V$ coefficients.
 Each of the four quadrants show reconstructions from a different class of
 ScatterNet layer. 
-All shapes are shown in real and imaginary Hilbert-like pairs; the top images in
-each quadrant are reconstructed from a purely real $V$, while the bottom inputs
+All shapes are shown in real and imaginary Hilbert-like pairs; the top row of
+images in each quadrant are reconstructed from a purely real $V$, while the bottom row 
 are reconstructed from a purely imaginary $V$. This shows one level of invariance of
 these filters, as after taking the complex magnitude, both the top and the
 bottom shape will activate the filter with the same strength. In comparison, for
@@ -87,7 +87,7 @@ reconstructed from $U_1$, not $V_1$). In the top right of the figure we see some
 of the shapes made by using the $h$'s from the Roto-Translation ScatterNet
 \cite{sifre_rotation_2013, oyallon_deep_2015}.  The bottom left is where we
 present some of our novel kernels. These are simple corner-like shapes made 
-by filtering with ${h\in \complexes[12\x 1\x 1]}$
+by filtering with ${h\in \complexes[12\x 1\x 1]}$ where $h$ is set to
 % \vspace{-10pt}
 \begin{equation} \label{eq:ch4:simple_corner}
   h = [1, j, j, 1, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -95,7 +95,10 @@ by filtering with ${h\in \complexes[12\x 1\x 1]}$
 The six orientations are made by rolling the coefficients in $h$ along one
 sample (i.e. $[0, 1, j, j, 1, 0,\ldots]$, $[0,0,1,j,j,1,0,\ldots]$,
 $[0,0,0,1,j,j,1,0, \ldots]$ \ldots). Coefficients roll back around (like
-circular convolution) when they reach the end.
+circular convolution) when they reach the end. The canonical filter is then $[1,
+j, j, 1]$ where the $90\degs$ phase offset of the middle two weights from the
+outer two allows for nicely continuous ridges of similar intesnity around the
+centre of the corner.
 
 Finally, in the bottom right we see shapes made by 
 ${h \in \complexes[12\x 3\x 3]}$. Note that with the exception of the 
@@ -104,60 +107,59 @@ reconstructed with $h$'s that have 4 to 8 non-zero coefficients of a possible
 64. These shapes are now beginning to more closely resemble the more complex
 shapes seen in the middle stages of CNNs. 
 
-\subsection{A review of what we have done so far}
-This was inspired by our recent work with creating 12 tap complex filters
-that worked across the 6 $\DTCWT$ orientations (and their complex conjugate).
-We found that having symmetric filters, with a $90\degs$ offset between
-taps created a nice corner like object. In fact, we could then shift these
-filters along to the next coefficients and the output would rotate by
-$30\degs$ (as we'd simply used the next set of wavelet coefficients).\\\\
-Let us give a concrete example. Consider the 4 tap filter:
-$$\left[1, j, j, 1\right]$$
-Now consider the result of doing a forward transform on a $N\x N$ sized
-image. The highpass outputs (let us call them Yh) have size $2^{-k}N \x 2^{-k}N \x 6$ for each
-scale, k.
-When we  put the above filter into the first 4 \DTCWT\ coefficients at
-the same spatial position $(x,y)$ at given scale, $k$ i.e.\
-  \begin{lstlisting}
-  Yh[k][y,x,0] = 1
-  Yh[k][y,x,1] = j
-  Yh[k][y,x,2] = j
-  Yh[k][y,x,3] = 1
-  \end{lstlisting}
-and then do the inverse \DTCWT\, we get the result shown in
-\autoref{fig:one_corner}. Doing this is equivalent to the deconvolution of
-Zeiler and Fergus. What we're really seeing in \autoref{fig:one_corner} is
-the input shape that would give the highest response if we applied a \DTCWT
-to it, and then applied the above filter across the orientations.
+% \subsection{A review of what we have done so far}
+% This was inspired by our recent work with creating 12 tap complex filters
+% that worked across the 6 $\DTCWT$ orientations (and their complex conjugate).
+% We found that having symmetric filters, with a $90\degs$ offset between
+% taps created a nice corner like object. In fact, we could then shift these
+% filters along to the next coefficients and the output would rotate by
+% $30\degs$ (as we'd simply used the next set of wavelet coefficients).\\\\
+% Let us give a concrete example. Consider the 4 tap filter:
+% $$\left[1, j, j, 1\right]$$
+% Now consider the result of doing a forward transform on a $N\x N$ sized
+% image. The highpass outputs (let us call them Yh) have size $2^{-k}N \x 2^{-k}N \x 6$ for each
+% scale, k.
+% When we  put the above filter into the first 4 $\DTCWT$ coefficients at
+% the same spatial position $(x,y)$ at given scale, $k$ i.e.\
+  % \begin{lstlisting}
+  % Yh[k][y,x,0] = 1
+  % Yh[k][y,x,1] = j
+  % Yh[k][y,x,2] = j
+  % Yh[k][y,x,3] = 1
+  % \end{lstlisting}
+% and then do the inverse $\DTCWT$, we get the result shown in
+% \autoref{fig:one_corner}. Doing this is equivalent to the deconvolution of
+% Zeiler and Fergus. What we're really seeing in \autoref{fig:one_corner} is
+% the input shape that would give the highest response if we applied a $\DTCWT$
+% to it, and then applied the above filter across the orientations.
 
-\begin{figure}[!h]
-  \centering
-  \includegraphics[scale=0.6]{\imgpath/simple_corner.png}
-  \caption{Left of image shows the imaginary part of 6 \DTCWT\ impulse responses. Right of image
-           shows the effect of combining with the filter $\left[1, j, j,
-           1\right]$}
-  \label{fig:one_corner}
-\end{figure}
+% \begin{figure}[!h]
+  % \centering
+  % \includegraphics[scale=0.6]{\imgpath/simple_corner.png}
+  % \caption{Left of image shows the imaginary part of 6 $\DTCWT$ impulse responses. Right of image
+           % shows the effect of combining with the filter $\left[1, j, j, 1\right]$}
+  % \label{fig:one_corner}
+% \end{figure}
 
-If we were now to expand our definition of the above filter to be:
-\begin{equation}
-  \bmu{f} = [1, j, j, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-\end{equation}
-and denote the circular shift of $f$ by k poistions to be $f_k$, then the
-output from shifting f through all 12 positions is shown in
-\autoref{fig:all_corners}. In particular, it is the first shape rotated by
-$30\degs$ for each k.
+% If we were now to expand our definition of the above filter to be:
+% \begin{equation}
+  % \bmu{f} = [1, j, j, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+% \end{equation}
+% and denote the circular shift of $f$ by k poistions to be $f_k$, then the
+% output from shifting f through all 12 positions is shown in
+% \autoref{fig:all_corners}. In particular, it is the first shape rotated by
+% $30\degs$ for each k.
 
-\begin{figure}[!h]
-  \centering
-  \includegraphics[scale=0.35]{\imgpath/corners_nocross.png}
-  \caption{Left shows the 6 real and imaginary \DTCWT\ impulse responses.
-  Right of image shows the resulting 12 corners achieved from rotating
-  $\left[1, j, j, 1\right]$ through the 12 of these. The even columns are the
-  `Hilbert pair' of the odd columns, obtained by shifting all the
-  coefficients by $90\degs$ (i.e.\ $\left[j,-1,-1,j\right]$).}
-  \label{fig:all_corners}
-\end{figure}
+% \begin{figure}[!h]
+  % \centering
+  % \includegraphics[scale=0.35]{\imgpath/corners_nocross.png}
+  % \caption{Left shows the 6 real and imaginary $\DTCWT$ impulse responses.
+  % Right of image shows the resulting 12 corners achieved from rotating
+  % $\left[1, j, j, 1\right]$ through the 12 of these. The even columns are the
+  % `Hilbert pair' of the odd columns, obtained by shifting all the
+  % coefficients by $90\degs$ (i.e.\ $\left[j,-1,-1,j\right]$).}
+  % \label{fig:all_corners}
+% \end{figure}
   
 
 

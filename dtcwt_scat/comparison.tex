@@ -31,7 +31,7 @@ filters and different padding schemes. Type A uses long filters and uses
 symmetric padding, and is $~15\x$ faster than the Fourier-based KyMatIO\@. Type B
 uses shorter filters and the cheaper zero padding scheme, and 
 achieves a $~35\x$ speedup over the Morlet backend.
-Additionally, as of version 0.2 of KyMatIO, the $\DTCWT$ based implementation
+Additionally, when compared with version 0.2 of KyMatIO, the $\DTCWT$ based implementation
 uses $2\%$ of the memory for saving activations for the
 backwards pass, highlighting the importance of defining the custom
 backpropagation steps from \autoref{sec:ch3:dwt}--\autoref{sec:ch3:scat}.
@@ -39,7 +39,7 @@ backpropagation steps from \autoref{sec:ch3:dwt}--\autoref{sec:ch3:scat}.
 \begin{table}
   \renewcommand{\arraystretch}{1.2}
   \centering
-  \mycaption{Comparison of speed for the forward and backward
+  \mycaption{Comparison of execution time for the forward and backward
   passes of the competing ScatterNet Implementations}{Tests were run on the reference
   architecture described in \autoref{app:arch}. The input for these experiments
   is a batch of images of size $128\x 3\x 256\x 256$ in 4 byte floating
