@@ -3,298 +3,298 @@
   chapter, outlining what has been promising and what has not been, offering
   explanations as to why we think that is the case.
 
-\section{Discussion of Attempts so Far}
-\subsection{Multiscale Scatternets + SVM}
-  Much of the beginning of the project was spent understanding and analysing the
-  Scatternet design proposed by Mallat and the proposed $\DTCWT$ based
-  multiscale Scatternet. It was found that the $\DTCWT$ based Scatternets are
-  much faster than the Mallat based Scatternets (3--4 times faster for tiny
-  images, and 10--15 times faster for medium resolution images).
-  Work by a colleague --- \citet{singh_multi-resolution_2017} showed that this
-  came at the cost of no appreciable loss of performance.
+% \section{Discussion of Attempts so Far}
+% \subsection{Multiscale Scatternets + SVM}
+  % Much of the beginning of the project was spent understanding and analysing the
+  % Scatternet design proposed by Mallat and the proposed $\DTCWT$ based
+  % multiscale Scatternet. It was found that the $\DTCWT$ based Scatternets are
+  % much faster than the Mallat based Scatternets (3--4 times faster for tiny
+  % images, and 10--15 times faster for medium resolution images).
+  % Work by a colleague --- \cite{singh_multi-resolution_2017} showed that this
+  % came at the cost of no appreciable loss of performance.
 
-  Attempts to use the four layer multiscale Scatternet with linear SVMs on
-  \cifar\ data showed that little performance was gained from lots of extra
-  coefficients from the fourth layer. For example, the H4 block could easily be
-  removed with no appreciable difference in performance, but saving one third
-  of the coefficients. Nonetheless, it was difficult to improve this accuracy
-  past $70\%$ without making use of further feature extraction methods
-  (orthogonal least squares was used in both \citep{oyallon_deep_2015} and
-  \citep{singh_multi-resolution_2017}).
+  % Attempts to use the four layer multiscale Scatternet with linear SVMs on
+  % \cifar\ data showed that little performance was gained from lots of extra
+  % coefficients from the fourth layer. For example, the H4 block could easily be
+  % removed with no appreciable difference in performance, but saving one third
+  % of the coefficients. Nonetheless, it was difficult to improve this accuracy
+  % past $70\%$ without making use of further feature extraction methods
+  % (orthogonal least squares was used in both \citep{oyallon_deep_2015} and
+  % \citep{singh_multi-resolution_2017}).
 
-  This shows the multiscale Scatternet alone is not achieving
-  the same quality of feature extraction  as
-  a few convolutional layers in a CNN, as simply connecting a classifier on the
-  output achieved a lower test accuracy.
+  % This shows the multiscale Scatternet alone is not achieving
+  % the same quality of feature extraction  as
+  % a few convolutional layers in a CNN, as simply connecting a classifier on the
+  % output achieved a lower test accuracy.
 
-  We believe that this was because the initial Scatternet design lacks the
-  fully connectedness in the depth dimension that comes
-  with the CNN\@. This would allow a network to learn how to add linear
-  combinations of different output activations from the layer below. At the
-  simplest case, at layer two, this would allow the CNN to have a filter that
-  could combine two oriented wavelets, perhaps at a slight offset from each
-  other, allowing it to detect a corner. 
+  % We believe that this was because the initial Scatternet design lacks the
+  % fully connectedness in the depth dimension that comes
+  % with the CNN\@. This would allow a network to learn how to add linear
+  % combinations of different output activations from the layer below. At the
+  % simplest case, at layer two, this would allow the CNN to have a filter that
+  % could combine two oriented wavelets, perhaps at a slight offset from each
+  % other, allowing it to detect a corner. 
 
-\subsection{Reduced Multiscale Scatternets and CNNs}
-  Focus switched in the latter half of the year to bringing back in one layer
-  of CNNs with a scaled down multiscale Scatternet, followed by a neural
-  network classifier.  Our initial results were quite poor compared to the pure
-  CNN solution --- a $10\%$ reduction in accuracy from $87\%$ to $77\%$. This was
-  still an improvement on the $\sim 69\%$ we were getting with the pure SVM
-  method which, while comforting, does little to meet our project goals.
-  However, subsequent refinement of our methods narrowed this gap
-  significantly and started to show some promising results.
+% \subsection{Reduced Multiscale Scatternets and CNNs}
+  % Focus switched in the latter half of the year to bringing back in one layer
+  % of CNNs with a scaled down multiscale Scatternet, followed by a neural
+  % network classifier.  Our initial results were quite poor compared to the pure
+  % CNN solution --- a $10\%$ reduction in accuracy from $87\%$ to $77\%$. This was
+  % still an improvement on the $\sim 69\%$ we were getting with the pure SVM
+  % method which, while comforting, does little to meet our project goals.
+  % However, subsequent refinement of our methods narrowed this gap
+  % significantly and started to show some promising results.
 
-  As a side note, poor initial results do not necessarily indicate failings of
-  the Scatternet. There are a huge variety of hyperparameters to choose when
-  designing the convolutional side of our hybrid network, and on top of that,
-  a selection of different extra layers/schemes that can be used to `normalize'
-  the statistics of the data, all to promote learning. Replacing one layer of
-  an optimized CNN with a Scatternet and getting a reduction in accuracy could
-  be due to the later layers of the CNN now no longer being optimized. In fact,
-  it was very surprising we had such a large reduction in accuracy. The ability
-  for us to eventually narrow the gap only reinforces the necessity of the
-  project, to better understand how we should train CNNs.
+  % As a side note, poor initial results do not necessarily indicate failings of
+  % the Scatternet. There are a huge variety of hyperparameters to choose when
+  % designing the convolutional side of our hybrid network, and on top of that,
+  % a selection of different extra layers/schemes that can be used to `normalize'
+  % the statistics of the data, all to promote learning. Replacing one layer of
+  % an optimized CNN with a Scatternet and getting a reduction in accuracy could
+  % be due to the later layers of the CNN now no longer being optimized. In fact,
+  % it was very surprising we had such a large reduction in accuracy. The ability
+  % for us to eventually narrow the gap only reinforces the necessity of the
+  % project, to better understand how we should train CNNs.
 
-\subsubsection{Quicker Training Time}
-  Our Scatternet and shallow CNN was able to train much faster (in fewer
-  epochs) than a pure CNN method. We regard this as an early sign that we are
-  on the right track. Unfortunately, our network does plateau earlier than
-  a CNN, so we end up performing worse in the long run --- see
-  \autoref{fig:comparison}.
+% \subsubsection{Quicker Training Time}
+  % Our Scatternet and shallow CNN was able to train much faster (in fewer
+  % epochs) than a pure CNN method. We regard this as an early sign that we are
+  % on the right track. Unfortunately, our network does plateau earlier than
+  % a CNN, so we end up performing worse in the long run --- see
+  % \autoref{fig:comparison}.
 
-  \begin{figure}
-    \centering
-      % \includegraphics[width=0.8\textwidth]{results/comparison.png}
-      \caption[Comparison of test accuracy for our network vs a two layer CNN]
-              {Comparison of test accuracy for our network vs a two layer
-              CNN\@.
-              The network used for the Scatternet+CNN design was the reduced
-              Scatternet with data augmentation (see \autoref{sec:best_scat}). The
-              standard CNN reference architecture was used (see
-              \autoref{sec:reference_cnn}). Our network trains much faster but plateaus
-              earlier than the CNN network. We must find out how to bring the
-              asymptotes of these two curves closer together.}
-      \label{fig:comparison}
-  \end{figure}
+  % \begin{figure}
+    % \centering
+      % % \includegraphics[width=0.8\textwidth]{results/comparison.png}
+      % \caption[Comparison of test accuracy for our network vs a two layer CNN]
+              % {Comparison of test accuracy for our network vs a two layer
+              % CNN\@.
+              % The network used for the Scatternet+CNN design was the reduced
+              % Scatternet with data augmentation (see \autoref{sec:best_scat}). The
+              % standard CNN reference architecture was used (see
+              % \autoref{sec:reference_cnn}). Our network trains much faster but plateaus
+              % earlier than the CNN network. We must find out how to bring the
+              % asymptotes of these two curves closer together.}
+      % \label{fig:comparison}
+  % \end{figure}
 
 
 
-\subsubsection{Data Augmentation}
-  The other interesting thing we have found so far is our model is far less
-  dependent on data augmentation methods. In particular, taking out the random
-  cropping and shifting from the pure CNN method resulted in a drastic
-  reduction of performance, while it only marginally affected the Scatternet
-  plus CNN performance.
+% \subsubsection{Data Augmentation}
+  % The other interesting thing we have found so far is our model is far less
+  % dependent on data augmentation methods. In particular, taking out the random
+  % cropping and shifting from the pure CNN method resulted in a drastic
+  % reduction of performance, while it only marginally affected the Scatternet
+  % plus CNN performance.
 
-\subsection{Improved Analysis Methods}
-  One benefit of having set filters in the Scatternet design versus purely
-  learned ones can be seen in the difference between the axes labels of
-  \autoref{fig:reference_filt_energies} and \autoref{fig:scat1_filt_energies}.
-  We were able to label the slices in the Scatternet design, see that some of
-  the slices were not being used much in the learned CNN, and design
-  experiments that removed these slices, which improved training time and
-  accuracy. This kind of targetted design would be
-  hugely beneficial to the field of CNNs.
+% \subsection{Improved Analysis Methods}
+  % One benefit of having set filters in the Scatternet design versus purely
+  % learned ones can be seen in the difference between the axes labels of
+  % \autoref{fig:reference_filt_energies} and \autoref{fig:scat1_filt_energies}.
+  % We were able to label the slices in the Scatternet design, see that some of
+  % the slices were not being used much in the learned CNN, and design
+  % experiments that removed these slices, which improved training time and
+  % accuracy. This kind of targetted design would be
+  % hugely beneficial to the field of CNNs.
 
-  Unfortunately, we have not yet fine tuned our visualizations. The figures in
-  \autoref{fig:inv_scat} are only toy examples at this stage. They show that
-  it is possible to get images like those from the work of
-  \citet{zeiler_visualizing_2014} from a subset of Scatternet
-  coefficients. 
+  % Unfortunately, we have not yet fine tuned our visualizations. The figures in
+  % \autoref{fig:inv_scat} are only toy examples at this stage. They show that
+  % it is possible to get images like those from the work of
+  % \citet{zeiler_visualizing_2014} from a subset of Scatternet
+  % coefficients. 
 
-\section{Future Work}\label{sec:future_work}
+% \section{Future Work}\label{sec:future_work}
   
-\subsection{Closing the Gap}\label{sec:closing_the_gap}
-  The first layer of a CNN \emph{can} be replaced with a first order
-  Scatternet, with currently a small loss of performance.  Getting this result is
-  promising, but it needs further work. If we were to reduce this gap, we would
-  have developed a network that could train \emph{faster} than current methods.
-  While this is not our primary research goal, it will nonetheless be a useful
-  addition to the field.
+% \subsection{Closing the Gap}\label{sec:closing_the_gap}
+  % The first layer of a CNN \emph{can} be replaced with a first order
+  % Scatternet, with currently a small loss of performance.  Getting this result is
+  % promising, but it needs further work. If we were to reduce this gap, we would
+  % have developed a network that could train \emph{faster} than current methods.
+  % While this is not our primary research goal, it will nonetheless be a useful
+  % addition to the field.
 
-  We need to spend some time researching the cause for the current performance
-  gap. We must revisit the first layers of the CNN and draw inspiration from
-  here. What is missing?
+  % We need to spend some time researching the cause for the current performance
+  % gap. We must revisit the first layers of the CNN and draw inspiration from
+  % here. What is missing?
 
-  The basis functions for the first order Scatternet are considerably fewer in
-  number than used by the CNN\@. We are currently using $24$ compared to $64$
-  in the pure CNN network. While relying on fewer operations is beneficial,
-  this may be an easy way to increase our final accuracy. Two possibilities
-  immediately come to mind --- we could add in more colour channels as
-  currently, the assumption is that only low frequency is necessary for colour,
-  but there certainly are some mid-low level frequency colour filters in both
-  the AlexNet first layer \autoref{fig:alexnet_filters}, and the \cifar\ first
-  layer \autoref{fig:tensorflow_filters}. Also, we could increase the number of
-  scales we have per octave from one to two, to get a better coverage of the
-  frequency space.
+  % The basis functions for the first order Scatternet are considerably fewer in
+  % number than used by the CNN\@. We are currently using $24$ compared to $64$
+  % in the pure CNN network. While relying on fewer operations is beneficial,
+  % this may be an easy way to increase our final accuracy. Two possibilities
+  % immediately come to mind --- we could add in more colour channels as
+  % currently, the assumption is that only low frequency is necessary for colour,
+  % but there certainly are some mid-low level frequency colour filters in both
+  % the AlexNet first layer \autoref{fig:alexnet_filters}, and the \cifar\ first
+  % layer \autoref{fig:tensorflow_filters}. Also, we could increase the number of
+  % scales we have per octave from one to two, to get a better coverage of the
+  % frequency space.
   
-  Unfortunately, both of these additions would mean we would lose perfect
-  reconstruction, but that does not mean we cannot still invert the
-  representations, it just becomes slightly more difficult.
+  % Unfortunately, both of these additions would mean we would lose perfect
+  % reconstruction, but that does not mean we cannot still invert the
+  % representations, it just becomes slightly more difficult.
 
-\subsection{Moving to a new Dataset}\label{sec:new_dataset}
-  We believe that we are not playing wavelets to their strengths by using such
-  small images as the ones found in \cifar. Further, they are very poor
-  representations of the images found in the real world, and it would be
-  lackluster to restrict ourselves to them. Fortunately, there are no shortages
-  in choosing an alternative dataset, with PASCAL-VOC a good candidate due to
-  its similar number of training samples.
+% \subsection{Moving to a new Dataset}\label{sec:new_dataset}
+  % We believe that we are not playing wavelets to their strengths by using such
+  % small images as the ones found in \cifar. Further, they are very poor
+  % representations of the images found in the real world, and it would be
+  % lackluster to restrict ourselves to them. Fortunately, there are no shortages
+  % in choosing an alternative dataset, with PASCAL-VOC a good candidate due to
+  % its similar number of training samples.
 
-  This is best done sooner rather than later. It will take time to get used to
-  working on a new dataset, and then some more to fine tune our design. As
-  a first step, we will look at a design like AlexNet, replacing the first layer with
-  a Scatternet, as we have done for \cifar.
+  % This is best done sooner rather than later. It will take time to get used to
+  % working on a new dataset, and then some more to fine tune our design. As
+  % a first step, we will look at a design like AlexNet, replacing the first layer with
+  % a Scatternet, as we have done for \cifar.
 
-\subsection{Improved Visualizations}\label{sec:visualizations}
-  We believe that visualizations are key to unlocking the secrets of CNNs. Our
-  attempts so far at creating visualizations have taught us a great deal, but
-  further work needs to be done. In particular, a recent paper by
-  \citet{grun_taxonomy_2016} has given a detailed comparison and analysis of
-  how visualizations have developed since the work of
-  \citet{zeiler_visualizing_2014}. We must spend time to study these
-  works and use them to improve our visualizations method with Scatternets.
+% \subsection{Improved Visualizations}\label{sec:visualizations}
+  % We believe that visualizations are key to unlocking the secrets of CNNs. Our
+  % attempts so far at creating visualizations have taught us a great deal, but
+  % further work needs to be done. In particular, a recent paper by
+  % \citet{grun_taxonomy_2016} has given a detailed comparison and analysis of
+  % how visualizations have developed since the work of
+  % \citet{zeiler_visualizing_2014}. We must spend time to study these
+  % works and use them to improve our visualizations method with Scatternets.
 
-\subsection{Going Deeper}\label{sec:going_deeper}
-  To really indicate a gained
-  insight, we need to be able to replace more than one layer of a CNN.
+% \subsection{Going Deeper}\label{sec:going_deeper}
+  % To really indicate a gained
+  % insight, we need to be able to replace more than one layer of a CNN.
   
-  This does not mean that Scatternets are a poor feature extractor, they have already
-  been proven to be state of the art in texture datasets
-  \citep{sifre_rotation_2013, sifre_rigid-motion_2014}, but they do not help us
-  gain insight into CNNs. 
+  % This does not mean that Scatternets are a poor feature extractor, they have already
+  % been proven to be state of the art in texture datasets
+  % \citep{sifre_rotation_2013, sifre_rigid-motion_2014}, but they do not help us
+  % gain insight into CNNs. 
 
-  As we now have a framework that successfully mimics one layer of
-  a CNN\@. We believe that the
-  visualization tools that we are currently working on  will be the key to
-  unlocking more information about the deeper layers of CNNs, which will in
-  turn allow us to design enhancements to the Scatternets.
+  % As we now have a framework that successfully mimics one layer of
+  % a CNN\@. We believe that the
+  % visualization tools that we are currently working on  will be the key to
+  % unlocking more information about the deeper layers of CNNs, which will in
+  % turn allow us to design enhancements to the Scatternets.
   
-\subsection{Resiudal Scattering Layers}\label{sec:residual_scat}
-  This somewhat continues on from \autoref{sec:closing_the_gap}, but also could
-  lead to a complete rethink of the Scatternet design.
-  We want to investigate to achieve this is inspired from
-  the recent state of the art ResNets --- mentioned in
-  \autoref{sec:cnn_other_trends}. Residual networks work on the basis that if
-  the ideal mapping $\mathcal{H}(x)$ is close to the identity mapping, then
-  it will be easier to learn $\mathcal{F}(x) := \mathcal{H}(x)-x$ than to learn
-  $\mathcal{H}(x)$ directly. To do this, they construct a residual layer, shown
-  again in \autoref{fig:original_resnet}.
+% \subsection{Resiudal Scattering Layers}\label{sec:residual_scat}
+  % This somewhat continues on from \autoref{sec:closing_the_gap}, but also could
+  % lead to a complete rethink of the Scatternet design.
+  % We want to investigate to achieve this is inspired from
+  % the recent state of the art ResNets --- mentioned in
+  % \autoref{sec:cnn_other_trends}. Residual networks work on the basis that if
+  % the ideal mapping $\mathcal{H}(x)$ is close to the identity mapping, then
+  % it will be easier to learn $\mathcal{F}(x) := \mathcal{H}(x)-x$ than to learn
+  % $\mathcal{H}(x)$ directly. To do this, they construct a residual layer, shown
+  % again in \autoref{fig:original_resnet}.
   
-  Assuming we have developed a near-optimal mapping with a first order
-  Scatternet, $S^1_{J}$, then a sensible thing to do is to improve performance by
-  adding in extra flexibility and the ability to better fit the nuances of the
-  training set. We propose to do that with the residual layer shown in
-  \autoref{fig:scatnet_res}.
+  % Assuming we have developed a near-optimal mapping with a first order
+  % Scatternet, $S^1_{J}$, then a sensible thing to do is to improve performance by
+  % adding in extra flexibility and the ability to better fit the nuances of the
+  % training set. We propose to do that with the residual layer shown in
+  % \autoref{fig:scatnet_res}.
 
-  \begin{figure}
-    % \subfloat[ResNet
-    % Layer]{\makebox[0.5\textwidth][c]{\includegraphics[height=7cm]{images/Resnet.png}
-      % \label{fig:original_resnet}}}
-    % \subfloat[Scatternet
-    % + Residual]{\makebox[0.5\textwidth]{\includegraphics[height=7cm]{images/Scatnet_res.png}
-      % \label{fig:scatnet_res}}}
-    \caption[Possible future work with residual mappings]
-            {Possible future work with residual mappings.
-            \subref{fig:original_resnet} shows the residual layer as used by
-            \citep{he_deep_2015}. These networks started with the assumption
-            that the the identity mapping $f(\cdot) = I$ was a good reference
-            function, and the network should learn deviations from that.
-            \subref{fig:scatnet_res} shows the proposed architecture. Assuming
-            the first order Scatternet (wavelet transform + modulus + averaging) is a good
-            base mapping, improve on it by allowing some deviation from it as
-            a residual.}
-    \label{fig:improved_design}
-  \end{figure}
+  % \begin{figure}
+    % % \subfloat[ResNet
+    % % Layer]{\makebox[0.5\textwidth][c]{\includegraphics[height=7cm]{images/Resnet.png}
+      % % \label{fig:original_resnet}}}
+    % % \subfloat[Scatternet
+    % % + Residual]{\makebox[0.5\textwidth]{\includegraphics[height=7cm]{images/Scatnet_res.png}
+      % % \label{fig:scatnet_res}}}
+    % \caption[Possible future work with residual mappings]
+            % {Possible future work with residual mappings.
+            % \subref{fig:original_resnet} shows the residual layer as used by
+            % \citep{he_deep_2015}. These networks started with the assumption
+            % that the the identity mapping $f(\cdot) = I$ was a good reference
+            % function, and the network should learn deviations from that.
+            % \subref{fig:scatnet_res} shows the proposed architecture. Assuming
+            % the first order Scatternet (wavelet transform + modulus + averaging) is a good
+            % base mapping, improve on it by allowing some deviation from it as
+            % a residual.}
+    % \label{fig:improved_design}
+  % \end{figure}
 
-\subsection{Exploring the Scope of Scatternets}\label{sec:scat_scope}
-  We believe that applications a designed architecture like the
-  Scatternet is well suited for are unsupervised and low data tasks.
-  More specifically, any method that is difficult to propagate back gradients
-  (due to the lack of labelled data, or to only a few training points). We
-  would like to spend some time analysing what progress can be made in these
-  fields with the knowledge we have.
+% \subsection{Exploring the Scope of Scatternets}\label{sec:scat_scope}
+  % We believe that applications a designed architecture like the
+  % Scatternet is well suited for are unsupervised and low data tasks.
+  % More specifically, any method that is difficult to propagate back gradients
+  % (due to the lack of labelled data, or to only a few training points). We
+  % would like to spend some time analysing what progress can be made in these
+  % fields with the knowledge we have.
 
-\subsection{Analysing Newer CNN Layers}\label{sec:new_cnn_layers}
-  For the moment we have satisfied ourselves with examining architectures like
-  Cuda Convnet and AlexNet, which while high end, are not state of the art.
-  There have been many new layers and designs added in since then, which have
-  taken modern CNNs even further. We have already covered one example, the
-  Residual Unit. Another example is the `Inception Unit'
-  \citep{szegedy_going_2015,szegedy_rethinking_2015}, which combines
-  $5\x 5$, $3\x 3$, and $1\x 1$ convolutions of different.
+% \subsection{Analysing Newer CNN Layers}\label{sec:new_cnn_layers}
+  % For the moment we have satisfied ourselves with examining architectures like
+  % Cuda Convnet and AlexNet, which while high end, are not state of the art.
+  % There have been many new layers and designs added in since then, which have
+  % taken modern CNNs even further. We have already covered one example, the
+  % Residual Unit. Another example is the `Inception Unit'
+  % \citep{szegedy_going_2015,szegedy_rethinking_2015}, which combines
+  % $5\x 5$, $3\x 3$, and $1\x 1$ convolutions of different.
 
-  Also, there is a new trend of using stride-2 convolution with downsampling is
-  something we would like to investigate more, as it could lead us to clues
-  about how to use subsampling and scale in a CNN, ideas that fit very
-  naturally in a wavelet based network.
+  % Also, there is a new trend of using stride-2 convolution with downsampling is
+  % something we would like to investigate more, as it could lead us to clues
+  % about how to use subsampling and scale in a CNN, ideas that fit very
+  % naturally in a wavelet based network.
 
-\subsection{Revisiting Greedy Layer-Wise Training}\label{sec:greedy_layerwise}
-  The work on using unsupervised Deep Belief Networks to progressively train
-  the hidden units of a deep neural network by \citet{bengio_greedy_2007} has
-  been largely abandoned recently. This is sad to see, as it looked like
-  a promising, well-defined way to train deep networks. We would like to
-  revisit this in the context of a Scatternet, and attempt to use this
-  paradigm.
+% \subsection{Revisiting Greedy Layer-Wise Training}\label{sec:greedy_layerwise}
+  % The work on using unsupervised Deep Belief Networks to progressively train
+  % the hidden units of a deep neural network by \citet{bengio_greedy_2007} has
+  % been largely abandoned recently. This is sad to see, as it looked like
+  % a promising, well-defined way to train deep networks. We would like to
+  % revisit this in the context of a Scatternet, and attempt to use this
+  % paradigm.
 
-\section{Timeline}
-We set our timeline for the next two years in \autoref{tab:plan}. The future
-work we have discussed so far roughly falls into two categories: the first four
-(\S\S~\ref{sec:closing_the_gap}--\ref{sec:going_deeper}) fall on what we can
-consider the  main line of research into designing a learned CNN style network.
-The second four (\S\S~\ref{sec:residual_scat}--\ref{sec:greedy_layerwise}) is
-more speculative research, that we hope will allow us to explore and gain
-inspiration from similar problems.
+% \section{Timeline}
+% We set our timeline for the next two years in \autoref{tab:plan}. The future
+% work we have discussed so far roughly falls into two categories: the first four
+% (\S\S~\ref{sec:closing_the_gap}--\ref{sec:going_deeper}) fall on what we can
+% consider the  main line of research into designing a learned CNN style network.
+% The second four (\S\S~\ref{sec:residual_scat}--\ref{sec:greedy_layerwise}) is
+% more speculative research, that we hope will allow us to explore and gain
+% inspiration from similar problems.
 
-Ordering these tasks chronologically would not be very well thought out. For example, 
-successfully achieving \autoref{sec:going_deeper} is the main goal of the PhD
-after all, so it would be naive to say we believe we can achieve it by the end
-of the second year. Instead, we believe that the main line of research will take us 
-a long time, and during that time, we must explore the more speculative
-research. Also, a few of the tasks will need to be revisited at certain points
---- just as importantly as not being too ambitious, we should not be too lazy.
-I.e., we should not leave our first attempt at building deeper layers of a CNN
-until our third year. The same goes for improving our visualizations.
+% Ordering these tasks chronologically would not be very well thought out. For example, 
+% successfully achieving \autoref{sec:going_deeper} is the main goal of the PhD
+% after all, so it would be naive to say we believe we can achieve it by the end
+% of the second year. Instead, we believe that the main line of research will take us 
+% a long time, and during that time, we must explore the more speculative
+% research. Also, a few of the tasks will need to be revisited at certain points
+% --- just as importantly as not being too ambitious, we should not be too lazy.
+% I.e., we should not leave our first attempt at building deeper layers of a CNN
+% until our third year. The same goes for improving our visualizations.
 
-\begin{table}
-  \caption[Our plan for the remainder of the PhD]
-          {Our plan for the remainder of the PhD. The first column lists the
-          months we want to do the work in, and the second column describes the
-          task, and the questions we want to answer in this time.}
-  \label{tab:plan}
-  %\begin{tabularx}{\textwidth}[t]{XX} \toprule
-    \begin{tabularx}{\textwidth}{>{\hsize=.5\hsize}X>{\hsize=1.2\hsize}X>{\hsize=1.2\hsize}X}\toprule
-    \textbf{Second Year} & & \Tstrut\Bstrut\\\midrule
-    Date & {Task} & Second Task\Tstrut\Bstrut\\\midrule
-    Oct--Nov & {Closing the Gap \autoref{sec:closing_the_gap}} &\\
-    Dec--Jan & {Developing ResNet Layers \autoref{sec:residual_scat}} &\\
-    Feb--Mar & {Improved Visualizations Research 
-      \autoref{sec:visualizations}}   &\\
-    Apr--May & {Moving to a new dataset (preparation)
-      \autoref{sec:new_dataset}} &\\
-      Jun--Jul & Moving to a new dataset (testing) \autoref{sec:new_dataset} & Going Deeper
-      \autoref{sec:going_deeper}\\ 
-    Aug--Sep & Going Deeper \autoref{sec:going_deeper} 
-      & Recap on Second Year\Bstrut\\\midrule
+% \begin{table}
+  % \caption[Our plan for the remainder of the PhD]
+          % {Our plan for the remainder of the PhD. The first column lists the
+          % months we want to do the work in, and the second column describes the
+          % task, and the questions we want to answer in this time.}
+  % \label{tab:plan}
+  % %\begin{tabularx}{\textwidth}[t]{XX} \toprule
+    % \begin{tabularx}{\textwidth}{>{\hsize=.5\hsize}X>{\hsize=1.2\hsize}X>{\hsize=1.2\hsize}X}\toprule
+    % \textbf{Second Year} & & \Tstrut\Bstrut\\\midrule
+    % Date & {Task} & Second Task\Tstrut\Bstrut\\\midrule
+    % Oct--Nov & {Closing the Gap \autoref{sec:closing_the_gap}} &\\
+    % Dec--Jan & {Developing ResNet Layers \autoref{sec:residual_scat}} &\\
+    % Feb--Mar & {Improved Visualizations Research 
+      % \autoref{sec:visualizations}}   &\\
+    % Apr--May & {Moving to a new dataset (preparation)
+      % \autoref{sec:new_dataset}} &\\
+      % Jun--Jul & Moving to a new dataset (testing) \autoref{sec:new_dataset} & Going Deeper
+      % \autoref{sec:going_deeper}\\ 
+    % Aug--Sep & Going Deeper \autoref{sec:going_deeper} 
+      % & Recap on Second Year\Bstrut\\\midrule
+% % %
+    % \textbf{Third Year} & & \Tstrut\Bstrut\\\midrule
+    % Oct--Nov & {Exploring the Scope of Scatternets
+      % \autoref{sec:scat_scope}} & \\
+    % Dec--Jan & Revisiting Greedy Layer-Wise 
+      % Training \autoref{sec:greedy_layerwise} & Analysing Newer CNN Layers
+      % \autoref{sec:new_cnn_layers} \\
+    % Feb--Mar & Revisiting Greedy Layer-Wise
+      % Training\autoref{sec:greedy_layerwise} & Analysing Newer CNN Layers
+      % \autoref{sec:new_cnn_layers} \\
+    % Apr--May & {Improved Visualizations Research
+      % \autoref{sec:visualizations}}\\
+    % Jun--Jul & {Going Deeper \autoref{sec:going_deeper}}\\ 
+    % Aug--Sep & Going Deeper \autoref{sec:going_deeper} & Recap on Third Year\Bstrut\\\midrule
 % %
-    \textbf{Third Year} & & \Tstrut\Bstrut\\\midrule
-    Oct--Nov & {Exploring the Scope of Scatternets
-      \autoref{sec:scat_scope}} & \\
-    Dec--Jan & Revisiting Greedy Layer-Wise 
-      Training \autoref{sec:greedy_layerwise} & Analysing Newer CNN Layers
-      \autoref{sec:new_cnn_layers} \\
-    Feb--Mar & Revisiting Greedy Layer-Wise
-      Training\autoref{sec:greedy_layerwise} & Analysing Newer CNN Layers
-      \autoref{sec:new_cnn_layers} \\
-    Apr--May & {Improved Visualizations Research
-      \autoref{sec:visualizations}}\\
-    Jun--Jul & {Going Deeper \autoref{sec:going_deeper}}\\ 
-    Aug--Sep & Going Deeper \autoref{sec:going_deeper} & Recap on Third Year\Bstrut\\\midrule
-%
-    \textbf{Fourth Year}  && \Tstrut\Bstrut\\\midrule
-    Oct-Dec & {Writing up}\\ 
-  \end{tabularx}
-\end{table}
+    % \textbf{Fourth Year}  && \Tstrut\Bstrut\\\midrule
+    % Oct-Dec & {Writing up}\\ 
+  % \end{tabularx}
+% \end{table}
     
 
 % \begin{table}

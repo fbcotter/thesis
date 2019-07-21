@@ -23,10 +23,10 @@ converge to? E.g.\ consider the gradient of approach $m=\frac{dy}{dx}=\tan
   \gamma = \alpha + i\beta = D(x,y) + P(x,y)e^{-2i\theta}
 \end{equation}
 where
-\begin{eqnarray}
-  D(x,y) & = & \half(u_x + v_y + i(v_x - u_y)) \\
-  P(x,y) & = & \half(u_x - v_y + i(v_x + u_y))
-\end{eqnarray}
+\begin{align}
+  D(x,y) & =  \half(u_x + v_y + i(v_x - u_y)) \\
+  P(x,y) & =  \half(u_x - v_y + i(v_x + u_y))
+\end{align}
 $P(x,y)=\frac{dw}{d\conj{z}}$ needs to be 0 for the function to be analytic.
 This is where we get the Cauchy-Riemann equations:
 \begin{align}
@@ -225,7 +225,7 @@ But for $\ell_1$ regularization:
   \lnorm{r}{2} = \lnorm{\sqrt{x^2+y^2}}{1} = \sum \sqrt{x^2 + y^2} \neq \lnorm{x}{1} + \lnorm{y}{1}
 \end{equation}
 
-\section{Soft Shrinkage}
+\section{Soft Shrinkage}\label{app:ch6:soft_shrink}
 Let $z = x + jy$ and $w = u+jv = \mathcal{S}(z, t)$ where we define the soft
 shrinkage on a complex number $z = re^{j\theta}$ by a real threshold $t$ as:
 \begin{equation}

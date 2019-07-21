@@ -754,48 +754,79 @@ Another option is to apply it to the magnitude of the bandpass coefficients. Of
 course these are all strictly positive so the ReLU on its own would not do
 anything. However, they can be arbitrarily scaled and shifted by using a batch
 normalization layer. Then the magnitude could shift to (invalid) negative
-values, which can then be rectified by the ReLU. %
+values, which can then be rectified by the ReLU. 
+
+Dropping the scale
+subscript $j$ for clarity, let a bandpass coefficient at a given scale be
+$v = r_v e^{j\theta_v}$ and define
+$\mu_r = \mathbb{E}[r_j]$ and $\sigma_r^2 = \mathbb{E}[(r_v-\mu_r)^2]$, then
+applying batch-normalization and the ReLU to the magnitude of $v_j$ means we
+get:
 \begin{align}
-  \theta_j &= \arctan \left(\frac{\imag{v_j}}{\real{v_{j}}} \right) \\
-  r_j &= \sqrt{\real{v_j}^2 + \imag{v_j}^2} \\
-  r_j' &= \max (0,\ BN(r_j)) = \max(0,\ \gamma \frac{r_j-\mu_r}{\sigma_r} + \beta) \label{eq:ch6:magrelu_bp}\\
-  u_j &= r_j' e^{j\theta_j}
+  r_u &= \F{ReLU}(BN(r_v)) = \max(0,\ \gamma \frac{r_v-\mu_r}{\sigma_r} + \beta) \label{eq:ch6:magrelu_bp} \\
+  u &= r_u e^{j\theta_v} \label{eq:ch6:magrelu_bp2} 
 \end{align}
-This also works nicely on the lowpass coefficients:
+This also works equivalently on the lowpass coefficients although $v_{lp}$ can
+be negative unlike $r_v$:
 \begin{equation}
-  u_{lp} = \F{max}(0,\ BN(v_{lp})) \label{eq:ch6:bnrelu_lp}
+  u_{lp} = \F{ReLU}(BN(v_{lp})) = \max(0, \gamma' \frac{v_{lp} - \mu_{lp}}{\sigma_{lp}} + \beta') \label{eq:ch6:bnrelu_lp}
 \end{equation}
 %
 \subsection{Thresholding}
-The soft and hard thresholding operators for a threshold $t>0$ are defined as:
+For $t \in \reals,\ z = re^{j\theta} \in \complexes$ the pointwise hard thresholding is defined as:
 \begin{align}
-  \mathcal{H}(x, t) &= \indic(|x| > t)x \\
-  \mathcal{S}(x, t) &= \sgn(x)\max(0,\ |x| - t)  \\
-                    &= \frac{x}{|x|}\max(0,\ |x|-t) \label{eq:ch6:relu_st}
+  \mathcal{H}(z, t) &= \left\{ \begin{array}{ll}
+    z & r \geq t \\
+    0 & r < t\\
+  \end{array} \right. \\
+  &= \indic(r > t) z
 \end{align}
-Note that \eqref{eq:ch6:relu_st} is very similar to \eqref{eq:ch6:magrelu_bp} as $r_j \geq 0$. We
-can rewrite \eqref{eq:ch6:magrelu_bp} by taking the strictly positive terms
+The pointwise soft thresholding is:
+\begin{align}
+  \mathcal{S}(z, t) &= \left\{ \begin{array}{ll}
+    (r-t)e^{j\theta} & r \geq t \\
+    0 & r < t\\
+  \end{array} \right. \\
+  &= \max(0, r - t)e^{j\theta} \label{eq:ch6:relu_st}
+\end{align}
+Note that \eqref{eq:ch6:relu_st} is very similar to \eqref{eq:ch6:magrelu_bp} and \eqref{eq:ch6:magrelu_bp2}.
+We can rewrite \eqref{eq:ch6:magrelu_bp} by taking the strictly positive terms
 $\gamma$, $\sigma$ outside of the $\max$ operator:
 \begin{align}
-  r_j' &= \max(0, \gamma \frac{r_j-\mu}{\sigma} + \beta) \\
-       &= \frac{\gamma}{\sigma_r}\max\left(0, r_j - \mu_r + \frac{\sigma_r\beta}{\gamma}\right) 
+  r_u &= \max(0, \gamma \frac{r_v-\mu_r}{\sigma_r} + \beta) \\
+      &= \frac{\gamma}{\sigma_r}\max\left(0, r_v - \left(\mu_r - \frac{\sigma_r\beta}{\gamma}\right)\right) 
 \end{align}
-then if $t' = \mu_r - \frac{\sigma_r\beta}{\gamma} > 0$, doing batch
+then if $t' = \mu_v - \frac{\sigma_r\beta}{\gamma} > 0$, doing batch
 normalization followed by a ReLU on the magnitude of the coefficients is the
 same as soft shrinkage with threshold $t'$, scaled by a factor
-$\frac{\gamma}{\sigma_r}$.  The same analogy does not apply to the lowpass
+$\frac{\gamma}{\sigma_r}$.  
+The same analogy does not apply to the lowpass
 coefficients, as $v_{lp}$ is not strictly positive. 
 
-To get strict soft or hard thresholding for the low and bandpass coefficients,
-we have the option of learning the threshold $t$ or setting it to achieve a
-desired sparsity level. In early experiments we found that any 
-learnt threshold $t$ quickly goes to 0, turning off the thresholding. We can
-force some sparsity level however by keeping a track of the moments of the activations with an
-exponential moving average, and finding quantiles by matching the distribution of
-the activations. For the bandpass coefficients, the activations very nearly
-follow an exponential distribution. The lowpass coefficients are a bit more
-varied, following a generalized Gaussian distribution (GGD) with shape parameter
-$\beta$ ranging from 0.6 for the earlier layers to ~1.5 for deepr layers.
+While they are similar to batch normalizations and ReLUs, we would also like 
+to test how well thresholding performs as a wavelet nonlinearity.
+To do this, we have the option of learning the threshold $t$ or setting it to achieve a
+desired sparsity level. In early experiments we found that trying to set a
+desired sparsity level (by tracking the standard deviation of the statistics
+and setting a threshold as a function of it) performed very poorly (causing a
+drop in top-1 accuracy of at least 10\%).
+Instead, we choose to learn a threshold $t$. We make this an unconstrained
+optimization problem by changing \eqref{eq:ch6:relu_st} to:
+\begin{equation}
+  \mathcal{S}(v, t) = \max(0, r-|t|)e^{j\theta}  \label{eq:ch6:relu_st2}
+\end{equation}
+
+See \autoref{app:ch6:soft_shrink} for derivations of the
+pass-through and update gradient equations. Learning a threshold is only
+possible for soft thresholding, as $\dydx{L}{t}$ is not defined for hard
+thresholding. 
+% We can
+% force some sparsity level however by keeping a track of the moments of the activations with an
+% exponential moving average, and finding quantiles by matching the distribution of
+% the activations. For the bandpass coefficients, the activations very nearly
+% follow an exponential distribution. The lowpass coefficients are a bit more
+% varied, following a generalized Gaussian distribution (GGD) with shape parameter
+% $\beta$ ranging from 0.6 for the earlier layers to ~1.5 for deepr layers.
 
 \subsection{Non-Linearity Experiments}
 \begin{algorithm}[t]
@@ -824,11 +855,11 @@ functions:
   \centering
 \begin{tabular}{l l l l l l l}
   \toprule
-  Nonlinearity & \hphantom{abc} & \multicolumn{5}{c}{Values} \\
+  Nonlinearity & \hphantom{abc} & \multicolumn{4}{l}{Values} \\
   \midrule
   Pixel && None & BN+ReLU \\
-  Lowpass && None & ReLU & BN+ReLU & $\mathcal{S}$ & $\mathcal{H}$  \\
-  Bandpass && None & ReLU & BN+MagReLU & $\mathcal{S}$ & $\mathcal{H}$ 
+  Lowpass && None & ReLU & BN+ReLU & $\mathcal{S}$ \\
+  Bandpass && None & ReLU & BN+MagReLU & $\mathcal{S}$ 
   \\\bottomrule
 \end{tabular}
 \end{table}
@@ -844,12 +875,13 @@ Where:
   \item `BN+MagReLU' applies batch normalization to the magnitude of complex
     coefficients and then makes them strictly positive with a ReLU. See
     \eqref{eq:ch6:magrelu_bp}.
-  \item $\mathcal{S}$ and $\mathcal{H}$ are the soft and hard thresholding
-    operators applied to the magnitudes of coefficients. We choose a
-    conservative sparsity level of 0.2 (20\% of coefficients set to 0) for these
-    thresholds. A full grid search over
-    sparsity levels would be beneficial, but setting it low initially allows us
-    to test its plausibility as a nonlinearity.
+  \item $\mathcal{S}$ is the soft thresholding of \eqref{eq:ch6:relu_st2}
+    applied to the magnitudes of coefficients. 
+    % We choose a
+    % conservative sparsity level of 0.2 (20\% of coefficients set to 0) for these
+    % thresholds. A full grid search over
+    % sparsity levels would be beneficial, but setting it low initially allows us
+    % to test its plausibility as a nonlinearity.
 \end{itemize}
 
 As the pixel nonliearity has only two options, the results are best displayed as
@@ -914,10 +946,10 @@ convolutional architecture, however this network has slightly fewer parameters.
       \toprule
       \diagbox[width=3cm]{$\sigma_{bp}$}{$\sigma_{lp}$}& None & ReLU & BN+ReLU & $\mathcal{S}$ & $\mathcal{H}$ \\
       \hline
-      None & 45.0 & 63.1 & 64.4 & 54.1 & 42.5 \\
-      ReLU & 42.6 & 62.4 & 63.9 & 54.4 & 41.8\\
-      BN+MagReLU & 48.5 & 65.0 & 65.1 & X & X\\
-      $\mathcal{S}$ & X & X & X & X & X \\
+      None & 45.0 & 63.1 & 64.4 & 61.4 & 42.5 \\
+      ReLU & 42.6 & 62.4 & 63.9 & 60.7 & 41.8\\
+      BN+MagReLU & 48.5 & 65.0 & 62.6 & X & X\\
+      $\mathcal{S}$ & X & X & X & 61.5 & X \\
       $\mathcal{H}$ & 41.3 & 60.7 & X & 52.0 & 40.6\\ 
       \bottomrule
     \end{tabular}
