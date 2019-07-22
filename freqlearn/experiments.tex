@@ -10,8 +10,9 @@ architecture the same.
 In this section, we are only exploring the wavelet gain layer and not any
 wavelet nonlinearities. This equates to the path shown in \autoref{fig:ch6:fwd_chain}b. 
 I.e\. we are taking wavelet transforms of inputs, applying the gain layer and
-taking inverse wavelet transforms to do a ReLU in the pixel space. In cases like
-`gainA, gainB' from \autoref{tab:}, we go in and out of the wavelet layer twice.
+taking inverse wavelet transforms to do a ReLU in the pixel space. 
+% In cases like
+% `gainA, gainB' from \autoref{tab:}, we go in and out of the wavelet layer twice.
 
 We train all our networks for with stochastic gradient descent with momentum.
 The initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and

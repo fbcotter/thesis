@@ -1,4 +1,4 @@
-\section{Experiments}\label{sec:experiments}
+\section{Experiments}\label{sec:ch5:experiments}
 In this section we examine the effectiveness of our invariant layer by testing
 its performance on the well known datasets (listed in the order of increasing
 difficulty):
@@ -74,7 +74,7 @@ The results from the previous section seem to indicate that our proposed
 invariant layer is a slightly worse substitute for a convolutional layer.
 However we believe that this is due to the centred nature of the wavelet bases
 that were used to generate the $z$ and later the $y$ coefficients. A similar
-effect was seen in the previous chapter in \autoref{fig:ch4:shapes} where the
+effect was seen in the previous chapter in \autoref{fig:ch4:newshapes} where the
 space of shapes attainable by mixing wavelet coefficients in a $3\x 3$ area was
 much richer than those attainable by only mixing in a $1\x 1$ area. 
 
@@ -178,7 +178,7 @@ network.
 To build the second order ScatterNet, we stack two invariant layers on top of each
 other. For 3 input channels, the output of these layers has $3(1 +
 6 + 6 +36) = 147$ channels at $1/16$ the spatial input size. We then use 4
-convolutional layers, similar to convC to convF in \autoref{tab:arch} with
+convolutional layers, similar to convC to convF in \autoref{tab:ch5:cifar_tiny_arch} with
 $C=96$. In addition, we use dropout after these later convolutional layers with
 drop probability $p=0.3$.
 
@@ -205,7 +205,7 @@ multiplies, parameters and layers.
 %being quick to train --- dropping the spatial size to $8\x 8$ on CIFAR after
 %only two layers is unique to the ScatterNet design. 
 
-ScatNets A to D with 6 layers like convC to convG from \autoref{tab:arch} after
+ScatNets A to D with 6 layers like convC to convG from \autoref{tab:ch5:cifar_tiny_arch} after
 the scattering, achieve $58.1, 59.6, 60.8$ and $62.1\%$ top-1 accuracy on Tiny ImageNet. As
 these have more parameters and multiplies from the extra layers we exclude them
 from \autoref{tab:hybrid_scat}.

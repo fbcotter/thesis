@@ -1,15 +1,15 @@
 \begin{table}
   \renewcommand{\arraystretch}{1.2}
   \centering
-  \caption{Results for testing VGG like architecture with convolutional and
-  invariant layers on several datasets. An architecture with `invX' means the
-  equivalent convolutional layer `convX' from \autoref{tab:arch} was swapped for
-  our proposed layer. The top row is the reference architecture using all
-  convolutional layers. The `A' architecture is the originally proposed gain
-  layer, the `B' architecture uses the gainlayer with random shifting of the
-  activations, and the `C' architecture changes the mixing to be a learned
-  $3\x3$ kernel acting on the invariant coefficients. Numbers are averages over
-  5 runs. \textbf{TODO: Rerun C models with different hypes}.}
+  \mycaption{Ablation results for invariant layer}{Results for testing VGG like
+  architecture with convolutional and invariant layers on several datasets. An
+  architecture with `invX' means the equivalent convolutional layer `convX' from
+  \autoref{tab:ch5:cifar_tiny_arch} was swapped for our proposed layer. The top
+  row is the reference architecture using all convolutional layers. The `A'
+  architecture is the originally proposed gain layer, the `B' architecture uses
+  the gainlayer with random shifting of the activations, and the `C'
+  architecture changes the mixing to be a learned $3\x3$ kernel acting on the
+  invariant coefficients. Numbers are averages over 5 runs.}
   % \begin{tabular}{@{}lllcllcll@{}}
   \begin{tabular}{@{}lccclccclccc@{}}
     \toprule
@@ -29,6 +29,6 @@
     invA, invC& 92.2 & 92.0 & 92.5 && 71.7 & 71.0 & 70.7 && 59.4 & 59.6 & 60.1 \\
     invB, invD& 92.8 & 92.3 & 82.8 && 73.0 & 72.3 & 71.8 && 61.4 & 60.8 & 59.5 \\
     invC, invE& 91.5 & 92.0 & 92.3 && 70.9 & 71.7 & 72.4 && 61.2 & & \\ \bottomrule
-  \end{tabular}\label{tab:conv_results}
+  \end{tabular}\label{tab:ch5:conv_results}
 \end{table}
 

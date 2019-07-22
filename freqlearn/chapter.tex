@@ -218,7 +218,7 @@ With these gains we define the action of the gain layer $v = Gu$ to be:
 \end{align}
 
 Note that for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
-b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$ (see \autoref{ch6:app:complex_weights}). 
+b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$ (see \autoref{ch6:app:complex_backprop}). 
 
 The action of the gain layer with $J=1$ is is shown in
 \autoref{fig:ch6:block_diagrams}.
@@ -334,7 +334,7 @@ reshape the frequency response for each subband independently.
 
 We start with the property that for a convolutional block, the
 gradient with respect to the input is the gradient with respect to the output
-convolved with the time reverse of the filter (proved in \autoref{sec:ch2}).
+convolved with the time reverse of the filter (proved in \autoref{ch:litreview}).
 More formally, if $Y(z) = H(z) X(z)$:
 %
 \begin{equation}\label{eq:ch6:backprop}
@@ -546,7 +546,7 @@ for the wavelet gain layer. This is the first objective in
 \end{figure}
 One of the early inspriations for using wavelets in CNNs was the visualizations
 of the first layer filters learned in AlexNet. These $11\x 11$ colour filters
-(see \autoref{fig:}) look very much like a 2-D oriented wavelet transform.
+(see \autoref{fig:ch1:alex_filt}) look very much like a 2-D oriented wavelet transform.
 
 So how well can the gain layer emulate the action of this layer? How would it
 compare to trying to use a reduced size convolutional kernel to learn the 

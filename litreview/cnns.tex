@@ -602,8 +602,8 @@ of tanh fucntions and MSE loss.
 \end{figure}
 
 \subsection{AlexNet}
-AlexNet \cite{krizhevsky_imagenet_2012} shown in \autoref{fig:ch2:alexnet} is
-arguably one of the most important architectures in the development in CNNs as it 
+We have already seen AlexNet \cite{krizhevsky_imagenet_2012} in \autoref{ch:intro}. 
+It is arguably one of the most important architectures in the development in CNNs as it 
 was able to experimentally prove that CNNs can be used for complex tasks. This
 required many innovations. In particular, they used multiple GPUs to do fast
 processing on large images, used the ReLU to avoid saturation, and added dropout
@@ -613,15 +613,15 @@ roughly a week.
 The first layer uses convolutions with a spatial support of $11\x11$, followed
 by $5\x 5$ and $3\x 3$ for the final three layers.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=\textwidth]{\imgpath/alexnet}
-  \mycaption{The AlexNet architecture}{Designed for the ImageNet challenge, 
-  AlexNet may look like \autoref{fig:ch2:lenet} but is
-  much larger. Composed of 5 convolutional layers and 3 fully connected layers.
-  Figure taken from \cite{krizhevsky_imagenet_2012}.}
-  \label{fig:ch2:alexnet}
-\end{figure}
+% \begin{figure}
+  % \centering
+  % \includegraphics[width=\textwidth]{\imgpath/alexnet}
+  % \mycaption{The AlexNet architecture}{Designed for the ImageNet challenge, 
+  % AlexNet may look like \autoref{fig:ch2:lenet} but is
+  % much larger. Composed of 5 convolutional layers and 3 fully connected layers.
+  % Figure taken from \cite{krizhevsky_imagenet_2012}.}
+  % \label{fig:ch2:alexnet}
+% \end{figure}
 
 \subsection{VGGnet}
 The Visual Geometry Group (VGG) at Oxford came second in the ILSVRC challenge in

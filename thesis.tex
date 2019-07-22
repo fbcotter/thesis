@@ -164,6 +164,15 @@
 % ********************************** Back Matter *******************************
 % Backmatter should be commented out, if you are using appendices after References
 %\backmatter
+% ********************************** Appendices ********************************
+
+\cleardoublepage\makeatletter\@openrightfalse\makeatother
+\begin{appendices}
+  \input{dtcwt_scat/appendix}
+  \input{visualizations/appendix}
+  \input{invariantlayer/appendix}
+  \input{freqlearn/appendix}
+\end{appendices}
 
 % ********************************** Bibliography ******************************
 \begin{spacing}{0.9}
@@ -186,18 +195,7 @@
 
 \printbibliography[heading=bibintoc, title={References}]
 
-
 \end{spacing}
-
-% ********************************** Appendices ********************************
-
-\cleardoublepage\makeatletter\@openrightfalse\makeatother
-\begin{appendices}
-  \input{dtcwt_scat/appendix}
-  \input{visualizations/appendix}
-  \input{invariantlayer/appendix}
-  \input{freqlearn/appendix}
-\end{appendices}
 %\begin{appendices} % Using appendices environment for more functunality
 
 % \include{appendix1}

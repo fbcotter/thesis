@@ -200,15 +200,16 @@ $\widetilde{\psi}$:
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.9\textwidth]{\imgpath/deconv_images.png}
-  \caption{Visualization of a random subset of features from $S_0$ (all
-  3), $S_1$ (6 from the 12) and $S_2$ (16 from the 36) scattering
-    outputs. We record the top 9 activations for the chosen features and project
-    them back to the pixel space. We show them alongside the input image patches
-    which caused the large activations. We also include reconstructions from
-    layer conv2\_2 of VGG Net \cite{simonyan_very_2014}(a popular CNN, often used
-    for feature extraction) for reference --- here we display 16 of the 128
-    channels. The VGG reconstructions were made with a CNN DeconvNet based on
-    \cite{zeiler_visualizing_2014}. Image best viewed digitally.}
+  \mycaption{Comparison of Scattering to Convolutional features}{Visualization
+  of a random subset of features from $S_0$ (all 3), $S_1$ (6 from the 12) and
+  $S_2$ (16 from the 36) scattering outputs. We record the top 9 activations for
+  the chosen features and project them back to the pixel space. We show them
+  alongside the input image patches which caused the large activations. We also
+  include reconstructions from layer conv2\_2 of VGG Net
+  \cite{simonyan_very_2014}(a popular CNN, often used for feature extraction)
+  for reference --- here we display 16 of the 128 channels. The VGG
+  reconstructions were made with a CNN DeconvNet based on
+  \cite{zeiler_visualizing_2014}. Image best viewed digitally.}
   \label{fig:ch4:reconstructions}
 \end{figure}
 

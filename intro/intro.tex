@@ -70,14 +70,19 @@ vertical lines, that these early layers of perception are in fact \emph{learned}
 % \end{figure}
 
 \section{Convolutional Neural Networks}
-  \begin{figure}
-    \centering
-      % \includegraphics[width=\textwidth]{\imgpath/dtcwt_gain}
-      \includegraphics[width=\textwidth]{\imgpath/alexnet.png}
-      \mycaption{Convolutional Architecture of
-      \cite{krizhevsky_imagenet_2012}}{}
-      \label{fig:ch1:cnn_arch}
-    \end{figure}
+\begin{figure}
+  \centering
+    % \includegraphics[width=\textwidth]{\imgpath/dtcwt_gain}
+    \includegraphics[width=\textwidth]{\imgpath/alexnet.png}
+    \mycaption{Convolutional Architecture example}{The previous layer's activations are
+    combined with a learned convolutional filter.
+    Note that while the activation maps are 3D arrays, the convolution is only
+    a 2D operation. This means the filters have the same number of channels as
+    the input and produce only one output channel. Multiple channels are made by
+    convolving with multiple filters. Not shown here are the nonlinearities that
+    happen in between convolution operations. Image taken from \cite{krizhevsky_imagenet_2012}}.
+    \label{fig:ch1:cnn_arch}
+  \end{figure}
 The current state of the art in image understanding sysems are 
 Convolutional Neural Networks (CNNs). These are a learned model that
 stacks many convolutional filters on top of each other separated by
@@ -112,7 +117,7 @@ only 5 conovlutional layers, whereas the 2015 ILSVRC winner ResNet \cite{he_deep
 achieved 3.57\% top-5 error with 151 convolutional layers (and had some
 experiments with 1000 layer networks).
 
-\section{Problems with CNNs and Project Motivation}\label{sec:motivation}
+\section{Issues with CNNs}\label{sec:ch1:motivation}
 \begin{figure}
   \centering
   \subfloat[conv1 filters]{
@@ -131,8 +136,8 @@ experiments with 1000 layer networks).
   \includegraphics[width=\textwidth]{\imgpath/out3.jpg}
   \label{fig:ch1:alex_conv3}
   }
-  \mycaption{The first layer filters learned by AlexNet and the first three
-  layer's activations}{\subref{fig:ch1:alex_filt} The $11\x 11$ filters for the
+  \mycaption{Example first layer filters and the first three
+  layer's outputs}{\subref{fig:ch1:alex_filt} The $11\x 11$ filters for the
   first stage of AlexNet. Of the 96 filters, 48 were learned on one GPU and
   another 48 on another GPU. Interestingly, one GPU has learned mostly
   lowpass/colour filters and the other has learned oriented bandpass
@@ -151,12 +156,12 @@ dimension typically much larger than its two spatial dimensions. Additionally,
 it is not clear what the input channels themselves correspond to. For illustration
 purposes, we have also shown some example activations from the first three
 convolutional layers for AlexNet in
-\autoref{fig:ch1:alex_conv1}-\autoref{fig:ch1:alex_conv3}. These activations are
-taken after a specific nonlinearity that sets negative values to 0 (hence the
-large black regions). We can see in `conv1' (\autoref{fig:ch1:alex_conv1}) that
-some of the first layer channels are responding to edges or colour information,
-but as we go \emph{deeper}, it becomes less and less clear
-what each activation is responding to.
+\autoref{fig:ch1:alexnet_filters}\subref{fig:ch1:alex_conv1}-\subref{fig:ch1:alex_conv3}\footnote{These activations are
+taken after a specific nonlinearity that sets negative values to 0, hence the
+large black regions.}. We can see in \autoref{fig:ch1:alex_conv1} that
+in the conv1 activations, some of the first layer channels are responding to
+edges or colour information, but as we go deeper to conv2 and conv3, it becomes
+less and less clear what each activation is responding to.
 
 Aside from their lack of interpretability, it takes a long time and a lot of
 effort to train state of the art CNNs. Typical networks that have won ILSVRC
@@ -177,151 +182,140 @@ has contributed to it making its classification or regression choice.
 Without this information, the use of these incredibly powerful tools could be
 restricted to research and proprietary applications.
 
-They are fairly crude in terms of signal processing, as
-the filters are arbitrary FIR filters. It is important to find ways to find an
-adequate richness to the filtering. It must still be large yet the number of the
-parameters needed to specify this should be kept as small as possible.
-
-  In particular, the starting point for our project is clear --- the filters
-  learned by the first layer of a CNN, shown in
-  \autoref{fig:alexnet_filters},
-  look like oriented wavelets. This is not surprising either from a biological
-  point of view --- as it matches the earlier mentioned results by Hubel and
-  Wiesel, or from a signal processing point of view --- as the wavelet
-  transform is a powerful and stable way to split up an image into areas of the
-  frequency domain.
-  
-  % Attempts have been made in the past to enhance a system that detects edges
-  % into a system that can detect the next level in the hierarchy --- corners
-  % and curves. This is a particularly difficult task to do without learning,
-  % due to the very large number of permutations each corner can come in. 
-
-  With this, the above goal can then be refined to a more targeted one:
-
-  %\begin{minipage}
-  \newpage
-  \begin{goals}\bf
-    Starting with a wavelet transform, we want to look at how to develop
-    a higher order system by drawing inspiration from the second and third
-    layers of a CNN\@. Achieving this will shed light on what is learned and what
-    is needed for a good image recognition system.
-  \end{goals}
-  %\end{minipage}
-
-  The second inspiration for a starting point is the recent work in developing
-  \emph{Scatternets} by Stephan\'{e} Mallat, one of the forefathers of the wavelet
-  transform, and his research group. Their work attempts to do precisely
-  what we want --- start with a wavelet transform that is sensitive to edges,
-  and then build deeper layers on top of this that are sensitive to larger
-  shapes, while being insensitive to uninformative variations such as
-  translation, rotation, and scale. Their Scatternets are purely deterministic.
-
-For example the evolution of the convolutional net over the MLP is a classic
-example of how restriction led to improvement.
+\section{An Interesting Result - The Learned Wavelet Transform}
+The structure of convolutional layers is fairly crude in terms of signal
+processing - arbitrary taps of an FIR filter are learned typically via gradient
+descent to minimize either a mean-squared error or cross entropy loss. It is perhaps surprising
+and motivating then that the filters we saw earlier learned by the first layer of a CNN
+(\autoref{fig:ch1:alexnet_filters}) look like oriented wavelets. 
+From a biological point of view this makes sense, as it matches the earlier
+mentioned results by Hubel and Wiesel. From a signal processing point of view
+this also makes sense, as the wavelet transform is a powerful and stable way to
+split up an image into areas of the frequency domain.  
+However, there was no prior placed on the filters to make them have 
+this similarity to wavelets. There were no constraints on vanishing
+moments\cite{daubechies_ten_1992} or smoothness, or even for the `conv1' activations
+to be sparse; the only constraint they had was an $\ell_2$ penalty to avoid large
+filter taps.
 
 
-As an example\footnote{While we limit the scope of our project to Imaging
-problems, CNNs can and have been used successfully in time series and
-language tasks.}, it is not hard to imagine a deep network that could be used to
-assess whether giving a bank loan to an applicant is a safe investment. It
-could compare a vector of their current and past financial situation to
-a dataset of others and choose a simple yes/no answer. Trusting a black box
-solution is deeply unsatisfactory in this situation. Not only from the
-customer's perspective, who, if declined, has the right to know why
-\cite{goodman_european_2016}, but
-also from the bank's --- before lending large sums of money, most banks
-would like to know why the network has given the all clear. `It has worked well
-before' is a poor rule to live by.
+\section{Project Motivation}
+This leads us to ask a motivating question:
 
-  We are not the first research group to be unsatisfied with not knowing the
-  mechanics of CNNs. There has been a lot of very impressive work done recently
-  on trying to visualize the response a CNN has to a given input, in particular
-  the work done by \cite{zeiler_visualizing_compact_2014}, which builds
-  `Deconvolutional Neural Networks' (deconvnets) to view the regions of the
-  input image that cause large responses at deeper layers of a CNN\@. This was the key
-  tool in the previously mentioned `Why Should I Trust You?' paper
-  \cite{ribeiro_why_2016} to find the regions of the image that make up
-  \autoref{fig:interpretability}.
+\begin{quote}
+  Is it possible to learn convolutional filters as 
+  combinations of basis functions rather than individual filter taps?
+\end{quote}
 
-  So far these tools, while useful, stop short of turning visualization around into an
-  improved strategy for designing networks. This brings us to the main goal of
-  our research:
+However in achieving this, it is important to find ways to have an adequate
+richness to filtering while reducing the number of parameters needed to specify
+this. We want to contract the space of learning to a subspace or manifold that 
+is more useful. In much the same way, the convolutional layer in a CNN is a restricted
+version of a fully connected layer in a multi-layer perceptron, yet adding this
+restriction allowed us to train more powerful networks. 
 
-  \begin{goals}\bf
-    We hope to further research into understanding \emph{how} and \emph{what} deep networks
-    learn by building a well understood and well-defined network that mimics
-    their operation. Intuition is the primary goal, and with that, we
-    believe improved performance will follow.
-  \end{goals}
+The intuition that we explore in this thesis is that \emph{complex wavelets} are the
+right basis functions for convolutional filtering in CNNs. We have already seen in the
+previous section that they would do well in replacing the first layer of a CNN,
+but can they be used at deeper layers? Their well understood and
+well defined behaviour would help us to answer the above \emph{how} and \emph{why}
+questions. Additionally, they allow us to enforce a certain amount of smoothness and near
+orthogonality; smoothness is important to avoid sensitivity to adversarial or
+spoofing attacks \cite{szegedy_intriguing_2013} and near orthogonality
+allows you to cover a large space with fewer coefficients.
 
-  We do not wish to focus only on purely handcrafted methods, nor on purely
-  learned methods. Neither is discounted, and a hybrid of the two seems to be
-  a good way to achieve our goal. 
+But first we must find out \emph{if} it is possible to get the same or near the same
+performance by using wavelets as the building blocks for CNNs, and this is the
+core goal of this thesis. 
+
+\section{ScatterNets}
+To explore this intuition, we begin by looking at one of the most
+popular current uses of wavelets in image recognition tasks, the
+Scattering Transform. 
+The Scattering Transform, or the \emph{ScatterNet}, was introduced in \cite{mallat_group_2012,
+bruna_invariant_2013} at the same time as AlexNet. It is a non black box
+network that can be thought of as a restricted complex valued CNN
+\cite{bruna_mathematical_2015}. Unlike a CNN, it has predefined
+convolutional kernels, set to complex wavelet (and scaling) functions. Due to
+its well-defined structure, it can be analyzed and bounds on its stability to 
+shifts, noise and deformations are found in \cite{mallat_group_2012}.
+%
+% This is a promising start to addressing the problems of CNNs as using
+% predefined, general filters helps us answer \emph{how} a CNN is
+% learning, although the \emph{what} is still somewhat unclear. 
+
+For a simple task like identifying small handwritten digits
+the variablities in the data are simple and small and the ScatterNet can easily
+reduce the problem into a space which a Gaussian SVM can easily solve
+\cite{bruna_invariant_2013}. For a more complex task like identifying real world
+objects, the ScatterNet can somewhat reduce the variabilities and get good
+results with an SVM, but there is a large performance gap between this and what a CNN can achieve
+\cite{oyallon_deep_2015}.
 
 \section{Layout}
-  The layout of the report is as follows.
-  \autoref{ch:litreview} explores some of the background necessary for starting
-  to develop image understanding models. In particular, it covers the
-  inspiration for CNNs and the workings of CNNs themselves. 
-
-  \autoref{ch:freq_analysis} covers the wavelet transform used by Mallat, and
-  compares it to the preferred Dual-Tree Complex Wavelet Transform (\DTCWT) by
-  Kingsbury \cite{kingsbury_complex_2001}.
-
-  \autoref{ch:scatternets} reviews in depth the Scatternet designs by Mallat
-  et.\ al.
-  This is the last chapter of literature review, before
-  \autoref{ch:dtcwt_scatternets} which starts to explore our work and analysis
-  done on these Scatternets. In particular, we swap out the Morlet wavelets from
-  Mallat's Scatternet to the faster, separable \DTCWT\
-  wavelets, but we also make changes to the design of the Scatternet and look at
-  how to apply the principles of visualizations, like those in the work by
-  \cite{zeiler_visualizing_compact_2014}.
-
-  \autoref{ch:scat_deep} then explores our recent work in attempting to combine
-  Scatternets with CNNs. The inspiration for this being the idea that
-  a well designed tool like the Scatternet, followed by a shallower CNN, should
-  be equivalent to or better than a deeper CNN.
-
-  \autoref{ch:conclusion} then summarizes our findings so far, discusses and
-  analyses the results, and lays out the plan for the remainder of the project.
-  
-
-This work is stimulated by the intuition that wavelet decompositions, in particular
-complex wavelet transforms, are good building blocks for doing image recognition
-tasks. Their well understood and well defined behaviour as well as the
-similarities seen in learned networks, implies that there is potential gain for
-thinking about CNN layers in a new light. 
-
-To explore and test this intuition, we begin by looking at one of the most popular current uses of
-wavelets in image recognition tasks, in particular the Scattering Transform. 
-
-\section{Series Expansions of Signals}
-Look at the intro to Vetterli's book. Want to make a statement about expanding
-signals in some form or another.
-
-\section{Contributions}
-The contributions and layout of this thesis are:
-
+This thesis has one literature review chapter and four work chapters:
 \begin{itemize}
-  \item \textbf{Software for wavelets and $\DTCWT$ based ScatterNet (chapter 3)}
-  \item \textbf{ScatterNet analysis and visualizations (chapter 4)}. Presented
-    at MLSP2017, this chapter 
-  \item \textbf{Invariant Layer/Learnable ScatterNet (chapter 5)} Presenting at
-    ICIP2019.
-  \item \textbf{Learning convolutions in the wavelet domain (chapter 6)}.
+\item
+  \Autoref{ch:litreview} explores some of the background necessary for starting
+  to develop image understanding models. In particular, it covers the
+  inspiration for CNNs and the workings of CNNs themselves, as well as covering
+  the basics of wavelets and ScatterNets.
+\item 
+  \Autoref{ch:dtcwt_scat} proposes a change to the core of the ScatterNet. In
+  addition to performance issues with ScatterNets, they are slow and both
+  memory and compute intensive to calculate. This in itself is enough of an
+  issue to prevent them from ever being used as part of deep networks. To
+  overcome this, we change the computation to use the $\DTCWT$
+  \cite{selesnick_dual-tree_2005} instead of Morlet wavelets, achieving a 20 to
+  30 times speed up.
+\item 
+  \Autoref{ch:visualizing} describes our \emph{DeScatterNet}, a tool used to
+  interrogate the structure of ScatterNets. We also perform tests to determine
+  the usefulness of the different scattered outputs finding that many of them
+  are not useful for image classification.
+\item 
+  \Autoref{ch:invariant} describes the \emph{Learnable ScatterNet} we have developed to 
+  address some of the issues found from the interrogation in
+  \Autoref{ch:visualizing}. We find that a learnable scatternet layer performs
+  better than a regular scatternet, and can improve on the performance of a CNN 
+  if used instead of pooling layers. We also find that scattering works well not
+  just on RGB images, but can also be useful when used after one layer of
+  learning.
+\item
+  In \autoref{ch:freqlearn}, we step away from ScatterNets, and present the
+  \emph{Wavelet Gain Layer}. The gain layer uses 
+  the wavelet space as a latent space to learn representations. We find possible
+  nonlinearities and describe how to learn in both the pixel and wavelet domain.
+  While this work is interesting in its ability to learn filters in a completely
+  new way, it does not add any benefit over learning solely in the pixel space.
 \end{itemize}
 
-\subsection{Desirable Properties}
-Unlike CNNs introduced earlier which have little prior constraints (apart
-from the commonly used $L_2$ regularization), the scattering operator may be 
-thought of as an operator $S$ that imposes structural priors on learning by
-extracting features with manually chosen, desirable properties. The extracted
-features can be used In classical
-paradigms of image understanding, it makes sense to add these priors, but it
-remains yet to be shown that these help learning.
+\subsection{Contributions}
+The key contributions of this thesis are:
 
-limit variability these properties areview on these
-properties are manually chosen with the ultimate goal of aiding image
-understanding. 
+\begin{itemize}
+  \item Software for wavelets and $\DTCWT$ based ScatterNet (described in \autoref{ch:dtcwt_scat})
+    and publically available at \cite{cotter_pytorch_2018}.
+  \item ScatterNet analysis and visualizations (described in
+    \autoref{ch:visualizing}). This chapter expands on the paper we presented at MLSP2017 
+    \cite{cotter_visualizing_2017}.
+  \item Invariant Layer/Learnable ScatterNet (described in \autoref{ch:invariant})). This chapter expands 
+    on the paper accepted at ICIP2019 \cite{cotter_learnable_2019}. Software
+    available at \cite{cotter_learnable_2019-1}.
+  \item Learning convolutions in the wavelet domain (described in
+    \autoref{ch:freqlearn}). We have published preliminary results on this work
+    to arxiv \cite{cotter_deep_2018} but have expanded on this paper in the
+    chapter. Software available at \cite{cotter_dtcwt_2018}.
+\end{itemize}
 
+\subsection{Related Research}
+Readers may also be interested in \cite{singh_scatternet_2018} and
+\cite{oyallon_analyzing_2017}. In \cite{singh_scatternet_2018}
+\citeauthor{singh_scatternet_2018} looks at using the ScatterNet as a fixed
+front end and combining it with well known machine learning methods such as
+SVMs, Autoencoders and Restricted Boltzmann machines. By combining frameworks in
+an defined way he creates unsupervised feature extractors which can then be used
+with simple classifiers. In \cite{oyallon_analyzing_2017}
+\citeauthor{oyallon_analyzing_2017} combines a ScatterNet front end to a deep
+CNN. In \autoref{ch:invariant} we look at a similar design, but allow for changes to
+the scattering.
