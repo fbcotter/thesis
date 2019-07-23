@@ -70,7 +70,7 @@ We run tests on
 \begin{itemize}
   \item CIFAR-10: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
   \item CIFAR-100: 100 classes, 500 images per class, $32\x 32$ pixels per image. 
-  \item Tiny ImageNet\cite{li_tiny_nodate}: 200 classes, 500 images per class, 
+  \item Tiny ImageNet\cite{li_tiny_2017}: 200 classes, 500 images per class, 
     $64 \x 64$ pixels per image. 
 \end{itemize}
 \autoref{tab:ch3:scat_arch} details the network layout for CIFAR. 
@@ -85,7 +85,7 @@ weight decay is $10^{-4}$. For CIFAR-10/CIFAR-100 we scale the learning rate by
 a factor of 0.2 after 60, 80 and 100 epochs, training for 120 epochs in total.
 For Tiny ImageNet, the rate change is at 18, 30 and 40 epochs (training for 45 in total).
 
-Our experiment code is available at \url{https://github.com/fbcotter/scatnet_learn}.
+Our experiment code is available at \cite{cotter_learnable_2019-1}.
 
 \begin{table}
   \renewcommand{\arraystretch}{1.4}
@@ -121,7 +121,8 @@ test different padding schemes, wavelet lengths and magnitude smoothing paramete
 \autoref{tab:ch3:hyper_options}. The different wavelets have different lengths
 and hence different frequency responses. Additionally, the `near\_sym\_b\_bp'
 wavelet is a rotationally symmetric wavelet with diagonal passband brought in by
-a factor of \textbf{finish}.
+a factor of $\sqrt{2}$, making it have similar $|\bm{\omega}|$ to the horizontal
+and vertical bandpasses.
 
 The results of these experiments are shown in \autoref{fig:ch3:hypes}.
 Interestingly, for all three datasets the shorter wavelet outperformed the

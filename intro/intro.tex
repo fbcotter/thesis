@@ -54,9 +54,11 @@ most strongly when edges of a particular (i.e.,\ neuron-dependent) orientation
 were presented to the animal, so long as the edge was inside the receptive field of
 this neuron.
 Continued work on their experiments by Blakemore and Cooper
-\cite{blakemore_development_1970} showed, by exposing
-kittens to controlled environments in which they only saw horizontal and
-vertical lines, that these early layers of perception are in fact \emph{learned}. 
+\cite{blakemore_development_1970} showed that these early layers of perception
+are in fact \emph{learned}. Their experiments kept kittens in darkness and exposed
+them a few hours a day to only horizontal or vertical lines. After five months, they were
+taken into natural environments and their reactions were monitored. The two groups of cats
+would only play with rods that matched the orientation of their environment.
 % A figure of the the frequency response of the photoreceptor cells in our eyes
 % to different wavelengths of light.
 % \begin{figure}
@@ -256,12 +258,13 @@ results with an SVM, but there is a large performance gap between this and what 
 This thesis has one literature review chapter and four work chapters:
 \begin{itemize}
 \item
-  \Autoref{ch:litreview} explores some of the background necessary for starting
+  \hyperref[ch:litreview]{Chapter~\ref*{ch:litreview}} 
+  explores some of the background necessary for starting
   to develop image understanding models. In particular, it covers the
   inspiration for CNNs and the workings of CNNs themselves, as well as covering
   the basics of wavelets and ScatterNets.
 \item 
-  \Autoref{ch:dtcwt_scat} proposes a change to the core of the ScatterNet. In
+  \Autoref{Chapter}{ch:dtcwt_scat} proposes a change to the core of the ScatterNet. In
   addition to performance issues with ScatterNets, they are slow and both
   memory and compute intensive to calculate. This in itself is enough of an
   issue to prevent them from ever being used as part of deep networks. To
@@ -269,14 +272,14 @@ This thesis has one literature review chapter and four work chapters:
   \cite{selesnick_dual-tree_2005} instead of Morlet wavelets, achieving a 20 to
   30 times speed up.
 \item 
-  \Autoref{ch:visualizing} describes our \emph{DeScatterNet}, a tool used to
+  \Autoref{Chapter}{ch:visualizing} describes our \emph{DeScatterNet}, a tool used to
   interrogate the structure of ScatterNets. We also perform tests to determine
   the usefulness of the different scattered outputs finding that many of them
   are not useful for image classification.
 \item 
-  \Autoref{ch:invariant} describes the \emph{Learnable ScatterNet} we have developed to 
+  \Autoref{Chapter}{ch:invariant} describes the \emph{Learnable ScatterNet} we have developed to 
   address some of the issues found from the interrogation in
-  \Autoref{ch:visualizing}. We find that a learnable scatternet layer performs
+  \autoref{ch:visualizing}. We find that a learnable scatternet layer performs
   better than a regular scatternet, and can improve on the performance of a CNN 
   if used instead of pooling layers. We also find that scattering works well not
   just on RGB images, but can also be useful when used after one layer of

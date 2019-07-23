@@ -121,6 +121,7 @@
 \AtEveryBibitem{%
   \clearfield{note}%
 }
+\newcommand{\Autoref}[2]{\hyperref[#2]{#1~\ref*{#2}}}
 % ******************************** Front Matter ********************************
 \begin{document}
 
@@ -155,7 +156,7 @@
 \include{visualizations/main}
 \include{invariantlayer/main}
 \include{freqlearn/main}
-\include{other/conclusion}
+\include{intro/conclusion}
 %\include{Chapter6/chapter6}
 %\include{Chapter7/chapter7}
 
