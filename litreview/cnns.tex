@@ -291,7 +291,7 @@ CNN had 5 convolutional layers followed by 3 fully connected layers.
 We will briefly describe the convolutional layer, as well as many other layers
 that have become popular in the past few years.
 
-\subsection{Convolutional Layers}
+\subsection{Convolutional Layers}\label{sec:ch2:conv_layers}
 In the presentation of neural networks so far, we have considered column vectors 
 $X^{(l)},Y^{(l)} \in \reals[C_{l}]$. Convolutional layers for image analysis
 have a different format. In particular, the spatial component of the input is
@@ -320,12 +320,12 @@ specify that we would like to detect $C$ different shapes over the spatial
 extent of an input.
 
 This then means that we have $C$ output channels:
-\begin{align*}
+\begin{align}
   y_1[\nn] &= (x \conv h_1)[\nn] \\
   y_2[\nn] &= (x \conv h_2)[\nn] \\
-           &\vdots & \\
+           &\vdots  \\
   y_C[\nn] &= (x \conv h_C)[\nn] 
-\end{align*}
+\end{align}
 
 If we stack red, green and blue input channels on top of each other\footnote{In deep 
 learning literature, there is not consensus about whether to stack the outputs
@@ -339,12 +339,12 @@ equal to $C$. The \emph{convolution} is done over the remaining two dimensions
 and the $C$ outputs are summed at each pixel location. This makes
 \eqref{eq:ch2:conv1}:
 \begin{equation}
-  y[\nn] = \sum_{c=1}^C \sum_{\mathbf{k}} x[\mathbf{k}]h[c, \nn-\mathbf{k}]
+  y[\nn] = \sum_{c=1}^C \sum_{\mathbf{k}} x[c, \mathbf{k}]h[c, \nn-\mathbf{k}]
   \label{eq:ch2:conv2}
 \end{equation}
 
 Again, we would like to have many matched filters to find different shapes in
-the previous layer, so we repeat \autoref{eq:ch2:conv2} $F$ times and stack the
+the previous layer, so we repeat \eqref{eq:ch2:conv2} $F$ times and stack the
 output to give $y \in \reals[F \x H\x W]$: 
 %
 \begin{equation}
@@ -352,16 +352,18 @@ output to give $y \in \reals[F \x H\x W]$:
   \label{eq:ch2:conv3}
 \end{equation}
 
-After a convolutional layer, we can then apply a pointwise nonlinearity $g$ to
-each output location in $y$. Revisiting \eqref{eq:ch2:fc1} and \eqref{eq:ch2:fc2}, we can 
-rewrite this for a convolutional layer at depth $l$ with $C_l$ input and
-$C_{l+1}$ output channels:
+After a convolutional layer, we can then apply a pointwise nonlinearity to
+each output location in $y$. Historically, this was typically the sigmoid function $\sigma$, but 
+is now more commonly the ReLU. Still, the convention has remained to name this
+generic nonlinearity $\sigma$. Revisiting \eqref{eq:ch2:fc1} and
+\eqref{eq:ch2:fc2}, we can rewrite this for a convolutional layer at depth $l$
+with $C_l$ input and $C_{l+1}$ output channels:
 \begin{align}
-  Y^{(l+1)}[f, \nn] &= \sum_{c=1}^{C_l} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn] \qquad 
-    \text{for } 1 \leq f \leq C_{l+1} \label{eq:ch2:conv4}\\
-  X^{(l+1)}[f, \nn] &= g\left(Y^{(l)}[f, \nn]\right)
+  Y^{(l+1)}[f, \nn] &= \sum_{c=1}^{C_l} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn] 
+    \label{eq:ch2:conv4}\\
+    X^{(l+1)}[f, \nn] &= \sigma\left(Y^{(l)}[f, \nn]\right) \label{eq:ch2:conv4a}
 \end{align}
-This is shown in \autoref{fig:ch2:conv_layer}.
+where $ 1 \leq f \leq C_{l+1}$ indexes the filter number/output channel. This is shown in \autoref{fig:ch2:conv_layer}.
 
 \begin{figure}
   \centering
@@ -394,7 +396,7 @@ Stride is a commonly used term in deep learning literature. A stride of 2 means
 that we evaluate the filter kernel at every other sample point. In signal
 processing, this is simply called decimation.
 
-\subsubsection{Gradients}
+\subsubsection{Gradients}\label{sec:ch2:conv_grad}
 To get the update and passthrough gradients for the convolutional layer we will need to expand
 \eqref{eq:ch2:conv4}. Again we will drop the layer superscripts for clarity: 
 \begin{equation}

@@ -282,35 +282,16 @@ Now that we have a forward and backward pass for the $\DTCWT$, the final missing
 piece is the magnitude operation. Again, it is not difficult to calculate the
 gradients given the direct form, but we must be careful about their size. If $z
 = x + jy$, then:
-
+%
 \begin{equation}
   r = |z| =  \sqrt{x^2 + y^2}
 \end{equation}
-
+%
 This has two partial derivatives, $\dydx{r}{x},\ \dydx{r}{y}$:
-\begin{eqnarray}
-  \dydx{r}{x} & = & \frac{x}{\sqrt{x^2 + y^2}} = \frac{x}{r}\\
-  \dydx{r}{y} & = & \frac{y}{\sqrt{x^2 + y^2}} = \frac{y}{r} 
-\end{eqnarray}
-
-These partial derivatives are restricted to be in the range $[-1, 1]$ but have a singularity at the origin. 
-In particular:
 \begin{align}
-  \lim_{x\rightarrow 0^{-},y\rightarrow 0}  \dydx{r}{x} &= -1 \\
-  \lim_{x\rightarrow 0^{+},y\rightarrow 0}  \dydx{r}{x} &= +1 \\
-  \lim_{x\rightarrow 0,y\rightarrow 0^{-}}  \dydx{r}{y} &= -1 \\
-  \lim_{x\rightarrow 0,y\rightarrow 0^{+}}  \dydx{r}{y} &= +1 
+  \dydx{r}{x} & =  \frac{x}{\sqrt{x^2 + y^2}} = \frac{x}{r}\\
+  \dydx{r}{y} & =  \frac{y}{\sqrt{x^2 + y^2}} = \frac{y}{r} 
 \end{align}
-% Also note that the complex magnitude is convex in $x$ and $y$ as:
-% \begin{equation}
-% \nabla^2 r(x,y) = \frac{1}{r^3} 
-% \begin{bmatrix}
-  % y^2 & -xy \\
-  % -xy & x^2
-% \end{bmatrix}
- % = \frac{1}{r^3} \begin{bmatrix} y \\ -x \end{bmatrix} 
- % \begin{bmatrix} y & -x \end{bmatrix} \geq 0 
-% \end{equation}
 Given an input gradient, $\Delta r$, the passthrough gradient is:
 \begin{eqnarray}
   \Delta z & = & \Delta r \dydx{r}{x} + j\Delta r \dydx{r}{y} \\
@@ -321,7 +302,16 @@ where $\theta = \arctan{\frac{y}{x}}$. This has a nice interpretation to it as
 well, as the backwards pass is simply reinserting the discarded phase
 information. The pseudo-code for this operation is shown in
 \autoref{alg:ch3:mag}.
+%
 
+These partial derivatives are restricted to be in the range $[-1, 1]$ but have a singularity at the origin. 
+In particular:
+\begin{align}
+  \lim_{x\rightarrow 0^{-},y\rightarrow 0}  \dydx{r}{x} &= -1 \\
+  \lim_{x\rightarrow 0^{+},y\rightarrow 0}  \dydx{r}{x} &= +1 \\
+  \lim_{x\rightarrow 0,y\rightarrow 0^{-}}  \dydx{r}{y} &= -1 \\
+  \lim_{x\rightarrow 0,y\rightarrow 0^{+}}  \dydx{r}{y} &= +1 
+\end{align}
 These partial derivatives are very rapidly varying around 0 and the second
 derivatives go to infinity at the origin. This is not a
 feature commonly seen with other nonlinearities such as the tanh and sigmoid

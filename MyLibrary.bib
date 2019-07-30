@@ -6560,17 +6560,17 @@ Once you are familiar and comfortable with the TensorFlow ecosystem, the last ch
   file = {/Users/fergalcotter/Zotero/storage/JVM44TRF/Gal - 2016 - Uncertainty In Deep Learning.pdf}
 }
 
-@article{szegedy_intriguing_2013,
+@inproceedings{szegedy_intriguing_2014,
   archivePrefix = {arXiv},
   eprinttype = {arxiv},
   eprint = {1312.6199},
-  primaryClass = {cs},
+  address = {{Banff, Canada}},
   title = {Intriguing Properties of Neural Networks},
   abstract = {Deep neural networks are highly expressive models that have recently achieved state of the art performance on speech and visual recognition tasks. While their expressiveness is the reason they succeed, it also causes them to learn uninterpretable solutions that could have counter-intuitive properties. In this paper we report two such properties. First, we find that there is no distinction between individual high level units and random linear combinations of high level units, according to various methods of unit analysis. It suggests that it is the space, rather than the individual units, that contains of the semantic information in the high layers of neural networks. Second, we find that deep neural networks learn input-output mappings that are fairly discontinuous to a significant extend. We can cause the network to misclassify an image by applying a certain imperceptible perturbation, which is found by maximizing the network's prediction error. In addition, the specific nature of these perturbations is not a random artifact of learning: the same perturbation can cause a different network, that was trained on a different subset of the dataset, to misclassify the same input.},
-  journal = {arXiv:1312.6199 [cs]},
+  booktitle = {2nd {{International Conference}} on {{Learning Representations}}},
   author = {Szegedy, Christian and Zaremba, Wojciech and Sutskever, Ilya and Bruna, Joan and Erhan, Dumitru and Goodfellow, Ian and Fergus, Rob},
-  month = dec,
-  year = {2013},
+  month = apr,
+  year = {2014},
   keywords = {Computer Science - Computer Vision and Pattern Recognition,Computer Science - Learning,Computer Science - Neural and Evolutionary Computing},
   file = {/Users/fergalcotter/Zotero/storage/42FF93AA/Szegedy et al. - 2013 - Intriguing properties of neural networks.pdf;/Users/fergalcotter/Zotero/storage/6RFH8LM3/1312.html}
 }
@@ -9487,11 +9487,13 @@ Tumor-educated blood platelets (TEPs) are implicated as central players in the s
   year = {2019}
 }
 
-@article{saxe_information_2018,
+@inproceedings{saxe_information_2018,
+  address = {{Vancouver, BC, Canada}},
   title = {On the {{Information Bottleneck Theory}} of {{Deep Learning}}},
   abstract = {The practical successes of deep neural networks have not been matched by theoretical progress that satisfyingly explains their behavior. In this work, we study the information bottleneck (IB)...},
+  booktitle = {6th {{International Conference}} on {{Learning Representations}}},
   author = {Saxe, Andrew Michael and Bansal, Yamini and Dapello, Joel and Advani, Madhu and Kolchinsky, Artemy and Tracey, Brendan Daniel and Cox, David Daniel},
-  month = feb,
+  month = apr,
   year = {2018},
   file = {/Users/fergalcotter/Zotero/storage/4E3DZP9R/Saxe et al. - 2018 - On the Information Bottleneck Theory of Deep Learn.pdf;/Users/fergalcotter/Zotero/storage/B9SLB6ZA/forum.html}
 }
@@ -9509,6 +9511,75 @@ Tumor-educated blood platelets (TEPs) are implicated as central players in the s
   year = {2017},
   keywords = {Computer Science - Machine Learning,Physics - Data Analysis; Statistics and Probability,Quantitative Biology - Neurons and Cognition,Statistics - Machine Learning},
   file = {/Users/fergalcotter/Zotero/storage/QBHGVJYE/Advani and Saxe - 2017 - High-dimensional dynamics of generalization error .pdf;/Users/fergalcotter/Zotero/storage/KGPYCNGC/1710.html}
+}
+
+@inproceedings{engstrom_rotation_2017,
+  address = {{Long Beach, CA, USA}},
+  title = {A {{Rotation}} and a {{Translation Suffice}}: {{Fooling CNNs}} with {{Simple Transformations}}},
+  shorttitle = {A {{Rotation}} and a {{Translation Suffice}}},
+  abstract = {We show that simple spatial transformations, namely translations and rotations alone, suffice to fool neural networks on a significant fraction of their inputs in multiple image classification...},
+  booktitle = {{{NIPS}} 2017 {{Workshop}} on {{Machine Learning}} and {{Computer Security}}},
+  author = {Engstrom, Logan and Tran, Brandon and Tsipras, Dimitris and Schmidt, Ludwig and Madry, Aleksander},
+  month = dec,
+  year = {2017},
+  file = {/Users/fergalcotter/Zotero/storage/IZ3IEZPW/Engstrom et al. - 2018 - A Rotation and a Translation Suffice Fooling CNNs.pdf;/Users/fergalcotter/Zotero/storage/XVTC3KJR/forum.html}
+}
+
+@article{balestriero_mad_2018,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1805.06576},
+  primaryClass = {cs, stat},
+  title = {Mad {{Max}}: {{Affine Spline Insights}} into {{Deep Learning}}},
+  shorttitle = {Mad {{Max}}},
+  abstract = {We build a rigorous bridge between deep networks (DNs) and approximation theory via spline functions and operators. Our key result is that a large class of DNs can be written as a composition of max-affine spline operators (MASOs), which provide a powerful portal through which to view and analyze their inner workings. For instance, conditioned on the input signal, the output of a MASO DN can be written as a simple affine transformation of the input. This implies that a DN constructs a set of signal-dependent, class-specific templates against which the signal is compared via a simple inner product; we explore the links to the classical theory of optimal classification via matched filters and the effects of data memorization. Going further, we propose a simple penalty term that can be added to the cost function of any DN learning algorithm to force the templates to be orthogonal with each other; this leads to significantly improved classification performance and reduced overfitting with no change to the DN architecture. The spline partition of the input signal space that is implicitly induced by a MASO directly links DNs to the theory of vector quantization (VQ) and \$K\$-means clustering, which opens up new geometric avenue to study how DNs organize signals in a hierarchical fashion. To validate the utility of the VQ interpretation, we develop and validate a new distance metric for signals and images that quantifies the difference between their VQ encodings. (This paper is a significantly expanded version of A Spline Theory of Deep Learning from ICML 2018.)},
+  journal = {arXiv:1805.06576 [cs, stat]},
+  author = {Balestriero, Randall and Baraniuk, Richard},
+  month = may,
+  year = {2018},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {/Users/fergalcotter/Zotero/storage/L5LH3H82/Balestriero and Baraniuk - 2018 - Mad Max Affine Spline Insights into Deep Learning.pdf;/Users/fergalcotter/Zotero/storage/6DDNCRZD/1805.html}
+}
+
+@inproceedings{papernot_practical_2017,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1602.02697},
+  address = {{Abu Dhabi, UAE}},
+  title = {Practical {{Black}}-{{Box Attacks}} against {{Machine Learning}}},
+  abstract = {Machine learning (ML) models, e.g., deep neural networks (DNNs), are vulnerable to adversarial examples: malicious inputs modified to yield erroneous model outputs, while appearing unmodified to human observers. Potential attacks include having malicious content like malware identified as legitimate or controlling vehicle behavior. Yet, all existing adversarial example attacks require knowledge of either the model internals or its training data. We introduce the first practical demonstration of an attacker controlling a remotely hosted DNN with no such knowledge. Indeed, the only capability of our black-box adversary is to observe labels given by the DNN to chosen inputs. Our attack strategy consists in training a local model to substitute for the target DNN, using inputs synthetically generated by an adversary and labeled by the target DNN. We use the local substitute to craft adversarial examples, and find that they are misclassified by the targeted DNN. To perform a real-world and properly-blinded evaluation, we attack a DNN hosted by MetaMind, an online deep learning API. We find that their DNN misclassifies 84.24\% of the adversarial examples crafted with our substitute. We demonstrate the general applicability of our strategy to many ML techniques by conducting the same attack against models hosted by Amazon and Google, using logistic regression substitutes. They yield adversarial examples misclassified by Amazon and Google at rates of 96.19\% and 88.94\%. We also find that this black-box attack strategy is capable of evading defense strategies previously found to make adversarial example crafting harder.},
+  booktitle = {Proceedings of the 2017 {{ACM Asia Conference}} on {{Computer}} and {{Communications Security}}},
+  doi = {10.1145/3052973.3053009},
+  author = {Papernot, Nicolas and McDaniel, Patrick and Goodfellow, Ian and Jha, Somesh and Celik, Z. Berkay and Swami, Ananthram},
+  month = apr,
+  year = {2017},
+  keywords = {Computer Science - Cryptography and Security,Computer Science - Machine Learning},
+  pages = {506-519},
+  file = {/Users/fergalcotter/Zotero/storage/BMKHFRBW/Papernot et al. - 2016 - Practical Black-Box Attacks against Machine Learni.pdf;/Users/fergalcotter/Zotero/storage/CLW8LQRL/1602.html},
+  annote = {Comment: Proceedings of the 2017 ACM Asia Conference on Computer and Communications Security, Abu Dhabi, UAE}
+}
+
+@article{petrou_image_2010-1,
+  title = {Image Processing. {{The}} Fundamentals. {{With CD}}-{{ROM}}. 2nd Ed},
+  abstract = {Following the success of the first edition, this thoroughly updated second edition of Image Processing: The Fundamentals will ensure that it remains the ideal text for anyone seeking an introduction to the essential concepts of image processing. New material includes image processing and colour, sine and cosine transforms, Independent Component Analysis (ICA), phase congruency and the monogenic signal and several other new topics. These updates are combined with coverage of classic topics in image processing, such as orthogonal transforms and image enhancement, making this a truly comprehensive text on the subject. Key features: Presents material at two levels of difficulty: the main text addresses the fundamental concepts and presents a broad view of image processing, whilst more advanced material is interleaved in boxes throughout the text, providing further reference for those who wish to examine each technique in depth. Contains a large number of fully worked out examples. Focuses on an understanding of how image processing methods work in practice. Illustrates complex algorithms on a step-by-step basis, and lists not only the good practices but also identifies the pitfalls in each case. Uses a clear question and answer structure. Includes a CD containing the MATLAB\textregistered{} code of the various examples and algorithms presented in the book. There is also an accompanying website with slides available for download for instructors as a teaching resource. Image Processing: The Fundamentals, Second Edition is an ideal teaching resource for both undergraduate and postgraduate students. It will also be of value to researchers of various disciplines from medicine to mathematics with a professional interest in image processing.},
+  journal = {Image Processing: The Fundamentals: Second Edition},
+  doi = {10.1002/9781119994398},
+  author = {Petrou, Maria and Petrou, Costas},
+  year = {2010},
+  file = {/Users/fergalcotter/Zotero/storage/2ACSJH98/Petrou and Petrou - 2011 - Image processing. The fundamentals. With CD-ROM. 2.pdf}
+}
+
+@article{duchi_adaptive_2011-1,
+  title = {Adaptive {{Subgradient Methods}} for {{Online Learning}} and {{Stochastic Optimization}}},
+  volume = {12},
+  issn = {1532-4435},
+  abstract = {We present a new family of subgradient methods that dynamically incorporate knowledge of the geometry of the data observed in earlier iterations to perform more informative gradient-based learning. Metaphorically, the adaptation allows us to find needles in haystacks in the form of very predictive but rarely seen features. Our paradigm stems from recent advances in stochastic optimization and online learning which employ proximal functions to control the gradient steps of the algorithm. We describe and analyze an apparatus for adaptively modifying the proximal function, which significantly simplifies setting a learning rate and results in regret guarantees that are provably as good as the best proximal function that can be chosen in hindsight. We give several efficient algorithms for empirical risk minimization problems with common and important regularization functions and domain constraints. We experimentally study our theoretical analysis and show that adaptive subgradient methods outperform state-of-the-art, yet non-adaptive, subgradient algorithms.},
+  journal = {J. Mach. Learn. Res.},
+  author = {Duchi, John and Hazan, Elad and Singer, Yoram},
+  month = jul,
+  year = {2011},
+  pages = {2121--2159},
+  file = {/Users/fergalcotter/Zotero/storage/5AGXWGPE/Duchi et al. - 2011 - Adaptive Subgradient Methods for Online Learning a.pdf}
 }
 
 

@@ -1,78 +1,284 @@
-\chapter{Complex Convolution and Gradients}\label{app:ch6:complex_backprop}
-Consider a complex number $z=x+iy$, and the complex mapping 
+\chapter{Complex CNN Operations}\label{app:ch6:complex_backprop}
+This appendix lists some of the forward and backward equations for the
+complex operations we use in the \emph{gain layer} and \emph{wave layer}.
+
+\section{Convolution}\label{sec:appE:complex_conv}
+  %% Define the variables we will use in this section
+\newcommand{\SigIn}{x}
+\newcommand{\SigOut}{y}
+\newcommand{\Filter}{h}
+\newcommand{\SigInB}{\bmu{\SigIn}}
+\newcommand{\SigOutB}{\bmu{\SigOut}}
+\newcommand{\FilterB}{\bmu{\Filter}}
+\newcommand{\kk}{\bmu{k}}
+  %% Now the body
+  
+Let us represent the complex input with $\SigInB = \SigInB_r + j\SigInB_i$, which is of shape
+$\complexes[C\x n_1\x n_2]$. We call $\SigOutB = \SigOutB_r + j\SigOutB_i$ the result we get from convolving
+$\SigInB$ with $\FilterB= \FilterB_r + j\FilterB_i$, so $\SigOutB \in \complexes[1 \x (n_1 + m - 1) \x (n_2 + m -1)]$. With
+appropriate zero or symmetric padding, we can make $\SigOutB$ have the same
+spatial shape as $\SigInB$. Now, consider the full complex convolution to get
+$\SigOutB$:
 \begin{equation}
-w=f(z) = u(x,y) + iv(x,y)
+ \SigOut[\nn] = \sum_{c=0}^{C-1} \sum_{\kk} \Filter[c, \kk] \SigIn[c, \nn - \kk]
 \end{equation}
-where $u$ and $v$ are called `conjugate functions'. Let us examine the
-properties of $f(z)$ and its gradient. 
+We can expand this with real and imaginary terms:
+\begin{align}
+  \SigOut[\nn]  =&  \sum_{c=0}^{C-1} \sum_{\kk} (\Filter_r[c, \kk] +j\Filter_i[c, \kk]) 
+        (\SigIn_r[c, \nn-\kk]+ j\SigIn_i[c, \nn - \kk]) \nonumber \\
+  =&  \sum_{c=0}^{C-1} \sum_{\kk} (\SigIn_r[c, \nn - \kk] \Filter_r[c, \kk] - 
+                                   \SigIn_i[c, \nn - \kk] \Filter_i[c, \kk]) \nonumber \\
+   &+ j\sum_{c=0}^{C-1} \sum_{\kk} (\SigIn_r[c, \nn-\kk] \Filter_i[c, \kk] + 
+          \SigIn_i[c, \nn - \kk] \Filter_r[c, \kk]) \nonumber\\
+\SigOut_r[\nn] + j\SigOut_i[\nn]  =& \sum_{c=0}^{C-1} \left((\SigIn_r \ast \Filter_r) - (\SigIn_i \ast \Filter_i)\right)[c, \nn] + 
+          \left((\SigIn_r \ast \Filter_i) + j(\SigIn_i \ast \Filter_r)\right)[c, \nn] \label{eq:app:complex_conv}
+\end{align}
+Unsurprisingly, complex convolution is the sum and difference of 4 real convolutions.
 
-The definition of gradient for complex numbers is:
-\begin{equation} 
-  \lim_{\Delta z\to 0} \frac{f(z + \Delta z) - f(z)}{\Delta z}
-\end{equation}
+We can use this fact to find the update and passthrough gradients for complex
+convolution.
 
-A necessary condition for $f(z,\conj{z})$ to be an analytic function is
-$\dydx{f}{\conj{z}}=0$. I.e.\ f must be purely a function of $z$, and not
-$\conj{z}$.
-
-A geometric interpretation of complex gradient is shown in
-\autoref{fig:app6:complex_grad}.  As $\Delta z$ shrinks to 0, what does $\Delta w$
-converge to? E.g.\ consider the gradient of approach $m=\frac{dy}{dx}=\tan
-\theta$, then the derivative is
+\textbf{Update Gradients:} We need to find $\dydx{L}{h_r}$ and $\dydx{L}{h_i}$.
+From \eqref{eq:app:complex_conv} we can apply the chain rule and the properties
+of real convolutions to write:
+\begin{align}
+  \dydx{L}{h_r} &= \dydx{L}{y_r}\dydx{y_r}{h_r} + \dydx{L}{y_i}\dydx{y_i}{h_r} \\
+                &= \Delta y_r \star x_r + \Delta y_i \star x_i
+\end{align}
+where $\star$ is the correlation operation (see \autoref{sec:ch2:conv_grad}).
+Similarly 
 \begin{equation}
-  \gamma = \alpha + i\beta = D(x,y) + P(x,y)e^{-2i\theta}
+  \dydx{L}{h_i} = -\Delta y_r \star x_i + \Delta y_i \star x_r
 \end{equation}
-where
+
+\textbf{Passthrough Gradients:} Again with application of the chain rule and the
+properties of real convolution, we have:
 \begin{align}
-  D(x,y) & =  \half(u_x + v_y + i(v_x - u_y)) \\
-  P(x,y) & =  \half(u_x - v_y + i(v_x + u_y))
+  \dydx{L}{x_r} &= \dydx{L}{y_r}\dydx{y_r}{x_r} + \dydx{L}{y_i}\dydx{y_i}{x_r} \\
+                &= \Delta y_r \star h_r + \Delta y_i \star h_i \\
+  \dydx{L}{x_i} &= -\Delta y_r \star h_i + \Delta y_i \star h_r
 \end{align}
-$P(x,y)=\frac{dw}{d\conj{z}}$ needs to be 0 for the function to be analytic.
-This is where we get the Cauchy-Riemann equations:
+
+\section{Regularization}\label{sec:appE:complex_reg}
+We must be careful with regularizing complex weights. We want to set some
+of the weights to 0, and let the remaining ones evolve to whatever phase they
+please. To do this, either use the L-2 norm on the real and imaginary parts
+independently, or be careful about using the L-1 norm. This is because we
+really want to be penalising the magnitude of the complex weights, $r$ and: 
+\begin{equation}
+  \lnorm{r}{2}^2 = \lnorm{\sqrt{x_r^2+x_i^2}}{2}^2 = \sum_{\nn} x_r[\nn]^2 + x_i[\nn]^2 = 
+  \sum_\nn x_r[\nn]^2 + \sum_\nn x_i[\nn]^2 = \lnorm{x_r}{2}^2 + \lnorm{x_i}{2}^2
+\end{equation}
+But for $\ell_1$ regularization:
+\begin{equation}
+  \lnorm{r}{1} = \lnorm{\sqrt{x_r^2+x_i^2}}{1} = \sum_\nn \sqrt{x_r[\nn]^2 + x_i[\nn]^2} \neq \lnorm{x_r}{1} + \lnorm{x_i}{1}
+\end{equation}
+Note that for $\ell_1$ regularization the derivatives have a singularity at the complex
+origin as:
+\begin{equation}
+  \dydx{\ell_1}{x_r[\nn]} = \frac{x_r[\nn]}{\sqrt{x_r[\nn]^2 + x_i[\nn]^2}}
+\end{equation}
+is not defined when $x_r=x_i=0$. A similar problem was mentioned in \autoref{sec:ch3:scat}
+where we wanted to pass gradients through the magnitude operation of a
+ScatterNet. We choose to use the same solution here and define a smooth $\ell_1$
+regularization:
+\begin{equation}
+  \lnorm{r_s}{1} = \lnorm{\sqrt{x_r^2+x_i^2 + b}}{1}
+\end{equation}
+where $b$ is a small positive number.
+
+\section{ReLU applied to the real and imaginary parts independently}\label{sec:appE:complex_relu}
+If we define a nonlinearity to be $y = \sigma(x)$ where:
+\begin{equation}
+  y = y_r + jy_i = \max(0, x_r) + j\max(0, x_i)
+\end{equation}
+then the passthrough gradients are:
 \begin{align}
-  \dydx{u}{x}&= \dydx{v}{y} \\
-  \dydx{u}{y}&= -\dydx{v}{x}
+  \dydx{L}{x_r} &= \Delta y_r \indic(x_r > 0)\\
+  \dydx{L}{x_i} &= \Delta y_i \indic(x_i > 0)
 \end{align}
-The function $f(z)$ is analytic (or regular or holomorphic) if the derivative 
-$f'(z)$ exists at all points z in a region $R$. If $R$ is the entire z-plane,
-then f is entire. 
 
-\begin{figure}[!h]
-	\centering
-  \input{\imgpath/complex_grad}
-  \mycaption{Geometric interpretation of complex gradient}{The gradient is
-  defined as $f'(z) = \lim_{\Delta z \to 0} \frac{\Delta w}{\Delta z}$. It must
-  approach the same value independent of the direction $\Delta z$ approaches
-  zero. This turns out to be a very strong and somewhat restrictive property.}
-  \label{fig:app6:complex_grad}
-\end{figure}
+\section{Soft Shrinkage}\label{sec:appE:soft_shrink}
+Let $z = x + jy$ and $w = u+jv = \mathcal{S}(z, t)$ where we define the soft
+shrinkage on a complex number $z = re^{j\theta}$ by a real threshold $t$ as:
+\begin{equation}
+  \mathcal{S}(z, t) = \left\{ \begin{array}{ll}
+      0 & r < t \\
+      (r-t)e^{j\theta} & r \geq t\\
+\end{array}
+\right. 
+\end{equation}
+This can alternatively be written as:
+\begin{align}
+  \mathcal{S}(z, t) &= \frac{\max(r-t, 0)}{r} z \\
+                    &= gz \label{eq:appE:soft}
+\end{align}
+To find the pass through gradients $\dydx{L}{x},\ \dydx{L}{y}$ and update
+equations $\dydx{L}{t}$ we need to find all the real and imaginary partial
+derivatives. We can apply the product rule once we find
+$\dydx{g}{x},\dydx{g}{y},\dydx{g}{t}$:
+\begin{align}
+  \dydx{g}{x} &= \left\{ \begin{array}{ll}
+      0 & r < t \\
+      \frac{r \dydx{r}{x} - (r-t)\dydx{r}{x}}{r^2}  & r \geq t
+  \end{array} \right.  \\
+  &= \frac{xt\indic(g > 0)}{r^3} \label{eq:appE:dgdx} \\
+  \dydx{g}{y}&= \frac{yt\indic(g > 0)}{r^3} \label{eq:appE:dgdy} \\\\
+  \dydx{g}{t}&= \frac{-\indic(g > 0)}{r} \label{eq:appE:dgdt}
+\end{align}
+Then from the definition of $w = u+jv$ we have $u=gx$ and $v=gy$, giving us:
 
-\section{Grad Operator}
-Recall, the gradient is a multi-variable  generalization of the derivative. The
-gradient is a vector valued function. In the case of complex numbers, it can be
-represented as a complex number too. E.g.\ consider $W(z) = F(x,y)$ (note that
-in general it may be simple to find F given G, but they are different
-functions).
+\begin{minipage}{.48\linewidth}
+\begin{align}
+  \dydx{u}{x} &= g + \frac{x^2t\indic(g > 0)}{r^3} \\
+  \dydx{u}{y} &= \frac{xyt\indic(g > 0)}{r^3} \\
+  \dydx{u}{t} &= \frac{-x\indic(g > 0)}{r}
+\end{align}
+\vspace{5pt}
+\end{minipage}
+\begin{minipage}{.48\linewidth}
+\begin{align}
+  \dydx{v}{x} &= \frac{xyt\indic(g > 0)}{r^3} \\
+  \dydx{v}{y} &=g + \frac{y^2t\indic(g > 0)}{r^3} \\
+  \dydx{v}{t} &= \frac{-y\indic(g > 0)}{r}
+\end{align}
+\vspace{5pt}
+\end{minipage}
+Putting it all together, our update and passthrough gradients are:
+\begin{align}
+  \dydx{L}{x} &= \frac{xt\indic(g>0)}{r^3}(x\Delta u + y\Delta v) + g\Delta u \label{eq:appE:softx}\\
+  \dydx{L}{y} &= \frac{yt\indic(g>0)}{r^3}(x\Delta u + y\Delta v) + g\Delta v \label{eq:appE:softy}\\
+  \dydx{L}{t} &= \frac{-\indic(g > 0)}{r} (x\Delta u + y\Delta v) \label{eq:appE:softt}
+\end{align}
+These equations are for point-wise application of soft-thresholding. When
+applied to an entire image, then we sum $\dydx{L}{t}$ over all locations.
 
-I.e. 
-$$\nabla F = \dydx{F}{x} + i \dydx{F}{y}$$
+\section{Batch Normalization and ReLU applied to the Complex Magnitude}\label{sec:appE:bnrelu}
+Again let $z= x+jy = re^{j\theta}$ and $w=u + jv = \F{ReLU}(\F{BN}(r))e^{j\theta}$. 
+In \eqref{eq:ch6:bnrelu_soft} we showed that this nonlinearity is equivalent to
+soft-thresholding with threshold $t= \mu_r - \frac{\sigma_r\beta}{\gamma}$ and
+multiplied by a learned gain $\gamma$ divided by the tracked standard deviation of 
+$r$: $\frac{\gamma}{\sigma_r}$. 
 
-Consider the case when F is purely real, then 
-$F(x,y) = F(\frac{z+\conj{z}}{2},\frac{z-\conj{z}}{2i}) = G(z,\conj{z})$
-Then
-$$\nabla F = \dydx{F}{x} + i \dydx{F}{y} = 2\dydx{G}{\conj{z}}$$
+Let us call the action of this nonlinearity $\mathcal{B}$, defined by:
+\begin{align}
+  \mathcal{B}(z, \gamma, \beta) &= \left\{ \begin{array}{ll}
+      0 & r < t \\
+      \frac{\gamma}{\sigma_r}(r-t)e^{j\theta} & r \geq t\\
+  \end{array} 
+\right. \\
+&= \indic(r > t)\frac{\gamma (r-t)}{\sigma r} z\\
+&= g'z
+\end{align}
+It is clear from our new definition of $g'$ that the equations
+\eqref{eq:appE:softx} - \eqref{eq:appE:softt} are now 
+scaled by $\frac{\gamma}{\sigma}$. 
+This immediately gives us the passthrough gradients. For the update equations,
+we must find some additional information:
+\begin{align}
+  \dydx{t}{\beta} &= -\frac{\sigma}{\gamma} \\
+  \dydx{t}{\gamma} &= \frac{\sigma \beta}{\gamma^2} \\
+  \dydx{g'}{\beta} &= \frac{-\gamma \indic(g' > 0)}{\sigma r} \dydx{t}{\beta} = \frac{\indic(g' > 0)}{r}  \\
+  \dydx{g'}{\gamma} &= \frac{\indic(g' > 0)}{\sigma r}\left(r - t -\dydx{t}{\gamma}\right) = 
+      \frac{\indic(g' > 0)}{\sigma r}\left(r - t - \frac{\sigma \beta}{\gamma^2}
+      \right)  
+\end{align}
+Therefore, combinining these with \eqref{eq:appE:softt} we get:
+\begin{align}
+  \dydx{L}{\beta} &= \frac{\indic(g' > 0)}{r} (x\Delta u + y\Delta v) \\
+  \dydx{L}{\gamma} &= \frac{\indic(g' > 0)}{\sigma r}\left(r - t - \frac{\sigma \beta}{\gamma^2}\right)(x\Delta u + y\Delta v) 
+\end{align}
 
-If F is complex, let $F(x,y) = P(x,y) + iQ(x,y) = G(z,\conj{z})$, then
-$$\nabla F = \left(\dydx{}{x} + i \dydx{}{y}\right)(P+iQ) 
-           = \left(\dydx{P}{x} - \dydx{Q}{x}\right) + 
-                i\left(\dydx{P}{y} + \dydx{Q}{x}\right) 
-           = 2\dydx{G}{\conj{z}}$$
-It is clear to see how the purely real case is a subset of this (set Q=0 and
-all its partials will be 0 too).
+% \qquad
+% \begin{aligned}[c]
+  % \dydx{v}{x} &= \frac{xyt\indic(g > 0)}{r^3} = \dydx{u}{y} \\
+  % \dydx{v}{y} &= \frac{y^2t\indic(g > 0)}{r^3} \\
+  % \dydx{v}{t} &= \frac{-y\indic(g > 0)}{r}
+% \end{aligned}
+% \end{equation}
+  % As a first pass, I think I shouldn't concern myself too much with analytic
+  % functions and having the Cauchy-Riemann equations met. Instead, I will focus
+  % on implementing the CNN with a real and imaginary component to the filters,
+  % and have these stored as independent variables.\\\\
+  % Unfortunately, most current neural network tools only work with real numbers,
+  % so we must write out the equations for the forward and backwards passes, and
+  % ensure ourselves that we can achieve the equivalent of a complex valued
+  % filter.
 
-If G is an analytic function, then $\dydx{G}{\conj{z}} = 0$ and so the gradient
-is 0, and the Cauchy-Riemann equations hold $\dydx{P}{x}=\dydx{Q}{y}$ and 
-$\dydx{P}{y}=-\dydx{Q}{x}$
+% Consider a complex number $z=x+iy$, and the complex mapping 
+% \begin{equation}
+% w=f(z) = u(x,y) + iv(x,y)
+% \end{equation}
+% where $u$ and $v$ are called `conjugate functions'. Let us examine the
+% properties of $f(z)$ and its gradient. 
+
+% The definition of gradient for complex numbers is:
+% \begin{equation} 
+  % \lim_{\Delta z\to 0} \frac{f(z + \Delta z) - f(z)}{\Delta z}
+% \end{equation}
+
+% A necessary condition for $f(z,\conj{z})$ to be an analytic function is
+% $\dydx{f}{\conj{z}}=0$. I.e.\ f must be purely a function of $z$, and not
+% $\conj{z}$.
+
+% A geometric interpretation of complex gradient is shown in
+% \autoref{fig:app6:complex_grad}.  As $\Delta z$ shrinks to 0, what does $\Delta w$
+% converge to? E.g.\ consider the gradient of approach $m=\frac{dy}{dx}=\tan
+% \theta$, then the derivative is
+% \begin{equation}
+  % \gamma = \alpha + i\beta = D(x,y) + P(x,y)e^{-2i\theta}
+% \end{equation}
+% where
+% \begin{align}
+  % D(x,y) & =  \half(u_x + v_y + i(v_x - u_y)) \\
+  % P(x,y) & =  \half(u_x - v_y + i(v_x + u_y))
+% \end{align}
+% $P(x,y)=\frac{dw}{d\conj{z}}$ needs to be 0 for the function to be analytic.
+% This is where we get the Cauchy-Riemann equations:
+% \begin{align}
+  % \dydx{u}{x}&= \dydx{v}{y} \\
+  % \dydx{u}{y}&= -\dydx{v}{x}
+% \end{align}
+% The function $f(z)$ is analytic (or regular or holomorphic) if the derivative 
+% $f'(z)$ exists at all points z in a region $R$. If $R$ is the entire z-plane,
+% then f is entire. 
+
+% \begin{figure}[!h]
+	% \centering
+  % \input{\imgpath/complex_grad}
+  % \mycaption{Geometric interpretation of complex gradient}{The gradient is
+  % defined as $f'(z) = \lim_{\Delta z \to 0} \frac{\Delta w}{\Delta z}$. It must
+  % approach the same value independent of the direction $\Delta z$ approaches
+  % zero. This turns out to be a very strong and somewhat restrictive property.}
+  % \label{fig:app6:complex_grad}
+% \end{figure}
+
+% \section{Grad Operator}
+% Recall, the gradient is a multi-variable  generalization of the derivative. The
+% gradient is a vector valued function. In the case of complex numbers, it can be
+% represented as a complex number too. E.g.\ consider $W(z) = F(x,y)$ (note that
+% in general it may be simple to find F given G, but they are different
+% functions).
+
+% I.e. 
+% $$\nabla F = \dydx{F}{x} + i \dydx{F}{y}$$
+
+% Consider the case when F is purely real, then 
+% $F(x,y) = F(\frac{z+\conj{z}}{2},\frac{z-\conj{z}}{2i}) = G(z,\conj{z})$
+% Then
+% $$\nabla F = \dydx{F}{x} + i \dydx{F}{y} = 2\dydx{G}{\conj{z}}$$
+
+% If F is complex, let $F(x,y) = P(x,y) + iQ(x,y) = G(z,\conj{z})$, then
+% $$\nabla F = \left(\dydx{}{x} + i \dydx{}{y}\right)(P+iQ) 
+           % = \left(\dydx{P}{x} - \dydx{Q}{x}\right) + 
+                % i\left(\dydx{P}{y} + \dydx{Q}{x}\right) 
+           % = 2\dydx{G}{\conj{z}}$$
+% It is clear to see how the purely real case is a subset of this (set Q=0 and
+% all its partials will be 0 too).
+
+% If G is an analytic function, then $\dydx{G}{\conj{z}} = 0$ and so the gradient
+% is 0, and the Cauchy-Riemann equations hold $\dydx{P}{x}=\dydx{Q}{y}$ and 
+% $\dydx{P}{y}=-\dydx{Q}{x}$
 
 % \section{Hilbert Pairs of General Functions}
 % How does this affect me? I don't think I'll be able to use analytic
@@ -133,153 +339,3 @@ $\dydx{P}{y}=-\dydx{Q}{x}$
   % so we must write out the equations for the forward and backwards passes, and
   % ensure ourselves that we can achieve the equivalent of a complex valued
   % filter.
-
-\section{Forward pass}
-\subsection{Convolution}
-  %% Define the variables we will use in this section
-\newcommand{\SigIn}{z}
-\newcommand{\SigOut}{w}
-\newcommand{\Filter}{f}
-\newcommand{\SigInB}{\bmu{\SigIn}}
-\newcommand{\SigOutB}{\bmu{\SigOut}}
-\newcommand{\FilterB}{\bmu{\Filter}}
-  %% Now the body
-  
-In the above example $\FilterB$ has a spatial support of only $1\x 1$. We still
-were able to get a somewhat complex shape by shifting the relative phases of
-the complex coefficients, but we are inherently limited (as we can only
-rotate the coefficient by at most $2\pi$). So in general, we want to be able
-to consider the family of filters $\FilterB \in \complexes[m_1 \x m_2 \x C]$. For
-ease, let us consider only square filters of spatial support $m$, so
-$\FilterB \in \complexes[m\x m\x C]$. Note that we have restricted the third
-dimension of our filter to be $C=12$ in this case. This means that convolution is
-only in the spatial domain, rather than across channels. Ultimately we would
-like to be able to handle the more general case of allowing the filter to
-rotate through channels, but we will tackle the simpler problem 
-first\footnote{Recall from \autoref{fig:ch4:newshapes}, the benefit of allowing
-a filter to rotate through the channel dimension was we could easily obtain
-$30\degs$ shifts of the sensitive shape.}
-
-Let us represent the complex input with $\SigIn$, which is of shape
-$\complexes[n_1\x n_2\x C]$. We call $\SigOut$ the result we get from convolving
-$\SigInB$ with $\FilterB$, so $\SigOutB \in \complexes[n_1 + m - 1, n_2 + m -1, 1]$. With
-appropriate zero or symmetric padding, we can make $\SigOut$ have the same
-spatial shape as $\SigInB$. Now, consider the full complex convolution to get
-$\SigOut$:
-\begin{equation}
- \SigOut[l_1,l_2] = \sum_{c=0}^{C-1} \sum_{k_1,k_2} \Filter[k_1,k_2,c] \SigIn[l_1-k_1,l_2-k_2,c]
-\end{equation}
-Let us define 
-\begin{align}
-  \SigIn & =  \SigIn_R +j\SigIn_I \\
-  \SigOut & =  \SigOut_R +j\SigOut_I \\
-  \Filter & =  \Filter_R + j\Filter_I
-\end{align}
-where all of these belong to the real space of the same dimension as their
-parent. Then
-\begin{align}
-  \SigOut[l_1, l_2]  =&  \SigOut_R +j\SigOut_I \nonumber\\
-  = & \sum_{c=0}^{C-1} \sum_{k_1,k_2} \Filter[k_1,k_2,c] \SigIn[l_1-k_1,l_2-k_2,c] \nonumber\\
-  =& \sum_{c=0}^{C-1} \sum_{k_1,k_2} (\Filter_R[k_1,k_2,c] +j\Filter_I[k_1,k_2,c]) 
-        (\SigIn_R[l_1-k_1,l_2-k_2,c]+ j\SigIn_I[l_1-k_1,l_2-k_2,c]) \nonumber \\
-        =&  \sum_{c=0}^{C-1} \sum_{k_1,k_2} (
-          \SigIn_R[l_1-k_1,l_2-k_2,c] \Filter_R[k_1,k_2,c] - 
-          \SigIn_I[l_1-k_1,l_2-k_2,c] \Filter_I[k_1,k_2,c]) \nonumber \\
-          &+ j\sum_{c=0}^{C-1} \sum_{k_1,k_2} (\SigIn_R[l_1-k_1,l_2-k_2,c] \Filter_I[k_1,k_2,c] + 
-          \SigIn_I[l_1-k_1,l_2-k_2,c] \Filter_R[k_1,k_2,c]) \nonumber\\
-          =& \left((\SigIn_R \ast \Filter_R) - (\SigIn_I \ast \Filter_I)\right)[l_1,l_2] + 
-          \left((\SigIn_R \ast \Filter_I) + (\SigIn_I \ast \Filter_R)\right)[l_1,l_2]
-\end{align}
-Unsurprisingly, complex convolution is then the sum and difference of 4 real convolutions.
-
-% \section{Backwards Pass}  
-  % %% Define the variables we will use in this section
-  % \renewcommand{\dataloss}{\logloss_{\text{data}}}
-  % \renewcommand{\SigIn}{z}
-  % \renewcommand{\SigOut}{w}
-  % \renewcommand{\Filter}{f}
-  
-% Now we need to calculate what the complex gradients will be, and importantly,
-% how to implement them using only real representations.
-
-% A typical loss function is:
-% \begin{eqnarray}
-  % \logloss &=& \dataloss + \logloss_{\text{reg.}} \\
-    % &=& \frac{1}{N}\sum_{n=0}^{N-1} \sum_{k} y_{nk}\log \pi_{nk} + \lambda
-    % \sum_l \theta_l^2
-% \end{eqnarray}
-% The derivative of the regularizer loss w.r.t.\ the parameters is trivial to
-% find, so let us only focus on the data loss for now.
-
-\subsection{Regularization}
-We must be careful with regularizing complex weights. We want to set some
-of the weights to 0, and let the remaining ones evolve to whatever phase they
-please. To do this, either use the L-2 norm on the real and imaginary parts
-independently, or be careful about using the L-1 norm. This is because we
-really want to be penalising the magnitude of the complex weights, $r$ and: 
-\begin{equation}
-  \lnorm{r}{2}^2 = \lnorm{\sqrt{x^2+y^2}}{2}^2 = \sum x^2 + y^2 = \sum x^2 + \sum y^2 = \lnorm{x}{2}^2 + \lnorm{y}{2}^2
-\end{equation}
-But for $\ell_1$ regularization:
-\begin{equation}
-  \lnorm{r}{2} = \lnorm{\sqrt{x^2+y^2}}{1} = \sum \sqrt{x^2 + y^2} \neq \lnorm{x}{1} + \lnorm{y}{1}
-\end{equation}
-
-\section{Soft Shrinkage}\label{app:ch6:soft_shrink}
-Let $z = x + jy$ and $w = u+jv = \mathcal{S}(z, t)$ where we define the soft
-shrinkage on a complex number $z = re^{j\theta}$ by a real threshold $t$ as:
-\begin{equation}
-  \mathcal{S}(z, t) = \left\{ \begin{array}{ll}
-      0 & r < t \\
-      (r-t)e^{j\theta} & r \geq t\\
-\end{array}
-\right. 
-\end{equation}
-This can alternatively be written as:
-\begin{align}
-  \mathcal{S}(z, t) &= \frac{\max(r-t, 0)}{r} z \\
-                    &= gz
-\end{align}
-To find the pass through gradients $\dydx{L}{x}, \dydx{L}{y}$ we need to find
-all the real and imaginary partial derivatives.
-\begin{align}
-  \dydx{g}{x} &= \left\{ \begin{array}{ll}
-      0 & r < t \\
-      \frac{r \dydx{r}{x} - (r-t)\dydx{r}{x}}{r^2}  & r \geq t
-  \end{array} \right.  \\
-  &= \frac{xt\indic(g > 0)}{r^3} \\
-  \dydx{g}{y}&= \frac{yt\indic(g > 0)}{r^3} \\
-  \dydx{g}{t}&= \frac{-\indic(g > 0)}{r} 
-\end{align}
-Then from the definition of $w = u+jv$ we have $u=gx$ and $v=gy$, giving us:
-
-\begin{minipage}{.48\linewidth}
-\begin{align}
-  \dydx{u}{x} &= g + \frac{x^2t\indic(g > 0)}{r^3} \\
-  \dydx{u}{y} &= \frac{xyt\indic(g > 0)}{r^3} \\
-  \dydx{u}{t} &= \frac{-x\indic(g > 0)}{r}
-\end{align}
-\end{minipage}
-\begin{minipage}{.48\linewidth}
-\begin{align}
-  \dydx{v}{x} &= \frac{xyt\indic(g > 0)}{r^3} \\
-  \dydx{v}{y} &=g + \frac{y^2t\indic(g > 0)}{r^3} \\
-  \dydx{v}{t} &= \frac{-y\indic(g > 0)}{r}
-\end{align}
-\end{minipage}
-\vspace{10pt}
-And putting it all together we have:
-\begin{align}
-  \dydx{L}{x} &= \dydx{L}{u}\dydx{u}{x} + \dydx{L}{v}\dydx{v}{x} \\
-  \dydx{L}{y} &= \dydx{L}{u}\dydx{u}{y} + \dydx{L}{v}\dydx{v}{y} \\
-  \dydx{L}{t} &= \dydx{L}{u}\dydx{u}{t} + \dydx{L}{v}\dydx{v}{t} 
-\end{align}
-These equations are for point-wise application of soft-thresholding. When
-applied to an entire image, then we sum $\dydx{L}{t}$ over all locations.
-% \qquad
-% \begin{aligned}[c]
-  % \dydx{v}{x} &= \frac{xyt\indic(g > 0)}{r^3} = \dydx{u}{y} \\
-  % \dydx{v}{y} &= \frac{y^2t\indic(g > 0)}{r^3} \\
-  % \dydx{v}{t} &= \frac{-y\indic(g > 0)}{r}
-% \end{aligned}
-% \end{equation}

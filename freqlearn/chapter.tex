@@ -13,23 +13,22 @@ a multi-channel input. Next, instead of taking a complex modulus, we learn a
 complex gain for each subband in each input channel. A single value here can 
 amplify or attenuate all the energy in one part of the frequency plane. Then, 
 while still in the wavelet domain, we mix the different input channels by subband (e.g.
-all the $15\degs$ wavelet coefficients are mixed together, but the $15\degs$ and
-$45\degs$ coefficients are not). We can then return to the pixel
-domain with the inverse wavelet transform. 
+all the $15\degs$ wavelet coefficients at a given scale are mixed together, but
+the $75\degs$ and $45\degs$ coefficients are not). We can then return to the
+pixel domain with the inverse wavelet transform. The shift-invariant properties
+of the $\DTCWT$ allows gains and phases to be changed at will without
+introducing sampling artifacts.
 
 We also briefly explore the possibility of doing nonlinearities in the wavelet
 domain. The goal being to ultimately connect multiple wavelet gain layers
 together with nonlinearities before returning to the pixel domain. 
 
-The proposed wavelet gain layer can then be used in conjunction with regular
+The proposed wavelet gain layer can be used in conjunction with regular
 convolutional layers, with a network moving into the wavelet or pixel space and
 learning filters in one that would be difficult to learn in the other.
 
 Our experiments so far have shown some promise. We are able to learn complex
-wavelet gains and a network with one or two gain layers shows small improvements. 
-We have also found that the ReLU works well in the wavelet domain as a
-nonlinearity.
-
+wavelet gains and have found that the ReLU works well as a wavelet nonlinearity.
 However, replacing a convolutional layer with a gain layer degrades performance
 by a small amount.
 
@@ -37,7 +36,6 @@ by a small amount.
 % well in the wavelet domain. 
 
 \section{Related Work}\label{sec:ch6:related} 
-\subsection{Wavelets as a Front End}
 Fujieda et.\ al.\ use a DWT in combination with a
 CNN to do texture classification and image annotation 
 \cite{fujieda_wavelet_2017, fujieda_wavelet_2018}. In particular, they take a
@@ -66,59 +64,85 @@ Several works also use wavelets in deep neural networks for super-resolution
 segmentation tasks \cite{ma_detailed_2018}. These typically save wavelet
 coefficients and use them for the reconstruction phase.
 
+In \cite{rippel_spectral_2015}, \citeauthor{rippel_spectral_2015}
+parameterize filters in the DFT domain. Rather than having a pixel domain filter
+$\vec{w} \in \reals[F\x C\x K\x K]$, they learn a set of fourier coefficients
+$\hat{\vec{w}} \in \complexes[F\x C\x K \x \ceil{K/2}]$
+(the reduced spatial size is a result of enforcing that the inverse DFT of their
+filter to be real, so the parameterization is symmetric). On the forward pass of
+the neural network, they take the inverse DFT of $\hat{\vec{w}}$ to obtain
+$\vec{w}$ and then convolve this with the input $\vec{x}$ as a normal CNN
+would do.\footnote{The convolution may be done by taking both the image and
+filter back into the fourier space but this is typically decided by the
+framework, which selects the optimal convolution strategy for the filter and
+input size. Note that there is not necessarily a saving to be gained by
+enforcing it to do convolution by product of FFTs, as the FFT size needed for
+the filter will likely be larger than $K\x K$, which would require resampling
+the coefficients}. 
+
+Note that an important point should be laboured about reparameterizing filters
+in either the wavelet or Fourier domains: any invertible linear
+transform of the parameter space will not change the updates if a linear
+optimization scheme is used (for example standard gradient descent, or SGD with momentum)\footnote{This fact 
+is something that \citeauthor{rippel_spectral_2015} briefly allude to, but do not make clear}.
+This is proved in \autoref{app:ch6:invertible}.  
+We make this point clear as a natural extension to continue the work
+in \cite{rippel_spectral_2015} would be to parameterize filters in the wavelet domain,
+taking inverse transforms to the pixel domain and doing normal convolution. 
+
+The work presented in this chapter does not learn wavelet coefficients 
+for convolutional filters to be applied in the pixel domain, rather we learn wavelet filters 
+\emph{and} do convolution in the wavelet domain too.
+
 \section{Background and Notation}
 We make use of the 2-D $Z$-transform to simplify our analysis:
 %
 \begin{equation}
   X(\zz) = \sum_{n_1}\sum_{n_2} x[n_1, n_2]z_1^{-n_1}z_2^{-n_2} =
-  \sum_{\nn}x[c, \nn]\zz^{-\nn}
+  \sum_{\nn}x[\nn]\zz^{-\nn}
 \end{equation}
 %
 As we are working with three dimensional arrays (two spatial and one channel) but are
 only doing convolution in two, we introduce a slightly modified 2-D $Z$-transform
-which includes the channel index:
+which includes the channel index, $c$:
 %
 \begin{equation}
   X(c, \zz) = \sum_{n_1}\sum_{n_2} x[c, n_1, n_2]z_1^{-n_1}z_2^{-n_2} =
   \sum_{\nn}x[c, \nn]\zz^{-\nn} \label{eq:ch6:ztransform}
 \end{equation}
+We then define the product of these new $Z$-transform signals to be the
+channel-wise convolution. E.g. for the 3-D filter $h[c, \nn]$ with $Z$-transform
+$H(c, \zz)$ and the the 3-D signal $x[c, \nn]$ with $Z$-transform $X(c, \zz)$,
+let us call the product of the two $Z$-transforms:
+\begin{equation}
+  H(c, \zz)X(c, \zz) = \sum_{\nn}\left(\sum_{\bmu{k}}h[c, \nn-\bmu{k}]x[c, \bmu{k}]\right)\zz^{-\nn} \label{eq:ch6:zproduct}
+\end{equation}
 %
-Recall that a typical convolutional
+Recall from \autoref{sec:ch2:conv_layers} that a typical convolutional
 layer in a standard CNN gets the next layer's output in a two-step process:
 %
 \begin{align} 
   \cnndlact{y}{l+1}{f}{\nn} &= \sum_{c=0}^{C_l - 1} \cnndlact{x}{l}{c}{\nn} \conv \cnndfilt{l}{f}{c}{\nn}
     \label{eq:ch6:conv}\\
-    \cnndlact{x}{l+1}{f}{\xy} & =  \sigma \left( \cnndlact{y}{l+1}{f}{\xy} \right) \label{eq:ch6:nonlin}
+    \cnndlact{x}{l+1}{f}{\nn} & =  \sigma \left( \cnndlact{y}{l+1}{f}{\nn} \right) \label{eq:ch6:nonlin}
 \end{align}
 %
-In shorthand, we can reduce the action of the convolutional layer in \eqref{eq:ch6:conv} to $H$, saying:
-\begin{equation}
-  y^{(l+1)} = Hx^{(l)}
-\end{equation}
+If we define the nonlinearity $\sigma_z$ to be the action of $\sigma$ to each
+$z$-coefficient in the polynomial $Y(c, \zz)$, then we can rewrite
+\eqref{eq:ch6:conv} and \eqref{eq:ch6:nonlin} as:
 %
-With the new $Z$-transform notation introduced in \eqref{eq:ch6:ztransform}, we
-can rewrite \eqref{eq:ch6:conv} as:
+\begin{align}
+  \cnnlact{Y}{l+1}{f}{\zz} &= \sum_{c=0}^{C_l - 1} \cnnlact{X}{l}{c}{\zz} H_f^{(l)}(c, \zz) \\
+  \cnnlact{X}{l+1}{f}{\zz} &= \sigma_z(\cnnlact{Y}{l+1}{f}{\zz})
+\end{align}
 %
-\begin{equation}
-  \cnnlact{Y}{l+1}{f}{\zz} = \sum_{c=0}^{C_l - 1} \cnnlact{X}{l}{c}{\zz} H_f^{(l)}(c, \zz)
-\end{equation}
-%
-Note that we cannot rewrite \eqref{eq:ch6:nonlin} with $Z$-transforms as it is a nonlinear
-operation.
-
-Also recall that with multirate systems, upsampling by $M$ takes $X(z)$ to
-$X(z^M)$ and downsampling by $M$ takes $X(z)$ to $\frac{1}{M}\sum_{k=0}^{M-1} X(W_M^k
-z^{1/k})$ where $W_M^k = e^{\frac{j2\pi k}{M}}$. We will drop the $M$ subscript
-below unless it is unclear of the sample rate change, simply using $W^k$.
-
 \subsection{$\DTCWT$ Notation}
 For this chapter, we will work with lots of $\DTCWT$ coefficients so we define
 some slightly new notation here.
 
-A $J$ scale $\DTCWT$ gives $6J+1$ coefficients, 6 sets of complex
+A $J$ scale 2-D $\DTCWT$ gives $6J+1$ coefficients, 6 sets of complex
 bandpass coefficients for each scale (representing the oriented bands from 15 to 165
-degrees) and 1 set of real lowpass coefficients. 
+degrees) and 1 set of real lowpass ($lp$) coefficients. 
 \begin{equation}
   \DTCWT_J(x) = \{ u_{lp}, u_{j,k} \}_{1\leq j\leq J, 1\leq k\leq 6}
   \label{eq:ch6:dtcwt_coeffs}
@@ -132,7 +156,9 @@ Each of these coefficients then has size:
 \end{eqnarray}
 %
 Note that the lowpass coefficients are twice as large as in a fully decimated
-transform, a feature of the redundancy of the $\DTCWT$.
+transform, a feature of the redundancy of the $\DTCWT$ and the fact that the
+lowpass coefficients are most conveniently represented as purely real values,
+whereas the bandpass ones are most conveniently complex in \eqref{eq:ch6:dtcwt_coeffs}.
 
 If we ever want to refer to all the subbands at a given scale, we will
 drop the $k$ subscript and call them $u_j$. Likewise, $u$ refers to the whole
@@ -159,41 +185,43 @@ set of $\DTCWT$ coefficients.
   to give $x^{(2)}$ and continue on from there in the pixel domain.}
   \label{fig:ch6:fwd_chain}
 \end{figure}
-At the beginning of each stage of a neural network we have the activations
+At the beginning of each layer $l$ of a neural network we have the activations
 $x^{(l)}$. Naturally, all of these activations have their equivalent wavelet
 coefficients $u^{(l)}$. 
 
 From \eqref{eq:ch6:conv}, convolutional layers also have intermediate
-activations $y^{(l)}$. Let us differentiate these from the $x$ coefficients and
+activations $y^{(l)}$. Let us discern these from the $x$ coefficients and
 modify \eqref{eq:ch6:dtcwt_coeffs} to say the $\DTCWT$ of $y^{(l)}$ gives
 $v^{(l)}$.
 
 We now propose the \emph{wavelet gain layer} $G$.
-The name `gain layer' comes from the inspiration for this chapter's work, in
-that the first layer of CNN could theoretically be done in the wavelet domain by
-setting subband gains to 0 and 1. 
+The name `gain layer' comes from the inspiration for this chapter's work, as it
+appears often the first layer of a CNN could be achieved by simply setting gains
+for different regions in the frequency space of an image. 
 
 The gain layer $G$ can be used instead of a convolutional layer. 
-It is designed to work on the wavelet coefficients of an activation,
-$u$ to give outputs $v$. 
+It is designed to work on the wavelet coefficients of an activation $u$,
+to give wavelet domain outputs $v$. 
 
 This can be seen as breaking the convolutional path in
-\autoref{fig:ch6:fwd_chain} and taking a new route to get to the next layer's
+\autoref{fig:ch6:fwd_chain} and taking a new route to get the next layer's
 coefficients. From here, we can return to the pixel domain by taking the
 corresponding inverse wavelet transform $W^{-1}$. Alternatively, we
-can stay in the wavelet domain and apply wavelet based nonlinearities
-for the lowpass $\sigma_{lp}$ and highpass $\sigma_{bp}$ coefficients
-to give $u^{(l+1)}$. Ultimately we would like to explore
-architecture design with arbitrary sections in the wavelet and pixel domain, but
-to do this we must first explore: 
-\begin{enumerate}[itemsep=0pt,parsep=5pt,topsep=0pt]
-  \item How effective is $G$ at replacing $H$?
-  \item What are effective wavelet nonlinearities $\sigma_{lp}$ and $\sigma_{bp}$?
+can stay in the wavelet domain and apply wavelet based nonlinearities,
+$\sigma_{lp}$ and $\sigma_{bp}$ for the lowpass and highpass coefficients
+respectively, to give $u^{(l+1)}$. 
+
+Ultimately we would like to explore architecture design with arbitrary sections
+in the wavelet and pixel domain, but to do this we must first explore: 
+\begin{enumerate}[itemsep=5pt,parsep=5pt,topsep=0pt]
+  \item \textbf{How effective is a wavelet gain layer $G$ at replacing a
+    standard convolutional layer $H$?}
+  \item \textbf{What are effective wavelet nonlinearities $\sigma_{lp}$ and $\sigma_{bp}$?}
 \end{enumerate}
 
 \subsection{The $\DTCWT$ Gain Layer}
 To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
-output channels, we introduce the learnable filters $g_{lp}, g_{j,k}$:
+output channels, we introduce the learnable filters $g_{lp},\ g_{j,k}$:
 %
 \begin{align}
   g_{lp} &\in \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:glp} \\
@@ -203,24 +231,26 @@ output channels, we introduce the learnable filters $g_{lp}, g_{j,k}$:
   g_{J,6} &\in \complexes[C_{l+1}\x C_l\x k_J\x k_J]  \label{eq:ch6:gj6}
 \end{align}
 %
-where $k$ is the size of the mixing kernels. These could be $1\x 1$ for
+where the $k_j$ are the sizes of the mixing kernels. These could be $1\x 1$ for
 simple gain control, or could be larger, say $3\x 3$, to do more complex
 filtering on the subbands. Importantly, we can select the support size
 differently for each subband.
 
 With these gains we define the action of the gain layer $v = Gu$ to be:
-\begin{align}
-  v_{lp}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
+\begin{align} 
+  v_{lp}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \label{eq:ch6:gain1} \\
   v_{1,1}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
   v_{1,2}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
                   & \vdots \nonumber \\
-  v_{J,6}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
+  v_{J,6}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] \label{eq:ch:gain2}
 \end{align}
 
-Note that for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
-b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$ (see \autoref{app:ch6:complex_backprop}). 
+To avoid ambiguity with complex conjugates we remind ourselves that for complex
+signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv b_r - a_i
+\conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$ (see
+\autoref{sec:appE:complex_conv}).
 
-The action of the gain layer with $J=1$ is is shown in
+The action of the gain layer with only a single-scale wavelet transform, $J=1$, is is shown in
 \autoref{fig:ch6:block_diagrams}.
 
 \begin{figure}[t!]
@@ -236,7 +266,8 @@ The action of the gain layer with $J=1$ is is shown in
   subband is mixed independently with $C_{l+1}$ sets of convolutional filters.
   After mixing, a possible wavelet nonlinearity $\sigma_w$ is applied to the
   subbands, before returning to the pixel domain with an inverse wavelet
-  transform.}
+  transform. Note the similarity to the regular convolutional layer in
+  \autoref{fig:ch2:conv_layer}.}
   \label{fig:ch6:block_diagrams}
 \end{figure}
 
@@ -284,17 +315,22 @@ The action of the gain layer with $J=1$ is is shown in
   time reverse of the filter (represented by $z^{-1}$ terms).}
   \label{fig:ch6:fwd_bwd}
 \end{figure}
-Due to the shift invariant properties of the $\DTCWT$, the gain layer can achieve aliasing
-cancelling and therefore has a transfer function. The proof of this is done in
-\autoref{app:ch6:dtcwt}. 
+Due to the shift invariant properties of the $\DTCWT$, each wavelet subband has
+a unique transfer function which is almost free of aliasing (see
+\autoref{thm:ch6:shiftinv}). If we do complex convolution of the wavelet
+coefficients $u$ with gains $g$ as described in \eqref{eq:ch6:gain1} -
+\eqref{eq:ch6:gain2}, then we preserve the shift invariant properties (see
+\autoref{thm:ch6:shiftinvgain} and \autoref{thm:ch6:complex_multiply}). Then the
+inverse $\DTCWT$ of the outputs $v$ are free from aliasing.
 
-\autoref{fig:ch6:fwd_pass} shows a single subband $\DTCWT$
-based gain layer\footnote{Note that despite the resemblance to many block
+We can do a complex multiply of the subband coefficients $u$ with gains $g$ by
+using the block diagram shown in \autoref{fig:ch6:fwd_pass}\footnote{Note that despite the resemblance to many block
 diagrams for fully decimated DWTs, \autoref{fig:ch6:fwd_pass} is different.
 The top rung corresponds to the real part of a subband and the bottom specifies
 the imaginary part.}
+
 Let us call the analysis filters $A = A_r + jA_i$ and 
-the synthesis filters $S = S_r + jS_i$ (these are normally called $H$ and
+the synthesis filters $S = S_r - jS_i$ (these are normally called $H$ and
 $G$, but we keep those letters reserved for the CNN and gain layer filters). The
 gain for a specific subband previously was called $g_{j,k}$ but we here refer to
 it simply as $G = G_r + jG_i$. The output of this layer is:
@@ -302,11 +338,18 @@ it simply as $G = G_r + jG_i$. The output of this layer is:
   Y(z) = \frac{2}{M}X(z) \left[\vphantom{z^{M}} \right. &  G_r(z^{M}) \left(A_r(z)S_r(z) + A_i(z)S_i(z)\right) \nonumber \\
   +  & \left. G_i(z^{M}) \left( A_r(z)S_i(z) - A_i(z)S_r(z)\right) \right] 
 \end{align}
-See \autoref{app:ch6:dtcwt} for the derivation. The $G_r$ term modifies the
-subband gain $A_rS_r + A_iS_i$ and the $G_i$ term modifies its Hilbert Pair
-$A_rS_i - A_iS_r$. \autoref{fig:ch6:dtcwt_bands} show the contour plots for the
-frequency support of each of these subbands. The complex gain $g$ can be used to
-reshape the frequency response for each subband independently.
+Again, see \autoref{app:ch6:dtcwt} for the derivation which shows how the aliasing
+terms caused by the downsampling by $M$ are largely eliminated. 
+
+The complex gain $G$ has a real and imaginary part. The real term $G_r$ 
+modifies the subband gain $A_rS_r + A_iS_i$ and the imaginary term $G_i$ modifies its
+Hilbert Pair $A_rS_i - A_iS_r$. \autoref{fig:ch6:dtcwt_bands} show the contour
+plots for the frequency support of each of these subbands. The complex gain
+vector $g$ has elements which adjust the gain and phase of each subband
+independently. The magnitude of each element controls the amplitude of the
+frequency response in the region of that subband, while its phase controls the
+phase of the response and thus modifies the detailed wave-shape (e.g. the
+locations of its zero crossings).
 
 \begin{figure}[t]
   \centering
@@ -323,7 +366,9 @@ reshape the frequency response for each subband independently.
   \mycaption{$\DTCWT$ subbands}{\subref{fig:ch6:dtcwt_bands_freq} -1dB and -3dB contour 
   plots showing the support in the Fourier domain of the 6 subbands of the $\DTCWT$ at scales
   1 and 2, and the scale 2 lowpass. These are the product of the single side
-  band filters $P(z)$ and $Q(z)$ from \autoref{thm:ch6:shiftinv}.
+  band filters $P(z)$ and $Q(z)$ from \autoref{thm:ch6:shiftinv}, or half of the
+  support of the double side band filters $A_rS_r + A_iS_i$ and $A_rS_i -
+  A_iS_r$ from \eqref{eq:ch6:dtcwt_fwd}.
   \subref{fig:ch6:dtcwt_bands_impulse} The pixel domain impulse responses for
   the second scale wavelets. The Hilbert pair for each wavelet is the underlying
   sinusoid phase shifted by 90 degrees.}
@@ -334,7 +379,7 @@ reshape the frequency response for each subband independently.
 
 We start with the property that for a convolutional block, the
 gradient with respect to the input is the gradient with respect to the output
-convolved with the time reverse of the filter (proved in \autoref{ch:litreview}).
+convolved with the time reverse of the filter (proved in \autoref{sec:ch2:conv_grad}).
 More formally, if $Y(z) = H(z) X(z)$:
 %
 \begin{equation}\label{eq:ch6:backprop}
@@ -346,8 +391,8 @@ $\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
 to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
 the loss with respect to the input. 
 If H were complex, the first term in \autoref{eq:ch6:backprop} would be
-$\bar{H}(1/\bar{z})$, but as each individual block in the $\DTCWT$ is purely
-real, we can use the simpler form $H(z^{-1})$. 
+$\bar{H}(1/\bar{z})$, but as each individual block in the $\DTCWT$ of
+\autoref{fig:ch6:fwd_bwd} is purely real, we can use the simpler form $H(z^{-1})$. 
 
 Assume we already have access to the quantity $\Delta Y(z)$ (this is the input
 to the backwards pass). \autoref{fig:ch6:bwd_pass} illustrates the
@@ -369,9 +414,8 @@ transform.}. Then the weight update equations are:
 The passthrough equations have similar form to \eqref{eq:ch6:dtcwt_fwd}:
 \begin{equation}\label{eq:ch6:dtcwt_passthrough}
     \Delta X(z) = \frac{2\Delta Y(z)}{M} \left[G_r(z^{-M})\left( A_r(z)S_r(z) + A_i(z)S_i(z) \right) + \\
-       jG_i(z^{-M}) \left(A_r(z)S_i(z) - A_i(z)S_r(z) \right) \right] 
+       G_i(z^{-M}) \left(A_r(z)S_i(z) - A_i(z)S_r(z) \right) \right] 
 \end{equation}
-
 
 \subsection{Examples}
 \autoref{fig:ch6:examples} show example impulse responses of the $\DTCWT$ gain
@@ -382,12 +426,21 @@ outputs come from three random variables: a $1\x 1$
 convolutional weight applied to each of the low-high, high-low and high-high
 subbands. The $\DTCWT$ outputs come from twelve random variables, again a $1\x
 1$ convolutional weight, but now applied to six complex subbands. 
-Our experiments have shown that the distribution of the normalized
-cross-correlation between 512 of such randomly generated shapes for the DWT matches the
-distribution for random vectors with roughly 2.8 degrees of freedom (c.f. 3
-random variables in the layer). Similarly for the $\DTCWT$, the distribution of
+
+To test the space of generated shapes by a vector gain layer gain $g_1$, we
+generate $N$ random vectors of length 12, with each entry taken
+from a Gaussian distribution with zero mean and
+unit variance. We then generate the equivalent point spread functions from
+\eqref{eq:ch6:dtcwt_fwd} for the $N$ different instances and measure their 
+normalized cross-correlation. We then sort the values and compare the
+distribution to a set of $N$ random vectors with $k$ degrees of freedom. 
+
+Our experiments show that the distribution for the $\DTCWT$ gain layer matches
+random vectors with roughly 11.5 degrees of freedom (c.f.\ the 12 variables 
+the layer has). 
+Similarly for the DWT, the 
 the normalized cross-correlation matches the distribution for random vectors
-with roughtly 11.5 degrees of freedom (c.f. 12 random variables in the layer).
+with roughly 2.8 degrees of freedom (c.f. 3 random variables in the layer).
 This is particularly reassuring for the $\DTCWT$ as it is showing that there is
 still representatitve power despite the redundancy of the transform.
 
@@ -407,11 +460,12 @@ still representatitve power despite the redundancy of the transform.
   $x$ for the $\DTCWT$ gain layer and for a similarly designed DWT gain layer.
   \subref{fig:ch6:dtcwt_examples} shows the output $y$ for a $\DTCWT$ based
   system. $g_{lp} = 0$ and $g_1$ has spatial size $1\x 1$. The 12 values
-  in $g_1$ are independently sampled from a random normal of variance 1.
+  in $g_1$ are independently sampled from a random normal of variance 1. 
   The 60 samples come from 60 different random draws of the weights.
   \subref{fig:ch6:dwt_examples}
   shows the outputs $y$ when $x$ is an impulse and $W$ is the DWT with a
-  `db2' wavelet family. The strong horizontal and vertical properties of the DWT
+  `db2' wavelet family. Here 3 random numbers are generated for the $g_1$
+  coefficients. The strong horizontal and vertical properties of the DWT
   can clearly be seen in comparison to the much freer $\DTCWT$.}
   \label{fig:ch6:examples}
 \end{figure}
@@ -452,7 +506,7 @@ This is slightly larger than the $9C_lC_{l+1}$ parameters used in a
 standard $3\x 3$ convolution, but as \autoref{fig:ch6:examples} shows, the
 spatial support of the full filter is larger than an equivalent one
 parameterized in the filter domain. If $k_{lp}=3$ then we would have $21C_l
-C_{l+1}$ parameters, slightly fewer than a $5\x 5$ convolution.
+C_{l+1}$ parameters, slightly fewer than the $25C_l C_{l+1}$ of a $5\x 5$ convolution.
 
 \subsubsection{Activation Memory Cost}\label{sec:ch6:act_memory}
 A standard convolutional layer needs to save the activation $x^{(l)}$ to
@@ -508,7 +562,7 @@ have set $J=1$ and $k_{lp} = 1$ then the total cost for the gain layer is:
   \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT^{-1}} = \quad 7C_{l+1} + 72 \quad
   \label{eq:ch6:comp_dtcwt}
 \end{equation}
-which is marginally smaller than a $3\x 3$ convolutional layer.
+which is marginally smaller than the $9C_{l+1}$ of a $3\x 3$ convolutional layer (if $C_{l+1}$ > 36).
 
 \subsubsection{Parameter Initialization}
 For both layer types we use the Glorot Initialization scheme \cite{glorot_understanding_2010}
@@ -523,16 +577,20 @@ where $k$ is the kernel size.
 \section{Gain Layer Experiments}\label{sec:ch6:gainlayer_experiments}
 Before we explore the possibilities and performance of using a
 nonlinearity in the wavelet domain, let us present some experiments and results
-for the wavelet gain layer. This is the first objective in
+for the wavelet gain layer where we perform non-linearities in purely in the
+spatial domain, as in a conventional CNN layer. This is the first objective in
 \autoref{sec:ch6:learning}, comparing $G$ to $H$.
 
 \subsection{CNN activation regression}\label{sec:ch6:regression}
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{\imgpath/AlexNet_layer1_regression.pdf}
-  \mycaption{Mean Squared Error for Conv and Wavelet Gain Layer Regression with
-  AlexNet first layer filters}{After minimization of \eqref{eq:ch6:conv_regression} and
-  \eqref{eq:ch6:gain_regression}, this plot shows the final MSE score compared
+  \mycaption{Normalized mean squared error for conv layer and wavelet gain layer
+  regression.}{We minimize of
+  \eqref{eq:ch6:conv_regression} and
+  \eqref{eq:ch6:gain_regression} on the ImageNet validation set, where the
+  target is made from convolving the input with AlexNet's first layer filters. 
+  This plot shows the final MSE score compared
   to the number of learnable parameters. The original conv layer has spatial
   support $11\x 11$, and the equivalent number of parameters is shown as a blue
   dotted line. The four points labelled `conv$n$' correspond to filters with
@@ -544,7 +602,7 @@ for the wavelet gain layer. This is the first objective in
   second scale coefficients are more important than the first scale.}
   \label{fig:ch6:gainlayer_regression}
 \end{figure}
-One of the early inspriations for using wavelets in CNNs was the visualizations
+One of the early inspirations for using wavelets in CNNs was the visualizations
 of the first layer filters learned in AlexNet. These $11\x 11$ colour filters
 (see \autoref{fig:ch1:alex_filt}) look very much like a 2-D oriented wavelet transform.
 
@@ -557,41 +615,45 @@ and our gain layer $G$. Let $\lnorm{H}{2}$, $\lnorm{G}{2}$ be the $\ell_2$ norm
 of the weights for each layer. We would like assume that we do not have direct
 access to $H_0$ but only the convolved outputs $Y=H_0 X$. Then, we would like to solve:
 \begin{align}
-  & \argmin_{H}\ (Y - HX)^2 + \frac{\lambda}{2} \lnorm{H}{2}^2 
+  & \argmin_{H}\ (Y - HX)^2 %+ \frac{\lambda}{2} \lnorm{H}{2}^2 
   \condition{s.t. $h[c, \nn] = 0,\ \forall \nn \notin \mathcal{R}$} \label{eq:ch6:conv_regression}\\
-  & \argmin_{G}\ (Y - W^{-1}GWX)^2 + \frac{\lambda}{2} \lnorm{G}{2}^2 
+  & \argmin_{G}\ (Y - W^{-1}GWX)^2 %+ \frac{\lambda}{2} \lnorm{G}{2}^2 
   \condition{s.t. $g_{j,k}[c, \nn] = 0,\ \forall \nn \notin \mathcal{R'}$} \label{eq:ch6:gain_regression}
 \end{align}
 for some support regions $\mathcal{R},\mathcal{R'}$. E.g. $\mathcal{R}$ could be a $3\x3$ or $5\x5$ 
 block, and similarly $\mathcal{R'}$ could define a desired support for each gain in each 
 subband. 
 
-\eqref{eq:ch6:conv_regression} and \eqref{eq:ch6:gain_regression} are convex regression
-problems, with many possible ways to solve. We are not worried with the
-optimization procedure chosen here, but of the final distances $\norm{Y-HX}$
-and $\norm{Y-W^{-1}GWx}$ (or equivalently, their squares). We choose to find $H$ and $G$ by 
-gradient descent, using the validation set for ImageNet as the data input-output
-pair $(X, Y)$. After 3--5 epochs, both $H$ and $G$ typically settle into their
-global minimum. Because of the large size of the input filters, we allow for
-both a $J=1$ and $J=2$ scale gain layer, but only learn weights at the lowest
-frequency bandpass (i.e. for a 2 scale gain layer, we discard the first scale
-highpass outputs and only learn $g_2$). 
+\eqref{eq:ch6:conv_regression} and \eqref{eq:ch6:gain_regression} are both
+regression problems convex in the parameters of $H$ and $G$, with many possible
+ways to solve. We are not worried with the optimization procedure chosen here,
+but of the final distances $\norm{Y-HX}$ and $\norm{Y-W^{-1}GWx}$ (or
+equivalently, their squares). We choose to find $H$ and $G$ by gradient descent,
+using the validation set for ImageNet as the data input-output pair $(X, Y)$.
+After 3--5 epochs, both $H$ and $G$ typically settle into their global minimum.
+Because of the large size of the input filters, we allow for both a $J=1$ and
+$J=2$ scale gain layer, but only learn weights at the lowest frequency bandpass
+(i.e. for a 2 scale gain layer, we discard the first scale highpass outputs and
+only learn $g_2$). 
 
-The resulting MSE are shown in \autoref{fig:ch6:gainlayer_regression}. A label
+After training we report the final normalized mean squared errors between the
+target values $Y$ and the estimated outputs $\hat{Y}$, defined as:
+\begin{equation}
+  NMSE = \frac{1}{N} \sum_{n=1}^N \frac{\mathbb{E}\left[(Y-\hat{Y})^2\right]}{\mathbb{E}\left[Y^2\right]}
+\end{equation}
+The resulting NMSEs are shown in \autoref{fig:ch6:gainlayer_regression} . A label
 `gl$ab$' indicates a single scale gain layer with $a\x a$ support in the lowpass
 and $b\x b$ support in the highpass; a label `gl$abc$' indicates a two scale
 gain layer with $a\x a$ support in the lowpass, $b\x b$ support in the scale 1
 highpass and $c\x c$ support in the scale 2 bandpass gains.
 
-This
-figure shows several interesting things yet unsurprising things. Firstly, bigger
-lowpass support is very helpful -- see the difference between gl101, gl301, and
-gl501, 3 instances that only vary in the size of the support of their lowpass
-filter $g_{lp}$. Additionally, the second scale coefficients appear more useful
-than the first scale -- see the difference between gl310 and gl301, two
-instances that have the same number of parameters, but gl310 has $g_1$ with non-zero 
-support, and gl301 has $g_2$ with non-zero support.
-
+This figure shows several interesting things yet unsurprising things. Firstly,
+bigger lowpass support is very helpful -- see the difference between gl101,
+gl301, and gl501, 3 instances that only vary in the size of the support of their
+lowpass filter $g_{lp}$. Additionally, the second scale coefficients appear more
+useful than the first scale -- see the difference between gl310 and gl301, two
+instances that have the same number of parameters, but gl310 has $g_1$ with
+non-zero support, and gl301 has $g_2$ with non-zero support.
 
 \subsection{Ablation Studies}
 \autoref{fig:ch6:gainlayer_regression} is a useful guide on how the gainlayer
@@ -625,12 +687,12 @@ smaller kernels in \autoref{app:ch6:more_results}.}.
     \label{fig:ch6:ti_gl}
   }
   \mycaption{Large kernel ablation results CIFAR and Tiny ImageNet}{Results
-  showing the accuracies obtained by swapping combinations of the three conv
-  layers in the reference architecture from \autoref{tab:ch6:ablation_arch} with
-  gain layers. Results shown are averages of 3 runs with the standard deviations
-  shown as dark blue lines. These results show that changing a convolutional
-  layer for a gain layer is possible, but comes with a small accuracy cost which 
-  compounds as more layers are swapped.}
+  showing the percentage classification accuracies obtained by swapping
+  combinations of the three conv layers in the reference architecture from
+  \autoref{tab:ch6:ablation_arch} with gain layers. Results shown are averages
+  of 3 runs with the $\pm1$ standard deviations shown as dark blue lines. These results
+  show that changing a convolutional layer for a gain layer is possible, but
+  comes with a small accuracy cost which compounds as more layers are swapped.}
   \label{fig:ch6:gl_results}
 \end{figure}
 
@@ -645,12 +707,16 @@ We then test the difference in accuracy achieved by replacing each of the three
 convolution layers with gl310\footnote{Although the gain layers with no gain in
 the first scale and gain in the second scale performed better than those with
 gain gl310 and gl510 in \autoref{sec:ch6:regression}, we saw them perform
-consinstently worse in the following ablation studies. For ease of presentation,
+consistently worse in the following ablation studies. For ease of presentation,
 we have shown only the results from the single scale gain layer.}. 
 On the two CIFAR datasets, we train for 120 epochs, decaying learning rate by a
 factor of 0.2 at 60, 80 and 100 epochs, and for the Tiny ImageNet dataset, we
-train for 45 epochs, decaying learning rate at 18, 30 and 40 epochs. The
-experiment code is available at \cite{}.
+train for 45 epochs, decaying learning rate at 18, 30 and 40 epochs. We set 
+$\ell_2$ weight decay of $10^{-4}$ for the real gains in the system, and
+$\ell_1$ weight decay of $10^{-5}$ for the complex gains in the system. See
+\autoref{sec:appE:complex_reg} for information on how we handle regularizing complex
+gains. The
+experiment code is available at \cite{cotter_dtcwt_2018}.
 
 The results of various swaps for our three datasets are shown in
 \autoref{fig:ch6:gl_results}.
@@ -794,7 +860,7 @@ We can rewrite \eqref{eq:ch6:magrelu_bp} by taking the strictly positive terms
 $\gamma$, $\sigma$ outside of the $\max$ operator:
 \begin{align}
   r_u &= \max(0, \gamma \frac{r_v-\mu_r}{\sigma_r} + \beta) \\
-      &= \frac{\gamma}{\sigma_r}\max\left(0, r_v - \left(\mu_r - \frac{\sigma_r\beta}{\gamma}\right)\right) 
+      &= \frac{\gamma}{\sigma_r}\max\left(0, r_v - \left(\mu_r - \frac{\sigma_r\beta}{\gamma}\right)\right) \label{eq:ch6:bnrelu_soft}
 \end{align}
 then if $t' = \mu_v - \frac{\sigma_r\beta}{\gamma} > 0$, doing batch
 normalization followed by a ReLU on the magnitude of the coefficients is the
@@ -816,10 +882,8 @@ optimization problem by changing \eqref{eq:ch6:relu_st} to:
   \mathcal{S}(v, t) = \max(0, r-|t|)e^{j\theta}  \label{eq:ch6:relu_st2}
 \end{equation}
 
-See \autoref{app:ch6:soft_shrink} for derivations of the
-pass-through and update gradient equations. Learning a threshold is only
-possible for soft thresholding, as $\dydx{L}{t}$ is not defined for hard
-thresholding. 
+Learning a threshold is only possible for soft thresholding, as $\dydx{L}{t}$ is
+not defined for hard thresholding. 
 % We can
 % force some sparsity level however by keeping a track of the moments of the activations with an
 % exponential moving average, and finding quantiles by matching the distribution of
@@ -846,7 +910,7 @@ thresholding.
 Taking the same `gain1\_2\_3' architecture used for CIFAR-100, we expand the
 \emph{wave gain layer} into one bigger layer
 dubbed the \emph{wave layer}, described in \autoref{alg:ch6:wavelayer}. In the wave
-layer, there are we have 3 different nonliearities: the pixel, the lowpass 
+layer, we have 3 different nonliearities: the pixel, the lowpass 
 and the bandpass nonlinearity.
 
 For these experiments, we test over a grid of possible options for these three
@@ -871,12 +935,16 @@ Where:
     activations) e.g. \eqref{eq:ch6:bnrelu_lp}.
   \item `ReLU' is a ReLU without batch normalization. Can be applied to the real
     and imaginary parts of a complex activation independently i.e.
-    \eqref{eq:ch6:relu_bp}.
+    \eqref{eq:ch6:relu_bp}. See \autoref{sec:appE:complex_relu} for equations
+    for the passthrough gradients for this nonlinearity.
   \item `BN+MagReLU' applies batch normalization to the magnitude of complex
-    coefficients and then makes them strictly positive with a ReLU. See
-    \eqref{eq:ch6:magrelu_bp}.
+    coefficients and then makes them strictly positive with a ReLU. This action
+    is defined in \eqref{eq:ch6:magrelu_bp}. See \autoref{sec:appE:bnrelu} for
+    information on the passthrough and update equations for this nonlinearity.
   \item $\mathcal{S}$ is the soft thresholding of \eqref{eq:ch6:relu_st2}
-    applied to the magnitudes of coefficients. 
+    applied to the magnitudes of coefficients.  See
+    \autoref{sec:appE:soft_shrink} for information on the passthrough and update
+    equations for this nonlinearity.
     % We choose a
     % conservative sparsity level of 0.2 (20\% of coefficients set to 0) for these
     % thresholds. A full grid search over
@@ -906,8 +974,8 @@ Digesting this information gives us some useful insights:
     applied to either the lowpass or pixel coefficients. 
 \end{enumerate}
 
-The best accuracy score of $65.5\%$ is now $0.4\%$ lower than the fully
-convolutional architecture, however this network has slightly fewer parameters.
+The best accuracy score of $65.5\%$ is now $0.1\%$ higher than the fully
+convolutional architecture, and this network has slightly fewer parameters.
 
 % \begin{table}[t]
   % \centering
@@ -975,7 +1043,7 @@ convolutional architecture, however this network has slightly fewer parameters.
 In this chapter we have presented the novel idea of learning filters by taking
 activations into the wavelet domain. In the wavelet domain then we can apply
 the proposed gain layer $G$ instead of a pixel wise convolution, and can apply
-wavelet based nonlinearities $\sigma_w$. We have considered the possible
+wavelet based nonlinearities $\sigma_{lp}, \sigma_{bp}$. We have considered the possible
 challenges this proposes and described how a multirate system can learn through
 backpropagation. 
 %We ultimately hope that learning in both the wavelet and pixel
@@ -984,9 +1052,18 @@ Our experiments have been promising but not convincing. We have shown that our l
 end-to-end system, achieving similar accuracies on CIFAR-10, CIFAR-100 and Tiny
 ImageNet to the same system with convolutional layers instead. This is a good
 start and shows the plausibility of the wavelet gain layer, but we have not yet
-seen a benefit to learning in the wavelet space. 
+seen a significant benefit to learning in the wavelet space. 
 
 We have searched for good candidates for wavelet nonlinearities, and saw that
-using Batch Normalization followed by a ReLU on the lowpass coefficients, and
+using a ReLU on the lowpass coefficients, and
 Batch Normalization and a ReLU on the magnitudes of the bandpass coefficients
-improved the performance of the gain layer considerably.
+improved the performance of the gain layer considerably. This is an exciting
+development and indicates that we may not need to return to the pixel domain at
+all, possibily eliminating the need for the inverse wavelet
+transforms used in our experiments (see steps 6 and 7 in
+\autoref{alg:ch6:wavelayer}). However, one needs to be careful, as taking the inverse transform 
+followed by taking the forward transform does not necessarily give the same
+wavelet coefficients due to the redundancy of the $\DTCWT$, instead projecting
+onto the range space of the transform. Removing the inverse transform is
+something we did not have time to fully explore and so we have included it in
+our future work section. 

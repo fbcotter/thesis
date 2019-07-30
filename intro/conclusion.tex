@@ -4,7 +4,10 @@
 
 In this thesis, we have examined the effectiveness of using complex wavelets as
 basis functions for deep learning models. We summarize the key results we have
-found before describing what we were not able to explore due to time constraints.
+found before describing possible future extensions of our work, some natural
+extensions that we were not able to explore due to time constraints, and some
+propositions for tying together interesting pieces of work that were developed 
+towards the end of the project.
 
 % We first looked at ScatterNets, a type
 % of feature extractor that builds invariances using the complex magnitude
@@ -53,9 +56,9 @@ This echoes the experiments of
 \citeauthor{blakemore_development_1970}\cite{blakemore_development_1970} who
 controlled the orinetation of edges exposed to kittens in their development
 stage. Finally, this chapter showed some ways to expand on the ScatterNet
-network\autoref{fig:ch4:newshapes}, inspiring the work of \autoref{ch:invariant}
-and \autoref{ch:freqlearn}. This layer is \textbf{cheaper and quicker
-theoretically?}
+network and shows the features possible with these extensions in \autoref{fig:ch4:newshapes}. 
+This last section inspires the work of \autoref{ch:invariant}
+and \autoref{ch:freqlearn}. 
 
 \textbf{\Autoref{Chapter}{ch:invariant}} reworks the ScatterNet into individual layers.
 This redesign allows us to rethink how we want to use wavelets, and we introduce
@@ -79,28 +82,33 @@ inputs to the wavelet domain, learns complex gains to attenuate/accentuate
 different subbands, mixes the subbands across the different channels and offers
 the ability of returning to the pixel domain with the inverse wavelet transform.
 We propose different possible nonlinearities to use in the wavelet domain and
-found that while this was possible, it did not offer an advantage over learning
-directly in the pixel domain (\autoref{fig:ch6:gl_results}). 
+found that applying a ReLU on the lowpass and a batch normalization layer
+followed by a ReLU on the bandpass coefficients worked best. The final result 
+offered a small advantage over learning directly in the pixel domain (\autoref{fig:ch6:gl_results}). 
+We also found some interesting results from the analysis of the sparsity of the
+learned bandpass gains, finding that very few of these needed to be non-zero.
 
 \section{Future Work}
-This thesis has started to look at ways of using wavelets as basis functions for
-deep learning models. Our research has found some possible ways they could be used
+This thesis has started to examine ways of using wavelets as basis functions for
+deep learning models. Our research has found some possible approaches 
 which offer some advantage in terms of number of parameters, interpretability
 and (theoretical) computation time. But there are many things that we were not
 able to try, and some of these may show that wavelets have a larger benefit than
-we found.
+we were able to find.
 
-\subsection{Faster Transforms and expanding current approaches}
+\subsection{Faster Transforms and More Scales}
 Firstly, despite our best efforts in making a fast wavelet transform, the speed
 of a $\DTCWT$ in \emph{Pytorch Wavelets} is slower than it could be. A $10\x 10$
 convolutional filter with 100 multiplies per input pixel is roughly twice as
 quick to compute as a $\DTCWT$ with 36 multiplies per pixel. We limited our
 design to use high level cuDNN calls and this was the best we could do with
-these primitives. We believe that any further speed up would require custom CUDA
-kernels. The speed was not a problem for datasets such as CIFAR and Tiny
+these primitives, and believe that any further speed up would require custom CUDA
+kernels. The computational time was not a problem for datasets such as CIFAR and Tiny
 ImageNet, but it did prevent us from testing the wavelet gain layer and
 invariant layer on ImageNet (see \autoref{app:arch} for some run times).
-We believe that these layers may perform better with larger images.
+We believe that these layers would perform better with larger images where the
+extent of the wavelet is not comparable to the size of the image (hence
+requiring lots of padding).
 
 Another aspect of testing larger images is the benefit of using multiple
 scales in any system. Our wavelet gain layer only used the first or second scale
@@ -110,9 +118,46 @@ been done in splitting the input or mid-level activations into multiple scales
 and learning different filters for the different scales, but some examples
 include \cite{haber_learning_2017, fujieda_wavelet_2018}.
 
-\subsection{Applications}
-low dimensional medical applications
-\cite{kang_deep_2017}
+\subsection{Expanding Tests on Invariant Layer}
+We have shown in \autoref{ch:invariant} that the invariant layer can work quite
+well in a VGG-like CNN as a replacement for a convolutional layer followed by 
+pooling. We would have liked to test this on larger networks, replacing areas of
+sample rate change with invariant layers, and see how well
+this generalizes. One common place that has a large sample rate change is in the first layer of 
+CNNs, with networks like AlexNet and ResNet downsampling by a
+factor of four in each direction after the first layer. Experiments by
+\cite{oyallon_scaling_2017} have looked at replacing this with a fixed
+ScatterNet, but it would be interesting to see how well this performs with the
+\emph{learned} ScatterNet we have developed.
+
+\subsection{Expanding Tests on Gain Layer}
+We believe that the wavelet gain layer is the most unique and potentially promising
+piece of work in this thesis. The results we describe in \autoref{tab:ch6:nonlinearities} 
+were the last experiments we were able to do, and they just start to show some
+promise for learning in the wavelet domain. There is potentially a lot more
+research to be done on the wavelet gain layer.
+
+Firstly, the result from \autoref{fig:ch6:bp_info} is very intriguing. This
+figure shows that a lot of the learned bandpass gains are very near zero,
+and thresholding them after training does little to affect performance. It would
+be very interesting to see the performance of the network if the threshold
+values were set near the end of training, and the nonzero gains were allowed to
+grow to compensate for this. Also, is this a property unique to the wavelet gain
+layer? Or do all CNNs learn \emph{mostly} lowpass filters, and need only a few
+bandpass filters? The parameter cost of the proposed gain layer was dominated
+by the cost of coding these bandpass gains, despite requiring very few of them.
+It would be an interesting piece of work to try to redesign the gain layer to
+allow training with many fewer bandpass parameters.
+
+Secondly, the results from \autoref{tab:ch6:nonlinearities} show that the best
+performing gain layer had no pixel nonlinearity, a ReLU in the lowpass and 
+a ReLU applied to the magnitude of the bandpass. This is very exciting as it
+opens up the possibility of staying in the wavelet domain longer. In our
+experiments, we would take inverse transforms and apply a NoOp in the pixel
+domain before returning to the wavelet domain. This is marginally different
+than staying in the wavelet domain, as it involves projecting from a redundant
+space to a non-redundant one. More experiments could be done where this
+projection is not done.
 
 \subsection{ResNets and Lifting}
 \begin{figure}
@@ -131,46 +176,108 @@ low dimensional medical applications
   perturbation of the vector $x$. In a lifting layer, each path is a learned
   function of the other added to itself. In the original second generation
   wavelets, $\mathcal{F}$ and $\mathcal{G}$ are FIR filters, but there is no
-  requirement on them to be.}
+  requirement on them to be. Diagrams taken from \cite{gomez_reversible_2017}.}
   \label{fig:ch7:lifting_resnet}
 \end{figure}
+
 We briefly mentioned ResNets in \autoref{sec:ch2:resnets} but did not study them
 in depth in this thesis. Interestingly, there are many similarities between
 ResNets and second generation wavelets, or the \emph{lifting} framework
 \cite{sweldens_lifting_1998,daubechies_factoring_1998}.
-In a residual layer, the output is $y = \mathcal{F}(x) + x$, for a lifting
-system, the layer is a two port network:
+In a residual layer, the output is $y = \mathcal{F}(x) + x$ where for a lifting
+system, the layer is a two port network defined by:
 \begin{align}
   y_1 &= \mathcal{F}(x_1) + x_2 \\
   y_2 &= \mathcal{G}(y_1) + x_1 
 \end{align}
 \autoref{fig:ch7:lifting_resnet} shows the similarities between the two designs. 
-\cite{gomez_reversible_2017, jacobsen_i-revnet:_2018} both make the small modifications
+The works \cite{gomez_reversible_2017, jacobsen_i-revnet:_2018} both make the small modifications
 to the ResNet design to make a lifting style architecture.
-\cite{gomez_reversible_2017} do this to save memory on the activations for
-backpropagation whereas \cite{jacobsen_i-revnet:_2018} use it for its perfect
-reconstruction properties. We believe that there are potentially many more
-benefits to using the lifting design as an extension of our work into learning
-from basis functions.
+\citeauthor{gomez_reversible_2017} \cite{gomez_reversible_2017} do this to save
+memory on the activations for backpropagation (you do not need to save
+meta-information on the forwards pass as you can regenerate activations on the
+backwards pass). 
+\citeauthor{jacobsen_i-revnet:_2018} \cite{jacobsen_i-revnet:_2018} extend on
+\cite{gomez_reversible_2017} and also explore merging images with linear
+interpolation in the activation space, reconstructing from the new latent
+values. We believe that there are potentially many more benefits to using the
+lifting design as an extension of our work into learning from basis functions.
 
-In addition to the interesting parallel between ResNets and Lifting,
-\citeauthor{bartlett_gradient_2018} have found that having near identity transforms
-for each stage of a deep learning system is \cite{bartlett_gradient_2018, bartlett_representing_2018}
-Aside from the interesting parallel between ResNets and Lifting, ResNets have
-become 
 \subsection{Protecting against Attacks}
-\cite{cisse_parseval_2017}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{\imgpath/negative2.png}
+  \mycaption{Adversarial examples that can fool AlexNet}{Two examples of images
+  that were correctly classified on the left, with additive signals in the
+  centre (scale magnified by 10) and the resulting images on the right. Both of the output
+  images are then predicted to be an ostrich. Images taken from
+  \cite{szegedy_intriguing_2014}.}
+  \label{fig:ch7:adversarial}
+\end{figure}
+Adversarial examples are starting to become a real concern for CNNs. A classic
+adversarial example is an image that appears innocuous to a human, but has been 
+corrupted with a low energy signal that can completely convince a CNN that the
+image is something else. \autoref{fig:ch7:adversarial} shows an example of this
+taken from \cite{szegedy_intriguing_2014}. 
+
+While \citeauthor{szegedy_intriguing_2014} \cite{szegedy_intriguing_2014} show
+there is a weakness to CNNs being fooled, these adversarial examples were
+obtained by gradient ascent to the target class. I.e. they had full access to
+the parameters of the model. \citeauthor{papernot_practical_2017} \cite{papernot_practical_2017} expand this to show
+it is possible to develop an attack without knowing the model, treating it as a
+\emph{black box}. Protecting against these black box attacks has become an 
+an arms race in recent years, with measures and counter-measures constantly
+being developed. An excellent paper review some attacks and
+defences is \cite{carlini_adversarial_2017}. 
+
+One such concerning black box attack is described in \cite{engstrom_rotation_2017}, where
+\citeauthor{engstrom_rotation_2017} show that even simple transformations such
+as translations and rotations are enough to fool many modern CNNs. This is
+something our invariant layer would naturally be able to protect against.
+
+Alternatively, a recent defence tactic is described in \cite{cisse_parseval_2017}. In
+this paper, \citeauthor{cisse_parseval_2017} propose to have non-expansive
+convolutional and pooling layers (Lipschitz constant 1) and have weight matrices
+that are approximately Parseval tight frames, a result intimately related to
+the tight framed $\DTCWT$. In addition to finding these
+networks more robust to adversarial examples, they show that they can train
+faster and have a better usage of the capacity of the networks. 
+
+We feel that the smooth learning offered by wavelet basis functions has a potentially
+large scope for making CNNs more robust to many attacks.
 
 \subsection{Convolutional Sparse Coding}
+Recent on convolutional sparse coding and convolutional
+dictionary learning \cite{liu_online_2017, liu_first_2017,
+papyan_convolutional_2016, papyan_convolutional_2017, papyan_theoretical_2018}
+has started to draw many parallels between the
+structure of modern CNN architectures and the problem of sparse
+representations. We believe this is a valuable insight and can give a fresh new
+perspective on how we can better train CNNs. 
 
-\cite{liu_online_2017, liu_first_2017, papyan_convolutional_2017}
+It would be an interesting piece of work to try to extend this recent work on
+convolutional sparse coding to wavelet bases. \cite{rubinstein_double_2010}
+attempted something similar with their double sparsity model, learning to
+sparsely combine atoms from a fixed base dictionary (they use wavelet, Fourier
+and DCT base dictionaries), although this was applied to block coding and has
+not been extended to convolutional coding.
 
-\subsection{Energy Propagation and Weight Properties}
-studying the energy propagation properties and singular values of layers
+\subsection{Weight Matrix Properties}
+Some recent work by \citeauthor{advani_high-dimensional_2017}
+\cite{advani_high-dimensional_2017} show that if you ignore the
+nonlinearities in a neural network, you can analyze the convergence properties
+by looking at the conditioning of the weight matrix (the ratio of the largest to
+the smallest singular values). In particular, well conditioned matrices have
+better convergence, and the size of the \emph{eigengap} (distance between the
+smallest non-zero eigenvalue and 0) is important to protect against overfitting.
 
-Miki Elad's work on CSC.
+This is something that we have not enforced or considered in the design of our
+wavelet based layers, and it would be an interesting extension.
 
-ResNets are really good. What was the paper on that?
-(Bartlett
-
-
+% \citeauthor{balestriero_mad_2018} \cite{balestriero_mad_2018} have a related
+% view. They view deep neural networks as spline functions, compositions of linear
+% mappings and spline points. The underlying intuition behind this is that if an
+% input change is small enough, no ReLUs will change state and then the network
+% has a linear mapping and transfer function. The Combining this allows for a new
+% perspective on deep learning, and it would be an interesting task to try to
+% structure any wavelet based layers as well conditioned

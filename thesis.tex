@@ -82,6 +82,7 @@
 
 % ********************************** Preamble **********************************
 % Preamble: Contains packages and user-defined commands and settings
+% \usepackage{chngcntr}
 \input{preamble}
 
 % ********************************** New Commands**********************************
@@ -91,6 +92,8 @@
 % ************************ Thesis Information & Meta-data **********************
 % Thesis title and author information, refernce file for biblatex
 \input{thesis-info}
+\usepackage{chngcntr}
+% \counterwithin{equation}{subsection}
 
 % ***************************** Abstract Separate ******************************
 % To printout only the titlepage and the abstract with the PhD title and the
@@ -168,6 +171,12 @@
 % ********************************** Appendices ********************************
 
 \cleardoublepage\makeatletter\@openrightfalse\makeatother
+\counterwithout{equation}{section}
+\counterwithin{equation}{chapter}
+\numberwithin{equation}{chapter} 
+% \csname @removefromreset\endcsname{figure}{section}% added
+% \numberwithin{figure}{chapter}
+% \counterwithout{equation}{chapter}
 \begin{appendices}
   \input{dtcwt_scat/appendix}
   \input{visualizations/appendix}

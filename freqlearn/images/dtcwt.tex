@@ -12,7 +12,7 @@
 		\node[coordinate]                  (m09) {};          &
 		\node[coordinate]                  (m0X) {};          \\
 		%--------------------------------------------------------------------
-		\node[dspnodefull]                 (m10) {$X(z)$};          &
+		\node[dspnodefull]                 (m10) {};          &
 		\node[coordinate]                  (m11) {};          &
 		\node[coordinate]                  (m12) {};    &
 		\node[coordinate]                  (m13) {};          &
@@ -44,8 +44,10 @@
     	\draw[dspconn] (m\i7) -- (m\i8);
     	\draw[dspline] (m\i8) -- (m\i9);
 	}
-  \draw[dspconn] (m09) -- node[right] {$Y_a'(z)$} (m19);
-  \draw[dspconn] (m29) -- node[right] {$Y_b'(z)$} (m19);
-	\draw[dspconn] (m19) -- (m1X);
+  \node[left=0pt of m10] (left) {$X(z)$};
+  \node[below=9pt of m24] (bottom) {};
+  \draw[dspconn] (m09) -- node[right, yshift=5pt] {$Y_a(z)$} (m19);
+  \draw[dspconn] (m29) -- node[right, yshift=-5pt] {$Y_b(z)$} (m19);
+  \draw[dspconn] (m19) -- node[right, xshift=5pt] {$Y(z)$} (m1X);
 	
 \end{tikzpicture}
