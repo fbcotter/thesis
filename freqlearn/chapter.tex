@@ -168,7 +168,16 @@ set of $\DTCWT$ coefficients.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chain.jpg}
+  \subfloat[A regular convolutional layer]{
+  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chaina.pdf}
+  }\\
+  \subfloat[Gains applied in the wavelet domain]{
+  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chainb.pdf}
+  }\\
+  \subfloat[Gains and nonlinearities applied in the wavelet domain]{
+  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chainc.pdf}
+  }
+  % \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chain.jpg}
   \mycaption{Proposed new forward pass in the wavelet domain}{Two network 
   layers with some possible options for processing. Solid lines denote the
   evaluation path and dashed lines indicate relationships. In (a) we see a
@@ -177,7 +186,7 @@ set of $\DTCWT$ coefficients.
   equivalents $x$ and $y$. In (b) we get to $y^{(2)}$ through a different path.
   First we take the wavelet transform of $x^{(1)}$ to give $u^{(1)}$, apply a
   wavelet gain layer $G^{(1)}$, and take the inverse wavelet transform
-  to give $y^{(2)}$. The cross through $H^{(1)}$ indicates that this
+  to give $y^{(2)}$. The dotted line for $H^{(1)}$ indicates that this
   path is no longer present. Note that there may not be any possible
   $G^{(1)}$ to make $y^{(2)}$ from (b) equal $y^{(2)}$ from (a). In
   (c) we have stayed in the wavelet domain longer, and applied a wavelet

@@ -5,6 +5,7 @@
 \usetikzlibrary{decorations.markings}
 \usetikzlibrary{dsp,chains,fit}
 \usetikzlibrary{external}
+\usetikzlibrary{graphs}
 \input{tikz_settings}
 \usepackage{mathtools} % Replaced the amsmath package
 \usepackage{upgreek}
@@ -18,11 +19,20 @@
 
 \tdplotsetmaincoords{60}{30}
 \input{defs}
+% \tikzset{join/.code=\tikzset{after node path={%
+% \ifx\tikzchainprevious\pgfutil@empty\else(\tikzchainprevious)%
+% edge[every join]#1(\tikzchaincurrent)\fi}}}
+% \makeatother
+% %
+% \tikzset{>=stealth',every on chain/.append style={join},
+         % every join/.style={->}}
+% \tikzstyle{labeled}=[execute at begin node=$\scriptstyle,
+   % execute at end node=$]
 \begin{document}
 
 \def \path {litreview}
 \def \imgpath {freqlearn/images}
 
-\input{freqlearn/images/dtcwt2}
+\input{freqlearn/images/fwd_chainc}
 
 \end{document}
