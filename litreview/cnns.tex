@@ -13,26 +13,28 @@
 
 The neuron, shown in \autoref{fig:ch2:singlelayer} is the core building block of
 Neural Networks. It takes the dot product between an input vector $\vec{x} \in
-\reals[D]$ and a weight vector $\vec{w}$, before applying a chosen nonlinearity,
-$g$. I.e.
+\reals[D]$ and a weight vector $\vec{w}$, before applying a chosen nonlinearity.
+Historically, the sigmoid nonlinearity was the most popular but today other
+functions have become more popular. Still, the convention has remained to name this
+generic nonlinearity $\sigma$. I.e.
 %
 \begin{equation}
-  y = g(\langle\vec{x}, \vec{w}\rangle) = g\left(\sum_{i=0}^{D} x_i w_i \right) 
+  y = \sigma(\langle\vec{x}, \vec{w}\rangle) = \sigma\left(\sum_{i=0}^{D} x_i w_i \right) 
 \end{equation}
 %
 where we have used the shorthand $b=w_0$ and $x_0 = 1$. Also note that we will
-use the neural network common practice of calling the \emph{weights} $w$,
-compared to the parameters $\theta$ we have been discussing thus far.
+use the common practice in the neural network literature to call the parameters 
+\emph{weights} denoted by $w$.
 
-Typical nonlinear functions $g$ are the sigmoid function (already presented in 
-\eqref{eq:ch2:sigmoid}), but also common are the tanh and ReLU functions:
+Some of the other popular nonlinear fucntions $\sigma$ are 
+the tanh and ReLU:
 \begin{align}
   \F{tanh}(x) &= \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}} \label{eq:ch2:tanh}\\
   \F{ReLU}(x) &= \max (x, 0) \label{eq:ch2:relu}
 \end{align}
-
+%
 See \autoref{fig:ch2:nonlinearities} for plots of these. The original Rosenblatt
-perceptron \cite{rosenblatt_perceptron:_1958} used the Heaviside function
+perceptron \cite{rosenblatt_perceptron:_1958} also used the Heaviside function
 $\F{H}(x) = \mathbb{I}(x > 0)$. % The sigmoid nonlinearity
 % naturally arises when we want to do classification with class labels $\{0,1\}$,
 % as does the tanh function for classification with class labels $\{-1, 1\}$. The
@@ -41,8 +43,8 @@ $\F{H}(x) = \mathbb{I}(x > 0)$. % The sigmoid nonlinearity
 
 Note that if $\langle\vec{w}, \vec{w}\rangle = 1$ then $\langle\vec{x},
 \vec{w}\rangle$ is the distance from the point $\vec{x}$ to the hyperplane with
-normal $\vec{w}$. With general $\vec{w}$ this can be thought of as a scaled
-distance. Thus, the weight vector $\vec{w}$ defines a hyperplane in $\reals[D]$
+normal $\vec{w}$ (with non unit-norm $\vec{w}$ this can be thought of as a scaled
+distance). Thus, the weight vector $\vec{w}$ defines a hyperplane in $\reals[D]$
 which splits the space into two. The choice of nonlinearity then affects how
 points on each side of the plane are treated. For a sigmoid, points far below
 the plane get mapped to 0 and points far above the plane get mapped to 1 (with
@@ -353,9 +355,9 @@ output to give $y \in \reals[F \x H\x W]$:
 \end{equation}
 
 After a convolutional layer, we can then apply a pointwise nonlinearity to
-each output location in $y$. Historically, this was typically the sigmoid function $\sigma$, but 
-is now more commonly the ReLU. Still, the convention has remained to name this
-generic nonlinearity $\sigma$. Revisiting \eqref{eq:ch2:fc1} and
+each output location in $y$. Like multilayer perceptrons, this was typically the
+sigmoid function $\sigma$, but is now more commonly the ReLU. Revisiting
+\eqref{eq:ch2:fc1} and
 \eqref{eq:ch2:fc2}, we can rewrite this for a convolutional layer at depth $l$
 with $C_l$ input and $C_{l+1}$ output channels:
 \begin{align}

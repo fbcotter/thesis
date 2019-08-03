@@ -39,18 +39,18 @@ which gives us the well known result that we would like to find parameters that
 minimize the mean squared error (MSE) between targets $y$ and predictions
 $\hat{y} = f(x, \theta)$.
 
-For binary classification, ($y \in \{0, 1\}$) instead of the model in
-\eqref{eq:ch2:regression} we have: 
+For binary classification $y \in \{0, 1\}$ and instead of the model in
+\eqref{eq:ch2:regression}, we have: 
 \begin{equation} \label{eq:ch2:logistic}
   p_{model}(y|x, \theta) = \F{Ber}(y;\ \sigma(f(x, \theta)))
 \end{equation}
 where $\sigma(x)$ is the sigmoid function and $\F{Ber}$ is the Bernoulli
 distribution. Note that we have used $\sigma$ to refer to noise standard
 deviation thus far but now use $\sigma(x)$ to refer to the sigmoid and softmax
-functions, a confusing but common practice. Note that $\sigma(x)$ and
+functions, a confusing but common practice. $\sigma(x)$ and
 $\F{Ber}(y; p)$ are defined as:
 \begin{align}
-  \sigma(x) &= \frac{1}{1+e^{-x}} \label{eq:ch2:sigmoid} \\
+  \sigma(z) &= \frac{1}{1+e^{-z}} \label{eq:ch2:sigmoid} \\
   \F{Ber}(y; p) &= p^{\indic(y=1)}(1-p)^{\indic(y=0)}
 \end{align}
 where $\indic(x)$ is the indicator function. The sigmoid function is useful here
@@ -60,12 +60,17 @@ In particular, large positive values get mapped to 1, large negative values to
 
 This expands naturally to multi-class classification by making $y$ a 1-hot
 vector in $\{0, 1\}^C$. We must also 
-swapp the Bernoulli distribution for the Multinoulli or Categorical distribution,
-and the sigmoid function for a softmax, defined by:
-\begin{align}
-  \sigma_i(x) &= \frac{e^{x_i}}{\sum_{k=1}^C e^{x_k}} \\
-  \F{Cat}(y; \pi) &= \prod_{c=1}^C \pi_c^{\indic(y_c = 1)}
-\end{align}
+swap the Bernoulli distribution for the Multinoulli or Categorical distribution,
+and the sigmoid function for a softmax. The softmax function for vector $\bm{z}$
+is defined as:
+\begin{equation}
+  \sigma_i(\bm{z}) &= \frac{e^{z_i}}{\sum_{k=1}^C e^{z_k}} \\
+\end{equation}
+which has the nice properties that $0 \leq \sigma_i \leq 1$ and $\sum_i \sigma_i = 1$. The categorical
+distribution uses the softmax output:
+\begin{equation}
+  \F{Cat}(y; \bm{\sigma}) &= \prod_{c=1}^C \sigma_c^{\indic(y_c = 1)}
+\end{equation}
 If we let $\hat{y}_c = \sigma_c(f(x, \theta))$, this makes \eqref{eq:ch2:logistic}:
 \begin{align}\label{eq:ch2:classification}
   p_{model}(y|x, \theta) &= \F{Cat}(y;\ \sigma(f(x, \theta))) \\
@@ -116,17 +121,18 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   \end{align}
   where $L_{data}$ is the data loss such as MSE or cross-entropy and
   $L_{reg}$ is the regularization, such as $\ell_2$ or $\ell_1$ penalized loss. 
-  
-  Now $\theta_{MAP} = \argmin J(\theta)$. Finding the minimum of the objective
+  Now $\theta_{MAP} = \argmin_\theta J(\theta)$. 
+
+  Finding the global minimum of the objective
   function is task-dependent and is often not straightforward. One commonly used
-  technique is called \emph{gradient descent} (GD). This is straightforward to do as
+  technique is called \emph{gradient descent} (GD). This is not difficult to do as
   it only involves calculating the gradient at a given point and taking a small
-  step in the direction of steepest descent. The difference equation defining 
-  this can be written as:
+  step in the direction of steepest descent. The update equation for GD is: 
   \begin{equation}\label{eq:ch2:gd}
     \theta_{t+1} = \theta_t - \eta \dydx{J}{\theta}
   \end{equation}
   Unsurprisingly, such a simple technique has limitations. In particular, it
+  is sensitive to the choice of step size and
   has a slow convergence rate when the condition number (ratio of largest to 
   smallest eigenvalues) of the Hessian around the optimal point is large
   \cite{boyd_convex_2004}. An example of this is shown in
@@ -197,8 +203,8 @@ a contrived convex example. Optimizing over more complex loss surfaces only
 exacerbates the problem. Sadly, choosing the initial learning rate is 
 `more of an art than a science' \cite{goodfellow_deep_2016}, but
 \cite{bottou_stochastic_2012-1, montavon_neural_2012} have some tips on what to
-set this at. We have found in our work that searching for a large learning 
-rate that causes the network to diverge and reducing it hence can be a good
+how to set it. We have found in our work that searching for a large learning 
+rate that causes the network to diverge and reducing it from there can be a good
 search strategy. This agrees with Section 1.5 of \cite{lecun_efficient_2012}
 which states that for regions of the loss space which are roughly quadratic,
 $\eta_{max} = 2\eta_{opt}$ and any learning rate above $2\eta_{opt}$ causes
@@ -214,7 +220,7 @@ Choosing how to do this also contains a good amount of artistry,
 and there is no one scheme that works best. A commonly used greedy method is to
 keep the learning rate constant until the training loss stabilizes and then to
 enter the next phase of training by setting $\eta_{k+1} = \gamma \eta_{k}$ where
-$\gamma$ is a decay factor. Choosing $\gamma$ and the thresholds for triggering
+$\gamma$ is a decay factor. Setting $\gamma$ and the thresholds for triggering
 a step however must be chosen by monitoring the training loss curve and trial
 and error \cite{bottou_stochastic_2012-1}.
 
@@ -233,14 +239,16 @@ and error \cite{bottou_stochastic_2012-1}.
 \subsection{Momentum and Adam}
 One simple and very popular modification to SGD is to add \emph{momentum}.
 Momentum accumulates past gradients with an exponential-decay moving average and
-continues to move in their direction. The name comes from the analogy of finding
-a minimum of a function to rolling a ball over a loss surface --
-any new force (newly computed gradients) must overcome the past motion of the
-ball. To do this, we create a \emph{velocity} variable $v_{t}$ and modify
+continues to move in their direction. The name comes from the comparison of finding
+minima to rolling a ball over a surface --
+any new force (newly computed gradients) must overcome the current momentum of 
+the ball. This has a smoothing effect on noisy gradients. 
+
+We can achieve momentum by creating a \emph{velocity} variable $v_{t}$ and modify
 \eqref{eq:ch2:gd} to be:
 \begin{align}
   v_{t+1} &= \alpha v_t - \eta_k\dydx{J}{\theta} \label{eq:ch2:velocity}\\
-  \theta_{t+1} &= \theta_t + v_{t+1} \\
+  \theta_{t+1} &= \theta_t + v_{t+1} 
 \end{align}
 where $0\leq\alpha<1$ is the momentum term indicating how quickly to `forget'
 past gradients.

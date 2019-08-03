@@ -664,22 +664,59 @@ useful than the first scale -- see the difference between gl310 and gl301, two
 instances that have the same number of parameters, but gl310 has $g_1$ with
 non-zero support, and gl301 has $g_2$ with non-zero support.
 
-\subsection{Ablation Studies}
+\subsection{Ablation Studies}\label{sec:ch6:ablation}
 \autoref{fig:ch6:gainlayer_regression} is a useful guide on how the gainlayer
 might be placed in a deep CNN. gl110 (a gain layer with a $1\x1$ lowpass kernel
 and a $1\x1$ bandpass kernel at the first scale), gl101 (same as gl110 but no
 gain at first scale and $1\x 1$ at second scale), and conv3 all achieve similar
 MSEs. Additionally gl310, gl301, and conv5 all achieve similar MSEs. 
 
-Most modern CNNs are built with $3\x 3$ kernels, which may not well be the best
-use for the gain layer. For this reason, we deviate from the ablation study done
-in the previous chapter, and build a shallower network with larger kernel sizes
-\footnote{We also include the experiment results for a deeper network with
-smaller kernels in \autoref{app:ch6:more_results}.}.
+\subsubsection{Small Kernel Ablation}
+Most modern CNNs are built with small $3\x 3$ kernels, which we believe are not the best
+use for the gain layer, built from large support wavelets. For this reason, we
+deviate from the ablation study done in the previous chapter, and build a
+\textbf{shallower} network with \textbf{larger} kernel sizes. 
+
+For completeness, we also ran ablation tests on the the same deeper network
+with small kernels used in \autoref{ch:invariant} and include the results in 
+\autoref{app:ch6:more_results}.
 
 \subsubsection{Large Kernel Ablation}
 \input{\path/ablation_arch2}
+
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
+In this experiment, we build a 3 layer
+CNN with $5\x 5$ convolutional kernels, described in \autoref{tab:ch6:ablation_arch}.
+To help differentiate with the small kernel network introudeced in the 
+ablation study of the previous chapter, we have labelled the convolutions here
+`conv1', `conv2' and `conv3' (as opposed to `convA', `convB', `convC',
+\ldots).
+
+We then test the difference in accuracy achieved by replacing each of the three
+convolution layers with gl310\footnote{Although the gain layers with no gain in
+the first scale and gain in the second scale performed better than those with
+gain gl310 and gl510 in \autoref{sec:ch6:regression}, we saw them perform
+consistently worse in the following ablation studies. For ease of presentation,
+we have shown only the results from the single scale gain layer.}. 
+On the two CIFAR datasets, we train for 120 epochs, decaying learning rate by a
+factor of 0.2 at 60, 80 and 100 epochs, and for the Tiny ImageNet dataset, we
+train for 45 epochs, decaying learning rate at 18, 30 and 40 epochs. We set 
+$\ell_2$ weight decay of $10^{-4}$ for the real gains in the system, and
+$\ell_1$ weight decay of $10^{-5}$ for the complex gains in the system. See
+\autoref{sec:appE:complex_reg} for information on how we handle regularizing complex
+gains. The
+experiment code is available at \cite{cotter_dtcwt_2018}.
+
+The results of various combinations for our three datasets are shown in
+\autoref{fig:ch6:gl_results}.
+Note that as before, swapping `conv1' with a gain layer is marked by `gain1',
+and swapping the first two conv layers with two gain layers is marked by
+`gain1\_2' and so forth.  
+
+The results are not too promising. Across all three datasets, changing a
+convolutional layer for a gain layer of similar number of parameters
+results in a small decrease in accuracy at all depths, and the more layers
+swapped out the more this degradation compounds.
 
 \begin{figure}
   \centering
@@ -705,43 +742,9 @@ smaller kernels in \autoref{app:ch6:more_results}.}.
   \label{fig:ch6:gl_results}
 \end{figure}
 
-In this experiment, we build a 3 layer
-CNN with $5\x 5$ convolutional kernels, described in \autoref{tab:ch6:ablation_arch}.
-To help differentiate with the small kernel network introudeced in the 
-ablation study of the previous chapter, we have labelled the convolutions here
-`conv1', `conv2' and `conv3' (as opposed to `convA', `convB', `convC',
-\ldots).
-
-We then test the difference in accuracy achieved by replacing each of the three
-convolution layers with gl310\footnote{Although the gain layers with no gain in
-the first scale and gain in the second scale performed better than those with
-gain gl310 and gl510 in \autoref{sec:ch6:regression}, we saw them perform
-consistently worse in the following ablation studies. For ease of presentation,
-we have shown only the results from the single scale gain layer.}. 
-On the two CIFAR datasets, we train for 120 epochs, decaying learning rate by a
-factor of 0.2 at 60, 80 and 100 epochs, and for the Tiny ImageNet dataset, we
-train for 45 epochs, decaying learning rate at 18, 30 and 40 epochs. We set 
-$\ell_2$ weight decay of $10^{-4}$ for the real gains in the system, and
-$\ell_1$ weight decay of $10^{-5}$ for the complex gains in the system. See
-\autoref{sec:appE:complex_reg} for information on how we handle regularizing complex
-gains. The
-experiment code is available at \cite{cotter_dtcwt_2018}.
-
-The results of various swaps for our three datasets are shown in
-\autoref{fig:ch6:gl_results}.
-Note that as before, swapping `conv1' with a gain layer is marked by `gain1',
-and swapping the first two conv layers with two gain layers is marked by
-`gain1\_2' and so forth.  
-
-The results are not too promising. Across all three datasets, changing a
-convolutional layer for a gain layer of similar number of parameters
-results in a small decrease in accuracy at all depths, and the more layers
-swapped out the more this degradation compounds.
-
-
 \subsection{Network Analysis}
 It is nonetheless interesting to see that a network with only gain layers
-(`gain1\_2\_3') can get accuracies within a couple of percentage points of a
+(`gain1\_2\_3') can achieve accuracies within a couple of percentage points of a
 purely convolutional architecture. 
 
 In this section, we look at some of the properties of the `gain1\_2\_3' for
@@ -789,6 +792,48 @@ $12C_{l}C_{l+1}$ for a $1\x1$ gain, very few of these need to be nonzero.
 \end{figure}
 
 \subsubsection{DeConvolution and Filter Sensitivity}
+To visualize what the gain layer is responsive to, we build a deconvolutional
+system similar to the one described in \autoref{ch:visualizing}. In
+particular, we present the entire CIFAR-100 validation set to the reference
+architecture and to the gain1\_2\_3 architecture, keeping track of what most
+highly excites each channel. Once we have this information, we present the same
+image again, storing the ReLU switches and max pooling locations for this same
+image, then we zero out all but a single value for the given channel, and zero out all
+other channels, and deconvolve to see the input pattern.
+
+The resulting visualizations for the first two layers are shown in
+\autoref{fig:ch6:visualizations}. We show only the top activation for each
+filter, rather than the top-9. For the second layer filters, we show only 64 of
+the 128 filter responses.
+
+It is reassuring to see that despite the
+performance difference between the reference architecture and the gain1\_2\_3
+architecture, the filters are still responding to shapes. Note that for both the
+first and second layer responses, the gain layer has a smoother roll-off at the
+edges of the visualization, whereas the convolutional architecture has more
+square reconstructions.
+
+\begin{figure}
+  \centering
+  \subfloat[First layer]{
+  \includegraphics{\imgpath/largekernel_conv1.pdf}
+  } \\
+  \subfloat[Second layer]{
+  \includegraphics{\imgpath/largekernel_conv2.pdf}
+  }
+  \mycaption{Deconvolution reconstructions for the reference architecture and
+  purely gain layer architecture}{Visualizations using a DeConvNet method similar to 
+  the one described in \autoref{ch:visualizing}. Here we find the input images in CIFAR-100 validation
+  set that most highly activate each filter. Each image is then re-shown to the
+  network and the meta-information is used to prime the DeConvNet to create the visualizations seen here. 
+  The left column has visualizations for the first and second layer filters for
+  the all convolutional method, and the right column has visualizations for the
+  the first and second layer filters for the all gain layer method. Note the
+  smoother roll-off at the edge of visualizations in the gain layer compared to
+  the rectangular support regions for the conv layers. Aside from that, the two
+  networks appear to be learning similar shapes.}
+  \label{fig:ch6:visualizations}
+\end{figure}
 
 \section{Wavelet Based Nonliearities}
 Returning to the goals from \autoref{sec:ch6:learning}, the experiments from the
@@ -880,10 +925,15 @@ coefficients, as $v_{lp}$ is not strictly positive.
 
 While they are similar to batch normalizations and ReLUs, we would also like 
 to test how well thresholding performs as a wavelet nonlinearity.
-To do this, we have the option of learning the threshold $t$ or setting it to achieve a
-desired sparsity level. In early experiments we found that trying to set a
-desired sparsity level (by tracking the standard deviation of the statistics
-and setting a threshold as a function of it) performed very poorly (causing a
+To do this, we can:
+\begin{itemize}
+  \item Learn the threshold $t$ 
+  \item Adapt $t$ as a function of the distribution of activations to achieve a
+desired sparsity level. 
+\end{itemize}
+In early experiments we found that trying to set a
+desired sparsity level by tracking the standard deviation of the statistics
+and setting a threshold as a function of it performed very poorly (causing a
 drop in top-1 accuracy of at least 10\%).
 Instead, we choose to learn a threshold $t$. We make this an unconstrained
 optimization problem by changing \eqref{eq:ch6:relu_st} to:
@@ -961,6 +1011,8 @@ Where:
     % to test its plausibility as a nonlinearity.
 \end{itemize}
 
+\input{\path/nonlinear_table}
+
 As the pixel nonliearity has only two options, the results are best displayed as
 a pair of tables, firstly for no nonlinearity and secondly for the
 the standard batch normalization and ReLU. See
@@ -969,23 +1021,51 @@ the standard batch normalization and ReLU. See
 Digesting this information gives us some useful insights: 
 \begin{enumerate}
   \item It is possible to improve on the gainlayer from the previous experiments
-    (top left entry of the second table) with the right nonlinearities.
-  \item Looking at the fourth and fifth rows/columns of both tables, soft and
-    hard thresholding for both the lowpass and bandpass coefficients does not perform as
-    well as ReLUs (and sometimes worse than no nonlinearity) even with a low
-    sparsity level. We saw this performance worsen as the sparsity level
-    increased.
+    with the right nonlinearities. The previous section's gain layer corresponds
+    to $\sigma_{lp} = \sigma_{bp} = \F{None}$ and $\sigma_{pixel} = \F{ReLU}$, or
+    the top left entry of \autoref{tab:ch6:nonlinearities2}.
   \item Doing a ReLU on the real and imaginary parts of the bandpass
     coefficients independently (the second row of both tables) almost always
     performs worse than having no nonlinearity (first row of both tables).
   \item The best combination is to have batch normalization and a ReLU applied
     to the magnitudes of the bandpass coefficients and batch norm and a ReLU
-    applied to either the lowpass or pixel coefficients. 
+    applied to either the lowpass or pixel coefficients with no nonlinearity in
+    the pixel domain.
 \end{enumerate}
 
-The best accuracy score of $65.5\%$ is now $0.1\%$ higher than the fully
-convolutional architecture, and this network has slightly fewer parameters.
+The best accuracy score of $65.3\%$ is now $0.1\%$ lower than the fully
+convolutional architecture, an improvement from the $62.8\%$ score achieved with
+only a pixel nonlinearity.
 
+\subsection{Ablation Experiments with Nonlinearities}
+Now that we have found the best nonlinearity to use for the \emph{wave layer},
+will this improve our ablation study from \autoref{sec:ch6:ablation}? To test this, 
+we repeat the
+same experiment on CIFAR-100 only, but use the \emph{wave layer} described in
+\autoref{alg:ch6:wavelayer}, with $\sigma_{pixel} = \F{None},\ \sigma_{lp} =
+\F{ReLU},\ \text{and } \sigma_{bp} = \F{BN+ReLU}$.
+
+See \autoref{fig:ch6:nonlinear_ablation} for the results from these experiments.
+When we use the wavelet based nonlinearities, the results change considerably. 
+We see an improvement by $1\%$ when the first layer in the CNN is
+changed for a wave layer, but any other changes degrade performance.
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=\textwidth]{\imgpath/nonlinear_ablation.pdf}
+  \mycaption{CIFAR-100 Ablation results with the \emph{wave layer}}{We use the
+  same naming scheme from \autoref{sec:ch6:ablation} but to differentiate
+  between the results from \autoref{fig:ch6:cifar100_gl} we call the options
+  `waveX' (for \emph{wave layer} vs \emph{gain layer}). When we add
+  nonlinearities in the wavelet domain, the ablation results from
+  change dramatically. It appears that learning in
+  the wavelet domain works best for the first layer of the CNN (wave1), and this
+  improves on the purely convolutional method by a whole percentage point.
+  Replacing the second and third layers degrades performance independently of
+  what was used in the first layer. Swapping the first two layers (wave1\_2)
+  performs nearly as well and with a narrower spread.}
+  \label{fig:ch6:nonlinear_ablation}
+\end{figure}
 % \begin{table}[t]
   % \centering
   % \renewcommand{\arraystretch}{1.2}
@@ -1001,67 +1081,27 @@ convolutional architecture, and this network has slightly fewer parameters.
 % \end{tabular}
 % \end{table}
 
-\begin{table}[t]
-  \renewcommand{\arraystretch}{1.2}
-  \small
-  \centering
-  \def \mywidth {1.4cm}
-  \mycaption{Different Nonlinearities in the Gain Layer}{Top-1 Accuracies for
-  `gain1\_2\_3' network trained on CIFAR-100 using different wavelet and pixel nonlinearities.
-  The rows of the table correspond to different bandpass nonlinearities and the
-  columns correspond to different lowpass nonlinearities.
-  $\sigma_{pixel}=\sigma_{lp}=\sigma_{bp}=\text{None}$ is a linear system (with
-  max pooling). $\sigma_{pixel}=\F{ReLU},\ \sigma_{lp}=\sigma_{bp}=\text{None}$
-  is the system used in earlier experiments which is linear in the wavelet
-  domain and has a nonlinearity in the pixel domain. Results are averages over
-  3 runs.}
-  \label{tab:ch6:nonlinearities}
-  \subfloat[$\sigma_{pixel} = \text{None}$]{%
-  \centering
-  \makebox[\textwidth][c]{
-  \begin{tabular}{l |p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} }
-      \toprule
-      \diagbox[width=3cm]{$\sigma_{bp}$}{$\sigma_{lp}$}& None & ReLU & BN+ReLU & $\mathcal{S}$ & $\mathcal{H}$ \\
-      \hline
-      None & 45.0 & 63.1 & 64.4 & 61.4 & 42.5 \\
-      ReLU & 42.6 & 62.4 & 63.9 & 60.7 & 41.8\\
-      BN+MagReLU & 48.5 & 65.0 & 62.6 & X & X\\
-      $\mathcal{S}$ & X & X & X & 61.5 & X \\
-      $\mathcal{H}$ & 41.3 & 60.7 & X & 52.0 & 40.6\\ 
-      \bottomrule
-    \end{tabular}
-  }}\newline
-  \subfloat[$\sigma_{pixel} = \F{BN+ReLU}$]{
-  \centering
-  \makebox[\textwidth][c]{
-  \begin{tabular}{l |p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} p{\mywidth} }
-      \toprule
-      \diagbox[width=3cm]{$\sigma_{bp}$}{$\sigma_{lp}$}& None & ReLU & BN+ReLU & $\mathcal{S}$ & $ \mathcal{H}$ \\
-      \hline
-      None & 62.8 & 62.0 & 65.1 & 62.8 & 62.9 \\
-      ReLU & 62.8 & 61.4 & 64.6 & 61.6 & 61.8 \\
-      BN+MagReLU & 64.5 & 63.1 & 64.5 \\
-      $\mathcal{S}$ \\
-      $\mathcal{H}$ & 59.7 & 58.7 & & 59.6 & 59.7\\ 
-      \bottomrule
-    \end{tabular}
-    }}
-\end{table}
-
 \section{Conclusion}
 In this chapter we have presented the novel idea of learning filters by taking
 activations into the wavelet domain. In the wavelet domain then we can apply
-the proposed gain layer $G$ instead of a pixel wise convolution, and can apply
-wavelet based nonlinearities $\sigma_{lp}, \sigma_{bp}$. We have considered the possible
+the proposed \emph{gain layer} $G$ instead of a pixel wise convolution. We can
+return to the pixel domain to apply a ReLU, or stay in the wavelet domain
+and apply wavelet based nonlinearities $\sigma_{lp}, \sigma_{bp}$. We have considered the possible
 challenges this proposes and described how a multirate system can learn through
 backpropagation. 
-%We ultimately hope that learning in both the wavelet and pixel
-%space will have many advantages. 
-Our experiments have been promising but not convincing. We have shown that our layer can learn in an
-end-to-end system, achieving similar accuracies on CIFAR-10, CIFAR-100 and Tiny
-ImageNet to the same system with convolutional layers instead. This is a good
-start and shows the plausibility of the wavelet gain layer, but we have not yet
-seen a significant benefit to learning in the wavelet space. 
+
+Our experiments have been promising but are still only preliminary. We have
+shown that the \emph{gain layer} can learn in an end-to-end system, achieving nearly
+the same accuracies on CIFAR-10, CIFAR-100 and Tiny ImageNet to the reference system with
+convolutional layers (\autoref{fig:ch6:gl_results}). This is a good start and shows the plausibility of
+the wavelet gain layer, but more experiments on larger datasets and more wavelet
+gain layers is needed. Despite the slight reduction in performance, we saw some
+nice properties to the gain layer. Most of the bandpass gains are near zero
+(\autoref{fig:ch6:bp_info}),
+which does not affect training but could offer speedups for inference.
+Additionally, doing deconvolution to visualize the sensitivity of the filters in
+a gain layer showed that the system was still learning sensible shapes with nice
+spatial roll-off properties (\autoref{fig:ch6:visualizations}}).
 
 We have searched for good candidates for wavelet nonlinearities, and saw that
 using a ReLU on the lowpass coefficients, and
@@ -1076,3 +1116,11 @@ wavelet coefficients due to the redundancy of the $\DTCWT$, instead projecting
 onto the range space of the transform. Removing the inverse transform is
 something we did not have time to fully explore and so we have included it in
 our future work section. 
+
+When we added the nonlinearities to the gain layer to
+make the \emph{wave layer}, we saw that we were able to achieve some
+improvements in performance over a fully convolutional architecture
+(\autoref{fig:ch6:nonlinear_ablation}). The \emph{wave layer}
+worked best at the beginning of the CNN, which matches the intuition for doing
+this work described in the introduction to the chapter. More research still
+needs to be done with the wave layer as part of a deeper system. 

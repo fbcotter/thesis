@@ -144,10 +144,12 @@
 % squigly S
 \usepackage{nameref}
 \usepackage{hyperref}
+\definecolor{brickred}{rgb}{0.8, 0.25, 0.33}
 %%%%%%%%% Some Hyperref Options %%%%%%%%%%
 \hypersetup{%
   colorlinks   = true,
-  citecolor    = blue  
+  citecolor    = blue,
+  linkcolor    = brickred
 }
 % \renewcommand{\sectionautorefname}{\S}
 % \renewcommand{\subsectionautorefname}{\S}
@@ -161,10 +163,12 @@
 \newcolumntype{s}{>{\hsize=.5\hsize}X}
 \newcolumntype{x}[1]{>{\centering\hspace{0pt}}p{#1}}%
 \newcommand{\heading}[1]{\multicolumn{1}{c}{#1}}
-\renewcommand{\theoremautorefname}{Theorem}
+\newcommand{\figureautorefname}{Figure}
+\newcommand{\theoremautorefname}{Theorem}
 \newcommand{\algorithmautorefname}{Algorithm}
 \newcommand{\subfigureautorefname}{\figureautorefname}
-\newcommand{\Appendixautorefname}{Appendix}
+\newcommand{\subtableautorefname}{\tableautorefname}
+\newcommand{\Appendixautorefname}{appendix}
 %\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 % \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}

@@ -267,17 +267,15 @@ If a frame is tight, then so is its dual.
 
   \begin{figure}
     \centering
-      \makebox[\textwidth][c]{%
-        \includegraphics[width=1.1\textwidth]{litreview/images/dwt_zero_crossing.png}
-      }
+      \includegraphics[width=\textwidth]{litreview/images/dwt_zero_crossing.pdf}
       \mycaption{Sensitivity of DWT coefficients to zero crossings and small
         shifts}{Two impulse signals $\delta(n-60)$ and $\delta(n-64)$ are
-        shown (top), as well as the wavelet coefficients for scale $j=1$ for the DWT (middle) and
+        shown (top), as well as the wavelet coefficients for scale $j=3$ for the DWT (middle) and
         for the $\DTCWT$ (bottom). In the middle row, not only are the coefficients very different
         from a shifted input, but the energy has almost doubled. As the DWT is an orthonormal
         transform, this means that this extra energy has come from other scales. In comparison, the
-      energy of the magnitude of the $\DTCWT$ coefficients has remained far more constant, as has the
-    shape of the envelope of the output.  Image taken from \cite{selesnick_dual-tree_2005}.}
+        energy of the magnitude of the $\DTCWT$ coefficients has remained far more constant, as has the
+      shape of the envelope of the output. Image adapted from \cite{selesnick_dual-tree_2005}.}
       \label{fig:ch2:dwt_zero_crossing}
   \end{figure}
 
@@ -435,14 +433,21 @@ images). Scaling the transform changes the upper bound $B$ in \eqref{eq:ch2:fram
 to 1 and makes the lower bound $A = 1-\alpha$, where $\alpha$ is a measure of how
 non-tight a frame is.
   
-Let us look at the tightness of a Morlet wavelet frame for a few manually selected parameters. 
+Recall the sampling grid of our wavelets was:
+\begin{equation}
+  \psitd_{\bmu{b},a, \theta}(\xy) = \frac{1}{a}\psitd \left(\frac{r_{-\theta}\left(\xy -
+  \bmu{b}\right)}{a} \right) 
+\end{equation}
+
+Common choices for sampling grids for 2-D wavelets are\cite[Section
+2.2]{antoine_two-dimensional_2004}:
 \begin{itemize}
   \item For dilations, we choose $a = 2^{-j/Q}$ for $j\in \mathbb{Z}$
-    controlling the scale and $Q$ the number of octaves per scale.
+    controlling the scale and $Q$, the number of octaves per scale.
   \item For rotations, we subdivide the interval $[0, \pi)$ into $K$ sections,
     and choose $\theta_k = \frac{k\pi}{K},\ k = \{0, 1, \ldots K-1\}$.
   \item For the translations, we set the sample spacing $\Delta \bmu{b} =
-    2^{-j/Q}$. \textbf{Need to check this} 
+    2^{-j/Q}$. 
 \end{itemize}
   
 Using the capital notation to denote the Fourier transform, define the function
@@ -463,7 +468,7 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
   % if $A(\ww)$ is only slightly greater 1 for only a few small areas of
   % $\ww$, approximate inversion can be achieved}.
   \autoref{fig:ch2:morlet_littlewood_paley} show the frequency coverage of a few
-  sample grids over the CWT parameters used by \Mallat. Invertibility is possible, but not
+  sample grids over the CWT parameters used by Mallat. Invertibility is possible, but not
   guaranteed for all configurations. 
   
   % The Fourier transform of the inverse
@@ -476,20 +481,19 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
 
   \begin{figure}
     \centering
-      \makebox[\textwidth][c]{%
-        \includegraphics[width=1.1\textwidth]{\imgpath/morlet_littlewood_paley.png}
+    \makebox[\textwidth][c]{%
+      \includegraphics[width=1.1\textwidth]{\imgpath/im.pdf}
       }
-      \mycaption{Three Morlet Wavelet families and their tiling of the frequency
-              plane}{For each set of parameters, the point spread functions of
-              the wavelet bases are shown, next to their covering of the
-              frequency plane $A(\ww)$. None of the configurations cover the corners of the
-              frequency plane, but this is often mostly noise. 
-              Increasing $J$, $K$ (Sifre uses $C$ in these
-              diagrams) or $Q$ gives better frequency localization but at the
-              cost of spatial localization and added complexity. Image taken
-              from \cite{sifre_rigid-motion_2014-1}. \textbf{TODO: update figure
-              to show only the real wavelets in black and white and the correct
-              variable names}.}
+    \mycaption{Two Morlet Wavelet families and their tiling of the frequency
+            plane}{For each set of parameters, the point spread functions of
+            the \emph{real} wavelet bases are shown, next to their covering of the
+            frequency plane $A(\ww)$. Each square is $45\x 45$ pixels. Top:
+            $J=3,\ K=6,\ Q=1$, Bottom: $J=4,\ K=8, Q=1$. None of the
+            configurations cover the corners of the
+            frequency plane, but this is often mostly noise. 
+            Increasing $J$, $K$ or $Q$ gives better frequency localization but at the
+            cost of spatial localization and added complexity. Image adapted
+            from \cite{sifre_rigid-motion_2014-1}.}
       \label{fig:ch2:morlet_littlewood_paley}
   \end{figure}
 
@@ -580,7 +584,7 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
     \centering
       \includegraphics[width=\textwidth]{\imgpath/dtcwt_1d_fb.png}
       \mycaption
-      {Analysis FB for the $\DTCWT$}{Top `tree' forms the real component of the
+      {Analysis FB for the 1-D $\DTCWT$}{Top `tree' forms the real component of the
       complex wavelet $\psiod_r$, and the bottom tree forms the imaginary (Hilbert
       pair) component $\psiod_i$. Image taken from
       \cite{selesnick_dual-tree_2005}.}
@@ -687,8 +691,7 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
   and the implementation is perfectly invertible as $A(\ww)$ from
   \eqref{eq:ch2:lwood_paley}
   function is unity (or very near unity) $\forall \ww \in [-\pi, \pi]\x [-\pi,
-  pi]$. See
-  \autoref{fig:ch2:dtcwt_lwoodpaley}. This is not a surprise, as it is a design
+  pi]$. This is not a surprise, as it is a design
   constraint in choosing the filters, but nonetheless is important to note. 
 
   % A beneficial property of energy conservation is that the noise in the input
@@ -703,17 +706,17 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
   % amount the features can change, which will make the entire network more
   % stable to distortion and noise.
 
-  \begin{figure}
-    \subfloat{\makebox[0.6\textwidth][c]{%
-      \includegraphics[width=0.7\textwidth,valign=c]{\imgpath/dtcwt_real_4scales.png}
-    }}
-    \subfloat{\makebox[0.4\textwidth][c]{%
-      \includegraphics[width=0.5\textwidth,valign=c]{\imgpath/dtcwt_lwoodpaley_2.png}
-    }}
-    \mycaption{$\DTCWT$ family for $J=4$ and their frequency coverage}{
-    Note the reduced scale compared to \autoref{fig:ch2:morlet_littlewood_paley}.}
-    \label{fig:ch2:dtcwt_lwoodpaley}
-  \end{figure}
+  % \begin{figure}
+    % % \subfloat{\makebox[0.6\textwidth][c]{%
+      % % \includegraphics[width=0.7\textwidth,valign=c]{\imgpath/dtcwt_real_4scales.png}
+    % % }}
+    % % \subfloat{\makebox[0.4\textwidth][c]{%
+      % % \includegraphics[width=0.5\textwidth,valign=c]{\imgpath/dtcwt_lwoodpaley_2.png}
+    % % }}
+    % \includegraphics[width=0.8\textwidth]{\imgpath/dtcwt_j4k6.png}
+    % \mycaption{$\DTCWT$ family for $J=4$ and their frequency coverage}{}
+    % \label{fig:ch2:dtcwt_lwoodpaley}
+  % \end{figure}
 
 \subsection{Summary of Methods}
   One final comparison to make between the $\DTCWT$ and the Morlet wavelets is

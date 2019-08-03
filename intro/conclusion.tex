@@ -77,16 +77,27 @@ times. In particular, we saw that the layer performed best when used where a CNN
 would naturally downsample (or pool) the input.
 
 \textbf{\Autoref{Chapter}{ch:freqlearn}} looks at learning in the wavelet space without
-taking complex magnitudes. We present the \emph{wavelet gain layer} which takes
+taking complex magnitudes. We present the wavelet \emph{gain layer} which takes
 inputs to the wavelet domain, learns complex gains to attenuate/accentuate
 different subbands, mixes the subbands across the different channels and offers
 the ability of returning to the pixel domain with the inverse wavelet transform.
-We propose different possible nonlinearities to use in the wavelet domain and
-found that applying a ReLU on the lowpass and a batch normalization layer
-followed by a ReLU on the bandpass coefficients worked best. The final result 
-offered a small advantage over learning directly in the pixel domain (\autoref{fig:ch6:gl_results}). 
-We also found some interesting results from the analysis of the sparsity of the
-learned bandpass gains, finding that very few of these needed to be non-zero.
+Our experiments have been promising but are still only preliminary. We 
+show that the \emph{gain layer} can learn in an end-to-end system, achieving nearly
+the same accuracies on CIFAR-10, CIFAR-100 and Tiny ImageNet to the reference system with
+only convolutional layers (\autoref{fig:ch6:gl_results}).
+Despite the slight reduction in performance, we saw some
+nice properties to the gain layer. The bandpass gains were very sparse, 
+needing very few non-zero coefficients and visualizations of what the layers
+were responding to showed that the gain layer had nice
+spatial roll-off properties (\autoref{fig:ch6:visualizations}}).
+We then found using a ReLU on the lowpass coefficients, and
+Batch Normalization and a ReLU on the magnitudes of the bandpass coefficients
+improved the performance of the gain layer considerably (\autoref{tab:ch6:nonlinearities}). 
+The gains and nonlinearity together make the \emph{wave layer}. Using this, we
+saw that we were able to achieve some improvements in performance over a fully
+convolutional architecture (\autoref{fig:ch6:nonlinear_ablation}). The wave
+layer seems to work best at the beginning of the CNN but more research still
+needs to be done with deeper systems. 
 
 \section{Future Work}
 This thesis has started to examine ways of using wavelets as basis functions for

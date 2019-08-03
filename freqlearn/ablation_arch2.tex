@@ -1,4 +1,4 @@
-\begin{table}[t]
+\begin{table}[ht]
   \renewcommand{\arraystretch}{1.4}
   \centering
   \mycaption{Ablation Base Architecture}{Reference architecture
@@ -9,7 +9,7 @@
   kernels as a base.  $C$ is a hyperparameter that controls the network width,
   we use $C=64$ for our tests.}
   \label{tab:ch6:ablation_arch}
-  {
+  \makebox[\textwidth]{
     \begin{tabular}{l l l l}
       \toprule
       Activation Size & Reference Arch. && Alternate Arch.\\
@@ -52,7 +52,5 @@
       \end{tabular}\\
       \bottomrule
     \end{tabular}
-  }\quad
+  }
 \end{table}
-
-

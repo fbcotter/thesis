@@ -123,7 +123,7 @@ Convolutional'.
 
 \input{\path/mnist_modified_results}
 
-\subsection{Layer Comparison with CIFAR and Tiny ImageNet}\label{sec:conv_exp}
+\subsection{Layer Comparison with CIFAR and Tiny ImageNet}\label{sec:ch5:conv_exp}
 Now we look at expanding our layer to harder datasets, focusing more on the
 final classification accuracy. We do this again by comparing to a reference
 architecture. For this task, we choose a VGG-like network as our reference.
@@ -183,7 +183,7 @@ drop probability $p=0.3$.
 
 We compare a ScatterNet with no learning in between scattering orders
 (ScatNet A) to one with our proposal for a learned mixing matrix $A$ (ScatNet B). Finally,
-we also test the hypothesis seen from \autoref{sec:conv_exp} about putting conv
+we also test the hypothesis seen from \autoref{sec:ch5:conv_exp} about putting conv
 layers before an inv layer, and test a version with a small convolutional layer
 before ScatNets A and B, taking the input from 3 to 16 channels, and call these ScatNet
 architectures ScatNet C and D respectively.
