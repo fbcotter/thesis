@@ -12,29 +12,28 @@
   their properties and optimal configurations are not well understood. 
   It typically takes multiple trials
   by an expert to find the correct hyperparameters for these networks. A
-  scattering transform instead builds well understood and well defined invariances. 
+  scattering transform instead builds well understood and well-defined invariances. 
   
   We first review some of the desirable invariances before describing how a
   ScatterNet achieves them.
 
 \subsection{Desirable Properties}
-\subsubsection{Translation Invariance}
+\subsubsection{Translation-Invariance}
   Translation is often said to be uninformative for classification --- an
-  object appearing in the centre of the image should be treated the same way as
-  an the same object appearing near the corner of an image, i.e.,\ a
-  representation $\Phi x$ is invariant to global translations $x_c(\bmu{u}) =
-  x(\bmu{u}-\bmu{c})$ by 
-  $\bmu{c}=(c_1,c_2) \in \mathbb{R}^2$ if
+  object appearing in the centre of the image \emph{should} be treated the same way as
+  a similar object appearing near the corner of an image. This can be quantified
+  by saying a representation $\Phi x$ is invariant to global translations $x_c(\bmu{u}) =
+  x(\bmu{u}-\bmu{c})$ by $\bmu{c}=(c_1,c_2) \in \mathbb{R}^2$ if:
   % The first requirement for Scatternets - translation invariance
   \begin{equation}\label{eq:scat_trans_invariance}
     \norm{\Phi x_c - \Phi x} \leq C
   \end{equation}
   for some small constant $C>0$.
-  Note that we may instead want only local translation invariance and
+  Note that we may instead want only local translation-invariance and
   restrict the distance $|\bmu{c}|$ for which \eqref{eq:scat_trans_invariance}
   is true. 
   
-  Note that convolutional filters are naturally covariant to translations in the pixel space, 
+  Convolutional filters are naturally covariant to translations in the pixel space, 
   so $\Phi x_c = (\Phi x)_c,\ \bmu{c} \in \mathbb{Z}^2$. Of course, natural objects
   exist in continuous space and are sampled, and any two images of the same
   scene taken with small camera disturbances are unlikely to be at integer pixel 
@@ -74,7 +73,7 @@
   \end{equation}
 
 \subsubsection{Stability to Deformations}
-  Small deformations are important to be invariant to. However, this must be
+  Small deformations are important to be invariant to but this must be
   limited. It is important to keep intra-class variations small but not be so 
   invariant that an object can morph into another (in the case of MNIST for
   example, we do not want to be so stable to deformations that 7s can map to
@@ -89,29 +88,29 @@
     \|\Phi x_{\tau} - \Phi x \| \leq C_\tau \|x\| \sup_{\bmu{u}} |\nabla\tau(\bmu{u})|
   \protect\end{equation}
   The term on the right $|\nabla\tau(\bmu{u})|$ measures the deformation
-  amplitude, so the supremum of it is a limit on the global defomation amplitude.
+  amplitude, so the supremum of it is a limit on the global deformation amplitude.
 
 \subsection{Definition}
   A Fourier modulus satisfies the first two of these requirements, in that it is
-  both translation invariant and stable to additive noise, but it is unstable to
+  both translation-invariant and stable to additive noise, but it is unstable to
   deformations due to the large support (infinite in theory) of the sinusoid basis functions it
   uses. It also loses too much information --- very different signals can all
   have the same Fourier modulus, e.g.\ a chirp, white noise and the Dirac delta
   function all have flat spectra.
 
-  Another translation invariant and stable operator is the averaging kernel, and
-  \Mallat\ use this to make the zeroth scattering coefficient:
+  Another translation-invariant and stable operator is the averaging kernel
+  which \Mallat\ use to make the zeroth scattering coefficient:
   \begin{equation}
     S[\emptyset]x \definedas x \conv \phitd_J\left(2^J \bmu{u}\right)
   \end{equation}
-  which is translation invariant to shifts less than $2^J$. It unfortunately
-  results in a loss of information due to the removal of high frequency content.
+  which is translation-invariant to shifts less than $2^J$. It, unfortunately,
+  results in a loss of information due to the removal of high-frequency content.
   This is easy to see as the wavelet operator 
   $Wx = \{ x \conv \phitd_J, x \conv \psitd_\lambda \}_\lambda$
 contains all the information of $x$, whereas the zeroth scattering coefficient
 is simply the lowpass portion of $W$. 
 
-This high frequency content can be `recovered' by keeping the wavelet
+This high-frequency content can be `recovered' by keeping the wavelet
 coefficients. The wavelet terms, like a convolutional layer in a CNN, are only
 covariant to shifts rather than invariant. This covariance happens in the real 
 and imaginary parts which both vary rapidly. Fortunately, its modulus is much
@@ -132,13 +131,13 @@ $\tilde{W}$:
 where the $U$ terms are called the \emph{propagated} signals and $\lambda =
 (j,k)$ indexes the scale and orientation of wavelet used.
 These $U$ terms are approximately invariant for shifts of up to $2^j$. \Mallat\ choose to
-keep the same level of invariance as the zeroth order coefficients ($2^J$) 
+keep the same level of invariance as the zeroth-order coefficients ($2^J$) 
 by further averaging. This makes the first ordering scattering coefficients:
 \begin{equation}
   S[\lambda_1]x \definedas U[\lambda_1]x \conv \phitd_J
   = |x \conv \psitd_{\lambda_1}| \conv \phitd_J
 \end{equation}
-Again this averaging comes at a cost of discarding high frequency information,
+Again this averaging comes at a cost of discarding high-frequency information,
 this time about the wavelet sparsity signal $U[\lambda] = |x \conv
 \psi_\lambda|$ instead of the input signal $x$. We can recover this information
 by repeating the above process. 
@@ -173,13 +172,13 @@ which is shown in \autoref{fig:ch2:scatternet_mallat}
 
 \subsection{Resulting Properties}
 For ease, let us define the `$m$th order scattering coefficients' as $S_m$ which
-is the set of all coefficients with path length $m$. Further let $S$ be the set
+is the set of all coefficients with path length $m$. Further, let $S$ be the set
 of all scattering coefficients of any path length. The energy $\energy{Sx}$ we 
 then define as
 \begin{equation}
   \energy{Sx} = \sum_p \energy{S[p]x}
 \end{equation}
-We can make $W$ non-expansive with appropriate scaling. Further, define the energy $\energy{Wx}$ as
+We can make $W$ non-expansive with appropriate scaling. Define the energy $\energy{Wx}$ as
 \begin{equation}
   \energy{Wx} = \energy{x\conv \phitd} + \sum_\lambda \energy{x \conv
   \psitd_\lambda} 
@@ -192,13 +191,12 @@ For the Morlet wavelets originally used in \cite{bruna_invariant_2013},
 $\epsilon=0.25$, for the $\DTCWT$ $\epsilon \approx 0$ (for the q-shift $\DTCWT$
 it is 0, but for the biorthogonal $\DTCWT$ it is close to but not exactly 0).
 
-
-\subsubsection{Translation Invariance}
+\subsubsection{Translation-Invariance}
 \newcommand{\shift}{\mathcal{L}_c}
 
 This is proven in section 2.4 of \cite{mallat_group_2012}. We
-have so far described the Scattering representation as being `translation
-invariant for shifts up to $2^J$'. We formalize this statement here.
+have so far described the Scattering representation as being `translation-invariant 
+for shifts up to $2^J$'. We formalize this statement here.
 
 For a 2-D averaging filter based on a father wavelet $\phitd$, 
 $\phitd_J = 2^{-J}\phitd\left(2^{-J}\xy\right)$ it is proven in Appendix B of
@@ -222,14 +220,14 @@ As $W$ is non-expansive and the complex modulus is also non-expansive
 \begin{equation}
   \norm{\tilde{W}x - \tilde{W}y} \leq \norm{x-y} \label{eq:ch2:w_nonexpanse}
 \end{equation}
-As we have already shown that $S$ is the repeated application of $\tilde{W}$ in
+We have already shown that $S$ is the repeated application of $\tilde{W}$ in
 \eqref{eq:ch2:recursive}, we can then say
 \begin{equation}
   \norm{Sx - Sy} \leq \norm{x-y}\label{eq:ch2:s_nonexpanse}
 \end{equation}
 making scattering non-expansive and stable to noise. With the $\DTCWT$, both
 \eqref{eq:ch2:w_nonexpanse} and \eqref{eq:ch2:s_nonexpanse} are nearly
-inequalties as $\epsilon$ is close to 0.
+inequalities as $\epsilon$ is close to 0.
 
 \subsubsection{Stability to deformations}
 If $\mathcal{L}_\tau x = x(\xy -\tau(\xy))$ is an image deformed 
@@ -249,10 +247,10 @@ to $2^J$, the first term disappears and we have:
   \norm{ S \mathcal{L}_{\tau}x  - S x} \leq C P \norm{x} \norm{\nabla \tau}_\infty  \label{eq:ch2:stability}
 \end{equation}
 This theorem shows that $S$ is locally Lipschitz stable to diffeomorphisms and in
-the case of small deformations, linearizes them.
+the case of small deformations, it linearizes them.
 
 \subsubsection{Energy Decay}
-As $m \rightarrow \infty$ the invariant cofficients of path length $m$, $U_m$,
+As $m \rightarrow \infty$ the invariant coefficients of path length $m$, $U_m$,
 decay towards zero \cite{mallat_group_2012}:
 \begin{equation}
   \lim_{m \rightarrow \infty} U_m = 0
@@ -266,8 +264,8 @@ using scattering transforms after \cite{bruna_invariant_2013} such as
 $m=2$ was found to be sufficient.
 
 \subsubsection{Number of Coefficients}
-While we have so far talked about non sampled signals $x(\xy),\ \xy \in
-\reals[2]$, in practice we want to apply scattering to sampled signals $x[\nn],\
+While we have so far talked about non-sampled signals $x(\xy),\ \xy \in
+\reals[2]$, in practice, we want to apply scattering to sampled signals $x[\nn],\
 \nn \in \integers[2]$. The averaging by $\phitd_J$ means that we can subsample
 $Sx$ by $2^J$ in each direction. However, now we need also need to index all the
 paths $p$ that can be used to create the scattering coefficients. Limiting
@@ -284,11 +282,11 @@ The reason $n(p_2) \neq J^2 K^2$ is due to the demodulating effect of the
 complex modulus. As $|x \conv \psitd_\lambda|$ is more regular than $x \conv
 \psitd_\lambda$, $|x \conv \psitd_\lambda| \conv \psitd_{\lambda'}$ is only
 non-negligible if $\psitd_{\lambda'}$ is located at lower frequencies than
-$\psitd_\lambda$. This means, we can discard over half of the scattering paths as
+$\psitd_\lambda$. This means we can discard over half of the scattering paths as
 their value will be near zero.
 
 Summing up the above three equations and factoring in the reduced sample rate
-allowable due to averaging, for an input with $N$ pixels, a second order scattering
+allowable due to averaging, for an input with $N$ pixels, a second-order scattering
 representation will have $N2^{-2J}\left(1+JK+\frac{1}{2}J(J-1)K^2 \right)$
 pixels. \autoref{tab:ch2:scat_redundancy} shows some example values of the
 ScatterNet redundancy for different $J,K$ and scattering order $m$.

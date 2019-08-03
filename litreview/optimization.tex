@@ -12,7 +12,7 @@ distributed according to a function of the inputs plus a noise term $\epsilon$:
 \begin{equation}
   y = f(x, \theta) + \epsilon
 \end{equation}
-This noise is often modelled as a zero mean Gaussian random variable, $\epsilon
+This noise is often modelled as a zero-mean Gaussian random variable, $\epsilon
 \sim \mathcal{N}(0, \sigma^2I)$, which means we can write:
 \begin{equation}\label{eq:ch2:regression}
   p_{model}(y|x, \theta, \sigma^2) = \mathcal{N}(y;\ f(x, \theta), \sigma^2I)
@@ -35,7 +35,7 @@ Using the Gaussian regression model from above, this becomes:
                   \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2\sigma^2}\right) \\
                   &= \argmin_{\theta}\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} \label{eq:ch2:mle_reg}
 \end{align}
-which gives us the well known result that we would like to find parameters that
+which gives us the well-known result that we would like to find parameters that
 minimize the mean squared error (MSE) between targets $y$ and predictions
 $\hat{y} = f(x, \theta)$.
 
@@ -90,7 +90,7 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   lead to overfitting. A common practice is to regularize learnt parameters
   $\theta$ by putting a prior over them. If we do not have any prior information
   about what we expect them to be, it may still be useful to put an
-  uninformative prior on them. For example, if our parameters are in the
+  uninformative prior over them. For example, if our parameters are in the
   reals, a commonly used uninformative prior is a Gaussian.
 
   Let us extend the regression example from above by saying we would like the
@@ -144,7 +144,7 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   
   To truly overcome this problem, we must know the curvature
   of the objective function $\frac{\partial^2 J}{\partial \theta^2}$. An example
-  optimization technique that uses the second order information is Newton's
+  optimization technique that uses the second-order information is Newton's
   method \cite[Chapter~9]{boyd_convex_2004}. Such techniques sadly do not scale
   with size, as computing the Hessian is proportional to the number of
   parameters squared, and many neural networks have hundreds of thousands, if

@@ -1,12 +1,12 @@
 \section{The Fourier and Wavelet Transforms}
 
   Computer vision is an extremely difficult task. Pixel intensities in an image are
-  typically not very informative in understanding what is in that image. Indeed,
-  these values are sensitive to lighting conditions and camera configurations.
+  typically not very informative in understanding what is in that image. 
+  These values are sensitive to lighting conditions and camera configurations.
   It would be easy to take two photos of the same scene and get two vectors
   $x_1$ and $x_2$ that have a very large Euclidean distance, but to a human,
   would represent the same objects. What is most important in defining an image is
-  difficult to define, however some things are notably more important than
+  difficult to define, however, some things are notably more important than
   others. In particular, the location or phase of the waves that make up an
   image is much more important than the magnitude of these waves, something
   that is not necessarily true for audio processing. A simple experiment to
@@ -106,7 +106,7 @@ The CWT can be inverted by using a \emph{dual} function $\tilde{\psitd}$. There
 are restrictions on what dual function we can use, namely the dual-wavelet pair
 must have an admissible constant $C_\psitd$ that satisfies the
 cross-admissibility constraint \cite{holschneider_pointwise_1991}. Assuming
-these constraints are satisifed, we can recover $x$ from $CWT_x$.
+these constraints are satisfied, we can recover $x$ from $CWT_x$.
 % by:
 % \begin{equation}
   % x(\xy) = \frac{1}{C_\psitd} \int \int \int \frac{1}{a^3}CWT_x(\bmu{b}, a, \theta)
@@ -127,7 +127,7 @@ For an excellent description of the properties of the CWT in 1-D we recommend
 \subsection{Discretization and Frames}
 The CWT is highly redundant. We have taken a 2-D signal and expressed it in 4
 dimensions (2 offset, 1 scale and 1 rotation). In reality, we would like to sample the space
-of the CWT. We would ideally like to fully 
+of the CWT in an efficient manner. We would ideally like to fully 
 retain all information in $x$ (be able to reconstruct $x$ from the samples)
 while sampling over $(\bmu{b}, a, \theta)$ as little as possible to avoid
 redundancy. To understand how to do this we must briefly talk about frames.
@@ -152,12 +152,12 @@ on $A$ from below. This can be interpreted as ensuring our set $\phiod$ covers t
 entire frequency space. The upper bound ensures that the transform
 coefficients are bounded. 
 
-Any finite set of vectors that spans the space is frame. An orthonormal basis
-is a commonly known non-redundant frame where $A=B=1$ and $|\varphi_i|=1$ (e.g. the Discrete
+Any finite set of vectors that spans the space is a frame. An orthonormal basis
+is a commonly known non-redundant frame where $A=B=1$ and $|\varphi_i|=1$ (e.g.\ the Discrete
 Wavelet Transform or the Fourier Transform). Tight frames are frames where $A=B$
-and Parseval tight frames have the special case $A=B=1$. It is possible to have frames that
-have more vectors than dimensions, and this will be the case with many
-expansions we explore in this thesis. 
+and Parseval tight frames have the special case $A=B=1$. It is possible to have
+frames that have more vectors than dimensions, and this will be the case with
+many expansions we explore in this thesis. 
 
 If $A=B$ and $|\varphi_i| = 1$, then $A$ is
 the measure of the redundancy of the frame. Of course, for the orthogonal basis,
@@ -177,7 +177,7 @@ where:
 \begin{equation}
   \tilde{\varphi}_i = S^{-1}\varphi_i
 \end{equation}
-then\cite{kovacevic_introduction_2008}
+then from \cite{kovacevic_introduction_2008} we have:
 \begin{equation}
   x = \sum_{i\in I} \langle x, \varphi_i \rangle \tilde{\varphi}_i = \sum_{i\in I}
   \langle x, \tilde{\varphi}_i \rangle \varphi_i
@@ -201,12 +201,12 @@ If a frame is tight, then so is its dual.
   % \end{quote}
 
   \eqref{eq:ch2:2d_shifts} gave the equation for the daughter wavelets in 2-D,
-  in 1-D at scales $a=2^j, j \geq 0$, this is simply:
+  in 1-D at scales $a=2^{j}, j \in \integers$, and translations $b = 2^j l,\ l \in \integers$, this is simply:
   \begin{equation}
-    \psiod_{b, j}(u) = 2^{-j/2} \psiod\left(\frac{u-b}{2^j} \right)
+    \psiod_{j, l}(t) = \frac{1}{\sqrt{a}} \psiod\left(\frac{t-b}{a}\right) = 2^{-j/2} \psiod\left(2^{-j}t- l \right)
   \end{equation}
   The 2-D DWT has one scaling function and three wavelet functions, composed of
-  the product of 1-D wavelets in the horizontal and vertical directions:
+  the product of 1-D wavelets in the horizontal ($u_1$) and vertical ($u_2$) directions:
   \begin{align}
     \phitd(\xy) &= \phiod(u_1)\phiod(u_2) \label{eq:ch2:dwt1}\\
     \psitd^h(\xy) &= \phiod(u_1) \psiod(u_2) \\
@@ -220,15 +220,15 @@ If a frame is tight, then so is its dual.
   For the four equations above \eqref{eq:ch2:dwt1} -- \eqref{eq:ch2:dwt4},
   define the daughter wavelets as:
   \begin{align}
-    \phitd^j_{kl}(\xy) &= \phiod_{j,k}(u_1)\phiod_{j,l}(u_2) \\
-    \psitd^{h,j}_{kl}(\xy) &= \phiod_{j,k}(u_1) \psiod_{j,l}(u_2) \\
-    \psitd^{v,j}_{kl}(\xy) & = \psiod_{j,k}(u_1) \phiod_{j,l}(u_2) \\
-    \psitd^{d,j}_{kl}(\xy) & = \psiod_{j,k}(u_1) \psiod_{j,l}(u_2) 
+    \phitd^j_{lm}(\xy) &= \phiod_{j,l}(u_1)\phiod_{j,m}(u_2) \\
+    \psitd^{h,j}_{lm}(\xy) &= \phiod_{j,l}(u_1) \psiod_{j,m}(u_2) \\
+    \psitd^{v,j}_{lm}(\xy) & = \psiod_{j,l}(u_1) \phiod_{j,m}(u_2) \\
+    \psitd^{d,j}_{lm}(\xy) & = \psiod_{j,l}(u_1) \psiod_{j,m}(u_2) 
   \end{align}
-  for $\alpha = \{h, v, d\},\ k,l \in \integers$ where $k,l$ define horizontal
+  for $l,m \in \integers$ where $l,m$ define horizontal
   and vertical translation. We can then get an orthonormal
-  basis with the set $\{ \phitd^j_{kl}, \psitd^{\alpha,j}_{kl} \}$.
-  The wavelet coefficients at chosen scale and location can then be found by
+  basis with the set $\{ \phitd^j_{lm}, \psitd^{h,j}_{lm}, \psitd^{v,j}_{lm}, \psitd^{d,j}_{lm} \}_{j,l,m}$.
+  The wavelet coefficients at a chosen scale and location can then be found by
   taking the inner product of the signal $x$ with the daughter wavelets.
 
   % A signal $x \in L_2(\reals[2])$ is represented at resolution $2^j$ by the
@@ -240,26 +240,25 @@ If a frame is tight, then so is its dual.
   \subsubsection{Shortcomings}
   The Discrete Wavelet Transform (DWT) is an orthogonal basis. It is a natural
   first signal expansion to consider when frustrated with the limitations of the
-  Fourier Transform. It is also a good example of the limitations of
+  Fourier transform. It is also a good example of the limitations of
   non-redundant transforms, as it suffers from several drawbacks:
   \begin{itemize}
     \item The DWT is sensitive to the zero crossings of its wavelets. 
       We would like singularities in the input to yield large wavelet
       coefficients, but this may not always be the case.
       % if they fall at a zero crossing of a wavelet, the output can be small. 
-      See
-      \autoref{fig:ch2:dwt_zero_crossing}.
+      See \autoref{fig:ch2:dwt_zero_crossing}.
     \item They have poor directional selectivity. As the wavelets are purely
       real, they have passbands in all four quadrants of the frequency plane.
       While they can pick out edges aligned with the frequency axis, they are
       not specific to other orientations. See \autoref{fig:ch2:dwt_wavelets}.
-    \item They are not shift invariant. In particular, small shifts greatly
+    \item They are not shift-invariant. In particular, small shifts greatly
       perturb the wavelet coefficients. \autoref{fig:ch2:dwt_zero_crossing} shows
       this for the centre-left and centre-right images.
       % \autoref{fig:ch2:dtcwt_shift_invariance} (right) also shows this.
   \end{itemize}
 
-  The lack of shift invariance and the possibility of low outputs at
+  The lack of shift-invariance and the possibility of low outputs at
   singularities is a price to pay for the critically sampled property of the
   transform. This shortcoming can be overcome with the undecimated DWT
   \cite{mallat_wavelet_1998,coifman_translation-invariant_1995}, 
@@ -282,18 +281,18 @@ If a frame is tight, then so is its dual.
 \subsection{Complex Wavelets}\label{sec:ch2:complex_wavelets}
   Fortunately, we can improve on the DWT with complex wavelets, as they can
   solve these new shortcomings while maintaining the desired localization
-  properties. 
+  properties the Fourier transform lacked. 
   
   The Fourier transform does not suffer from a lack of directional selectivity
-  and shift variance, because its basis functions are based on the complex
-  sinusoid: 
+  and shift variance, because its basis functions are derived from complex
+  sinusoids\footnote{We have temporarily switched to 1D
+  notation here as it is clearer and easier to use, but the results still hold
+  for 2D.}: 
   \begin{equation} 
     e^{j\omega t} = \cos(\omega t) + j\sin(\omega t)
   \end{equation} 
   whereas the DWT's basis functions are based on only the real
-  sinusoid $\cos(\omega t).$\footnote{we have temporarily switched to 1D
-  notation here as it is clearer and easier to use, but the results still hold
-  for 2D} As $t$ moves along the real line, the phase of the
+  sinusoid $\cos(\omega t)$. As $t$ moves along the real line, the phase of the
   Fourier coefficients change linearly, while their magnitude remains constant. In
   contrast, as $t$ moves along the real line, the sign of the real coefficient
   flips between -1 and 1, and its magnitude is a rectified sinusoid.
@@ -311,7 +310,7 @@ If a frame is tight, then so is its dual.
   $90\degs$ out of phase with each other).
 
   There are a number of possible ways to do a wavelet transform with complex
-  wavelets. We examine two in particular, a Fourier-based, sampled CWT using
+  wavelets. We examine two in particular: a Fourier-based, sampled CWT using
   Morlet wavelets, and the Dual-Tree Complex Wavelet Transform ($\DTCWT$)
   developed by Kingsbury \cite{kingsbury_wavelet_1997, kingsbury_dual-tree_1998,
   kingsbury_dual-tree_1998-1,  kingsbury_image_1999, kingsbury_shift_1999,
@@ -353,10 +352,10 @@ chosen wavelet transform, whether it be the $\DTCWT$ or Morlet transform.
   approximate location of the peak frequency response --- i.e.,\ for an octave based
   transform, $\xi = 3\pi/4$.
 
-  \citeauthor{bruna_invariant_2013} add a further additional degree of freedom in their 
-  original design \cite{bruna_invariant_2013} by allowing for a non-circular
-  Gaussian window over the complex sinusoid, which gives control over the angular
-  resolution of the final wavelet. \eqref{eq:ch2:morlet} now becomes:
+  \citeauthor{bruna_invariant_2013} \cite{bruna_invariant_2013} add a further
+  additional degree of freedom in their original design by allowing for a
+  non-circular Gaussian window over the complex sinusoid, which gives control
+  over the angular resolution of the final wavelet. This makes \eqref{eq:ch2:morlet}:
   \begin{equation}
     \psitd(\bmu{u}) = \frac{\gamma}{2\pi\sigma^2}{(e^{i\bmu{u}\xi} - \beta)}
                   e^{-\bmu{u^t}\Sigma^{-1}  \bmu{u}} 
@@ -421,7 +420,6 @@ chosen wavelet transform, whether it be the $\DTCWT$ or Morlet transform.
 
 \subsubsection{Tightness and Invertibility}
 Recall our definition of the wavelet transform $\mathcal{W}$ from \eqref{eq:ch2:wave2}.
-
 Assuming the transform is bounded, we can always scale it so that it satisfies
 Plancherel's equality
 \begin{equation}
@@ -432,24 +430,7 @@ how different signals get transformed (e.g.\ white noise versus standard
 images). Scaling the transform changes the upper bound $B$ in \eqref{eq:ch2:frame_bounds} 
 to 1 and makes the lower bound $A = 1-\alpha$, where $\alpha$ is a measure of how
 non-tight a frame is.
-  
-Recall the sampling grid of our wavelets was:
-\begin{equation}
-  \psitd_{\bmu{b},a, \theta}(\xy) = \frac{1}{a}\psitd \left(\frac{r_{-\theta}\left(\xy -
-  \bmu{b}\right)}{a} \right) 
-\end{equation}
 
-Common choices for sampling grids for 2-D wavelets are\cite[Section
-2.2]{antoine_two-dimensional_2004}:
-\begin{itemize}
-  \item For dilations, we choose $a = 2^{-j/Q}$ for $j\in \mathbb{Z}$
-    controlling the scale and $Q$, the number of octaves per scale.
-  \item For rotations, we subdivide the interval $[0, \pi)$ into $K$ sections,
-    and choose $\theta_k = \frac{k\pi}{K},\ k = \{0, 1, \ldots K-1\}$.
-  \item For the translations, we set the sample spacing $\Delta \bmu{b} =
-    2^{-j/Q}$. 
-\end{itemize}
-  
 Using the capital notation to denote the Fourier transform, define the function
 $A(\ww)$ to be the coverage each wavelet family has over the frequency plane: 
 \begin{equation}
@@ -463,21 +444,9 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
 \end{equation}
   If $A(\ww)$ is ever close to 0, then there is not a good coverage of the frequency plane
   at that location. 
-  % If it ever exceeds 1, then there is overlap between bases.
-  % Both of these conditions make invertibility difficult\footnote{In practise,
-  % if $A(\ww)$ is only slightly greater 1 for only a few small areas of
-  % $\ww$, approximate inversion can be achieved}.
-  \autoref{fig:ch2:morlet_littlewood_paley} show the frequency coverage of a few
+  \autoref{fig:ch2:morlet_littlewood_paley} shows the frequency coverage of a few
   sample grids over the CWT parameters used by Mallat. Invertibility is possible, but not
   guaranteed for all configurations. 
-  
-  % The Fourier transform of the inverse
-  % filters are defined by:
-  % \begin{align}
-    % \mathcal{F}\phiod_J^{-1}(\omega) &= A(\omega)^{-1} \mathcal{F}\phiod_J(\omega) \\
-    % \mathcal{F}\psi_{\lambda}^{-1}(\omega) &= A(\omega)^{-1}
-      % \mathcal{F}\psi_{\lambda}(\omega) 
-  % \end{align}
 
   \begin{figure}
     \centering
@@ -496,6 +465,31 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
             from \cite{sifre_rigid-motion_2014-1}.}
       \label{fig:ch2:morlet_littlewood_paley}
   \end{figure}
+  
+The tightness of the frame is determined by the sampling grid of our wavelets
+parameters $(\bmu{b}, a, \theta)$.
+Common choices for sampling grids for 2-D wavelets are\cite[Section
+2.2]{antoine_two-dimensional_2004}:
+\begin{itemize}
+  \item For dilations, $a = 2^{j/Q}$ for $j\in \mathbb{Z}$
+    controlling the scale and $Q$, the number of scales per octave.
+  \item For rotations, subdivide the interval $[0, \pi)$ into $K$ sections,
+    and choose $\theta_k = \frac{k\pi}{K},\ k = \{0, 1, \ldots K-1\}$.
+  \item For the translations, set the offsets $\bmu{b} =
+    (l2^{j/Q},\ m2^{j/Q}),\ l,m \in \integers$. 
+\end{itemize}
+  
+  % If it ever exceeds 1, then there is overlap between bases.
+  % Both of these conditions make invertibility difficult\footnote{In practise,
+  % if $A(\ww)$ is only slightly greater 1 for only a few small areas of
+  % $\ww$, approximate inversion can be achieved}.
+  % The Fourier transform of the inverse
+  % filters are defined by:
+  % \begin{align}
+    % \mathcal{F}\phiod_J^{-1}(\omega) &= A(\omega)^{-1} \mathcal{F}\phiod_J(\omega) \\
+    % \mathcal{F}\psi_{\lambda}^{-1}(\omega) &= A(\omega)^{-1}
+      % \mathcal{F}\psi_{\lambda}(\omega) 
+  % \end{align}
 
 % The discrete wavelet transform (DWT) provides a non-redundant representation
   % of
@@ -530,8 +524,8 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
 \subsection{The $\DTCWT$}
   The $\DTCWT$ was first proposed by \citeauthor{kingsbury_dual-tree_1998} in
   \cite{kingsbury_dual-tree_1998, kingsbury_dual-tree_1998-1} as a way to combat
-  many of the shortcomings of the DWT, in particular, its poor directional
-  selectivity, and its poor shift invariance. A thorough analysis of the
+  many of the shortcomings of the DWT, in particular its poor directional
+  selectivity and its poor shift-invariance. A thorough analysis of the
   properties and benefits of the $\DTCWT$ is done in
   \cite{kingsbury_image_1999,selesnick_dual-tree_2005}. Building on these
   properties, it been used
@@ -556,13 +550,13 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
 \subsubsection{Deisgn Criteria for the $\DTCWT$}
   As in \autoref{sec:ch2:complex_wavelets}, we want to have a complex mother
   wavelet $\psiod_c = \psiod_r + j\psiod_i$ and complex scaling function $\phiod_c =
-  \phiod_r + j\phiod_i$, but now achieved with filter banks. The complex componenet
+  \phiod_r + j\phiod_i$, but now achieved with filter banks. The complex component
   allows for support of both the wavelet and scaling functions on only one half of
   the frequency plane. 
   
-  The dual tree framework shown in \autoref{fig:ch2:dtcwt_1d_fb} can achieve this 
-  by making the real and imaginary components with their own DWT. In particular, if
-  we define:
+  The dual-tree framework shown in \autoref{fig:ch2:dtcwt_1d_fb} can achieve this 
+  by making the real and imaginary components with their own DWT. 
+  We define:
   \begin{itemize}
     \item $h_0, h_1$ the low and high-pass analysis filters for $\phiod_r, \psiod_r$  
     \item $g_0, g_1$ the low and high-pass analysis filters for $\phiod_i, \psiod_i$
@@ -591,7 +585,7 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
       \label{fig:ch2:dtcwt_1d_fb}
   \end{figure}
 
-  Designing a filter bank implementation that results in Hilbert symmetric
+  Designing a filter bank implementation that results in Hilbert-symmetric
   wavelets does not appear to be an easy task. However, it was shown
   by \citeauthor{kingsbury_image_1999} in \cite{kingsbury_image_1999} (and later proved by
   \citeauthor{selesnick_hilbert_2001} in \cite{selesnick_hilbert_2001}) that the
@@ -602,7 +596,7 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
     \psiod_g(t) \approx \mathcal{H}\{\psiod_h(t)\}
   \end{equation}
   As the $\DTCWT$ is designed as an invertible filter bank implementation, this
-  is only one of the constraints. As with convential (real) discrete wavelets,
+  is only one of the constraints. As with conventional (real) discrete wavelets,
   there are also perfect reconstruction, finite support, linear phase and
   vanishing moment constraints to consider in the filter bank design.
 
@@ -614,20 +608,20 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
   = h_0[N-1-n]$), and common-factor filters. 
   
 \subsubsection{2-D $\DTCWT$ and its Properties}
-  While analytic wavelets in 1D are useful for their shift invariance, the real
+  While analytic wavelets in 1D are useful for their shift-invariance, the real
   beauty of the $\DTCWT$ lies in its ability to make a separable 2D wavelet
   transform with oriented wavelets. 
   
-  Figure~\autoref{fig:ch2:dwt_hh} shows the spectrum of
+  \autoref{fig:ch2:dwt_hh} shows the spectrum of
   the wavelet when the separable product uses purely real wavelets, as is the
-  case with the DWT\@. Figure~\autoref{fig:ch2:dtcwt_hh} however, shows the separable
+  case with the DWT\@. \autoref{fig:ch2:dtcwt_hh} however, shows the separable
   product of two complex, analytic wavelets resulting in a localized and
   oriented 2D wavelet. 
 
   Note that in this thesis, we name the wavelets by the direction of the edge
   that they are most sensitive to. 
-  
-  For example, the $135\degs$ wavelet can be obtained by the separable product:
+  For example, the $135\degs$ is the second image in \autoref{fig:ch2:dtcwt_wavelets} and
+  can be obtained by the separable product:
   \begin{align}
     \psitd(\xy) &= \psiod_c(u_1) \psiod_c^*(u_2) \label{eq:ch2:wavelet_separable_product}\\
               &= \left(\psiod_r(u_1) + j\psiod_i(u_1)\right) 
@@ -644,7 +638,7 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
   DWTs to calculate the four possible combinations of real and imaginary
   components. The high and lowpass outputs from these DWTs can then be summed in
   different ways as in \eqref{eq:ch2:dtcwt_2d_product} to get the complex
-  bandpass wavelets.  \autoref{fig:ch2:dtcwt_wavelets} shows the resulting
+  bandpass wavelets. \autoref{fig:ch2:dtcwt_wavelets} shows the resulting
   wavelets both in the spatial domain and their idealized support in the
   frequency domain.
 
@@ -721,10 +715,10 @@ For a unit norm input $||x||^2 = 1$ and scaled wavelets, we can now change
 \subsection{Summary of Methods}
   One final comparison to make between the $\DTCWT$ and the Morlet wavelets is
   their frequency coverage. The Morlet wavelets have flexibility at the cost of 
-  computational expense, and can be made to have tighter angular resolution than
+  computational expense and can be made to have tighter angular resolution than
   the $\DTCWT$. However it is not always
   better to keep using finer and finer resolutions, indeed the Fourier
-  transform gives the ultimate in angular resolution, but as mentioned, this
+  transform gives the ultimate in angular resolution but as mentioned, this
   makes it less stable to shifts and deformations. We will explore this in more
   depth in Chapter 3.
 
