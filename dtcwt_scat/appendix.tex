@@ -15,8 +15,99 @@ we highly recommend, as it makes running trials in parallel very easy.
 
 \chapter{Forward and Backward Algorithms} \label{app:ch3:fwd_bwd}
 We have listed some of the forward and backward algorithms here that are not
-included in the main text for the interested reader.
+included in the main text for the interested reader. We also have included 
+proofs for the gradients of decimation, interpolation and an entire analysis
+decomposition.
 
+\section{Gradients of Sample Rate Changes}\label{sec:app:samplegrads}
+Consider 1D decimation and interpolation of a signal $X$. The results we prove
+here easily extrapolate to 2D, but for ease we have kept to the 1D case. 
+
+Decimation of a signal $X$ by $M$ is defined as:
+\begin{equation}
+  Y[n] = X[Mn] \label{eq:app:decimation}
+\end{equation}
+and interpolation by $M$ as:
+\begin{equation}
+  Y[n] = \left\{ \begin{array}{ll}
+    X[\frac{n}{M}] & n = Mk,\ k\in \integers \\
+    0 & \text{otherwise} \\ 
+  \end{array}\right.
+  \label{eq:app:interpolation}
+\end{equation}
+
+\subsection{Decimation Gradient}
+From \eqref{eq:app:decimation} the gradient $\dydx{Y_n}{X_k}$ is: 
+\begin{equation}
+  \dydx{Y_n}{X_k} = \left\{ \begin{array}{ll}
+    1 & k = Mn \\
+    0 & \text{otherwise} \\
+  \end{array} \right.
+\end{equation}
+By the chain rule, $\dydx{J}{X_k}$ is:
+\begin{align}
+  \dydx{J}{X_k} &= \dydx{J}{Y_n}\dydx{Y_n}{X_k} \\
+                &= \left\{ \begin{array}{ll} 
+                \Delta Y[\frac{k}{M}] & k = Mn\\
+                  0 & \text{otherwise} \\
+                \end{array}\right.
+\end{align}
+which is interpolating $\Delta Y$ by $M$ from \eqref{eq:app:interpolation}.
+
+\subsection{Interpolation Gradient}
+From \eqref{eq:app:interpolation} the gradient $\dydx{Y_n}{X_k}$ is:
+\begin{equation}
+  \dydx{Y_n}{X_k} = \left\{ \begin{array}{ll}
+    1 & n = Mk \\
+    0 & \text{otherwise}
+  \end{array} \right.
+\end{equation}
+and then the gradient $\dydx{J}{X_k}$ is:
+\begin{align}
+  \dydx{J}{X_k} &= \dydx{J}{Y_n}\dydx{Y_n}{X_k} \\
+                &= \left\{ \begin{array}{ll} 
+                \Delta Y[n] & n = Mk\\
+                  0 & \text{otherwise} 
+                \end{array}\right. \\
+                &= \Delta Y[Mk]
+\end{align}
+which is decimation of $\Delta Y$ by $M$.
+ 
+\section{Gradient of Wavelet Analysis Decomposition}\label{sec:app:analysis_gradient}
+\begin{figure}
+  \centering
+  \includegraphics{\imgpath/dwt2d_grad.pdf}
+  \mycaption{Gradient of DWT analysis}{Each block in the forward pass of
+  \autoref{fig:ch3:dwt} has been swapped for its gradient. The resulting
+  gradient has the same form as the inverse DWT.}
+  \label{fig:app:dwt_grad_fb}
+\end{figure}
+We mention in \autoref{ch3:primitives} that the gradient of a forward DWT with
+orthogonal wavelets is just the inverse DWT. 
+
+This easily follows from applying the chain rule and using the gradients of each of the
+stages of the DWT. The equivalent backwards pass of \autoref{fig:ch3:dwt} is
+shown in \autoref{fig:app:dwt_grad_fb}.
+
+For an orthogonal wavelet transform, the synthesis filter is the time reverse of
+the analysis filter \cite[Chapter 3]{vetterli_wavelets_2007}.
+
+
+
+Recall from \autoref{fig:ch3:dwt} the 2D DWT has four outputs: $Y^l, Y^h, Y^v,
+Y^d$. By the linearity of the chain rule:
+\begin{align}
+  \dydx{J}{X_{k_1, k_1}} =& \dydx{J}{Y^l}\dydx{Y^l}{X_{k_1, k_1}} +
+  \dydx{J}{Y^h}\dydx{Y^h}{X_{k_1, k_1}} + \\
+  &\dydx{J}{Y^v}\dydx{Y^v}{X_{k_1, k_1}} + \dydx{J}{Y^d}\dydx{Y^d}{X_{k_1, k_1}} 
+\end{align}
+
+The four gradients $\dydx{Y^\alpha}{X}$ can be found by finding the gradients of
+each block and combining them, as shown in \autoref{fig:}
+Further, we have proved that the gradient of decimation is interpolation
+(\autoref{sec:app:samplegrads})
+
+\section{Extra Algorithms}
 \begin{algorithm}[h!]
 \caption{2-D Inverse DWT and its gradient}\label{alg:ch3:idwt}
 \begin{algorithmic}[1]

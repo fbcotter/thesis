@@ -1,6 +1,6 @@
-\section{Scatternets}\label{ch:scatternets}
+\section{ScatterNets}\label{ch:scatternets}
 % Let us define the pairs of authors here
-  Scatternets have been a very large influence on
+  ScatterNets have been a very large influence on
   our work, as well as being quite distinct from the previous discussions on
   learned methods. They were first introduced by  
   \citeauthor{bruna_classification_2011} in their work 
@@ -105,10 +105,10 @@
   \end{equation}
   which is translation-invariant to shifts less than $2^J$. It, unfortunately,
   results in a loss of information due to the removal of high-frequency content.
-  This is easy to see as the wavelet operator 
-  $Wx = \{ x \conv \phitd_J, x \conv \psitd_\lambda \}_\lambda$
-contains all the information of $x$, whereas the zeroth scattering coefficient
-is simply the lowpass portion of $W$. 
+  This is easy to see as the wavelet operator from \eqref{eq:ch2:wave2} $\mathcal{W}x = \{ x \conv
+  \phitd_J, x \conv \psitd_\lambda \}_\lambda$ contains all the information of
+  $x$, whereas the zeroth scattering coefficient is simply the lowpass portion
+  of $\mathcal{W}$. 
 
 This high-frequency content can be `recovered' by keeping the wavelet
 coefficients. The wavelet terms, like a convolutional layer in a CNN, are only
@@ -116,20 +116,19 @@ covariant to shifts rather than invariant. This covariance happens in the real
 and imaginary parts which both vary rapidly. Fortunately, its modulus is much
 smoother and gives a good measure for the frequency-localized energy content at
 a given spatial location\footnote{Interestingly, the modulus operator can often still be
-inverted, and hence does not lose any information, due to the redundancies of
-the complex wavelet transform \cite{waldspurger_phase_2012}}. Unlike
+inverted due to the redundancies of the complex wavelet transform \cite{waldspurger_phase_2012}, 
+hence it does not lose any information.}. Unlike
 the Fourier modulus, the complex wavelet modulus is stable to deformations due
 to the grouping together of frequencies into dyadic packets
 \cite{mallat_group_2012}. 
 
 We combine the wavelet transform and modulus operators into one operator
-$\tilde{W}$:
+$\widetilde{\mathcal{W}}$:
 \begin{align}
-  \tilde{W}x &= \{ x \conv \phitd_J,\ |x \conv \psitd_\lambda| \}_\lambda \label{eq:ch2:wave3}\\
+  \widetilde{\mathcal{W}}x &= \{ x \conv \phitd_J,\ |x \conv \psitd_\lambda| \}_\lambda \label{eq:ch2:wave3}\\
              &= \{ x \conv \phitd_J,\ U[\lambda]x \}_\lambda 
 \end{align}
-where the $U$ terms are called the \emph{propagated} signals and $\lambda =
-(j,k)$ indexes the scale and orientation of wavelet used.
+where the $U$ terms are called the \emph{propagated} signals.
 These $U$ terms are approximately invariant for shifts of up to $2^j$. \Mallat\ choose to
 keep the same level of invariance as the zeroth-order coefficients ($2^J$) 
 by further averaging. This makes the first ordering scattering coefficients:
@@ -155,9 +154,9 @@ $m$ describing the order of application of wavelets, and define:
 and the $m$th order scattering coefficient along the path $p$ is $S[p]x = U[p]x
 \conv \phitd_J$. Further, let $p+\lambda = (\lambda_1, \lambda_2, \ldots
 \lambda_m, \lambda)$.  This allows us to recursively define the next set of
-\emph{propagated} and \emph{scattering} coefficients by using $\tilde{W}$:
+\emph{propagated} and \emph{scattering} coefficients by using $\widetilde{\mathcal{W}}$:
 \begin{equation}
-  \tilde{W}U[p]x = \{ S[p]x,\ U[p+\lambda]x \}_\lambda \label{eq:ch2:recursive}
+  \widetilde{\mathcal{W}}U[p]x = \{ S[p]x,\ U[p+\lambda]x \}_\lambda \label{eq:ch2:recursive}
 \end{equation}
 which is shown in \autoref{fig:ch2:scatternet_mallat}
   \begin{figure}
@@ -178,14 +177,14 @@ then define as
 \begin{equation}
   \energy{Sx} = \sum_p \energy{S[p]x}
 \end{equation}
-We can make $W$ non-expansive with appropriate scaling. Define the energy $\energy{Wx}$ as
+We can make $\mathcal{W}$ non-expansive with appropriate scaling. Define the energy $\energy{\mathcal{W}x}$ as
 \begin{equation}
-  \energy{Wx} = \energy{x\conv \phitd} + \sum_\lambda \energy{x \conv
+  \energy{\mathcal{W}x} = \energy{x\conv \phitd} + \sum_\lambda \energy{x \conv
   \psitd_\lambda} 
 \end{equation}
 then by Plancherel's formula
 \begin{equation}
-  (1-\epsilon)\energy{x} \leq \energy{Wx} \leq \energy{x}
+  (1-\epsilon)\energy{x} \leq \energy{\mathcal{W}x} \leq \energy{x}
 \end{equation}
 For the Morlet wavelets originally used in \cite{bruna_invariant_2013},
 $\epsilon=0.25$, for the $\DTCWT$ $\epsilon \approx 0$ (for the q-shift $\DTCWT$
@@ -216,11 +215,11 @@ For simplicity, let us define $A_J x = \phitd_J \conv x$ and $Sx = A_J Ux$. Then
 % as $\norm{Ux} \leq \norm{x}$. 
 
 \subsubsection{Stability to Noise}
-As $W$ is non-expansive and the complex modulus is also non-expansive
+As $\mathcal{W}$ is non-expansive and the complex modulus is also non-expansive
 \begin{equation}
-  \norm{\tilde{W}x - \tilde{W}y} \leq \norm{x-y} \label{eq:ch2:w_nonexpanse}
+  \norm{\widetilde{\mathcal{W}}x - \widetilde{\mathcal{W}}y} \leq \norm{x-y} \label{eq:ch2:w_nonexpanse}
 \end{equation}
-We have already shown that $S$ is the repeated application of $\tilde{W}$ in
+We have already shown that $S$ is the repeated application of $\widetilde{\mathcal{W}}$ in
 \eqref{eq:ch2:recursive}, we can then say
 \begin{equation}
   \norm{Sx - Sy} \leq \norm{x-y}\label{eq:ch2:s_nonexpanse}

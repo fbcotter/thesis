@@ -37,10 +37,11 @@
 \ifsetCustomFont
   % Set your custom font here and use `customfont' in options. Leave empty to
   % load computer modern font (default LaTeX font).
-  %\RequirePackage{helvet}
+  % \RequirePackage{helvet}
   % \RequirePackage{newtxtext,newtxmath}
   \RequirePackage{lmodern}
   \usepackage{fixcmex}
+
   % \RequirePackage{tgtermes,newtxmath}
 
   % For use with XeLaTeX
@@ -163,8 +164,7 @@
 \newcolumntype{s}{>{\hsize=.5\hsize}X}
 \newcolumntype{x}[1]{>{\centering\hspace{0pt}}p{#1}}%
 \newcommand{\heading}[1]{\multicolumn{1}{c}{#1}}
-\newcommand{\figureautorefname}{Figure}
-\newcommand{\theoremautorefname}{Theorem}
+\renewcommand{\theoremautorefname}{Theorem}
 \newcommand{\algorithmautorefname}{Algorithm}
 \newcommand{\subfigureautorefname}{\figureautorefname}
 \newcommand{\subtableautorefname}{\tableautorefname}

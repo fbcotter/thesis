@@ -1,0 +1,119 @@
+\begin{tikzpicture}
+ \matrix (m0) [minimum height=4mm, row sep=10mm, column sep=6mm, align=center] {%
+  \node[coordinate]                  (m0x) {}; & 
+  \node[coordinate]                  (m00) {}; & 
+  \node[dspsquare]                   (m01) {$H_0(z_1)$}; & 
+	\node[circle,draw,inner sep=1pt]   (m02) {\downsamplertext{2}};
+\\
+  \node[coordinate]                  (m1x) {}; & 
+  \node[coordinate]                  (m10) {}; & 
+  \node[coordinate]                  (m11) {}; & 
+  \node[coordinate]                  (m12) {};
+\\
+  \node[coordinate]                  (m2x) {}; & 
+  \node[coordinate]                  (m20) {}; & 
+  \node[dspsquare]                   (m21) {$H_1(z_1)$}; & 
+	\node[circle,draw,inner sep=1pt]   (m22) {\downsamplertext{2}}; 
+\\
+};
+
+\matrix (n0) [minimum height=4mm, row sep=3mm, column sep=6mm, align=center, right=0.3cm of m02] {%
+  \node[coordinate]                  (n0x) {}; & 
+  \node[coordinate]                  (n00) {}; & 
+  \node[dspsquare]                   (n01) {$H_0(z_2)$}; & 
+	\node[circle,draw,inner sep=1pt]   (n02) {\downsamplertext{2}}; 
+  \node[coordinate]                  (n03) {};
+\\
+  \node[coordinate]                  (n1x) {}; & 
+  \node[coordinate]                  (n10) {}; & 
+  \node[coordinate]                  (n11) {}; & 
+  \node[coordinate]                  (n12) {};& 
+  \node[coordinate]                  (n13) {}; 
+\\
+  \node[coordinate]                  (n2x) {}; & 
+  \node[coordinate]                  (n20) {}; & 
+  \node[dspsquare]                   (n21) {$H_1(z_2)$}; & 
+	\node[circle,draw,inner sep=1pt]   (n22) {\downsamplertext{2}}; 
+  \node[coordinate]                  (n23) {};          
+\\
+};
+
+\matrix (o0) [minimum height=4mm, row sep=3mm, column sep=6mm, align=center, right=0.3cm of m22] {%
+  \node[coordinate]                  (o0x) {}; & 
+  \node[coordinate]                  (o00) {}; & 
+  \node[dspsquare]                   (o01) {$H_0(z_2)$}; & 
+	\node[circle,draw,inner sep=1pt]   (o02) {\downsamplertext{2}}; 
+  \node[coordinate]                  (o03) {};
+\\
+  \node[coordinate]                  (o1x) {}; & 
+  \node[coordinate]                  (o10) {}; & 
+  \node[coordinate]                  (o11) {}; & 
+  \node[coordinate]                  (o12) {};
+  \node[coordinate]                  (o13) {};
+\\
+  \node[coordinate]                  (o2x) {}; & 
+  \node[coordinate]                  (o20) {}; & 
+  \node[dspsquare]                   (o21) {$H_1(z_2)$}; & 
+	\node[circle,draw,inner sep=1pt]   (o22) {\downsamplertext{2}}; &
+  \node[coordinate]                  (o23) {};
+\\
+};
+\draw[dspline] (m1x) -- (m10);
+\draw[dspline] (m10) -- (m00);
+\draw[dspline] (m10) -- (m20);
+\draw[dspconn] (m00) -- (m01);
+\draw[dspconn] (m01) -- (m02);
+\draw[dspconn] (m20) -- (m21);
+\draw[dspconn] (m21) -- (m22);
+\draw[dspconn] (m21) -- (m22);
+
+\draw[dspline] (m02) -- (n1x);
+\draw[dspline] (n1x) -- (n10);
+\draw[dspline] (n10) -- (n00);
+\draw[dspline] (n10) -- (n20);
+\draw[dspconn] (n00) -- (n01);
+\draw[dspconn] (n01) -- (n02);
+\draw[dspconn] (n20) -- (n21);
+\draw[dspconn] (n21) -- (n22);
+\draw[dspconn] (n21) -- (n22);
+\draw[dspconn] (n21) -- (n22);
+
+\draw[dspline] (m22) -- (o1x);
+\draw[dspline] (o1x) -- (o10);
+\draw[dspline] (o10) -- (o00);
+\draw[dspline] (o10) -- (o20);
+\draw[dspconn] (o00) -- (o01);
+\draw[dspconn] (o01) -- (o02);
+\draw[dspconn] (o20) -- (o21);
+\draw[dspconn] (o21) -- (o22);
+\draw[dspconn] (o21) -- (o22);
+
+\node[left=15pt of m10] (left) {$X(z_1, z_2)$};
+\node[right=15pt of n02] (yll) {$Y^l(z_1, z_2)$};
+\node[right=15pt of n22] (ylh) {$Y^h(z_1, z_2)$};
+\node[right=15pt of o02] (yhl) {$Y^v(z_1, z_2)$};
+\node[right=15pt of o22] (yhh) {$Y^d(z_1, z_2)$};
+\draw[dspconn] (n02) -- (yll);
+\draw[dspconn] (n22) -- (ylh);
+\draw[dspconn] (o02) -- (yhl);
+\draw[dspconn] (o22) -- (yhh);
+
+\node[below=of m21, xshift=0.4cm] (row) {Row Filtering};
+\node[below left=0.7cm and 0.4cm of o23] (col) {Col Filtering};
+% \draw[dspconn] (o02) -- node[right, yshift=5pt] {$Y_a(z)$} (m19);
+	% \foreach \i in {0,2} {
+      % \draw[dspconn] (m\i1) -- (m\i2);
+      % \draw[dspconn] (m\i2) -- (m\i3);
+      % \draw[dspline] (m\i3) -- (m\i4);
+      % \draw[dspconn] (m\i4) -- (m\i7);
+      % \draw[dspconn] (m\i7) -- (m\i8);
+      % \draw[dspline] (m\i8) -- (m\i9);
+	% }
+  % \node[left=0pt of m10] (left) {$X(z)$};
+  % \node[below=9pt of m24] (bottom) {};
+  % \draw[dspconn] (m09) -- node[right, yshift=5pt] {$Y_a(z)$} (m19);
+  % \draw[dspconn] (m29) -- node[right, yshift=-5pt] {$Y_b(z)$} (m19);
+  % \draw[dspconn] (m19) -- node[right, xshift=5pt] {$Y(z)$} (m1X);
+	
+\end{tikzpicture}
+

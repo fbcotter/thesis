@@ -7,7 +7,7 @@
   $x_1$ and $x_2$ that have a very large Euclidean distance, but to a human,
   would represent the same objects. What is most important in defining an image is
   difficult to define, however, some things are notably more important than
-  others. In particular, the location or phase of the waves that make up an
+  others. For example, the location or phase of the waves that make up an
   image is much more important than the magnitude of these waves, something
   that is not necessarily true for audio processing. A simple experiment to
   demonstrate this is shown in \autoref{fig:ch2:barbara_morph}. 
@@ -71,7 +71,7 @@ As we are working in 2-D for image processing, consider rotations, dilations, an
 shifts of this function by $\theta\in [0,2\pi],\ a>0,\ \bmu{b} \in \reals[2]$ respectively, where 
 \begin{align}
   \text{Rotation: } & R_{\theta}x(\xy) = x(r_{-\theta}\xy) \label{eq:ch2:rot}\\
-  \text{Dilation: } & D_{a}x(\xy) = \frac{1}{a} x\left(\frac{\xy}{a}\right), \quad a>0 \label{eq:ch2:di}\\
+  \text{Dilation: } & D_{a}x(\xy) = \frac{1}{a} x\left(\frac{\xy}{a}\right) \label{eq:ch2:di}\\
   \text{Translation: } & T_{\bmu{b}}x(\xy) = x(\xy - \bmu{b}) \label{eq:ch2:tr} 
 \end{align}
 where $r_\theta$ is the 2-D rotation matrix. Now consider shifts, scales and
@@ -88,7 +88,7 @@ which are called the \emph{daughter wavelets}. The 2D CWT of a signal $x(\xy)$ i
 \end{equation}
 
 \subsubsection{Properties} 
-The CWT has some particularly nice properties. In particular, it has \emph{covariance} 
+The CWT has some particularly nice properties, such as \emph{covariance} 
 under the three transformations \eqref{eq:ch2:tr}-\eqref{eq:ch2:rot}:
 \begin{align}
   R_{\theta_0}x & \rightarrow CWT_x\left(r_{-\theta_0}\bmu{b}, a, \theta + \theta_0 \right)  \\
@@ -205,6 +205,9 @@ If a frame is tight, then so is its dual.
   \begin{equation}
     \psiod_{j, l}(t) = \frac{1}{\sqrt{a}} \psiod\left(\frac{t-b}{a}\right) = 2^{-j/2} \psiod\left(2^{-j}t- l \right)
   \end{equation}
+  where we have chosen to redefine the dilation parameter $a$ in terms of a scale
+  factor $j$. As $j$ increases, we move to \emph{coarser} scales.
+  
   The 2-D DWT has one scaling function and three wavelet functions, composed of
   the product of 1-D wavelets in the horizontal ($u_1$) and vertical ($u_2$) directions:
   \begin{align}
@@ -252,7 +255,7 @@ If a frame is tight, then so is its dual.
       real, they have passbands in all four quadrants of the frequency plane.
       While they can pick out edges aligned with the frequency axis, they are
       not specific to other orientations. See \autoref{fig:ch2:dwt_wavelets}.
-    \item They are not shift-invariant. In particular, small shifts greatly
+    \item They are not shift-invariant - small shifts greatly
       perturb the wavelet coefficients. \autoref{fig:ch2:dwt_zero_crossing} shows
       this for the centre-left and centre-right images.
       % \autoref{fig:ch2:dtcwt_shift_invariance} (right) also shows this.
@@ -284,7 +287,7 @@ If a frame is tight, then so is its dual.
   properties the Fourier transform lacked. 
   
   The Fourier transform does not suffer from a lack of directional selectivity
-  and shift variance, because its basis functions are derived from complex
+  and shift-variance because its basis functions are derived from complex
   sinusoids\footnote{We have temporarily switched to 1D
   notation here as it is clearer and easier to use, but the results still hold
   for 2D.}: 
@@ -292,13 +295,13 @@ If a frame is tight, then so is its dual.
     e^{j\omega t} = \cos(\omega t) + j\sin(\omega t)
   \end{equation} 
   whereas the DWT's basis functions are based on only the real
-  sinusoid $\cos(\omega t)$. As $t$ moves along the real line, the phase of the
+  sinusoid, $\cos(\omega t)$. As $t$ moves along the real line, the phase of the
   Fourier coefficients change linearly, while their magnitude remains constant. In
   contrast, as $t$ moves along the real line, the sign of the real coefficient
   flips between -1 and 1, and its magnitude is a rectified sinusoid.
 
   The nice properties of the complex sinusoids come from the fact that the
-  cosine and sine functions of the Fourier transform form a Hilbert Pair and
+  cosine and sine functions of the Fourier transform form a Hilbert pair and
   together constitute an analytic signal.
 
   We can achieve these nice properties if the mother wavelet for our wavelet
@@ -306,7 +309,7 @@ If a frame is tight, then so is its dual.
   \begin{equation}
     \psiod_{c}(t) = \psiod_{r}(t) + j\psiod_{i}(t) \label{eq:ch2:complex_wavelet}
   \end{equation}
-  where $\psiod_{r}(t)$ and $\psiod_{i}(t)$ form a Hilbert Pair (i.e.,\ they are
+  where $\psiod_{r}(t)$ and $\psiod_{i}(t)$ form a Hilbert pair (i.e.,\ they are
   $90\degs$ out of phase with each other).
 
   There are a number of possible ways to do a wavelet transform with complex
@@ -327,11 +330,14 @@ If a frame is tight, then so is its dual.
 
 Let us write the wavelet transform of an input $x$ as 
 \begin{equation}
-  \mathcal{W}x = \left\{x \ast \phitd_J, x \ast \psitd_{\lambda}
-  \right\}_{\lambda} \label{eq:ch2:wave2}
+  \mathcal{W}x = \left\{x \ast \phitd_J, x \ast \psitd_{\lambda} \right\}_{\lambda} \label{eq:ch2:wave2}
 \end{equation}
-where $\lambda = (j, k)$ indexes the $J$ scales and $K$ orientations of the
-chosen wavelet transform, whether it be the $\DTCWT$ or Morlet transform.
+where $\lambda = (j,k)$ with $j\in \{1, 2,\ldots J\}$ indexing the
+scale\footnote{We try to number everything from zero in this thesis, but number
+$j$ from 1 as is the practice in \cite{kingsbury_complex_2001,
+selesnick_dual-tree_2005}.} and $k \in \{0, 1, \ldots K-1\}$ indexing the
+orientations of the chosen wavelet transform, whether it be the $\DTCWT$ or
+Morlet transform.
 
 \subsection{Sampled Morlet Wavelets}\label{sec:ch2:morlet_fourier}
   % Just need to review in Vetterli, how to do FFT based sampling of the CWT.
@@ -343,21 +349,21 @@ chosen wavelet transform, whether it be the $\DTCWT$ or Morlet transform.
   with an extra degree of freedom chosen to set $\int \psitd (\bmu{u}) d\bmu{u}
   =0$. This wavelet has equation (in 2D):
   \begin{equation}
-    \psitd(\bmu{u}) = \frac{1}{2\pi\sigma^2} {(e^{i\bmu{u}\xi} - \beta)}
+    \psitd(\bmu{u}) = \frac{1}{2\pi\sigma^2} {(e^{i\bmu{u}^t\bm{\xi}} - \beta)}
                      e^{-\frac{|\bmu{u}|^2}{2\sigma^2}} 
     \label{eq:ch2:morlet}
   \end{equation}
-  where $\beta$ is usually $<<1$ and is this extra degree of freedom, 
-  $\sigma$ is the size of the gaussian window, and $\xi$ is the
-  approximate location of the peak frequency response --- i.e.,\ for an octave based
-  transform, $\xi = 3\pi/4$.
+  where $\beta$ is this extra degree of freedom, and usually $\beta\ll 1$.
+  $\sigma$ is the size of the gaussian window and $\bm{\xi}$ is the
+  approximate location of the peak frequency response in the Fourier plane, with 
+  $-\pi \leq \xi_1, \xi_2 \leq \pi$.
 
   \citeauthor{bruna_invariant_2013} \cite{bruna_invariant_2013} add a further
   additional degree of freedom in their original design by allowing for a
   non-circular Gaussian window over the complex sinusoid, which gives control
   over the angular resolution of the final wavelet. This makes \eqref{eq:ch2:morlet}:
   \begin{equation}
-    \psitd(\bmu{u}) = \frac{\gamma}{2\pi\sigma^2}{(e^{i\bmu{u}\xi} - \beta)}
+    \psitd(\bmu{u}) = \frac{\gamma}{2\pi\sigma^2}{(e^{i\bmu{u}^t\bm{\xi}} - \beta)}
                   e^{-\bmu{u^t}\Sigma^{-1}  \bmu{u}} 
     \label{eq:ch2:morlet_slant}
   \end{equation}
@@ -524,7 +530,7 @@ Common choices for sampling grids for 2-D wavelets are\cite[Section
 \subsection{The $\DTCWT$}
   The $\DTCWT$ was first proposed by \citeauthor{kingsbury_dual-tree_1998} in
   \cite{kingsbury_dual-tree_1998, kingsbury_dual-tree_1998-1} as a way to combat
-  many of the shortcomings of the DWT, in particular its poor directional
+  many of the shortcomings of the DWT such as its poor directional
   selectivity and its poor shift-invariance. A thorough analysis of the
   properties and benefits of the $\DTCWT$ is done in
   \cite{kingsbury_image_1999,selesnick_dual-tree_2005}. Building on these
@@ -566,7 +572,8 @@ Common choices for sampling grids for 2-D wavelets are\cite[Section
       $\tilde{\phiod}_i, \tilde{\psiod}_i$.
   \end{itemize}
 
-  The dilation and wavelet equations for a 1D filter bank implementation are:
+  The dilation and wavelet equations for a 1D filter bank implementation are
+  \cite{selesnick_dual-tree_2005}:
   \begin{align}
     \phiod_r(t) & =  \sqrt{2} \sum_n h_0(n) \phiod_r(2t-n) \\
     \psiod_r(t) & =  \sqrt{2} \sum_n h_1(n) \phiod_r(2t-n) \\
@@ -576,12 +583,12 @@ Common choices for sampling grids for 2-D wavelets are\cite[Section
 
   \begin{figure}
     \centering
-      \includegraphics[width=\textwidth]{\imgpath/dtcwt_1d_fb.png}
+      \includegraphics[width=\textwidth]{\imgpath/dtcwt_fb.png}
       \mycaption
-      {Analysis FB for the 1-D $\DTCWT$}{Top `tree' forms the real component of the
+      {Analysis FBs for the 1-D $\DTCWT$}{Top `tree' forms the real component of the
       complex wavelet $\psiod_r$, and the bottom tree forms the imaginary (Hilbert
       pair) component $\psiod_i$. Image taken from
-      \cite{selesnick_dual-tree_2005}.}
+      \cite{kingsbury_image_1999}.}
       \label{fig:ch2:dtcwt_1d_fb}
   \end{figure}
 

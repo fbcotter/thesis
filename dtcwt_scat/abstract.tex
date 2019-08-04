@@ -9,13 +9,13 @@ there has been little interest in building wavelet analysis software in modern
 frameworks. 
 
 This poses a challenge and an opportunity. To pave the way for more detailed 
-research (both by myself in the rest of this thesis, and by other researchers
+investigation (both by myself in the rest of this thesis, and by other researchers
 who want to explore wavelets applied to deep learning), we must have the right
 foundation and tools to facilitate research.
 
 A good example of this is the current implementation of the ScatterNet. While
 ScatterNets have been the most promising start in using wavelets in a deep
-learning system, they have tended to be orders of magnitude slower and significantly more
+learning system, they have tended to be orders of magnitude slower, and significantly more
 difficult to run than a standard convolutional network. 
 
 Additionally, any researchers wanting to explore the DWT in a deep learning
@@ -24,12 +24,12 @@ correctly handle boundary conditions and ensure correct filter tap alignment to
 achieve perfect reconstruction.
 
 This chapter describes how we have built a fast ScatterNet implementation in 
-PyTorch with the $\DTCWT$ as its core. At the core of that is an efficient 
-implementation of the DWT\@. The result is an open source library that provides
+PyTorch with the $\DTCWT$ as its wavelet transform. At the core of the $\DTCWT$ is an efficient 
+implementation of the DWT\@. The result is an open-source library that provides
 all three (the DWT, $\DTCWT$ and $\DTCWT$ ScatterNet), available on GitHub as
-\emph{PyTorch Wavelets} \cite{pytorch_wavelets}.
+\emph{PyTorch Wavelets} \cite{cotter_pytorch_2018}.
 
 In parallel with our efforts, the original authors of the ScatterNet have
-improved their implementation, also building it on PyTorch. My proposed
-$\DTCWT$ ScatterNet is 15 to 35 times faster than their improved implementation,
-depending on the padding style and wavelet length, while using less memory. 
+improved their implementation, also building it on PyTorch. Our proposed
+$\DTCWT$ ScatterNet is 15 to 35 times faster than their improved implementation
+(depending on the padding style and wavelet length), while using less GPU memory. 

@@ -1,10 +1,10 @@
 \section{The Design Constraints}
-The original authors implemented their ScatterNet in matlab \cite{oyallon_deep_2015} using
+The original authors implemented their ScatterNet in Matlab \cite{oyallon_deep_2015} using
 a Fourier-domain based Morlet wavelet transform. 
 The standard procedure for using ScatterNets in a deep learning
 framework up until recently has been to:
 \begin{enumerate}
-  \item Pre scatter a dataset using conventional CPU-based hardware and software
+  \item Pre-scatter a dataset using conventional CPU-based hardware and software
     and store the features to disk. This can take several hours to several days
     depending on the size of the dataset and the number of CPU cores available.
   \item Build a network in another framework, usually Tensorflow \cite{abadi_tensorflow:_2015}
@@ -19,7 +19,7 @@ We saw that this approach was suboptimal for a number of reasons:
     elsewhere on disk.
   \item You can not easily do preprocessing techniques like random shifts and
     flips, as each of these would change the scattered data.
-  \item The scattered features are often larger than the original images, and 
+  \item The scattered features are often larger than the original images and 
     require you to store entire datasets twice (or more) times.
   \item The features are fixed and can only be used as a front end to any
     deep learning system.
@@ -47,9 +47,9 @@ As mentioned earlier, the original authors of the ScatterNet also noticed the
 shortcomings with their Scattering software, and recently released a new package
 that can do Scattering in PyTorch called KyMatIO\cite{andreux_kymatio:_2018}, addressing the
 above design constraints. The key difference between our proposed package and their
-improved packages is the use of the $\DTCWT$ as the core rather than 
+improved package is the use of the $\DTCWT$ as the core rather than 
 Morlet wavelets. While the key focus of this chapter is in detailing how we have
-built a fast, GPU-ready, and deep learning compatible library that can do the
+built a fast, GPU-ready, deep learning compatible library that can do the
 DWT, $\DTCWT$, and $\DTCWT$ ScatterNet, we also compare the speeds and performance
 of our package to KyMatIO, as it provides some interesting
 insights into some of the design choices that can be made with a ScatterNet.

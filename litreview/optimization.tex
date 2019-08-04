@@ -64,12 +64,12 @@ swap the Bernoulli distribution for the Multinoulli or Categorical distribution,
 and the sigmoid function for a softmax. The softmax function for vector $\bm{z}$
 is defined as:
 \begin{equation}
-  \sigma_i(\bm{z}) &= \frac{e^{z_i}}{\sum_{k=1}^C e^{z_k}} \\
+  \sigma_i(\bm{z}) = \frac{e^{z_i}}{\sum_{k=1}^C e^{z_k}} \\
 \end{equation}
 which has the nice properties that $0 \leq \sigma_i \leq 1$ and $\sum_i \sigma_i = 1$. The categorical
 distribution uses the softmax output:
 \begin{equation}
-  \F{Cat}(y; \bm{\sigma}) &= \prod_{c=1}^C \sigma_c^{\indic(y_c = 1)}
+  \F{Cat}(y; \bm{\sigma}) = \prod_{c=1}^C \sigma_c^{\indic(y_c = 1)}
 \end{equation}
 If we let $\hat{y}_c = \sigma_c(f(x, \theta))$, this makes \eqref{eq:ch2:logistic}:
 \begin{align}\label{eq:ch2:classification}

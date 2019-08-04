@@ -27,7 +27,7 @@ clear how every attempted method has been implemented.
 
 Note that the pseudo code can be one of three types of functions:
 \begin{enumerate}
-  \item Gradient-less code - these are lowlevel functions that can be used for
+  \item Gradient-less code - these are low-level functions that can be used for
     both the forward and backward calculations. E.g. \autoref{alg:ch3:fb1d}. We
     name these \texttt{NG:<name>}, NG for no gradients.
   \item Autograd blocks - the modules as shown in
@@ -56,15 +56,16 @@ Note that the pseudo code can be one of three types of functions:
 \section{Fast Calculation of the DWT and IDWT}\label{sec:ch3:dwt}
 \begin{figure}
   \centering
-  \input{\imgpath/dwt}
+  \includegraphics[width=0.8\textwidth]{\imgpath/dwt2d.pdf}
   \mycaption{Block Diagram of 2-D DWT}{The components of a filter bank DWT in
-  two dimensions.}
+  two dimensions. $Y^l, Y^h, Y^v, Y^d$ represent the lowpass, horizontal,
+  vertical, and diagonal components.}
   \label{fig:ch3:dwt}
 \end{figure}
 
 To have a fast implementation of the Scattering Transform, we need a fast
 implementation of the $\DTCWT$. For a fast implementation of the $\DTCWT$ we
-need a fast implementation of the DWT. Later in our work will we also explore
+need a fast implementation of the DWT. Future work may also explore
 the DWT as a basis for learning, so having an implementation that is fast and
 can pass gradients through will prove beneficial in and of itself.
 
@@ -76,7 +77,7 @@ publications, both of which find that the convolution based implemetations are
 better suited for the massively parallel architecture found in modern GPUs. For
 this reason, we implement a convolutional based DWT.
 
-Writing a DWT in lowlevel calls is not theoretically difficult to do.
+Writing a DWT in low-level calls is not theoretically difficult to do.
 There are only a few things to be wary of. Firstly, a `convolution' in most deep
 learning packages is in fact a correlation. This does not make any difference
 when learning but when using preset filters, as we want to do, it means that we
@@ -100,14 +101,16 @@ $Y(z) = H(z) X(z)$:
 where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
 $\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
 to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
-the loss with respect to the input. 
+the loss with respect to the input. This was proved in \autoref{sec:ch2:conv_grad}, we 
+have just rewritten it in terms of $Z$-transforms here.
 
 Additionally, if we decimate by a factor of two on the forwards pass, the
-equivalent backwards pass is interpolating by a factor of two (this is easy to
-convince yourself with pen and paper).
+equivalent backwards pass is interpolating by a factor of two (see \autoref{sec:app:samplegrads}
+for a proof of this).
 
 \autoref{fig:ch3:dwt} shows the block diagram for performing the forward pass of
-a DWT. Like matlab, most deep learning frameworks have an efficient function for
+a DWT. 
+Like Matlab, most deep learning frameworks have an efficient function for
 doing convolution followed by downsampling. Similarly, there is an efficient
 function to do upsampling followed by convolution (for the inverse transform).
 Using the above two properties for the backwards pass of convolution and sample
@@ -116,7 +119,8 @@ simply the inverse wavelet transform with the time reverse of the analysis
 filters used as the synthesis filters. For orthogonal wavelet transforms, the
 synthesis filters are the time reverse of the analysis filters so
 backpropagation can simply be done by calling the inverse wavelet transform on
-the wavelet coefficient gradients.
+the wavelet coefficient gradients. See \autoref{sec:app:analysis_gradient} for a
+proof of this.
 
 \subsection{The Forward and Backward Algorithms}
 Let us start by giving generic names to the above mentioned primitives. We call
@@ -131,7 +135,7 @@ upsampling \texttt{conv2d_up}\footnote{Similarly, this is done with
 2 in PyTorch}. Confusingly, this function does in fact do true convolution, so
 we do not need to reverse any filters. 
 
-These functions in turn call the cuDNN lowlevel fucntions which can only support
+These functions in turn call the cuDNN low-level fucntions which can only support
 zero padding. If another padding type is desired, it must be done beforehand
 with a padding function \texttt{pad}.
 

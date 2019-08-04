@@ -81,13 +81,12 @@ success \cite{glorot_deep_2011, nair_rectified_2010}. In particular:
     \includegraphics{\imgpath/nonlinearities_grad.pdf}
   \centering
   \mycaption{Common Neural Network nonlinearities and their gradients}{The sigmoid, tanh and ReLU
-  nonlinearities are commonly used activation functions for neurons. Note the
-  different properties. In particular, the tanh and sigmoid have the nice
-  property of being smooth but can have saturation when the input is either
-  largely positive or largely negative, causing little gradient to flow back
-  through it. The ReLU does not suffer from this problem, and has the additional
-  nice property of setting values to exactly 0, making a sparser output
-  activation.}
+  nonlinearities are commonly used activation functions for neurons. The tanh
+  and sigmoid have the nice property of being smooth but can have saturation
+  when the input is either largely positive or largely negative, causing little
+  gradient to flow back through it. The ReLU does not suffer from this problem,
+  and has the additional nice property of setting values to exactly 0, making a
+  sparser output activation.}
   \label{fig:ch2:nonlinearities}
 \end{figure}
 
@@ -273,9 +272,10 @@ fashion starting at the loss function and moving backwards.
 \end{figure}
 
 \section{Convolutional Neural Networks}
-Convolutional Neural Networks (CNNs) are a special type of Neural Network where the
-weights of the fully connected layer are shared across the layer. 
-In this way, a neuron at a given layer is only affected by
+Convolutional Neural Networks (CNNs) are a special type of Neural Network built mainly from 
+\emph{convolutional layers} rather than fully connected layers. A convolutional
+layer is one where the weights are shared spatially across the layer. 
+In this way, a neuron at is only affected by
 nodes from the previous layer in a given neighbourhood, rather than from every node.
 
 First popularized in 1998 by LeCun et.\ al.\ in \cite{lecun_gradient-based_1998},
@@ -287,17 +287,17 @@ been shown to be a naturally occurring phenomenon by Hubel and Wiesel
 another spatially based keypoint extractor, SIFT \cite{lowe_distinctive_2004},
 was the mainstay of detection systems until the AlexNet CNN
 \cite{krizhevsky_imagenet_2012} won the 2012 ImageNet challenge
-\cite{russakovsky_imagenet_2014} by a large margin over the next competitors, who
-used SIFT and Support Vector Machines \cite{cortes_support-vector_1995}. This
-CNN had 5 convolutional layers followed by 3 fully connected layers.
+\cite{russakovsky_imagenet_2014} by a large margin over the next competitors, many of 
+who used SIFT. This CNN had 5 convolutional layers followed by 3 fully
+connected layers.
 
 We now briefly describe the convolutional layer, as well as many other layers
-that have become popular in the past few years.
+used in CNNs that have become popular in the past few years.
 
 \subsection{Convolutional Layers}\label{sec:ch2:conv_layers}
 In the analysis of neural networks so far, we have considered column vectors 
 $X^{(l)},Y^{(l)} \in \reals[C_{l}]$. Convolutional layers for image analysis
-have a different format. In particular, the spatial component of the input is
+have a different format, with the spatial component of the input is
 preserved. 
 
 Let us first consider the definition of 2-D convolution for single-channel
@@ -307,28 +307,13 @@ images:
                            &= \sum_{k_1, k_2} x[k_1,k_2]h[n_1-k_1, n_2-k_2]
 \end{align}
 where the sum is done over the support of $h$. For an input $x\in \reals[H\x W]$
-and filter $h\in \reals[K_1\x K_2]$ the output has spatial support $y\in
-\reals[H+K_1-1 \x W+K_2-1]$. 
+and filter $h\in \reals[K_H\x K_W]$ the output has spatial support $y\in
+\reals[H+K_H-1 \x W+K_W-1]$. 
 
-In the context of convolutional layers, the filter $h$ is a \emph{matched filter} 
-that gives its largest output when the input contains the mirror of $h$, $\tilde{h}$.. If the input has
+The filter $h$ can also be thought of as a \emph{matched filter} 
+that gives its largest output when the input contains the mirror of $h$, $\tilde{h}$. If the input has
 shapes similar to $\tilde{h}$ in many locations, each of these locations in $y$ will
 also have large outputs. 
-
-It is not enough to only have a single matched filter and often we would like to
-have a bank of them, each one sensitive to a different shape. For example, if $h_1$
-was sensitive to horizontal edges, we may also want to detect vertical and
-diagonal edges. Without specifying what each of the filters does we can 
-specify that we would like to detect $C$ different shapes over the spatial
-extent of an input.
-
-This then means that we have $C$ output channels:
-\begin{align}
-  y_1[\nn] &= (x \conv h_1)[\nn] \\
-  y_2[\nn] &= (x \conv h_2)[\nn] \\
-           &\vdots  \nonumber \\
-  y_C[\nn] &= (x \conv h_C)[\nn] 
-\end{align}
 
 If we stack red, green and blue input channels on top of each other\footnote{In deep 
 learning literature, there is not a consensus about whether to stack the outputs
@@ -337,22 +322,28 @@ latter is more common in Image Processing for colour and spectral images but
 the former is the standard for many deep learning frameworks, including the one
 we use -- PyTorch \cite{paszke_automatic_2017}. For this reason, we stack
 channels along the first dimension of our tensors.}, we have a 
-3-dimensional array $x \in \reals[C\x H\x W]$ with $C=3$.
-In a CNN layer, each filter, $h$, is 3 dimensional with spatial extent exactly
-equal to $C$. The \emph{convolution} is done over the remaining two dimensions
+3-dimensional input $x \in \reals[C\x H\x W]$ with $C=3$.
+This third dimension is often called the \emph{depth} dimension, to distinguish
+it from the two spatial dimensions. In a CNN layer each filter $h$ is 3
+dimensional with depth exactly equal to $C$. The convolution is
+done only over the two spatial dimensions 
 and the $C$ outputs are summed at each pixel location. This makes
 \eqref{eq:ch2:conv1}:
 \begin{equation}
-  y[\nn] = \sum_{c=1}^C \sum_{\mathbf{k}} x[c, \mathbf{k}]h[c, \nn-\mathbf{k}]
+  y[\nn] = \sum_{c=0}^{C-1} \sum_{\mathbf{k}} x[c, \mathbf{k}]h[c, \nn-\mathbf{k}]
   \label{eq:ch2:conv2}
 \end{equation}
 
-Again, we would like to have many matched filters to find different shapes in
-the previous layer, so we repeat \eqref{eq:ch2:conv2} $F$ times and stack the
-output to give $y \in \reals[F \x H\x W]$: 
+It is not enough to only have a single matched filter and often we would like to
+have a bank of them, each one sensitive to a different shape. For example, if
+one filter is sensitive to horizontal edges, we may also want to detect vertical, and
+diagonal edges. Let us rename the number of channels in the input layer as
+$C_{l}$ and specify that we would like to have $C_{l+1}$ different matched
+filters. We then stack each of the single channel outputs from
+\eqref{eq:ch2:conv2} to give the output $y \in \reals[C_{l+1} \x H\x W]$: 
 %
 \begin{equation}
-  y[f, \nn] = \sum_{c=1}^C \sum_{\mathbf{k}} x[c, \mathbf{k}]h_f[c, \nn-\mathbf{k}]
+  y[f, \nn] = \sum_{c=0}^{C-1} \sum_{\mathbf{k}} x[c, \mathbf{k}]h_f[c, \nn-\mathbf{k}]
   \label{eq:ch2:conv3}
 \end{equation}
 
@@ -363,11 +354,12 @@ sigmoid function $\sigma$, but is now more commonly the ReLU. Revisiting
 \eqref{eq:ch2:fc2}, we can rewrite this for a convolutional layer at depth $l$
 with $C_l$ input and $C_{l+1}$ output channels:
 \begin{align}
-  Y^{(l+1)}[f, \nn] &= \sum_{c=1}^{C_l} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn] 
+  Y^{(l+1)}[f, \nn] &= \sum_{c=0}^{C_l-1} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn] 
     \label{eq:ch2:conv4}\\
     X^{(l+1)}[f, \nn] &= \sigma\left(Y^{(l)}[f, \nn]\right) \label{eq:ch2:conv4a}
 \end{align}
-where $ 1 \leq f \leq C_{l+1}$ indexes the filter number/output channel. This is shown in \autoref{fig:ch2:conv_layer}.
+where $f \in \{0, 1,\ldots C_{l+1}-1\}$ indexes the filter number/output channel. A diagram
+representing this operation is shown in \autoref{fig:ch2:conv_layer}.
 
 \begin{figure}
   \centering
@@ -383,21 +375,24 @@ where $ 1 \leq f \leq C_{l+1}$ indexes the filter number/output channel. This is
 
 \subsubsection{Padding and Stride}
 Regular 2-D convolution expands the input from size $H\x W$ to $(H+K_H-1)\x
-(W+K_W-1)$. In convolutional layers in neural networks, it is often desirable
-and common to have the same output size as input size. This is achieved by
-taking the central $H\x W$ outputs. We call this \emph{same-size convolution}.
+(W+K_W-1)$. In neural networks, this is called \emph{full convolution}. 
+It is often desirable (and common) to
+have the same output size as input size, which can be achieved by
+taking the central $H\x W$ outputs of full convolution. This is often
+called \emph{same-size convolution}.
 Another option commonly used is to only evaluate the kernels where they fully
 overlap the input signal, causing a reduction in the output size to $(H-K_H+1)
 \x (W-K_W+1)$. This is called \emph{valid convolution} and was used in the
 original LeNet-5 \cite{lecun_gradient-based_1998}.
 
-Signal extension is by default \emph{zero padding}, and most deep learning
-frameworks have no ability to choose other padding schemes as part of their
-convolution functions. Other padding such as \emph{symmetric padding} can be
-achieved by expanding the input signal before doing a valid convolution.
+Signal extension for full and same-size convolution is by default \emph{zero
+padding}, and most deep learning frameworks have no ability to choose other
+padding schemes as part of their convolution functions. Other padding such as
+\emph{symmetric padding} can be achieved by expanding the input signal before
+doing a valid convolution.
 
 \emph{Stride} is a commonly used term in deep learning literature. A stride of 2 means
-that we evaluate the filter kernel at every other sample point. In signal
+that we evaluate the filter kernel at every other input location. In signal
 processing, this is simply called decimation by 2.
 
 \subsubsection{Gradients}\label{sec:ch2:conv_grad}
@@ -406,17 +401,17 @@ To get the update and passthrough gradients for the convolutional layer we will 
 \begin{equation}
   % Y[f, n_1, n_2] &=& \sum_{c=1}^C \sum_{k_1=a}^{b} \sum_{k_2=a}^b x[c, k_1, k_2]
   % h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
-  Y[f, n_1, n_2] = \sum_{c=1}^C \sum_{k_1} \sum_{k_2} x[c, k_1, k_2]
+  Y[f, n_1, n_2] = \sum_{c=0}^{C-1} \sum_{k_1} \sum_{k_2} X[c, k_1, k_2]
   h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
 \end{equation}
-It is clear from this that a single activation $X[c, n_1, n_2]$ affects
-many output values. In particular, the derivative for an activation in $Y$
-w.r.t.\ an activation in $X$ is the sum of all the chain rule applied to all
-these positions:
+The derivative for an activation in $Y$ to a single activation in $X$ is then
+simply:
 \begin{equation}
   \dydx{Y_{f, n_1, n_2}}{X_{c, k_1, k_2}} = h_f[c, n_1 - k_1, n_2 - k_2]
 \end{equation}
-and the derivative from the loss is then:
+It is clear from \eqref{eq:ch2:conv5} that a single activation $X[c, n_1, n_2]$ affects
+many output values. Thus, the derivative for the loss function to this single
+point in $X$ is the sum of the chain rule applied to all output positions:
 \begin{align}
   \dydx{J}{X_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}}
   \dydx{Y_{f, n_1, n_2}}{X_{c,k_1,k_2}} \\
@@ -433,7 +428,7 @@ convolutional layer:
                           &= \sum_f \Delta Y[f, \nn] \conv \tilde{h}_c[f, \nn]
 \end{align}
 which is the same as \eqref{eq:ch2:conv4}. I.e. we can backpropagate the
-gradients through a convolutional block by mirror-imaging the filters spatially,
+gradients through a convolutional layer by mirror-imaging the filters spatially,
 transposing them in the channel and filter dimensions, and doing a forward
 convolutional layer with $\tilde{h}$ applied to $\Delta Y$. Similarly, we 
 find the update gradients to be:
@@ -460,16 +455,16 @@ Two of the most common pooling techniques are \emph{max pooling} and
 \emph{average pooling}. Max pooling takes the largest value in its spatial area,
 whereas average pooling takes the mean. A visual explanation is shown in 
 \autoref{fig:ch2:maxpool}. Note that pooling is typically a spatial operation,
-and only in rare cases is done over the channel dimension.
+and only in rare cases is done over the channel/depth dimension.
 
-A review of pooling methods in \cite{mishkin_systematic_2016} found them both
-to perform equally well. While max pooling was the most popular in earlier state
-of the art networks \cite{krizhevsky_imagenet_2012, simonyan_very_2014},
-there has been a recent trend towards using average pooling \cite{huang_densely_2017}
-or even to do away with pooling altogether in favour of strided convolutions
-(this idea was originally proposed in \cite{springenberg_striving_2014-3} and
-used notably in \cite{he_deep_2016, xie_aggregated_2017,
-zagoruyko_wide_2016-1}).
+A review of pooling methods in \cite{mishkin_systematic_2016} found both
+max and average pooling to perform similarly well. While max pooling was the most
+popular in earlier state of the art networks \cite{krizhevsky_imagenet_2012,
+simonyan_very_2014}, there has been a recent trend towards using average pooling
+\cite{huang_densely_2017} or even to do away with pooling altogether in favour
+of strided convolutions (this idea was originally proposed in
+\cite{springenberg_striving_2014-3} and used notably in \cite{he_deep_2016,
+xie_aggregated_2017, zagoruyko_wide_2016-1}).
   
 \begin{figure}
   \centering
@@ -480,12 +475,12 @@ zagoruyko_wide_2016-1}).
 \end{figure}
 
 \subsection{Dropout}
-\emph{Dropout} is a particularly strong regularization scheme that randomly turns off
-or zeros out neurons in a neural network \cite{hinton_improving_2012, srivastava_dropout:_2014}.
-Each neuron has independent probability $p$ of having its value set to 0 during training
+\emph{Dropout} is a particularly strong regularization scheme that randomly turns off,
+or `zeros out', neurons in a neural network \cite{hinton_improving_2012, srivastava_dropout:_2014}.
+Each neuron has probability $p$ of having its value set to 0 (independently of
+other neurons) during training
 time, forcing the network to be more general and preventing `co-adaption' of
-neurons. The main explanation given in \cite{srivastava_dropout:_2014} is
-that dropout averages over several `thinner' models.
+neurons \cite{srivastava_dropout:_2014}.
 
 During test time, dropout is typically turned off, but can still be
 used to get an estimate on the uncertainty of the network by averaging over
@@ -493,26 +488,29 @@ several runs \cite{gal_dropout_2016}.
 
 \subsection{Batch Normalization}
 \emph{Batch normalization} proposed in \cite{ioffe_batch_2015} is a conceptually 
-simple technique. Despite its simplicity it has become very popular and has been found
-to be very useful to train deeper CNNs. Batch Normalization rescales CNN activations by channel. 
+simple technique which rescales activations of a neural network. Despite its
+simplicity it has become very popular and has been found to be very useful to
+train deeper CNNs. 
 
-First let us define the mean and standard deviations for a channel, taken across
-the entire dataset and at every spatial location:
+First let us define $\mu_c^{(l)}$ and $\sigma_c^{(l)}$ as the mean and standard deviations 
+for a channel in a given activation at layer $l$. This mean and standard deviation is taken by
+averaging across the entire dataset (with $N$ samples), and at every spatial location.
 \begin{align}
-  \mu_c &= \frac{1}{N}\sum_{i=0}^{N-1} \sum_\nn X^{(i)}[c, \kk] \\
-  \sigma_c^2 &=  \frac{1}{N} \sum_{i=0}^{N-1} \sum_\nn \left(X^{(i)}[c, \nn]\right)^2 - \mu^2_c 
+  \mu_c^{(l)} &= \frac{1}{N}\sum_{i=0}^{N-1} \sum_\nn X^{(l, i)}[c, \nn] \\
+  (\sigma_c^{(l)})^2 &=  \frac{1}{N} \sum_{i=0}^{N-1} \sum_\nn \left(X^{(l, i)}[c, \nn]\right)^2 - (\mu^{(l)}_c)^2
 \end{align}
 where $\mu, \sigma \in \reals[C]$.
-Batch normalization removes the natural mean and variance of the data, scales the data
+Batch normalization removes the mean and variance of the data, scales the data
 by a learnable gain $\gamma$ and shifts the data to a learnable mean $\beta$,
-with $\gamma, \beta \in \reals[C]$:
+with $\gamma, \beta \in \reals[C]$. If we drop the layer superscripts, this
+means the action of batch normalization is defined by:
 \begin{equation}
   Y[c, \nn] = \frac{X[c, \nn] - \mu_c}{\sigma_c + \epsilon}\gamma_c + \beta_c
 \end{equation}
 where $\epsilon$ is a small value to avoid dividing by 0.
 
-Of course, during training, we do not have access to the dataset $\mu, \sigma$
-and these values must be estimated from the batch statistics. A typical practice
+Of course, during training, we do not have access to the dataset statistics $\mu, \sigma$
+so these values are estimated from the batch statistics. A typical practice
 is to keep an exponential moving average estimate of these values.
 
 The passthrough and update gradients are:
@@ -525,31 +523,32 @@ The passthrough and update gradients are:
 Batch normalization layers are typically placed \emph{between} convolutional layers
 and nonlinearities. 
 
-Consider a linear operation such as convolution defined by $X = WU$, using
-weights $W$ on the previous layer's output $U$. Batch normalization 
+Consider a linear operation such as convolution with weights $W$ acting on the
+previous layer's output $X$, defined by $Y = WX$.
+Batch normalization 
 removes the sensitivity of our network to
 initial scaling of the weights, as 
-$BN(aWU) = BN(WU)$.  
+$BN(aWX) = BN(WX)$.  
 It is also particularly useful for backpropagation as an increase in weight
 scale does not change the passthrough gradients and leads to \emph{smaller}
 update gradients \cite{ioffe_batch_2015}, making the network more resilient to
 the problems of vanishing and exploding gradients:
 \begin{align}
-  \frac{\partial BN((aW)U)}{\partial U} & =  \frac{\partial
-  BN(WU)}{\partial U} \nonumber\\
-  \frac{\partial BN((aW)U)}{\partial (aW)} & =  \frac{1}{a} \cdot \frac{\partial
-  BN(WU)}{\partial W} 
+  \frac{\partial BN((aW)X)}{\partial X} & =  \frac{\partial
+  BN(WX)}{\partial X} \nonumber\\
+  \frac{\partial BN((aW)X)}{\partial (aW)} & =  \frac{1}{a} \cdot \frac{\partial
+  BN(WX)}{\partial W} 
 \end{align}
 
-\section{Relevant Architectures}
+\section{Relevant Architectures and Datasets}
 In this section we briefly review some relevant CNN architectures that will be
 helpful to refer back to in this thesis. 
 
 \subsection{Datasets}
-When doing image analysis tasks, it is important to know comparatively how well
+When doing image analysis tasks it is important to know comparatively how well
 different networks perform on the same challenge. To achieve this, the
 community has developed several datasets that are commonly used to report
-metrics. For image classification, there are five such datasets, listed here in
+metrics. For image classification there are five such datasets, listed here in
 increasing order of difficulty:
 \begin{enumerate}
   \item \textbf{MNIST}: 10 classes, 6000 images per class, $28\x 28$ pixels per image. 
@@ -611,8 +610,8 @@ of tanh functions and MSE loss.
 We have already seen AlexNet \cite{krizhevsky_imagenet_2012} in \autoref{ch:intro}. 
 It is arguably one of the most important architectures in the development in CNNs as it 
 was able to experimentally prove that CNNs can be used for complex tasks. This
-required many innovations. In particular, they used multiple GPUs to do fast
-processing on large images, used the ReLU to avoid saturation, and added dropout
+required a few innovations: they used multiple GPUs to do fast
+processing on large images, they used the ReLU to avoid saturation, and also added dropout
 to aid generalization. Training of AlexNet on 2 GPUs available in 2012 takes
 roughly a week.
 
@@ -632,7 +631,7 @@ by $5\x 5$ and $3\x 3$ for the final three layers.
 \subsection{VGGnet}
 The Visual Geometry Group (VGG) at Oxford came second in the ILSVRC challenge in
 2014 with their VGG-nets \cite{simonyan_very_2014}, but remains an important
-network for some of the design choices it inspired. In particular, their optimal
+network for some of the design choices it inspired. Their optimal
 network was much deeper than AlexNet, with 19 convolutional layers on top of
 each other before 3 fully connected layers. These convolutional layers all used
 the smaller $3\x 3$ seen only at the back of AlexNet.
