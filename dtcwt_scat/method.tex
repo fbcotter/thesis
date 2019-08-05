@@ -88,7 +88,7 @@ calculation of the backwards pass. We do not need to save these intermediate
 activations and we can save a lot of memory by overwriting the automatic
 differentiation logic and defining our own backwards pass.
 
-\subsection{Primitives}
+\subsection{Primitives}\label{sec:ch3:primitives}
 We start with the commonly known property that for a convolutional block, the
 gradient with respect to the input is the gradient with respect to the output
 convolved with the time reverse of the filter. More formally, if 

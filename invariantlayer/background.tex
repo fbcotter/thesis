@@ -58,7 +58,7 @@ the bias term) is:
 \end{eqnarray}
 
 where $\cnnfilt{l}{f}{c}{\xy}$ is the $f$th filter of the $l$th layer (i.e. $f \in \{0,
-\ldots, C_{l+1}-1 \}$) with $C_l$ different point spread functions. $\sigma$ is a non-linearity 
+\ldots, C_{l+1}-1 \}$) with $C_l$ different point spread functions. $\sigma$ is a nonlinearity 
 such as the ReLU, possibly combined with scaling such as batch normalization. The convolution
 is done independently for each $c$ in the $C_l$ channels and the resulting outputs are
 summed together to give one activation map. This is repeated $C_{l+1}$ times to

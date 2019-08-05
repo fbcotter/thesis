@@ -1,4 +1,8 @@
 \chapter{Architecture Used for Experiments} \label{app:arch}
+
+\def \path {dtcwt_scat}
+\def \imgpath {\path/images}
+
 The experiments for this thesis were run on a single server with 8 GPUs and 14
 CPUs. The GPUs were each NVIDIA GeForce GTX 1080 cards released in May 2016.
 They each have 8GiB of RAM, 2560 CUDA cores and 320 GB/s memory bandwidth.
@@ -82,32 +86,24 @@ which is decimation of $\Delta Y$ by $M$.
   gradient has the same form as the inverse DWT.}
   \label{fig:app:dwt_grad_fb}
 \end{figure}
-We mention in \autoref{ch3:primitives} that the gradient of a forward DWT with
+We mention in \autoref{sec:ch3:primitives} that the gradient of a forward DWT with
 orthogonal wavelets is just the inverse DWT. 
-
 This easily follows from applying the chain rule and using the gradients of each of the
-stages of the DWT. The equivalent backwards pass of \autoref{fig:ch3:dwt} is
+stages of the DWT (convolution becomes correlation, downsampling becomes
+upsampling). The equivalent backwards pass of \autoref{fig:ch3:dwt} is
 shown in \autoref{fig:app:dwt_grad_fb}.
 
-For an orthogonal wavelet transform, the synthesis filter is the time reverse of
-the analysis filter \cite[Chapter 3]{vetterli_wavelets_2007}.
-
-
-
-Recall from \autoref{fig:ch3:dwt} the 2D DWT has four outputs: $Y^l, Y^h, Y^v,
-Y^d$. By the linearity of the chain rule:
-\begin{align}
-  \dydx{J}{X_{k_1, k_1}} =& \dydx{J}{Y^l}\dydx{Y^l}{X_{k_1, k_1}} +
-  \dydx{J}{Y^h}\dydx{Y^h}{X_{k_1, k_1}} + \\
-  &\dydx{J}{Y^v}\dydx{Y^v}{X_{k_1, k_1}} + \dydx{J}{Y^d}\dydx{Y^d}{X_{k_1, k_1}} 
-\end{align}
-
-The four gradients $\dydx{Y^\alpha}{X}$ can be found by finding the gradients of
-each block and combining them, as shown in \autoref{fig:}
-Further, we have proved that the gradient of decimation is interpolation
-(\autoref{sec:app:samplegrads})
+For an orthogonal wavelet transform, the synthesis filters are the time reverse of
+the analysis filters \cite[Chapter 3]{vetterli_wavelets_2007}. This means that
+the blocks $H_0(z^{-1}), H_1(z^{-1})$ can be replaced with $G_0(z), G_1(z)$
+respectively, giving the inverse DWT.
 
 \section{Extra Algorithms}
+In the text we refer to the 2-D inverse DWT which we have listed in
+\autoref{alg:ch3:idwt}, as well as the smooth magnitude operation
+(\autoref{alg:ch3:mag_smooth}) and the quadratue to complex operation
+(\autoref{alg:ch3:q2c}).
+
 \begin{algorithm}[h!]
 \caption{2-D Inverse DWT and its gradient}\label{alg:ch3:idwt}
 \begin{algorithmic}[1]
