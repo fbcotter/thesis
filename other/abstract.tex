@@ -8,30 +8,42 @@
   of what we have been able to train computers to do. 
 
   Despite their successes, the mechanics of how these networks are able to
-  recognize objects are little understood. Worse still is that we do not yet
-  have methods or procedures that allow us to train these networks. The father
-  of CNNs, Yann LeCun, summed it up as:
-  \begin{quote}
-    There are certain recipes (for building CNNs) that work and certain recipes
-    that don't, and we don't know why.
-  \end{quote}
+  recognize objects are little understood, as well as being very difficult and
+  time-consuming to train. It is very important that we try to improve our
+  current approaches in every way possible. 
 
-  We believe that if we can build a well understood and well-defined network
-  that mimicks CNN (i.e., it is able to extract the same features from an image, and able to
-  combine these features to discriminate between classes of objects), then we
-  will gain a huge amount of invaluable insight into what is required in these networks
-  as well as what is learned. 
+  The structure of convolutional layers in a CNN is fairly crude in terms of signal
+  processing - they are arbitrary taps of a finite impulse response filter,
+  learned through stochastic gradient descent from random initial conditions. We
+  believe that if we reformulate the problem, we may achieve many insights and
+  benefits in training CNNs. Noting that modern CNNs are mostly viewed from and
+  analyzed in the spatial domain, this thesis aims to view the convolutional
+  layers in the frequency domain (viewing things in the frequency
+  domain has proved useful in the past for tasks like denoising, filter
+  design, compression and many more). In particular, we use \emph{complex
+  wavelets} (rather than the Fourier transform or the discrete wavelet
+  transform) as basis functions for us to reformulate image understanding tasks
+  like CNNs.
+
+  In this thesis, we explore the most popular and well-developed form of 
+  using complex wavelets in deep learning, the ScatterNet from Stephane Mallat.
+  We explore its current limitations by building a DeScatterNet and found that
+  while it has many nice properties, it may not be sensitive to the right shapes for
+  understanding natural images.
+
+  We then develop a \emph{learnable ScatterNet}, which addresses the shortcomings we
+  found in the design by adding a learned mixing layer. To do this we derive
+  backpropagation equations and allow gradients to flow back through the
+  (previously fixed) ScatterNet front end. We have shown that the learnable ScatterNet 
+  has significant improvements over the regular ScatterNet when being used as a front end
+  for a learning system. The learnable ScatterNet layers can also be replaced
+  directly for convolutional layers, showing improvements when swapped for
+  layers directly before a sample rate change (or pooling layer).
   
-  In this paper we explore our attempts so far at trying to achieve this. In
-  particular, we start by examining the previous work on Scatternets by
-  Stephan\'{e} Mallat. These are deep networks that involve successive
-  convolutions with wavelets, a well understood and well-defined topic. We draw
-  parallels between the wavelets that make up the Scatternet and the learned
-  features of a CNN and clarify their differences. We then go on to build a two
-  stage network that replaces the early layers of a CNN with a Scatternet and
-  examine the progresses we have made with it.
-
-  Finally, we lay out our plan for improving this hybrid network, and how we
-  believe we can take the Scatternet to deeper layers.
+  Finally, we develop a system to learn complex weights that act directly on the
+  wavelet coefficients of signals. We develop a layer we call the \emph{wavelet
+  gain layer} which can be used alongside convolutional layers. We show that
+  this layer has promise in improving on pixel based convolutional layers,
+  especially in the early layers of a CNN. 
 
 \end{abstract}

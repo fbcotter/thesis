@@ -681,10 +681,10 @@ For completeness, we also ran ablation tests on the the same deeper network
 with small kernels used in \autoref{ch:invariant} and include the results in 
 \autoref{app:ch6:more_results}.
 
+\renewcommand{\_}{\textscale{.6}{\textunderscore}}
 \subsubsection{Large Kernel Ablation}
 \input{\path/ablation_arch2}
 
-\renewcommand{\_}{\textscale{.6}{\textunderscore}}
 In this experiment, we build a 3 layer
 CNN with $5\x 5$ convolutional kernels, described in \autoref{tab:ch6:ablation_arch}.
 To help differentiate with the small kernel network introudeced in the 
@@ -1057,7 +1057,7 @@ changed for a wave layer, but any other changes degrade performance.
   same naming scheme from \autoref{sec:ch6:ablation} but to differentiate
   between the results from \autoref{fig:ch6:cifar100_gl} we call the options
   `waveX' (for \emph{wave layer} vs \emph{gain layer}). When we add
-  nonlinearities in the wavelet domain, the ablation results from
+  nonlinearities in the wavelet domain, the ablation results 
   change dramatically. It appears that learning in
   the wavelet domain works best for the first layer of the CNN (wave1), and this
   improves on the purely convolutional method by a whole percentage point.

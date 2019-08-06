@@ -1,10 +1,34 @@
 \section{Comparisons}
-Now that we have the ability to do a $\DTCWT$ based scatternet, how does this
-compare with the original matlab implementation \cite{oyallon_deep_2015} and the newly developed
-KyMatIO \cite{andreux_kymatio:_2018}? \autoref{tab:ch3:scat_props} lists the different properties and 
-options of the competing packages. 
+Now that we have the ability to do a $\DTCWT$ based ScatterNet, how does this
+compare with the original Matlab implementation \cite{oyallon_deep_2015} and the newly developed
+KyMatIO \cite{andreux_kymatio:_2018}? \autoref{tab:ch3:scat_props} lists the different properties and
+options of the competing packages.
 
-\begin{table}
+\subsection{Speed}
+{
+\renewcommand{\_}{\textscale{.6}{\textunderscore}}
+We test the speed of the various packages on our reference architecture (see \autoref{app:arch})
+with a moderately large input with $128 \x 3\x 256\x 256$ pixels. The CPU experiments
+used all cores available, whereas the GPU experiments ran on a single GPU\@. We
+include two permutations of our proposed ScatterNet with different length
+filters and different padding schemes. Type A uses the long `near\_sym\_b' filters
+and has symmetric padding, and Type B uses shorter `near\_sym\_a' filters and the faster
+zero padding scheme. We compare it to a Morlet based implementation with $K=6$
+orientations (the same number of orientations as in the $\DTCWT$).
+
+See \autoref{tab:ch3:scat_speeds} for the execution time results. Type A
+is {\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}7
+times faster than the Fourier-based KyMatIO\@ on GPUs and Type B
+has a 
+{\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}14 times speedup over the Morlet backend.
+
+Additionally, when compared with version 0.1.0 of KyMatIO, the memory footprint of the
+$\DTCWT$ based implementation is only $2\%$ of KyMatIO's, highlighting the
+importance of being explicit in not saving unnecessary information for
+backpropagation.
+}
+
+\begin{table}[t]
   \centering
   \mycaption{Comparison of properties of different ScatterNet packages}{In
   particular the wavelet backend used, the number of orientations available,
@@ -20,30 +44,15 @@ options of the competing packages.
     \bottomrule
   \end{tabular}\label{tab:ch3:scat_props}
   }
-\end{table}
-
-\subsection{Speed and Memory Use}
-\autoref{tab:ch3:scat_speeds} lists the speed of the various transforms as
-tested on our reference architecture \autoref{app:arch}. The CPU experiments
-used all cores available, whereas the GPU experiments ran on a single GPU\@. We
-include two permutations of our proposed scatternet, with different length
-filters and different padding schemes. Type A uses long filters and uses
-symmetric padding, and is $~15\x$ faster than the Fourier-based KyMatIO\@. Type B
-uses shorter filters and the cheaper zero padding scheme, and 
-achieves a $~35\x$ speedup over the Morlet backend.
-Additionally, when compared with version 0.2 of KyMatIO, the $\DTCWT$ based implementation
-uses $2\%$ of the memory for saving activations for the
-backwards pass, highlighting the importance of defining the custom
-backpropagation steps from \autoref{sec:ch3:dwt}--\autoref{sec:ch3:scat}.
-
-\begin{table}
+% \begin{table}[t]
+  \newline\newline
   \renewcommand{\arraystretch}{1.2}
   \centering
   \mycaption{Comparison of execution time for the forward and backward
   passes of the competing ScatterNet Implementations}{Tests were run on the reference
   architecture described in \autoref{app:arch}. The input for these experiments
   is a batch of images of size $128\x 3\x 256\x 256$ in 4 byte floating
-  precision. We list two different types of options for our scatternet. Type A
+  precision. We list two different types of options for our ScatterNet. Type A
   uses 16 tap filters and has symmetric padding, whereas type B uses 6 tap
   filters and uses zero padding at the image boundaries. Values are given to 2
   significant figures, averaged over 5 runs.}
@@ -52,47 +61,21 @@ backpropagation steps from \autoref{sec:ch3:dwt}--\autoref{sec:ch3:scat}.
     Package &\phantom{ab} & \multicolumn{2}{c}{CPU} && \multicolumn{2}{c}{GPU} \\\cline{3-4}\cline{6-7}
     && Fwd (s) & Bwd (s) && Fwd (s) & Bwd (s) \\\midrule
     ScatNetLight\cite{oyallon_deep_2015}&& $>200.00$ & n/a && n/a & n/a \\
-    KyMatIO\cite{andreux_kymatio:_2018}&& 95.00 & 130.00 && 3.50& 4.50 \\
-    $\DTCWT$ Scat Type A && 8.00 & 9.30 && 0.23 & 0.29 \\
-    $\DTCWT$ Scat Type B && 3.20 & 4.80 && 0.11 & 0.06 \\\bottomrule
+    KyMatIO\cite{andreux_kymatio:_2018}&& 95.0 & 130.0 && 1.44 & 2.5 \\
+    $\DTCWT$ Scat Type A && 3.3 & 3.6 && 0.21 & 0.27 \\
+    $\DTCWT$ Scat Type B && 2.8 & 3.2 && 0.10 & 0.16 \\\bottomrule
   \end{tabular}\label{tab:ch3:scat_speeds}
+% \end{table}
 \end{table}
 
+
 \subsection{Performance}
-To confirm that changing the ScatterNet core has not impeded the
-performance of the ScatterNet as a feature extractor, we build a simple Hybrid
-ScatterNet, similar to \cite{oyallon_hybrid_2017, oyallon_scaling_2017}. This
-puts two layers of a scattering transform at the front end of a deep learning
-network. In addition to comparing our $\DTCWT$ based
-scatternet to the Morlet based one, we also test using different wavelets,
-padding schemes and biases for the magnitude operation. 
-We run tests on 
-\begin{itemize}
-  \item CIFAR-10: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
-  \item CIFAR-100: 100 classes, 500 images per class, $32\x 32$ pixels per image. 
-  \item Tiny ImageNet\cite{li_tiny_2017}: 200 classes, 500 images per class, 
-    $64 \x 64$ pixels per image. 
-\end{itemize}
-\autoref{tab:ch3:scat_arch} details the network layout for CIFAR. 
-
-For Tiny ImageNet, the images are four times the size, so the output after
-scattering is $16\x 16$. We add a max pooling layer after conv4, followed
-by two more convolutional layers conv5 and conv6, before average pooling.
-
-These networks are optimized with stochastic gradient descent with momentum. The
-initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and
-weight decay is $10^{-4}$. For CIFAR-10/CIFAR-100 we scale the learning rate by
-a factor of 0.2 after 60, 80 and 100 epochs, training for 120 epochs in total.
-For Tiny ImageNet, the rate change is at 18, 30 and 40 epochs (training for 45 in total).
-
-Our experiment code is available at \cite{cotter_learnable_2019-1}.
-
-\begin{table}
+\begin{table}[ht]
   \renewcommand{\arraystretch}{1.4}
   \centering
-  \mycaption{Hybrid architectures for performance comparison}{Comparison of 
-  Morlet based scatternets (Morlet6 and Morlet8) to the $\DTCWT$ based
-  scatternet on CIFAR. The output after scattering has $3(K+1)^2$ channels (243 for 8
+  \mycaption{Hybrid architectures for performance comparison}{Comparison of
+  Morlet based ScatterNets (Morlet6 and Morlet8) to the $\DTCWT$ based
+  ScatterNet on CIFAR\@. The output after scattering has $3(K+1)^2$ channels (243 for 8
   orientations or 147 for 6 orientations) of spatial size $8\x 8$. This is
   passed to 4 convolutional layers of width $C=192$ before being average pooled
   and fed to a single fully connected classifier. $N_c=10$ for CIFAR-10 and
@@ -112,82 +95,10 @@ Our experiment code is available at \cite{cotter_learnable_2019-1}.
     \multicolumn{5}{c}{avg pool, $8\x 8$}\\
     \multicolumn{5}{c}{fc, $w\in \reals[2C\x N_c]$} \\\bottomrule
   \end{tabular}\label{tab:ch3:scat_arch}
-\end{table}
-
-\subsubsection{$\DTCWT$ Hyperparameter Choice}
-Before comparing to the Morlet based ScatterNet, we can test 
-test different padding schemes, wavelet lengths and magnitude smoothing parameters (see
-\eqref{eq:ch3:magbias}) for the $\DTCWT$ ScatterNet. We test these over a grid of values described in
-\autoref{tab:ch3:hyper_options}. The different wavelets have different lengths
-and hence different frequency responses. Additionally, the `near\_sym\_b\_bp'
-wavelet is a rotationally symmetric wavelet with diagonal passband brought in by
-a factor of $\sqrt{2}$, making it have similar $|\bm{\omega}|$ to the horizontal
-and vertical bandpasses.
-
-The results of these experiments are shown in \autoref{fig:ch3:hypes}.
-Interestingly, for all three datasets the shorter wavelet outperformed the
-longer wavelets. 
-
-\begin{table}[bt]
-  \centering
-  \mycaption{Hyperparameter settings for the $\DTCWT$ scatternet}{}
-  \label{tab:ch3:hyper_options}
-  \begin{tabular}{l l}
-    \toprule
-    Hyperparameter & Values \\
-    \midrule
-    Wavelet & near\_sym\_a 5,7 tap filters, \\ 
-            & near\_sym\_b 13,19 tap filters,\\
-            & near\_sym\_b\_bp 13,19 tap filters \\\midrule
-    Padding Scheme & symmetric \\
-                   & zero  \\\midrule
-    Magnitude Smoothing $b$ & 0\\
-                            & 1e-3 \\
-                            & 1e-2 \\
-                            & 1e-1 
-    \\\bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{figure}[tb]
-  \subfloat[CIFAR-10]{\hspace{-1.2cm}
-    \includegraphics[width=\textwidth]{\imgpath/cifar10_scat_options.pdf}
-    \label{fig:ch3:hypes_cifar10}
-    }\vspace{-0.3cm}
-    \\
-  \subfloat[CIFAR-100]{\hspace{-1.2cm}
-    \includegraphics[width=\textwidth]{\imgpath/cifar100_scat_options.pdf}
-    \label{fig:ch3:hypes_cifar100}
-    }\vspace{-0.3cm}
-    \\
-  \subfloat[Tiny ImageNet]{\hspace{-1.2cm}
-    \includegraphics[width=\textwidth]{\imgpath/ti_scat_options.pdf}
-    \label{fig:ch3:hypes_ti}
-    }\vspace{-0.2cm}
-  \mycaption{Hyperparameter results for the $\DTCWT$ scatternet on various
-  datasets}{Image showing relative top-1 accuracies (in \%) on the given datasets using
-  architecture described in \autoref{tab:ch3:hyper_options}. Each subfigure is a new
-  dataset and therefore has a new colour range (shown on the right). Results are
-  averaged over 3 runs from different starting positions.
-  Surprisingly, the choice of options can have a very large impact on the
-  classification accuracy. Symmetric padding is marginally better than zero padding.
-  Surprisingly, the shorter filter (near\_sym\_a) fares better than its longer counterparts, 
-  and bringing in the diagonal subbands (near\_sym\_b\_bp) does not help.
-  Additionally, the smoothing bias may indeed be a good idea for the forward
-  pass as well as aiding the backwards pass, so long as it is less than 0.1.}
-  \label{fig:ch3:hypes}
-\end{figure}
-
-\subsubsection{Results}
-We use the optimal hyperparameter choices from the previous section, and compare
-these to morlet based ScatterNet with 6 and 8 orientations. The results of this
-experiment are shown in \autoref{tab:ch3:comparison}. It is promising to see
-that the $\DTCWT$ based scatternet has not only not sped up, but slightly improved
-upon the Morlet based ScatterNet as a frontend. Interestingly, both with Morlet
-and $\DTCWT$ wavelets, 6 orientations performed better than 8, despite having
-fewer parameters in conv1.
-
-\begin{table}[t]
+% \end{table}
+% \begin{table}[t]
+  \newline\newline
+  \renewcommand{\arraystretch}{1}
   \centering
   \mycaption{Performance comparison for a $\DTCWT$ based ScatterNet vs
   Morlet based ScatterNet}{We report top-1 classification accuracy for the 3
@@ -195,7 +106,7 @@ fewer parameters in conv1.
   \label{tab:ch3:comparison}
   \begin{tabular}{lcrrcrrcrr}
     \toprule
-    Type & \phantom{abc} & \multicolumn{2}{c}{CIFAR-10} && \multicolumn{2}{c}{CIFAR-100} 
+    Type & \phantom{abc} & \multicolumn{2}{c}{CIFAR-10} && \multicolumn{2}{c}{CIFAR-100}
          && \multicolumn{2}{c}{Tiny ImgNet} \\\cmidrule{3-4}\cmidrule{6-7}\cmidrule{9-10}
          && Acc.\ (\%) & Time (h) && Acc.\ (\%) & Time (h) && Acc.\ (\%) & Time (h)\\\midrule
     Morlet8 && 88.6 & 3.4 && 65.3 & 3.4 && 57.6 & 5.6 \\
@@ -208,3 +119,36 @@ fewer parameters in conv1.
     % $\DTCWT$ && & 66.2 & 57.2 \\\bottomrule
   \end{tabular}
 \end{table}
+To confirm that changing the ScatterNet core has not impeded the
+performance of the ScatterNet as a feature extractor, we build a simple Hybrid
+ScatterNet, similar to \cite{oyallon_hybrid_2017, oyallon_scaling_2017}. Our net 
+has a second order scattering transform before four convolutional layers. See \autoref{tab:ch3:scat_arch}
+for the network layout.
+We use the optimal hyperparameter choices from the previous section, and compare
+these to Morlet based ScatterNet with 6 and 8 orientations.
+
+We run tests on the following datasets:
+\begin{itemize}
+  \item CIFAR-10: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
+  \item CIFAR-100: 100 classes, 500 images per class, $32\x 32$ pixels per image.
+  \item Tiny ImageNet\cite{li_tiny_2017}: 200 classes, 500 images per class,
+    $64 \x 64$ pixels per image.
+\end{itemize}
+
+The images in Tiny ImageNet are four times the size, so the output after
+scattering is $16\x 16$. We add a max pooling layer after conv4, followed
+by two more convolutional layers conv5 and conv6, before average pooling.
+
+These networks are optimized with SGD with momentum. The
+initial learning rate is $0.5$, momentum is $0.85$, batch size $N=128$ and
+weight decay is $10^{-4}$. For CIFAR-10/CIFAR-100 we scale the learning rate by
+a factor of 0.2 after 60, 80 and 100 epochs, training for 120 epochs in total.
+For Tiny ImageNet, the rate change is at 18, 30 and 40 epochs (training for 45 in total).
+Our experiment code is available at \cite{cotter_learnable_2019-1}.
+
+The results of this
+experiment are shown in \autoref{tab:ch3:comparison}. It is promising to see
+that the $\DTCWT$ based ScatterNet has not only not sped up, but slightly improved
+upon the Morlet based ScatterNet as a frontend. Interestingly, both with Morlet
+and $\DTCWT$ wavelets, 6 orientations performed better than 8, despite having
+fewer parameters in conv1.

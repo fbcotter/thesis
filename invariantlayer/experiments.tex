@@ -12,6 +12,9 @@ difficulty):
 Our experiment code is available at \cite{cotter_learnable_2019-1}.
 
 \subsection{Layer Introduction with MNIST}\label{sec:ch5:mnist}
+\input{\path/mnist_arch_table}
+
+\input{\path/mnist_hyper_table}
 To begin experiments on the proposed locally invariant layer, we look at how
 well a simple system works on MNIST, and compare it to an equivalent system with
 convolutions. Because of the small size of the MNIST challenge, we can quickly
@@ -64,9 +67,6 @@ architectures 10 times with different random seeds and report the mean and varia
 the accuracy. The results of these runs are listed in
 \autoref{tab:ch5:mnist_initial_results}.
 
-\input{\path/mnist_arch_table}
-
-\input{\path/mnist_hyper_table}
 
 \subsubsection{Proposed Expansions}\label{sec:ch5:mnist_newlayer}
 The results from the previous section seem to indicate that our proposed

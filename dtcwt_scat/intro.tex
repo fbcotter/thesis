@@ -1,8 +1,10 @@
 \section{The Design Constraints}
+\subsection{Original Design}
 The original authors implemented their ScatterNet in Matlab \cite{oyallon_deep_2015} using
-a Fourier-domain based Morlet wavelet transform. 
+a Fourier-domain based Morlet wavelet transform.
 The standard procedure for using ScatterNets in a deep learning
 framework up until recently has been to:
+% \begin{enumerate}
 \begin{enumerate}
   \item Pre-scatter a dataset using conventional CPU-based hardware and software
     and store the features to disk. This can take several hours to several days
@@ -10,8 +12,9 @@ framework up until recently has been to:
   \item Build a network in another framework, usually Tensorflow \cite{abadi_tensorflow:_2015}
     or Pytorch \cite{paszke_automatic_2017}.
   \item Load the scattered data from disk and train on it.
-\end{enumerate} 
+\end{enumerate}
 We saw that this approach was suboptimal for a number of reasons:
+% \begin{itemize}
 \begin{itemize}
   \item It is slow and must run on CPUs.
   \item It is inflexible to any changes you wanted to investigate in the
@@ -19,14 +22,16 @@ We saw that this approach was suboptimal for a number of reasons:
     elsewhere on disk.
   \item You can not easily do preprocessing techniques like random shifts and
     flips, as each of these would change the scattered data.
-  \item The scattered features are often larger than the original images and 
+  \item The scattered features are often larger than the original images and
     require you to store entire datasets twice (or more) times.
   \item The features are fixed and can only be used as a front end to any
     deep learning system.
 \end{itemize}
 
+\subsection{Improvements}
 To address these shortcomings, all of the above limitations become design
 constraints. In particular, the new software should be:
+% \begin{itemize}
 \begin{itemize}
   \item Able to run on GPUs (ideally on multiple GPUs in parallel).
   \item Flexible and fast so that it can run as part of the forward pass of
@@ -36,20 +41,23 @@ constraints. In particular, the new software should be:
     network and have learning stages before scattering.
 \end{itemize}
 
-To achieve all of these goals, we choose to build our software on PyTorch, 
-a popular open source deep learning framework that can do many operations on
-GPUs with native support for automatic differentiation. PyTorch uses the CUDA 
+To achieve all of these goals, we choose to build our software on PyTorch,
+a popular open-source deep learning framework that can do many operations on
+GPUs with native support for automatic differentiation. PyTorch uses the CUDA
 and cuDNN libraries for its GPU-accelerated primitives. Its popularity
 is of key importance, as it means users can build complex networks involving
 ScatterNets without having to use or learn extra software.
 
 As mentioned earlier, the original authors of the ScatterNet also noticed the
 shortcomings with their Scattering software, and recently released a new package
-that can do Scattering in PyTorch called KyMatIO\cite{andreux_kymatio:_2018}, addressing the
-above design constraints. The key difference between our proposed package and their
-improved package is the use of the $\DTCWT$ as the core rather than 
-Morlet wavelets. While the key focus of this chapter is in detailing how we have
+that can do Scattering in PyTorch called KyMatIO\cite{andreux_kymatio:_2018}.
+While the focus of this chapter is in detailing how we have
 built a fast, GPU-ready, deep learning compatible library that can do the
-DWT, $\DTCWT$, and $\DTCWT$ ScatterNet, we also compare the speeds and performance
-of our package to KyMatIO, as it provides some interesting
-insights into some of the design choices that can be made with a ScatterNet.
+DWT, $\DTCWT$, and $\DTCWT$ ScatterNet, we also compare the speed and
+classification performance of our package to KyMatIO, as it provides some
+interesting insights into some of the choice of complex wavelet
+for a ScatterNet. This is similar to the work of
+\cite{singh_multi-resolution_2016}, where
+\citeauthor{singh_multi-resolution_2016} show that a $\DTCWT$
+based ScatterNet outperforms the Morlet based one when used as a front end to an
+SVM for some simpler classification tasks.
