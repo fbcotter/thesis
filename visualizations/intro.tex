@@ -5,29 +5,27 @@
   involves monitoring network nodes, seeing what input image causes the largest
   activity and mapping activations at different layers of the network back to the pixel
   space using meta-information from these images.
-  
+
   \autoref{fig:ch4:deconv_feature} shows the block diagram for how deconvolution is
-  done. Inverting a convolutional layer is done by taking the 2D transpose of each
+  done. They invert a convolutional layer by taking the 2D transpose of each
   slice of the filter. Inverting a ReLU is done by simply applying a ReLU again
-  (ensuring only positive values can flow back through the network).   
-  Inverting
-  a max pooling step is a little trickier, as max pooling is quite a lossy
+  (ensuring only positive values can flow back through the network).
+  Inverting a max pooling step is a little trickier, as max pooling is quite a lossy
   operation. \citeauthor{zeiler_adaptive_2011} get around this by saving extra
   information on the forward pass of the model --- switches that store the
   location of the input that caused the maximum value. This way, on the
   backwards pass, it is trivial to store activations to the right position in
-  the larger feature map. Note that the positions that did not contribute to
+  the larger feature map. The positions that did not contribute to
   the max pooling operation remain as zero on the backwards pass. This is shown
   in the bottom half of \autoref{fig:ch4:deconv_feature}.
 
   \begin{figure}
     \centering
       \includegraphics[width=0.7\textwidth]{\imgpath/deconvnet.png}
-      \mycaption{Deconvolution Network Block Diagram}{Note the switches that
-              are saved before the pooled features, and the filters
+      \mycaption{Deconvolution Network Block Diagram}{Switches
+              are saved alongside pooled features, and the filters
               used for deconvolution are the transpose of the filters used for
-              a forward pass. Taken from
-              \cite{zeiler_visualizing_2014}.}
+              a forward pass. Taken from \cite{zeiler_visualizing_2014}.}
       \label{fig:ch4:deconv_feature}
   \end{figure}
 
@@ -42,24 +40,24 @@
   % \end{figure}
   \citeauthor{mahendran_understanding_2015} take a slightly different route on
   deconvolution networks \cite{mahendran_understanding_2015}. They do not
-  store this extra information but instead define a cost function to maximize. 
+  store this extra information but instead define a cost function to maximize.
   This results in visualization images that look very surreal, and can be
   quite different from the input.
 
   In \cite{springenberg_striving_2014-3}, the authors design an \emph{all convolutional} model,
   where they replace the max pooling layers commonly seen in CNNs with a
-  convolutional block with sride 2, i.e.\ a convolution followed by decimation.
+  convolutional block with stride 2, i.e.\ a convolution followed by decimation.
   They did this by first adding an extra convolutional layer before the max
   pooling layers, then taking away the max pooling and adding decimation after
-  convolution, noting that removing the max pooling had little effect. 
+  convolution, noting that removing the max pooling had little effect.
 
   The benefit of this is that they can now reconstruct images as Zeiler and
   Fergus did, but without having to save switches from the max pooling
-  operation. Additionally, they modify the handling of the ReLU in the 
+  operation. Additionally, they modify the handling of the ReLU in the
   backwards pass to combine the regular backpropagation action and the ReLU
-  action from deconv. They call this `guided backprop'.
-  
-  Another interrogation tool commonly used is occlusion or perturbation. 
+  action from deconvolution. They call this `guided backprop'.
+
+  Another interrogation tool commonly used is occlusion or perturbation.
   In \cite{zeiler_visualizing_2014}, \citeauthor{zeiler_visualizing_2014} occlude regions in the
   input image and measure the impact this has on classification score. In
   \cite{fong_interpretable_2017}, \citeauthor{fong_interpretable_2017} use
@@ -71,7 +69,7 @@
     % \centering
       % \includegraphics[width=\textwidth]{\imgpath/deconv_layers.png}
       % \caption[Deconvolution by slices]
-              % {Deconvolution by slices. 
+              % {Deconvolution by slices.
               % Visualization of 2 layers of the model showing how to invert
               % a convolutional layer. At layer 2 of the model, there are $L$ feature
               % maps $z_{l,2}$ (top green). Each of these feature
@@ -88,7 +86,7 @@
               % each $c \in \{0\ldots C-1\}$, the $c$'th output from all $L$
               % feature maps are summed together to make a pooled map $p_{c,1}$.
               % These $C$ pooled maps are then expanded to make the $C$ feature
-              % maps at the layer below (indexed by k in the figure) --- $z_{k,2}$. 
+              % maps at the layer below (indexed by k in the figure) --- $z_{k,2}$.
               % This process then repeats
               % until we return to the input space. Not shown on this diagram are
               % non-linear layers, but these are simple, point-wise operations.

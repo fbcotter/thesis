@@ -1,8 +1,8 @@
-\section{Discussion}
+\section{Conclusion}
 This chapter presents a way to investigate what the higher orders of a ScatterNet
 are responding to - the DeScatterNet described in \autoref{sec:ch4:descatternet}.
-Using this, we have shown that the second `layer' of a ScatterNet 
-responds strongly to patterns that are very dissimilar to those that highly activate the
+Using this, we have shown that the second-order of a ScatterNet 
+responds strongly to patterns that are very different to those that highly activate the
 second layer of a CNN\@. As well as being dissimilar to CNNs, visual inspection of the
 ScatterNet's patterns reveal that they may be less useful for discriminative
 tasks, and we believe this may be causing the current gaps in state-of-the-art
@@ -11,9 +11,13 @@ performance between the two.
 Additionally, we performed occlusion tests to heuristically measure the
 importance of the individual scattering channels. The results of this test
 reaffirmed the suspicions raised from the visualizations. In particular, many of
-the second order Scattering coefficients may not be very useful in a deep
-classifier. Those that were more useful were typically when the second order wavelet
-had the same orientation as the first.
+the second-order Scattering coefficients may not be very useful in a deep
+classifier. Those that were more useful were typically when the second-order wavelet
+had the same orientation as the first. We also noted that diagonal
+orientations appear less important than horizontal and vertical ones, even at
+coarser scales. This appears to be an artefact of the CIFAR and Tiny ImageNet
+datasets, as rotating the images by $30\degs$ made diagonal edges more
+important.
 
 Finally, we demonstrated the possible shapes attainable when we filter
 across orientations with complex mixing coefficients. We believe that this 

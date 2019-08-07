@@ -1,6 +1,4 @@
-
-\section{Corners, Crosses and Curves}
-\label{sec:ch4:corners}
+\section{Corners, Crosses and Curves} \label{sec:ch4:corners}
 
 \begin{figure}[t]
   \centering
@@ -8,7 +6,7 @@
   \mycaption{Shapes possible by filtering across the wavelet orientations with
   complex coefficients}{All shapes are shown
   in pairs: the top image is reconstructed from a purely real output, and the
-  bottom image from a purely imaginary output. These `real' and `imaginary' shapes 
+  bottom image from a purely imaginary output. These `real' and `imaginary' shapes
   are nearly orthogonal in the pixel space (normalized dot product $<0.01$ for
   all but the doughnut shape in the bottom right, which has $0.15$) but produce
   the same $U'$, something that would not be possible without the complex
@@ -22,7 +20,6 @@
   \label{fig:ch4:newshapes}
 \end{figure}
 
-
 % The work in \cite{oyallon_deep_2015} demonstrated that second order scattering
 % coefficients are necessary, and give a large increase in accuracy over using
 % just the first order coefficients.
@@ -30,63 +27,59 @@
 % ScatterNet with ease, which generates filters sensitive to these higher order
 % shapes. In fact, we have a great deal of flexibility with what shapes we can be
 % sensitive to.
-As a final part of this chapter, we would like to highlight some of the filters 
+As a final part of this chapter, we would like to highlight some of the filters
 possible by making small modifications to the ScatterNet design. The
 visualizations shown here are mostly inspirational, as we did not see any marked
 improvement in using them as a fixed front end for the ScatterNet system.
-However they are the basis for the next chapter of work in adding learning in
+However, they are the basis for the next chapter of work in adding learning in
 between Scattering layers.
 
-\cite{sifre_rotation_2013} and \cite{oyallon_deep_2015} introduced the idea of
-a `Roto-Translation' ScatterNet. Invariance to rotation could be made by
-applying averaging (and bandpass) filters across the $K$ orientations 
-from the wavelet transform \emph{before} applying the complex modulus.
-Momentarily ignoring the form of the filters they apply, referring to them
-as $h\in \complexes[K]$, we can think of this stage as stacking the $K$
-outputs of a complex wavelet transform on top of each other, and convolving
-these filters $h$ over all spatial locations of the wavelet coefficients $W_m
-x$ (this is equivalent to how filters in a CNN are fully connected
-in depth):
+\citeauthor{sifre_rotation_2013} introduced the idea of a `Roto-Translation'
+ScatterNet in \cite{sifre_rotation_2013}. Invariance to rotation could be made
+by applying averaging (and bandpass) filters across the $K$ orientations from
+the wavelet transform \emph{before} applying the complex modulus. Let us call
+the averaging and bandpass filters they use $h \in \complexes[K]$.
+We can think of this stage as stacking the $K$ outputs of a
+complex wavelet transform on top of each other and convolving a filter
+$h_\alpha$ over all spatial locations of the wavelet coefficients $W_m x$.
+Let us call the output from filtering across the channel dimension $V_m$:
+% (this is equivalent to how filters in a CNN are fully connected
+% in depth):
 \begin{equation}
-  V_m x(\lambda, \bm{u}) = W_{m}x \conv h = \sum_{\theta} W_{m}x(\lambda, \bm{u})
-h(\theta)
+  V_m x(j, \alpha, \xy) = \sum_{\theta} W_{m}x(j, \theta, \xy) h_{j, \alpha}(\theta)
 \end{equation}
-We then take the modulus of these complex outputs to make a second propagated
-signal:
-\begin{equation}
-  U_{m}'x \definedas |V_{m}x| = |W_{m}x \conv h| = |U_{m-1}x
-  \conv \psi_{\lambda_{m}} \conv h|
-\end{equation}
-We present a variation on this idea, by filtering with a more general 
+% \end{equation}
+% We then take the modulus of these complex outputs to make a second propagated
+% signal:
+% \begin{equation}
+  % U_{m}'x \definedas |V_{m}x| = |W_{m}x \conv h| = |U_{m-1}x
+  % \conv \psi_{\lambda_{m}} \conv h|
+% \end{equation}
+
+We present a variation on this idea by filtering with a more general
 $h\in \complexes[12\x H\x W]$. We use 12 channels rather than 6, as we use
 the $K=6$ orientations and their complex conjugates; each wavelet is a 30$\degs$
 rotation of the previous, so with 12 rotations, we can cover the full
-$360\degs$. 
+$360\degs$.
 % The filters can be shared across scales J to produce the same shapes at
-% different scales. Further, if $F\in \complexes[1\x 1\x 12]$, then we can 
+% different scales. Further, if $F\in \complexes[1\x 1\x 12]$, then we can
 % create 12 orientations of the same shape by simply rotating the
 % filter coefficients in $F$ by one sample along the third dimension; each sample
 % shift rotating the shape by $30\degs$. For more general shaped $F$, we can still
 % trivially get rotations of the shape, but it requires rotating the coefficients
 % spatially too.
 
-\autoref{fig:ch4:newshapes} shows some reconstructions from these $V$ coefficients.
-Each of the four quadrants show reconstructions from a different class of
-ScatterNet layer. 
+\autoref{fig:ch4:newshapes} shows some reconstructions from these $V$ coefficients
+with hand-designed $h$'s using the above DeScatterNet.
 All shapes are shown in real and imaginary Hilbert-like pairs; the top row of
-images in each quadrant are reconstructed from a purely real $V$, while the bottom row 
-are reconstructed from a purely imaginary $V$. This shows one level of invariance of
-these filters, as after taking the complex magnitude, both the top and the
-bottom shape will activate the filter with the same strength. In comparison, for
-the purely real filters of a CNN, the top shape would cause a large output, and
-the bottom shape would cause near 0 activity (they are nearly orthogonal to each
-other).
+images in each quadrant are reconstructed from a purely real $V$, while the bottom row
+are reconstructed from a purely imaginary $V$.
 
-In the top left, we display the 6 wavelet filters for reference (these were
-reconstructed from $U_1$, not $V_1$). In the top right of the figure we see some
+In the top left, we display the 6 wavelet filters for reference. In the top
+right of the figure we see some
 of the shapes made by using the $h$'s from the Roto-Translation ScatterNet
 \cite{sifre_rotation_2013, oyallon_deep_2015}.  The bottom left is where we
-present some of our novel kernels. These are simple corner-like shapes made 
+present some of our novel kernels. These are simple corner-like shapes made
 by filtering with ${h\in \complexes[12\x 1\x 1]}$ where $h$ is set to
 % \vspace{-10pt}
 \begin{equation} \label{eq:ch4:simple_corner}
@@ -97,15 +90,22 @@ sample (i.e. $[0, 1, j, j, 1, 0,\ldots]$, $[0,0,1,j,j,1,0,\ldots]$,
 $[0,0,0,1,j,j,1,0, \ldots]$ \ldots). Coefficients roll back around (like
 circular convolution) when they reach the end. The canonical filter is then $[1,
 j, j, 1]$ where the $90\degs$ phase offset of the middle two weights from the
-outer two allows for nicely continuous ridges of similar intesnity around the
+outer two allows for nicely continuous ridges of similar intensity around the
 centre of the corner.
 
-Finally, in the bottom right we see shapes made by 
-${h \in \complexes[12\x 3\x 3]}$. Note that with the exception of the 
+Finally, in the bottom right we see shapes made by
+${h \in \complexes[12\x 3\x 3]}$. Note that with the exception of the
 ring-like shape which has 12 non-zero coefficients, all of these shapes were
-reconstructed with $h$'s that have 4 to 8 non-zero coefficients of a possible 
+reconstructed with $h$'s that have 4 to 8 non-zero coefficients of a possible
 64. These shapes are now beginning to more closely resemble the more complex
-shapes seen in the middle stages of CNNs. 
+shapes seen in the middle stages of CNNs.
+
+The shapes in the bottom row of the bottom right quadrant appear very similar to
+those in the top row but have nearly zero inner product. This shows one level of
+invariance of this system, as after taking the complex magnitude, both the top
+and the bottom shape will activate the network with the same strength. In
+comparison, for the purely real filters of a CNN if the top shape would cause a
+large output then the bottom shape would cause near 0 activity.
 
 % \subsection{A review of what we have done so far}
 % This was inspired by our recent work with creating 12 tap complex filters
@@ -160,6 +160,6 @@ shapes seen in the middle stages of CNNs.
   % coefficients by $90\degs$ (i.e.\ $\left[j,-1,-1,j\right]$).}
   % \label{fig:all_corners}
 % \end{figure}
-  
+
 
 

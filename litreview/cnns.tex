@@ -1,4 +1,4 @@
-\section{Neural Networks}\label{sec:ch2:cnns}
+\section{Neural Networks}\label{sec:ch2:nns}
 \subsection{The Neuron and Single Layer Neural Networks}
 
 \begin{figure}
@@ -19,14 +19,14 @@ functions have become more popular. Still, the convention has remained to name t
 generic nonlinearity $\sigma$. I.e.
 %
 \begin{equation}
-  y = \sigma(\langle\vec{x}, \vec{w}\rangle) = \sigma\left(\sum_{i=0}^{D} x_i w_i \right) 
+  y = \sigma(\langle\vec{x}, \vec{w}\rangle) = \sigma\left(\sum_{i=0}^{D} x_i w_i \right)
 \end{equation}
 %
 where we have used the shorthand $b=w_0$ and $x_0 = 1$. Also, note that we will
-use the common practice in the neural network literature to call the parameters 
+use the common practice in the neural network literature to call the parameters
 \emph{weights} denoted by $w$.
 
-Some of the other popular nonlinear functions $\sigma$ are 
+Some of the other popular nonlinear functions $\sigma$ are
 the tanh and ReLU:
 \begin{align}
   \F{tanh}(x) &= \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}} \label{eq:ch2:tanh}\\
@@ -51,7 +51,7 @@ the plane get mapped to 0 and points far above the plane get mapped to 1 (with
 points near the plane having a value of 0.5). For tanh nonlinearities, these
 points get mapped to -1 and 1. For ReLU nonlinearities, every point below the
 plane ($\langle\vec{x}, \vec{w}\rangle < 0$) gets mapped to zero and every point
-above the plane keeps its inner product value. 
+above the plane keeps its inner product value.
 
 Nearly all modern neural networks use the ReLU nonlinearity and it has
 been credited with being a key reason for the recent surge in deep learning
@@ -68,7 +68,7 @@ success \cite{glorot_deep_2011, nair_rectified_2010}. In particular:
   on brain energy expenditure suggest that neurons encode information in
   a sparse manner. \cite{lennie_cost_2003} estimates the percentage of
   neurons active at the same time to be between 1 and 4\%. Sigmoid and tanh
-  functions will typically have \emph{all} neurons firing, while 
+  functions will typically have \emph{all} neurons firing, while
   the ReLU can allow neurons to fully turn off.
 \end{enumerate}
 
@@ -99,7 +99,7 @@ single hidden layer like the one shown in \autoref{fig:ch2:hidden} can change
 this, and it is proveable that with an infinitely wide hidden layer, a neural
 network can approximate any function \cite{hornik_multilayer_1989,
 cybenko_approximation_1989}. This extension is called a multilayer perceptron,
-or MLP. 
+or MLP.
 
 The forward pass of such a network with one hidden layer of $H$ units is:
 %
@@ -118,7 +118,7 @@ could rewrite the action of each layer in a recursive fashion:
 %
 \begin{align}
   Y^{(l+1)} &= W^{(l+1)}X^{(l)}  \label{eq:ch2:fc1}\\
-  X^{(l+1)} &= \sigma\left(Y^{(l+1)}\right) \label{eq:ch2:fc2} 
+  X^{(l+1)} &= \sigma\left(Y^{(l+1)}\right) \label{eq:ch2:fc2}
 \end{align}
 where $W$ is now a weight matrix, acting on the vector of previous layer's
 outputs $X^{(l)}$. As we are now considering every layer to be an input to the next
@@ -131,7 +131,7 @@ has $C_l$ nodes.
   \centering
   % \input{\imgpath/network_mlp}
   \includegraphics{\imgpath/network_mlp.pdf}
-  \mycaption{Multi-layer perceptron}{Expanding the single neuron from 
+  \mycaption{Multi-layer perceptron}{Expanding the single neuron from
   \autoref{fig:ch2:singlelayer} to a network of neurons. The internal
   representation units are often referred to as the \emph{hidden layer} as they
   are an intermediary between the input and output.}
@@ -143,32 +143,32 @@ It is important to truly understand backpropagation when designing neural
 networks, so we describe the core concepts now for a neural network with
 $L$ layers.
 
-The delta rule, initially designed for networks with no hidden layers 
+The delta rule, initially designed for networks with no hidden layers
 \cite{widrow_neurocomputing:_1988}, was expanded to what we now consider
 \emph{backpropagation} in \cite{rumelhart_parallel_1986}. While backpropagation
 is conceptually just the application of the chain rule, Rumelhart, Hinton, and
 Williams successfully updated the delta rule to networks with hidden layers,
-laying a key foundational step for deeper networks. 
+laying a key foundational step for deeper networks.
 
 With a deep network, calculating $\dydx{J}{w}$ may not seem easy,
 particularly if $w$ is a weight in one of the earlier layers. We need
 to define a rule for updating the weights in all $L$ layers of the network,
 $W^{(1)}, W^{(2)}, \ldots W^{(L)}$ however, only the final set $W^{(L)}$ are
-connected to the objective function $J$. 
+connected to the objective function $J$.
 
 \subsubsection{Regression Loss}
 Let us start with writing down the derivative of $J$ with respect to the network
-output $Y^{(L)}$ using the regression objective function \eqref{eq:ch2:mle_reg}. 
+output $Y^{(L)}$ using the regression objective function \eqref{eq:ch2:mle_reg}.
 As we now have two superscripts,
 one for the sample number and one for the layer number, we combine them into a
-tuple of superscripts. 
+tuple of superscripts.
 \begin{align}
   \dydx{J}{Y^{(L)}} &= \dydx{}{Y^{(L)}} \left( \frac{1}{N}\sum_{n=1}^{N_b}\frac{1}{2} \left(y^{(n)} - Y^{(L, n)}\right)^2\right) \\
                     &= \frac{1}{N}\sum_{n=1}^{N_b} \left(Y^{(L, n)} - y^{(n)} \right) \\
                     &= e \in \reals \label{eq:ch2:reg_b1}
 \end{align}
 where we have used the fact that for the regression case, $y^{(n)}, Y^{(L,n)}
-\in \reals$. 
+\in \reals$.
 
 \subsubsection{Classification Loss}
 For the classification case \eqref{eq:ch2:mle_class}, let us keep the output of
@@ -187,7 +187,7 @@ values:
 Now, let us return to \eqref{eq:ch2:mle_class} and find the derivative of the
 objective function to this intermediate value $\hat{y}$:
 \begin{align}
-  \dydx{J}{\hat{y}} &=  \dydx{}{\hat{y}} \left( \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C 
+  \dydx{J}{\hat{y}} &=  \dydx{}{\hat{y}} \left( \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C
   y^{(n)}_c \log \hat{y}^{(n)}_c \right) \\
   &= \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C \frac{y^{(n)}_c}{\hat{y}^{(n)}_c} \\
   &= d \in \reals[C] \label{eq:ch2:class_b1}
@@ -215,14 +215,14 @@ with classification. For regression, it is easy to set $C=1$ in the following to
 get the necessary results. For clarity we drop the layer
 superscript in the intermediate calculations.
 
-We call the gradient for the final layer weights the \emph{update} gradient. 
+We call the gradient for the final layer weights the \emph{update} gradient.
 It can be computed by the chain rule again:
 \begin{align}
   \dydx{J}{W_{ij}} &= \dydx{J}{Y_i} \dydx{Y_i}{W_{ij}} + 2\lambda W_{ij} \\
                    &= \dydx{J}{Y_i} X_j + 2\lambda W_{ij}
 \end{align}
 where the second term in the above two equations comes from the regularization
-loss that is added to the objective. The gradient of the entire weight matrix is 
+loss that is added to the objective. The gradient of the entire weight matrix is
 then:
 \begin{align}
   \dydx{J}{W^{(L)}} &= \dydx{J}{\hat{y}} X^T +2\lambda W \\
@@ -251,7 +251,7 @@ repeating \autoref{sec:ch2:weight} and \autoref{sec:ch2:passthrough}.
 The easiest way to handle this flow of gradients, and the basis for most
 automatic differentiation packages is the block definition shown in
 \autoref{fig:ch2:block_form}. For all neural network components (even if they do
-not have weights), the operation must not only be able to calculate the forward 
+not have weights), the operation must not only be able to calculate the forward
 pass $y=f(x, w)$ given weights $w$ and inputs $x$, but also calculate the
 \emph{update} and \emph{passthrough} gradients $\dydx{J}{w}, \dydx{J}{x}$ given
 an input gradient $\dydx{J}{y}$. The input gradient will have the same shape as
@@ -264,17 +264,17 @@ fashion starting at the loss function and moving backwards.
   % \input{\imgpath/deeplearn_block}
   \includegraphics{\imgpath/deeplearn_block.pdf}
   \mycaption{General block form for autograd}{All neural network functions
-  need to be able to calculate the forward pass $y=f(x,w)$ as well as the 
+  need to be able to calculate the forward pass $y=f(x,w)$ as well as the
   update and passthrough gradients $\dydx{J}{w}, \dydx{J}{x}$. Backpropagation
   is then easily done by allowing data to flow backwards through these blocks
   from the loss.}
   \label{fig:ch2:block_form}
 \end{figure}
 
-\section{Convolutional Neural Networks}
-Convolutional Neural Networks (CNNs) are a special type of Neural Network built mainly from 
+\section{Convolutional Neural Networks}\label{sec:ch2:cnns}
+Convolutional Neural Networks (CNNs) are a special type of Neural Network built mainly from
 \emph{convolutional layers} rather than fully connected layers. A convolutional
-layer is one where the weights are shared spatially across the layer. 
+layer is one where the weights are shared spatially across the layer.
 In this way, a neuron at is only affected by
 nodes from the previous layer in a given neighbourhood, rather than from every node.
 
@@ -287,7 +287,7 @@ been shown to be a naturally occurring phenomenon by Hubel and Wiesel
 another spatially based keypoint extractor, SIFT \cite{lowe_distinctive_2004},
 was the mainstay of detection systems until the AlexNet CNN
 \cite{krizhevsky_imagenet_2012} won the 2012 ImageNet challenge
-\cite{russakovsky_imagenet_2014} by a large margin over the next competitors, many of 
+\cite{russakovsky_imagenet_2014} by a large margin over the next competitors, many of
 who used SIFT. This CNN had 5 convolutional layers followed by 3 fully
 connected layers.
 
@@ -295,10 +295,10 @@ We now briefly describe the convolutional layer, as well as many other layers
 used in CNNs that have become popular in the past few years.
 
 \subsection{Convolutional Layers}\label{sec:ch2:conv_layers}
-In the analysis of neural networks so far, we have considered column vectors 
+In the analysis of neural networks so far, we have considered column vectors
 $X^{(l)},Y^{(l)} \in \reals[C_{l}]$. Convolutional layers for image analysis
 have a different format, with the spatial component of the input is
-preserved. 
+preserved.
 
 Let us first consider the definition of 2-D convolution for single-channel
 images:
@@ -308,25 +308,25 @@ images:
 \end{align}
 where the sum is done over the support of $h$. For an input $x\in \reals[H\x W]$
 and filter $h\in \reals[K_H\x K_W]$ the output has spatial support $y\in
-\reals[H+K_H-1 \x W+K_W-1]$. 
+\reals[H+K_H-1 \x W+K_W-1]$.
 
-The filter $h$ can also be thought of as a \emph{matched filter} 
+The filter $h$ can also be thought of as a \emph{matched filter}
 that gives its largest output when the input contains the mirror of $h$, $\tilde{h}$. If the input has
 shapes similar to $\tilde{h}$ in many locations, each of these locations in $y$ will
-also have large outputs. 
+also have large outputs.
 
-If we stack red, green and blue input channels on top of each other\footnote{In deep 
+If we stack red, green and blue input channels on top of each other\footnote{In deep
 learning literature, there is not a consensus about whether to stack the outputs
 with the channel first ($\reals[C\x H\x W]$) or last ($\reals[H\x W\x C]$). The
 latter is more common in Image Processing for colour and spectral images but
 the former is the standard for many deep learning frameworks, including the one
 we use -- PyTorch \cite{paszke_automatic_2017}. For this reason, we stack
-channels along the first dimension of our tensors.}, we have a 
+channels along the first dimension of our tensors.}, we have a
 3-dimensional input $x \in \reals[C\x H\x W]$ with $C=3$.
 This third dimension is often called the \emph{depth} dimension, to distinguish
 it from the two spatial dimensions. In a CNN layer each filter $h$ is 3
 dimensional with depth exactly equal to $C$. The convolution is
-done only over the two spatial dimensions 
+done only over the two spatial dimensions
 and the $C$ outputs are summed at each pixel location. This makes
 \eqref{eq:ch2:conv1}:
 \begin{equation}
@@ -340,7 +340,7 @@ one filter is sensitive to horizontal edges, we may also want to detect vertical
 diagonal edges. Let us rename the number of channels in the input layer as
 $C_{l}$ and specify that we would like to have $C_{l+1}$ different matched
 filters. We then stack each of the single channel outputs from
-\eqref{eq:ch2:conv2} to give the output $y \in \reals[C_{l+1} \x H\x W]$: 
+\eqref{eq:ch2:conv2} to give the output $y \in \reals[C_{l+1} \x H\x W]$:
 %
 \begin{equation}
   y[f, \nn] = \sum_{c=0}^{C-1} \sum_{\mathbf{k}} x[c, \mathbf{k}]h_f[c, \nn-\mathbf{k}]
@@ -354,7 +354,7 @@ sigmoid function $\sigma$, but is now more commonly the ReLU. Revisiting
 \eqref{eq:ch2:fc2}, we can rewrite this for a convolutional layer at depth $l$
 with $C_l$ input and $C_{l+1}$ output channels:
 \begin{align}
-  Y^{(l+1)}[f, \nn] &= \sum_{c=0}^{C_l-1} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn] 
+  Y^{(l+1)}[f, \nn] &= \sum_{c=0}^{C_l-1} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn]
     \label{eq:ch2:conv4}\\
     X^{(l+1)}[f, \nn] &= \sigma\left(Y^{(l)}[f, \nn]\right) \label{eq:ch2:conv4a}
 \end{align}
@@ -375,7 +375,7 @@ representing this operation is shown in \autoref{fig:ch2:conv_layer}.
 
 \subsubsection{Padding and Stride}\label{sec:ch2:padding}
 Regular 2-D convolution expands the input from size $H\x W$ to $(H+K_H-1)\x
-(W+K_W-1)$. In neural networks, this is called \emph{full convolution}. 
+(W+K_W-1)$. In neural networks, this is called \emph{full convolution}.
 It is often desirable (and common) to
 have the same output size as input size, which can be achieved by
 taking the central $H\x W$ outputs of full convolution. This is often
@@ -397,7 +397,7 @@ processing, this is simply called decimation by 2.
 
 \subsubsection{Gradients}\label{sec:ch2:conv_grad}
 To get the update and passthrough gradients for the convolutional layer we will need to expand
-\eqref{eq:ch2:conv4}. Again we will drop the layer superscripts for clarity: 
+\eqref{eq:ch2:conv4}. Again we will drop the layer superscripts for clarity:
 \begin{equation}
   % Y[f, n_1, n_2] &=& \sum_{c=1}^C \sum_{k_1=a}^{b} \sum_{k_2=a}^b x[c, k_1, k_2]
   % h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
@@ -430,14 +430,14 @@ convolutional layer:
 which is the same as \eqref{eq:ch2:conv4}. I.e. we can backpropagate the
 gradients through a convolutional layer by mirror-imaging the filters spatially,
 transposing them in the channel and filter dimensions, and doing a forward
-convolutional layer with $\tilde{h}$ applied to $\Delta Y$. Similarly, we 
+convolutional layer with $\tilde{h}$ applied to $\Delta Y$. Similarly, we
 find the update gradients to be:
 \begin{align}
   \dydx{J}{h_{f,c,k_1,k_2}} &= \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} \dydx{Y_{f, n_1, n_2}}{h_{f, c, k_1, k_2}} \\
                             &= \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] X[x, n_1-k_1, n_2-k_2 ] \\
                             &= \left(\Delta Y[f, \nn] \star X[c, \nn]\right)[k_1, k_2]
 \end{align}
-where $\star$ is the cross-correlation operation. 
+where $\star$ is the cross-correlation operation.
 
 
 \subsection{Pooling}
@@ -453,7 +453,7 @@ to larger shifts can be built up with multiple pooling (and convolutional) layer
 
 Two of the most common pooling techniques are \emph{max pooling} and
 \emph{average pooling}. Max pooling takes the largest value in its spatial area,
-whereas average pooling takes the mean. A visual explanation is shown in 
+whereas average pooling takes the mean. A visual explanation is shown in
 \autoref{fig:ch2:maxpool}. Note that pooling is typically a spatial operation,
 and only in rare cases is done over the channel/depth dimension.
 
@@ -465,7 +465,7 @@ simonyan_very_2014}, there has been a recent trend towards using average pooling
 of strided convolutions (this idea was originally proposed in
 \cite{springenberg_striving_2014-3} and used notably in \cite{he_deep_2016,
 xie_aggregated_2017, zagoruyko_wide_2016-1}).
-  
+
 \begin{figure}
   \centering
   % \input{\imgpath/pooling_both}
@@ -487,12 +487,12 @@ used to get an estimate on the uncertainty of the network by averaging over
 several runs \cite{gal_dropout_2016}.
 
 \subsection{Batch Normalization}
-\emph{Batch normalization} proposed in \cite{ioffe_batch_2015} is a conceptually 
+\emph{Batch normalization} proposed in \cite{ioffe_batch_2015} is a conceptually
 simple technique which rescales activations of a neural network. Despite its
 simplicity it has become very popular and has been found to be very useful to
-train deeper CNNs. 
+train deeper CNNs.
 
-First let us define $\mu_c^{(l)}$ and $\sigma_c^{(l)}$ as the mean and standard deviations 
+First let us define $\mu_c^{(l)}$ and $\sigma_c^{(l)}$ as the mean and standard deviations
 for a channel in a given activation at layer $l$. This mean and standard deviation is taken by
 averaging across the entire dataset (with $N$ samples), and at every spatial location.
 \begin{align}
@@ -521,14 +521,14 @@ The passthrough and update gradients are:
 \end{align}
 
 Batch normalization layers are typically placed \emph{between} convolutional layers
-and nonlinearities. 
+and nonlinearities.
 
 Consider a linear operation such as convolution with weights $W$ acting on the
 previous layer's output $X$, defined by $Y = WX$.
-Batch normalization 
+Batch normalization
 removes the sensitivity of our network to
-initial scaling of the weights, as 
-$BN(aWX) = BN(WX)$.  
+initial scaling of the weights, as
+$BN(aWX) = BN(WX)$.
 It is also particularly useful for backpropagation as an increase in weight
 scale does not change the passthrough gradients and leads to \emph{smaller}
 update gradients \cite{ioffe_batch_2015}, making the network more resilient to
@@ -537,12 +537,12 @@ the problems of vanishing and exploding gradients:
   \frac{\partial BN((aW)X)}{\partial X} & =  \frac{\partial
   BN(WX)}{\partial X} \nonumber\\
   \frac{\partial BN((aW)X)}{\partial (aW)} & =  \frac{1}{a} \cdot \frac{\partial
-  BN(WX)}{\partial W} 
+  BN(WX)}{\partial W}
 \end{align}
 
 \section{Relevant Architectures and Datasets}
 In this section we briefly review some relevant CNN architectures that will be
-helpful to refer back to in this thesis. 
+helpful to refer back to in this thesis.
 
 \subsection{Datasets}
 When doing image analysis tasks it is important to know comparatively how well
@@ -551,25 +551,25 @@ community has developed several datasets that are commonly used to report
 metrics. For image classification there are five such datasets, listed here in
 increasing order of difficulty:
 \begin{enumerate}
-  \item \textbf{MNIST}: 10 classes, 6000 images per class, $28\x 28$ pixels per image. 
+  \item \textbf{MNIST}: 10 classes, 6000 images per class, $28\x 28$ pixels per image.
     The images contain the digits 0--9 in greyscale on a blank background. The
-    digits have been size normalized and centred. Dataset description and files can be obtained 
+    digits have been size normalized and centred. Dataset description and files can be obtained
     at \cite{lecun_modified_1998}.
   \item \textbf{CIFAR-10}: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
     The images contain classes of everyday objects like cars, dogs, planes etc.
     The images are colour and have little clutter or background. Dataset
     description can be found in \cite{krizhevsky_learning_2009} and files at
     \cite{krizhevsky_cifar_2009}.
-  \item \textbf{CIFAR-100}: 100 classes, 500 images per class, $32\x 32$ pixels per image. 
+  \item \textbf{CIFAR-100}: 100 classes, 500 images per class, $32\x 32$ pixels per image.
     Similar to CIFAR-10, but now with fewer images per class and ten times as
     many classes. Dataset description can be found in
     \cite{krizhevsky_learning_2009} and files at \cite{krizhevsky_cifar_2009}.
-  \item \textbf{Tiny ImageNet}: 200 classes, 500 images per class, 
+  \item \textbf{Tiny ImageNet}: 200 classes, 500 images per class,
     $64 \x 64$ pixels per image. A more recently introduced dataset that bridges
     the gap between CIFAR and ImageNet. Images are larger than CIFAR and there
     are more categories. Dataset description and files can be obtained at \cite{li_tiny_2017}.
   \item \textbf{ImageNet CLS}: There are multiple types of challenges in ImageNet, but CLS
-    is the classification challenge and is most commonly reported in papers. 
+    is the classification challenge and is most commonly reported in papers.
     It has 1000 classes of objects with a varying amount of images per class.
     Most classes have 1300 examples in the training set, but a few have less
     than 1000. The images have variable size, typically a couple of hundred
@@ -581,8 +581,8 @@ increasing order of difficulty:
 \end{enumerate}
 Several other classification datasets do exist but are not commonly used, such
 as PASCAL VOC \cite{Everingham15} and Caltech-101 and Caltech-256
-\cite{li_fei-fei_learning_2004}\footnote{Tiny ImageNet is also not commonly 
-used as it is quite new. We have included it the main list as we have found it 
+\cite{li_fei-fei_learning_2004}\footnote{Tiny ImageNet is also not commonly
+used as it is quite new. We have included it the main list as we have found it
 to be quite a useful step up from CIFAR without requiring the weeks to train
 experimental configurations on ImageNet.}.
 
@@ -607,8 +607,8 @@ of tanh functions and MSE loss.
 \end{figure}
 
 \subsection{AlexNet}
-We have already seen AlexNet \cite{krizhevsky_imagenet_2012} in \autoref{ch:intro}. 
-It is arguably one of the most important architectures in the development in CNNs as it 
+We have already seen AlexNet \cite{krizhevsky_imagenet_2012} in \autoref{ch:intro}.
+It is arguably one of the most important architectures in the development in CNNs as it
 was able to experimentally prove that CNNs can be used for complex tasks. This
 required a few innovations: they used multiple GPUs to do fast
 processing on large images, they used the ReLU to avoid saturation, and also added dropout
@@ -621,7 +621,7 @@ by $5\x 5$ and $3\x 3$ for the final three layers.
 % \begin{figure}
   % \centering
   % \includegraphics[width=\textwidth]{\imgpath/alexnet}
-  % \mycaption{The AlexNet architecture}{Designed for the ImageNet challenge, 
+  % \mycaption{The AlexNet architecture}{Designed for the ImageNet challenge,
   % AlexNet may look like \autoref{fig:ch2:lenet} but is
   % much larger. Composed of 5 convolutional layers and 3 fully connected layers.
   % Figure taken from \cite{krizhevsky_imagenet_2012}.}
@@ -636,7 +636,7 @@ network was much deeper than AlexNet, with 19 convolutional layers on top of
 each other before 3 fully connected layers. These convolutional layers all used
 the smaller $3\x 3$ seen only at the back of AlexNet.
 
-This network is particularly attractive due its simplicity, compared to the 
+This network is particularly attractive due its simplicity, compared to the
 more complex Inception Network \cite{szegedy_going_2015} which won the 2014
 ILSVRC challenge. VGG-16, the 16 layer variant of VGG stacks two or three
 convolutional layers (and ReLUs) on top of each other before reducing spatial
@@ -693,8 +693,8 @@ the parameters of other networks.
   unit, shown in \autoref{fig:ch2:residual_unit}. If a desired mapping is
   denoted $\mathcal{H}(x)$, instead of trying to learn this, they instead learn
   $\mathcal{F}(x) = \mathcal{H}(x) - x$. Doing this promotes a strong diagonal
-  in the Jacobian matrix which improves conditioning for gradient descent. 
-  
+  in the Jacobian matrix which improves conditioning for gradient descent.
+
   Recent analysis of a ResNet without nonlinearities
   \cite{bartlett_representing_2018, bartlett_gradient_2018} proves that SGD
   fails to converge for deep networks when the network mapping is far away from

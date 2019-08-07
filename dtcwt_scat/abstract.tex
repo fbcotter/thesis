@@ -9,7 +9,7 @@ there has been little interest in building wavelet analysis software in modern
 frameworks.
 
 This poses a challenge and an opportunity. To pave the way for more detailed
-investigation (both by myself in the rest of this thesis, and by other researchers
+investigation (both in the rest of this thesis and by other researchers
 who want to explore wavelets applied to deep learning), we must have the right
 foundation and tools to facilitate research.
 
@@ -23,14 +23,24 @@ system have had to rewrite the filter bank implementation themselves, ensuring t
 correctly handle boundary conditions and ensure correct filter tap alignment to
 achieve perfect reconstruction.
 
+\section{Chapter Layout}
 This chapter describes how we have built a fast ScatterNet implementation in
-PyTorch with the $\DTCWT$ as its wavelet transform. At the core of the $\DTCWT$ is an efficient
-implementation of the DWT\@. The result is an open-source library that provides
-all three (the DWT, $\DTCWT$ and $\DTCWT$ ScatterNet), available on GitHub as
-\emph{PyTorch Wavelets} \cite{cotter_pytorch_2018}.
+PyTorch with the $\DTCWT$ as its wavelet transform. First we describe how to do an
+efficient DWT in PyTorch in \autoref{sec:ch3:dwt} before showing how to expand this
+to an efficient $\DTCWT$ in \autoref{sec:ch3:dtcwt}.
+We then use the $\DTCWT$ to define our own ScatterNet in \autoref{sec:ch3:scat} (in
+particular, see \autoref{alg:ch3:dtcwt_scat}). 
+All of the code is available as an open-source library at \emph{PyTorch Wavelets} \cite{cotter_pytorch_2018}.
 
 In parallel with our efforts, the original authors of the ScatterNet have
 improved their implementation, making a new package called KyMatIO\cite{andreux_kymatio:_2018}. 
-Our proposed $\DTCWT$ ScatterNet is 7 to 15 times faster than KyMatIO 
-(depending on the padding style and wavelet length), while performing just as well
-as a front end to a CNN.
+We compare the speed and classification performance of our package to KyMatIO in \autoref{sec:ch3:comparison}
+as this provides some interesting insights into the choice of complex wavelet
+for a ScatterNet. This is similar to the work of
+\cite{singh_multi-resolution_2016}, where
+\citeauthor{singh_multi-resolution_2016} show that a $\DTCWT$-ScatterNet
+outperforms a Morlet-ScatterNet when used as a front end to an
+SVM for some simpler classification tasks.
+We find that our proposed $\DTCWT$-ScatterNet is 7 to 15 times faster 
+than KyMatIO (depending on the padding style and wavelet length), as well as
+giving a small improvement in performance when used as a front end to a CNN.

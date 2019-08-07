@@ -57,7 +57,7 @@ developed in our package \emph{PyTorch Wavelets}.
 
 \section{Fast Calculation of the DWT and IDWT}\label{sec:ch3:dwt}
 To have a fast implementation of the Scattering Transform, we need a fast
-implementation of the $\DTCWT$. Similarly, for a fast implementation of the $\DTCWT$ we
+implementation of the $\DTCWT$\@. Similarly, for a fast implementation of the $\DTCWT$ we
 need a fast implementation of the DWT\@. Future work may also explore
 the DWT as a basis for learning, so having an implementation that is fast and
 can pass gradients through will prove beneficial in and of itself.
@@ -326,7 +326,8 @@ we would have to handle the $j=1$ case separately.
 \end{algorithmic}\vspace{10pt}
 \end{algorithm}
 
-\section{The Magnitude Operation}\label{sec:ch3:mag}
+\section{The $\DTCWT$ ScatterNet}\label{sec:ch3:scat}
+\subsection{The Magnitude Operation}\label{sec:ch3:mag}
 
 \begin{algorithm}[tb]
 \caption{Magnitude forward and backward steps}\label{alg:ch3:mag}
@@ -400,7 +401,7 @@ values, however our gradient is smoother and we no
 longer have to worry about dividing by zero issues when calculating gradients.
 % \textbf{Plot this}
 We can choose the size of $b$ as a hyperparameter in optimization, which we
-revisit in \autoref{dtcwt_hypes}. The partial derivatives now become:
+revisit in \autoref{sec:ch3:dtcwt_hypes}. The partial derivatives now become:
 \begin{eqnarray}
   \dydx{r_s}{x} & = & \frac{x}{\sqrt{x^2 + y^2+b^2}} = \frac{x}{r_s}\\
   \dydx{r_s}{y} & = & \frac{y}{\sqrt{x^2 + y^2+b^2}} = \frac{y}{r_s}
@@ -409,7 +410,8 @@ There is a memory cost associated with this, as we will now need to save both
 $\dydx{r_s}{x}$ and $\dydx{r_s}{y}$ as opposed to saving only the phase.
 \autoref{alg:ch3:mag_smooth} has the pseudocode for the smooth magnitude.
 
-\section{The $\DTCWT$ ScatterNet}\label{sec:ch3:scat}
+\subsection{Putting it all Together}\label{sec:ch3:combining}
+
 \begin{algorithm}[tb]
   \caption{$\DTCWT$ ScatterNet Layer}
   \label{alg:ch3:dtcwt_scat}
@@ -444,7 +446,7 @@ affects the higher-order scattering coefficients, as the true $\DTCWT$ needs the
 sampled lowpass for the second scale, however we noticed little difference in
 performance from doing the true $\DTCWT$ and this slightly modified one
 
-\subsection{$\DTCWT$ Hyperparameter Choice}\label{sec:ch2:dtcwt_hypes}
+\subsection{$\DTCWT$ ScatterNet Hyperparameter Choice}\label{sec:ch3:dtcwt_hypes}
 {
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
 \begin{table}[bt]

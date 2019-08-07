@@ -41,23 +41,9 @@ constraints. In particular, the new software should be:
     network and have learning stages before scattering.
 \end{itemize}
 
-To achieve all of these goals, we choose to build our software on PyTorch,
-a popular open-source deep learning framework that can do many operations on
-GPUs with native support for automatic differentiation. PyTorch uses the CUDA
-and cuDNN libraries for its GPU-accelerated primitives. Its popularity
-is of key importance, as it means users can build complex networks involving
-ScatterNets without having to use or learn extra software.
-
-As mentioned earlier, the original authors of the ScatterNet also noticed the
-shortcomings with their Scattering software, and recently released a new package
-that can do Scattering in PyTorch called KyMatIO\cite{andreux_kymatio:_2018}.
-While the focus of this chapter is in detailing how we have
-built a fast, GPU-ready, deep learning compatible library that can do the
-DWT, $\DTCWT$, and $\DTCWT$ ScatterNet, we also compare the speed and
-classification performance of our package to KyMatIO, as it provides some
-interesting insights into some of the choice of complex wavelet
-for a ScatterNet. This is similar to the work of
-\cite{singh_multi-resolution_2016}, where
-\citeauthor{singh_multi-resolution_2016} show that a $\DTCWT$
-based ScatterNet outperforms the Morlet based one when used as a front end to an
-SVM for some simpler classification tasks.
+To achieve all of these goals, we choose to build our software on PyTorch using
+the $\DTCWT$. PyTorch is a popular open-source deep learning framework that can
+do many operations on GPUs with native support for automatic differentiation.
+PyTorch uses the CUDA and cuDNN libraries for its GPU-accelerated primitives.
+Its popularity is of key importance, as it means users can build complex
+networks involving ScatterNets without having to use or learn extra software.

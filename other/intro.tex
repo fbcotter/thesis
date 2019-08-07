@@ -152,6 +152,7 @@ experiments with 1000 layer networks).
     \cite{krizhevsky_imagenet_2012}.}
   \label{fig:ch1:alexnet_filters}
 \end{figure}
+
 Despite their success, CNNs are often criticized for being \emph{black-box}
 methods. You can view the first layer of filters
 quite easily (see \autoref{fig:ch1:alex_filt}) as they exist in RGB
@@ -166,6 +167,18 @@ large black regions.}. We can see in \autoref{fig:ch1:alex_conv1} that
 in the conv1 activations, some of the first layer channels are responding to
 edges or colour information, but as we go deeper to conv2 and conv3, it becomes
 less and less clear what each activation is responding to.
+
+This has started to become a problem, and while we are happy to trust modern
+CNNs for isolated tasks, we are less likely to be comfortable with them driving
+cars through crowded cities, or making executive decisions that affect people
+directly. In a commonly used contrived example, it is not hard to imagine a deep
+network that could be used to assess whether giving a bank loan to an applicant
+is a safe investment. Trusting a black box solution is deeply unsatisfactory in
+this situation. Not only from the customer's perspective, who, if declined, has
+the right to know why \cite{goodman_european_2016}, but
+also from the bank's --- before lending large sums of money, most banks
+would like to know why the network has given the all clear. `It has worked well
+before' is a poor rule to live by.
 
 Aside from their lack of interpretability, it takes a long time and a lot of
 effort to train state-of-the-art CNNs. Typical networks that have won ILSVRC
@@ -346,7 +359,7 @@ layers. I.e., it becomes possible to `step' into the wavelet domain to do
 wavelet filtering for one layer, before `stepping' back into the pixel domain to 
 do pixel filtering for the next layer. 
 
-\section{Layout}
+\section{Thesis Layout}
 This thesis has one literature review chapter and four work chapters:
 \begin{itemize}
 \item

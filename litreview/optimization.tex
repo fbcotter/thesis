@@ -1,4 +1,4 @@
-\section{Supervised Machine Learning}
+\section{Supervised Machine Learning}\label{sec:ch2:supervised}
 While this subject is general and covered in many places, we take inspiration
 from \cite{murphy_machine_2012} (chapters 1, 2, 7, 8) and
 \cite{goodfellow_deep_2016} (chapter 5-10).
@@ -17,7 +17,7 @@ This noise is often modelled as a zero-mean Gaussian random variable, $\epsilon
 \begin{equation}\label{eq:ch2:regression}
   p_{model}(y|x, \theta, \sigma^2) = \mathcal{N}(y;\ f(x, \theta), \sigma^2I)
 \end{equation}
-where $(\theta, \sigma^2)$ are the parameters of the model. 
+where $(\theta, \sigma^2)$ are the parameters of the model.
 
 We can find point estimates of the parameters by maximizing the likelihood of
 $p_{model}(y|x, \theta)$ (or equivalently, minimizing $KL(p_{model}||p_{data})$, the KL-divergence between
@@ -29,7 +29,7 @@ i.i.d., we can multiply individual likelihoods, and solve for $\theta$:
               &= \argmax_{\theta} \sum_{n=1}^N \log p_{model}(y^{(n)}|x^{(n)}, \theta)
 \end{align}
 Using the Gaussian regression model from above, this becomes:
-\begin{align} 
+\begin{align}
   \theta_{MLE} &= \argmax_{\theta} \sum_{n=1}^N \log p_{model}(y^{(n)}|x^{(n)}, \theta) \\
               &= \argmax_{\theta} \left(-N\log \sigma - \frac{N}{2}\log (2\pi) - \sum_{n=1}^{N}
                   \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2\sigma^2}\right) \\
@@ -40,7 +40,7 @@ minimize the mean squared error (MSE) between targets $y$ and predictions
 $\hat{y} = f(x, \theta)$.
 
 For binary classification $y \in \{0, 1\}$ and instead of the model in
-\eqref{eq:ch2:regression}, we have: 
+\eqref{eq:ch2:regression}, we have:
 \begin{equation} \label{eq:ch2:logistic}
   p_{model}(y|x, \theta) = \F{Ber}(y;\ \sigma(f(x, \theta)))
 \end{equation}
@@ -59,7 +59,7 @@ In particular, large positive values get mapped to 1, large negative values to
 0, and values near 0 get mapped to 0.5 \cite[Chapter~6]{goodfellow_deep_2016}.
 
 This expands naturally to multi-class classification by making $y$ a 1-hot
-vector in $\{0, 1\}^C$. We must also 
+vector in $\{0, 1\}^C$. We must also
 swap the Bernoulli distribution for the Multinoulli or Categorical distribution,
 and the sigmoid function for a softmax. The softmax function for vector $\bm{z}$
 is defined as:
@@ -94,14 +94,14 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   reals, a commonly used uninformative prior is a Gaussian.
 
   Let us extend the regression example from above by saying we would like the
-  prior on the parameters $\theta$ to be a Gaussian, i.e. 
+  prior on the parameters $\theta$ to be a Gaussian, i.e.
   $p(\theta) = \mathcal{N}(0, \tau^2I_D)$. The corresponding maximum a posteriori
   (MAP) estimate is then obtained by finding:
   \begin{align}\label{eq:ch2:map}
     \theta_{MAP} &= \argmax_\theta\ p(\theta | \mathcal{D}, \sigma^2) \\
                  &= \argmax_\theta\ \frac{p(y| x, \theta, \sigma^2) p(\theta)}{p(y|x)} \\
                  &= \argmax_\theta\ \log p(y|x, \theta, \sigma^2) + \log p(\theta) \\
-                 &= \argmin_{\theta}\ \frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} + 
+                 &= \argmin_{\theta}\ \frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} +
       \frac{\lambda}{2} ||\theta||_2^2
   \end{align}
   where $\lambda = \sigma^2/\tau^2$ is the ratio of the observation noise to the
@@ -110,38 +110,38 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   also known as ridge regression or penalized least squares.
   $\lambda$ is often called \emph{weight decay} in the neural network
   literature, which we will also use in this thesis.
-  
+
 \subsection{Loss Functions and Minimizing the Objective}
   It may be useful to rewrite \eqref{eq:ch2:map} as an objective function on the
   parameters $J(\theta)$:
   \begin{align}
-    J(\theta) &=\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} + 
+    J(\theta) &=\frac{1}{N}\sum_{n=1}^{N} \frac{\left(y^{(n)} - f(x^{(n)}, \theta)\right)^2}{2} +
                   \frac{\lambda}{2} ||\theta||_2^2 \label{eq:ch2:regression_ob} \\
               &= L_{data}(y, f(x, \theta)) + L_{reg}(\theta) \label{eq:ch2:objective}
   \end{align}
   where $L_{data}$ is the data loss such as MSE or cross-entropy and
-  $L_{reg}$ is the regularization, such as $\ell_2$ or $\ell_1$ penalized loss. 
-  Now $\theta_{MAP} = \argmin_\theta J(\theta)$. 
+  $L_{reg}$ is the regularization, such as $\ell_2$ or $\ell_1$ penalized loss.
+  Now $\theta_{MAP} = \argmin_\theta J(\theta)$.
 
   Finding the global minimum of the objective
   function is task-dependent and is often not straightforward. One commonly used
   technique is called \emph{gradient descent} (GD). This is not difficult to do as
   it only involves calculating the gradient at a given point and taking a small
-  step in the direction of steepest descent. The update equation for GD is: 
+  step in the direction of steepest descent. The update equation for GD is:
   \begin{equation}\label{eq:ch2:gd}
     \theta_{t+1} = \theta_t - \eta \dydx{J}{\theta}
   \end{equation}
   Unsurprisingly, such a simple technique has limitations. In particular, it
   is sensitive to the choice of step size and
-  has a slow convergence rate when the condition number (ratio of largest to 
+  has a slow convergence rate when the condition number (ratio of largest to
   smallest eigenvalues) of the Hessian around the optimal point is large
   \cite{boyd_convex_2004}. An example of this is shown in
   \autoref{fig:ch2:gd_bounce}. In this figure, the step size is chosen with
   exact line search, i.e.
   \begin{equation}\label{eq:ch2:search}
     \eta = \argmin_s f(x + s \dydx{f}{x})
-  \end{equation}  
-  
+  \end{equation}
+
   To truly overcome this problem, we must know the curvature
   of the objective function $\frac{\partial^2 J}{\partial \theta^2}$. An example
   optimization technique that uses the second-order information is Newton's
@@ -169,14 +169,14 @@ another common issue faced with the gradient descent of \eqref{eq:ch2:gd} is the
 cost of computing $\dydx{J}{\theta}$. In particular, the first term:
 \begin{align}\label{eq:ch2:ldata}
   L_{data}(y, f(x, \theta)) &= \mathbb{E}_{x,y \sim p_{data}}\left[ L_{data}(y, f(x, \theta))\right] \\
-                            &= \frac{1}{N}\sum_{n=1}^N L_{data}\left(y^{(n)}, f(x^{(n)}, \theta)\right) 
+                            &= \frac{1}{N}\sum_{n=1}^N L_{data}\left(y^{(n)}, f(x^{(n)}, \theta)\right)
 \end{align}
 involves evaluating the entire dataset at the current values of $\theta$. As the
 training set size grows into the thousands or millions of examples, this
-approach becomes prohibitively slow. 
+approach becomes prohibitively slow.
 
-\eqref{eq:ch2:ldata} writes the data loss as an expectation, hinting at the fact that 
-we can remedy this problem by using fewer samples $N_b < N$ to evaluate $L_{data}$. 
+\eqref{eq:ch2:ldata} writes the data loss as an expectation, hinting at the fact that
+we can remedy this problem by using fewer samples $N_b < N$ to evaluate $L_{data}$.
 This variation is called Stochastic Gradient Descent (SGD).
 
 Choosing the batch size is a hyperparameter choice that we must think carefully
@@ -196,25 +196,25 @@ expensive to compute for neural networks (as it would involve evaluating the
 function several times at different values), each of which takes about as long
 as calculating the gradients themselves. Additionally, as the gradients are
 typically estimated over a mini-batch and are hence noisy there may be
-little added benefit in optimizing the step sizes in the estimated direction. 
+little added benefit in optimizing the step sizes in the estimated direction.
 
 \autoref{fig:ch2:sgd_lr} illustrates the effect the learning rate can have over
 a contrived convex example. Optimizing over more complex loss surfaces only
-exacerbates the problem. Sadly, choosing the initial learning rate is 
+exacerbates the problem. Sadly, choosing the initial learning rate is
 `more of an art than a science' \cite{goodfellow_deep_2016}, but
 \cite{bottou_stochastic_2012-1, montavon_neural_2012} have some tips on what to
-how to set it. We have found in our work that searching for a large learning 
+how to set it. We have found in our work that searching for a large learning
 rate that causes the network to diverge and reducing it from there can be a good
 search strategy. This agrees with Section 1.5 of \cite{lecun_efficient_2012}
 which states that for regions of the loss space which are roughly quadratic,
 $\eta_{max} = 2\eta_{opt}$ and any learning rate above $2\eta_{opt}$ causes
 divergence.
 
-On top of the initial learning rate, the convergence of SGD methods require 
+On top of the initial learning rate, the convergence of SGD methods require
 \cite{bottou_stochastic_2012-1}:
 \begin{align}
   \sum_{t=1}^{\infty} \eta_t &\rightarrow \infty \\
-  \sum_{t=1}^{\infty} \eta_t^2 &< \infty 
+  \sum_{t=1}^{\infty} \eta_t^2 &< \infty
 \end{align}
 Choosing how to do this also contains a good amount of artistry,
 and there is no one scheme that works best. A commonly used greedy method is to
@@ -241,14 +241,14 @@ One simple and very popular modification to SGD is to add \emph{momentum}.
 Momentum accumulates past gradients with an exponential-decay moving average and
 continues to move in their direction. The name comes from the comparison of finding
 minima to rolling a ball over a surface --
-any new force (newly computed gradients) must overcome the current momentum of 
-the ball. This has a smoothing effect on noisy gradients. 
+any new force (newly computed gradients) must overcome the current momentum of
+the ball. This has a smoothing effect on noisy gradients.
 
 We can achieve momentum by creating a \emph{velocity} variable $v_{t}$ and modify
 \eqref{eq:ch2:gd} to be:
 \begin{align}
   v_{t+1} &= \alpha v_t - \eta_k\dydx{J}{\theta} \label{eq:ch2:velocity}\\
-  \theta_{t+1} &= \theta_t + v_{t+1} 
+  \theta_{t+1} &= \theta_t + v_{t+1}
 \end{align}
 where $0\leq\alpha<1$ is the momentum term indicating how quickly to `forget'
 past gradients.
@@ -275,4 +275,4 @@ do not include this for conciseness.}. The parameters are then updated with:
 \begin{equation}
   \theta_{t+1} = \theta_t - \eta \frac{m_{t+1}}{\sqrt{v_{t+1}} + \epsilon}
 \end{equation}
-where $\epsilon$ is a small value to avoid dividing by zero. 
+where $\epsilon$ is a small value to avoid dividing by zero.
