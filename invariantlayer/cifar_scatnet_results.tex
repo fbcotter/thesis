@@ -3,18 +3,20 @@
   \centering
   \mycaption{Hybrid ScatterNet top-1 classification accuracies on CIFAR}{ 
   $N_l$ is the number of learned convolutional layers, \#param is the number of
-  parameters, and \#mults is the number of multiplies per $32\x 32\x 3$ image. An asterisk indicates
-  that the value was estimated from the architecture description.}\label{tab:hybrid_scat}
-  \hspace{-10pt}
+  parameters, and \#mults is the number of multiplies per $3\x 32\x 32$ image. An asterisk indicates
+  that the value was estimated from the architecture description.}\label{tab:ch5:hybrid_scat}
+  % \hspace{-10pt}
   \begin{tabular}{@{}lccccccc@{}}
   % \begin{tabular}{@{}llllllll@{}}
     \toprule
-    & \multicolumn{3}{c}{Arch. Properties} && \multicolumn{2}{c}{Top 1 Accuracies} \\\cline{2-4}\cline{6-7}
+    & \multicolumn{3}{c}{Arch. Properties} && \multicolumn{3}{c}{Top 1 Accuracies (\%)} \\\cline{2-4}\cline{6-7}
     Arch. Name \phantom{abcde} & $N_l$ &\#Mparam &\#Mmults&\phantom{ab}&CIFAR-10&CIFAR-100\\ \midrule
-    ScatNet A & 4 & 2.6 & 165 && 89.4 & 67.0 \\ 
-    ScatNet B & 6 & 2.7 & 167 && 91.1  & 70.7 \\ %                
-    ScatNet C & 5 & 3.7 & 251 && 91.6 & 70.8  \\ %           
-    ScatNet D & 7 & 4.3 & 294 && 93.0 & 73.5  \\\hline %           
+    Reference 1 & 4 & 2.61 & 165 && 91.2 & 70.0 \\ 
+    ScatNet A & 4 & 2.58 & 165 && 89.5 & 68.2 \\ 
+    ScatNet B & 6 & 2.61 & 167 && 91.5 & 70.7  \\\midrule %
+    Reference 2 & 4 & 2.66 & 165 && 92.2 & 72.2  \\ 
+    ScatNet C & 5 & 2.64 & 251 && 91.6 & 72.7  \\ 
+    ScatNet D & 5 & 3.7 & 251 && 92.4 & 73.3 \\ \midrule 
     All Conv\cite{springenberg_striving_2014-3} & 8 & 1.4 & 281\textsuperscript{*} && 92.8 & 66.3 \\ %    & - \\
     VGG16\cite{liu_very_2015} & 16 & 138\textsuperscript{*} & 313\textsuperscript{*}  && 91.6 & -  \\ 
     FitNet\cite{romero_fitnets:_2014} & 19 & 2.5 & 382 && 91.6 & 65.0 \\ %  & - \\
@@ -22,6 +24,21 @@
     ResNet-1001\cite{he_identity_2016} & 1000 & 10.2 & 4453\textsuperscript{*}&& 95.1 & 77.3 \\ %              &  -\\
     WRN-28-10\cite{zagoruyko_wide_2016} & 28 & 36.5 & 5900\textsuperscript{*} && 96.1 & 81.2 \\ %    & - \\
     \bottomrule
+  \end{tabular}
+  \\\vspace{20pt}
+  \mycaption{Hybrid ScatterNet top-1 classification accuracies on Tiny ImageNet}{ 
+  $N_l$ is the number of learned convolutional layers, \#param is the number of
+  parameters, and \#mults is the number of multiplies per $32\x 32\x 3$ image. An asterisk indicates
+  that the value was estimated from the architecture description.}\label{tab:ch5:hybrid_scat_ti}
+  \begin{tabular}{@{}llc@{}}
+    \toprule
+    Arch. Name & \phantom{abc} & Top-1 Acc (\%)\\\midrule
+    Reference1 && \\
+    ScatNet A && \\
+    ScatNet B && \\\midrule
+    Reference 2 && \\
+    ScatNet C && \\
+    ScatNet D && \\ \bottomrule
   \end{tabular}
 \end{table}
 

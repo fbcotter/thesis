@@ -1,27 +1,28 @@
 % Include the figure here so it goes to the top of the third page
 \section{Locally Invariant Layer} \label{sec:ch5:method}
 We propose to mix the terms at the output of each wavelet modulus propagator
-$\tilde{W}$. The second term in $\tilde{W}$, the $U$ terms are often called `covariant' terms but
-in this work we will call them locally invariant, as they tend to be invariant up to a
-scale $2^j$. We propose to mix the locally invariant terms $U$ and the
-lowpass terms $S$ with learned weights $a_{f,\lambda}$ and $b_f$. 
+$\widetilde{\mathcal{W}}$. The second term in $\widetilde{\mathcal{W}}$, the $U$
+terms, are often called `covariant' terms but in this work, we will call them
+\emph{locally invariant}, as they tend to be invariant up to a scale $2^j$. We propose
+to mix these locally invariant terms $U$ and the lowpass terms $S$ with learned
+weights $a_{f,\lambda}$ and $b_f$. 
 
-
-For example,
-consider the wavelet modulus propagator from \eqref{eq:ch5:wave_mod},
-and let the input to it be $x^{(l)}$. Our proposed output is then:
+For example, consider the wavelet modulus propagator from
+\eqref{eq:ch5:wave_mod}, and let the input to it be $x^{(l)}$. Our proposed
+output is then:
 %
-\begin{eqnarray} \label{eq:ch5:comb1}
-  y^{(l+1)}(f, \xy) & = & \sum_{\lambda} \sum_{c=0}^{C-1} \left|x^{(l)}(c, \xy)\conv \psi_\lambda(\xy)\right|\ a_{f, \lambda}(c) \nonumber \\
-                    & + & \sum_{c=0}^{C-1} \left(x^{(l)}(c, \xy) \conv \phi_J(\xy)\right) b_f(c)
-  \label{eq:ch5:layer}
-\end{eqnarray}
+\begin{align} \label{eq:ch5:comb1}
+  y^{(l+1)}(f, \xy)  &=  \sum_{\lambda\in \Lambda} \sum_{c=0}^{C-1} a_{f, \lambda}(c) \left|x^{(l)}(c, \xy)\conv \psi_\lambda(\xy)\right|
+                     +  \sum_{c=0}^{C-1} b_f(c)\left(x^{(l)}(c, \xy) \conv \phi_J(\xy)\right) \\
+                     &=\sum_{c=0}^{C-1} \left( b_f(c)\left(x^{(l)}(c, \xy) \conv \phi_J(\xy)\right) + 
+                     \sum_{\lambda\in \Lambda} a_{f, \lambda}(c) \left|x^{(l)}(c, \xy)\conv \psi_\lambda(\xy)\right|\right) \label{eq:ch5:layer}
+\end{align}
 
-Recall that $\lambda$ is the tuple $(j, k)$ for  $1 \leq j \leq J,\ 1 \leq k \leq K$
-and is used to select the bandpass wavelet at scale $j$ and orientation $k$.
-Note that an input to the wavelet modulus propagator $\tilde{W}$ with $C$ channels
+% Recall that $\lambda$ is the tuple $(j, k)$ for  $1 \leq j \leq J,\ 0 \leq k < K$
+% and is used to select the bandpass wavelet at scale $j$ and orientation $k$.
+Note that an input to the wavelet modulus propagator $\widetilde{\mathcal{W}}$ with $C$ channels
 has $(JK+1)C$ output channels -- $C$ lowpass channels and $JKC$ modulus bandpass
-channels. Let us define a new output $z$ with index variable $q$ such that:
+channels. Let us define a new output $z$ with index variable $q\in \integers$ such that:
 %
 \begin{equation}
   z^{(l+1)}(q, \xy) =  \left\{
@@ -32,9 +33,10 @@ channels. Let us define a new output $z$ with index variable $q$ such that:
     \right. \label{eq:ch5:z}
 \end{equation}
 i.e.\ the lowpass channels are the first $C$ channels of $z$, the modulus of the
-$15\degs$ ($k=1$) wavelet coefficients with $j=1$ are the next $C$ channels,
-then the modulus coefficients with $k=2$ and $j=1$ are the third $C$ channels,
-and so on.
+$15\degs$ ($k=0$) wavelet coefficients with $j=1$ are the next $C$ channels,
+then the modulus coefficients with $k=1$ and $j=1$ are the third $C$ channels,
+and so on. This is similar to the view of a ScatterNet we introduced in \autoref{alg:ch3:dtcwt_scat},
+but restricted to a single order.
 
 We do the same for the weights $a,\ b$ by defining $\tilde{a}_f = \{b_f, a_{f,
 \lambda} \}_{\lambda}$ and let:
@@ -58,18 +60,17 @@ or in matrix form with $A_{f,q} = \tilde{a}_f(q)$
   Y^{(l+1)}(\xy)  =  A Z^{(l+1)}(\xy) \label{eq:ch5:matrix}
 \end{equation}
 
-This is very similar to the standard convolutional layer from
+This equation now looks very similar to the standard convolutional layer from
 \eqref{eq:ch5:conv}, except we have replaced the previous layer's $x$ with
-intermediate coefficients $z$ (with $|Q| = (JK+1)C$ channels), and the
+intermediate coefficients $z$ with $|Q| = (JK+1)C$ channels and the
 convolutions of \eqref{eq:ch5:conv} have been replaced by a matrix multiply
 (which can also be seen as a $1\x 1$ convolutional layer). We can then apply
 \eqref{eq:ch5:nonlin} to \eqref{eq:ch5:mixing} to get the next layer's output:
-
+%
 \begin{equation}
   x^{(l+1)}(f, \xy) = \sigma\left( y^{(l+1)}(f, \xy) \right)
   \label{eq:ch5:xnext}
 \end{equation}
-
 \autoref{fig:ch5:block_diagram} shows a block diagram for this process. 
 
 \begin{figure}[t!]
@@ -86,10 +87,10 @@ convolutions of \eqref{eq:ch5:conv} have been replaced by a matrix multiply
   increases from $C_l$ to $(2K+1)C_l$, where the number of orientations is $K=6$.
   The real and imaginary parts are combined by taking their magnitude (an
   example of what this looks like in 1D is shown above the magnitude operator) -
-  the components oscillating in quadrature are combined to give $z^{(l+1)}$. The
-  resulting activations are concatenated with the lowpass filtered activations,
-  mixed across the channel dimension, and then passed through a nonlinearity
-  $\sigma$ to give $x^{(l+1)}$.  If the desired output spatial size is $H\x W$,
+  taking the envelope of the components oscillating in quadrature. These are 
+  concatenated with the lowpass activations to give $z^{(l+1)}$. The
+  resulting activations $z$ are mixed across the channel dimension and then passed through a nonlinearity
+  $\sigma$ to give $x^{(l+1)}$. If the desired output spatial size is $H\x W$,
   $x^{(l+1)}$ can be bilinearly upsampled paying only a few multiplies per
   pixel.}
   \label{fig:ch5:block_diagram}
@@ -100,20 +101,22 @@ convolutions of \eqref{eq:ch5:conv} have been replaced by a matrix multiply
 The first thing to note is that with careful choice of $A$ and $\sigma$, we can
 recover the original translation invariant ScatterNet
 \cite{bruna_invariant_2013, oyallon_scaling_2017}. If $C_{l+1} = (JK+1)C_l$ 
-and $A$ is the identity matrix $I_{C_{l+1}}$, we remove the mixing and then $y^{(l+1)} = \tilde{W}x$.
+and $A$ is the identity matrix $I_{C_{l+1}}$, there is no mixing and $y^{(l+1)} = \widetilde{\mathcal{W}}x$.
 
-Further, if $\sigma = \F{ReLU}$ as is commonly the case in training CNNs, it has
-no effect on the positive locally invariant terms $U$. It will affect the averaging terms
-if the signal is not positive, but this can be dealt with by adding a channel
-dependent bias term $\alpha_c$ to $x^{(l)}$ to ensure it is positive. This bias term
+Further, if $\sigma = \F{ReLU}$ as is commonly the case in training CNNs,
+$\sigma$ has no effect on the positive locally invariant terms $U$. It will affect the averaging terms
+if the signal is not positive, but this can be dealt with by adding a channel-dependent 
+bias term $\alpha_c$ to $x^{(l)}$ to ensure it is positive. This bias term
 will not affect the propagated signals as $\int \alpha_c \psi_\lambda(\xy) d\xy =
 0$. The bias can then be corrected by subtracting $\alpha_c \norm{\phi_J}_2$ from
-the averaging terms after taking the ReLU, then $x^{(l+1)} = \tilde{W}x$.
+the averaging terms after taking the ReLU, then $x^{(l+1)} =
+\widetilde{\mathcal{W}}x$.
 
-This makes one layer of our system equivalent to a first order scattering
-transform, giving $S_0$ and $U_1$ (invariant to input shifts of $2^1$). Repeating the
-same process for the next layer again works, as we saw in \eqref{eq:ch5:u_paths},
-giving $S_1$ and $U_2$ (invariant to shifts of $2^2$).  If we want to build
+This makes one layer of our system equivalent to a first-order scattering
+transform, giving $S_0$ and $U_1$ (invariant to input shifts of $2^1$). We can repeat
+the same process for the next layer (recall the recursive scattering relation we
+saw in \eqref{eq:ch2:recursive}),
+giving $S_1$ and $U_2$ (invariant to shifts of $2^2$). If we want to build
 higher invariance, we can continue or simply average these outputs with an average pooling
 layer.
 
@@ -132,7 +135,7 @@ Lipschitz continuous. The authors in \cite{qiu_dcfnet:_2018} find constraints on
 weights to make them non-expansive (i.e. Lipschitz constant 1).
 Further, the ReLU is non-expansive meaning the combination of the two is
 also non-expansive, so $\norm{V\mathcal{L}_\tau x - V x} \leq \norm{S\mathcal{L}_\tau
-x - Sx}$, and \eqref{eq:ch5:stability} holds.
+x - Sx}$, and \eqref{eq:ch2:stability} holds.
 % We would also like to ensure that we can derive a similar bound in stability to
 % \eqref{eq:ch5:stability}. Let us call the action of our layer (with learned
 % weights and nonlinearity) $Vx = \sigma(M[\gamma]\tilde{W}[\gamma]x)$. We would like to find a bound on

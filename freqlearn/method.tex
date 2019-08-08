@@ -1,8 +1,17 @@
-\section{The Wavelet Gain Layer}
+\section{Learning in Multiple Spaces}\label{sec:ch6:learning}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chain.jpg}
+  \subfloat[A regular convolutional layer]{
+  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chaina.pdf}
+  }\\
+  \subfloat[Gains applied in the wavelet domain]{
+  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chainb.pdf}
+  }\\
+  \subfloat[Gains and nonlinearities applied in the wavelet domain]{
+  \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chainc.pdf}
+  }
+  % \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chain.jpg}
   \mycaption{Proposed new forward pass in the wavelet domain}{Two network 
   layers with some possible options for processing. Solid lines denote the
   evaluation path and dashed lines indicate relationships. In (a) we see a
@@ -10,183 +19,52 @@
   make clear what we are denoting as $u$ and $v$ with respect to their
   equivalents $x$ and $y$. In (b) we get to $y^{(2)}$ through a different path.
   First we take the wavelet transform of $x^{(1)}$ to give $u^{(1)}$, apply a
-  wavelet gain layer $\mathcal{G}^{(1)}$, and take the inverse wavelet transform
-  to give $y^{(2)}$. The cross through $\mathcal{H}^{(1)}$ indicates that this
+  wavelet gain layer $G^{(1)}$, and take the inverse wavelet transform
+  to give $y^{(2)}$. The dotted line for $H^{(1)}$ indicates that this
   path is no longer present. Note that there may not be any possible
-  $\mathcal{G}^{(1)}$ to make $y^{(2)}$ from (b) equal $y^{(2)}$ from (a). In
+  $G^{(1)}$ to make $y^{(2)}$ from (b) equal $y^{(2)}$ from (a). In
   (c) we have stayed in the wavelet domain longer, and applied a wavelet
   nonlinearity $\sigma_w$ to give $u^{(2)}$. We then return to the pixel domain
   to give $x^{(2)}$ and continue on from there in the pixel domain.}
   \label{fig:ch6:fwd_chain}
 \end{figure}
-
-
-At the beginning of each stage of a neural network we have the activations
-$x^{(l)}$. Naturally, all of these activations have their equivalent DWT 
-coefficients $\mathtt{u}^{(l)}$ and $\DTCWT$ coefficients $u^{(l)}$. 
+At the beginning of each layer $l$ of a neural network we have the activations
+$x^{(l)}$. Naturally, all of these activations have their equivalent wavelet
+coefficients $u^{(l)}$. 
 
 From \eqref{eq:ch6:conv}, convolutional layers also have intermediate
-activations $y^{(l)}$. Let us differentiate these from the $x$ coefficients and
-modify \eqref{eq:ch6:dwt_coeffs} and \eqref{eq:ch6:dtcwt_coeffs} to say the DWT
-of $y^{(l)}$ gives $\mathtt{v}$ and the $\DTCWT$ of $y^{(l)}$ gives $v$.
+activations $y^{(l)}$. Let us discern these from the $x$ coefficients and
+modify \eqref{eq:ch6:dtcwt_coeffs} to say the $\DTCWT$ of $y^{(l)}$ gives
+$v^{(l)}$.
 
-We now propose the wavelet gain layers $\mathtt{G}$ and $G$ for the DWT and
-$\DTCWT$ respectively, or $\mathcal{G}$ for an implementation agnostic layer.
-The name `gain layer' comes from the inspiration for this chapter's work, in
-that the first layer of CNN could be nearly done in the wavelet domain by
-setting subband gains to 0 and 1. 
+We now propose the \emph{wavelet gain layer} $G$.
+The name `gain layer' comes from the inspiration for this chapter's work, as it
+appears often the first layer of a CNN could be achieved by simply setting gains
+for different regions in the frequency space of an image. 
 
-The gain layer $\mathcal{G}$ can be used instead of a convolutional layer. 
-It is designed to work on the wavelet coefficients of an activation,
-$\mathtt{u}$ and $u$ to give outputs $\mathtt{v}$ and $v$. 
+The gain layer $G$ can be used instead of a convolutional layer. 
+It is designed to work on the wavelet coefficients of an activation $u$,
+to give wavelet domain outputs $v$. 
 
 This can be seen as breaking the convolutional path in
-\autoref{fig:ch6:fwd_chain} and taking a new route to get to the next layer's
+\autoref{fig:ch6:fwd_chain} and taking a new route to get the next layer's
 coefficients. From here, we can return to the pixel domain by taking the
-corresponding inverse wavelet transform $\mathcal{W}^{-1}$. Alternatively, we
-can stay in the wavelet domain and apply a wavelet based nonlinearity $\sigma_w$
-to give the next layer's $u$ coefficients. Ultimately we would like to explore
-architecture design with arbitrary sections in the wavelet and pixel domain, but
-to do this we must first explore: 
-\begin{itemize}
-  \item How effective $\mathcal{G}$ is at replacing $\mathcal{H}$.
-  \item How effective $\sigma_w$ is at replcaing $\sigma$.
-\end{itemize}
+corresponding inverse wavelet transform $W^{-1}$. Alternatively, we
+can stay in the wavelet domain and apply wavelet based nonlinearities,
+$\sigma_{lp}$ and $\sigma_{bp}$ for the lowpass and highpass coefficients
+respectively, to give $u^{(l+1)}$. 
 
+Ultimately we would like to explore architecture design with arbitrary sections
+in the wavelet and pixel domain, but to do this we must first explore: 
+\begin{enumerate}[itemsep=5pt,parsep=5pt,topsep=0pt]
+  \item \textbf{How effective is a wavelet gain layer $G$ at replacing a
+    standard convolutional layer $H$?}
+  \item \textbf{What are effective wavelet nonlinearities $\sigma_{lp}$ and $\sigma_{bp}$?}
+\end{enumerate}
 
-\subsection{The DWT Gain Layer}
-As mentioned previously, modifying the wavelet coefficients of a critically
-sampled DWT will necessarily result in a loss of the aliasing cancelling
-properties. However, in a deep neural network, this is not as obviously a bad
-thing as it is for denoising or deconvolution. For this reason, we note that
-there may be a problem in using a DWT, but proceed nonetheless.
-
-For each subband in our $J$ scale system, we introduce a gain term $\mathtt{g}$. Let us specify our
-input $\mathtt{u}$ has $C_l$ channels, and we would like our output $\mathtt{v}$
-to have $C_{l+1}$ channels, then $\mathtt{g}$ is made up of:
-\begin{align}
-  \mathtt{g}_{lp} &\in \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:dwt_gstart} \\
-  \mathtt{g}_{1,1} &\in \reals[C_{l+1}\x C_l\x k_{1}\x k_{1}] \\
-  \mathtt{g}_{1,2} &\in \reals[C_{l+1}\x C_l\x k_{1}\x k_1] \\
-      & \vdots  \nonumber \\
-  \mathtt{g}_{J,3} &\in \reals[C_{l+1}\x C_l\x k_J\x k_J] \label{eq:ch6:dwt_gend}
-\end{align}
-%
-Note that we have allowed for different kernel spatial sizes for the lowpass and for
-each bandpass scale $\mathtt{g}_j$. This is to allow for the flexibility of
-putting more emphasis on certain frequency areas if desired.
-
-With these gains, we define $\mathtt{v}=\mathtt{Gu}$ to be:
-\begin{align}
-  \mathtt{v}_{lp}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{lp}[c, \nn] \conv \mathtt{g}_{lp}[f, c, \nn] \\
-  \mathtt{v}_{1,1}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{1,1}[c, \nn] \conv \mathtt{g}_{1,1}[f, c, \nn] \\
-  \mathtt{v}_{1,2}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{1,2}[c, \nn] \conv \mathtt{g}_{1,2}[f, c, \nn] \\
-                  & \vdots  \nonumber \\
-  \mathtt{v}_{J,3}[f, \nn] &=  \sum_{c=0}^{C_l-1} \mathtt{u}_{J,3}[c, \nn] \conv \mathtt{g}_{J,3}[f, c, \nn] 
-\end{align}
-%
-I.e., we do independent mixing at each of the different subbands. For $1\x 1$
-kernels, this is simply a matrix multiply of the wavelet coefficients. This is shown
-visually in \autoref{fig:ch6:dwt_blk_diagram}.
-
-\subsubsection{The Output}
-
-\begin{figure}[ht!]
-  \centering
-  \input{\imgpath/dwt_gain}
-  \mycaption{Block Diagram of 1-D DWT Gain Layer}{Here we show the low and
-  highpass for a single scale 1-D DWT, Gain Layer and inverse DWT. The gain layer
-  has gains $\mathtt{g}_0$ and $\mathtt{g}_1$.}
-  \label{fig:ch6:dwt_gain}
-\end{figure}
-
-To explore the action of the gain layer $\mathtt{G}$ on DWT coefficients, let
-use examine a 1-D, single scale, and single channel system. We want to find the
-action of the layer without any nonlinearities, i.e., 
-\begin{equation}
-y = \mathcal{W}^{-1}\mathtt{G}\mathcal{W}x
-\end{equation}
-or the path taken in \autoref{fig:ch6:fwd_chain}b. 
-
-Let us call the low and highpass analysis filters of the DWT $A_0$ and $A_1$,
-and the synthesis filters $S_0$ and $S_1$ (these are normally called $H$ and
-$G$, but we keep those letters reserved for the CNN and gain layer filters). 
-From the perfect reconstruction property of the DWT, we know 
-\begin{equation}
-  A_0(z)S_0(z) + A_1(z)S_1(z) = 2
-\end{equation}
-and from the aliasing cancellation property of the DWT, we know:
-\begin{equation}
-  A_0(-z)S_0(z) + A_1(-z)S_1(z) = 0
-\end{equation}
-%
-If we add in gains $G_0$ and $G_1$ to the low and highpass coefficients, as
-shown in \autoref{fig:ch6:dwt_gain}, then the output is:
-\begin{equation}
-  \begin{split}
-   Y(z) =& \frac{1}{2} X(z) \left[A_0(z)S_0(z)G_0(z^2) + A_1(z)S_1(z)B(z^2) \right] + \\
-         & \frac{1}{2}X(-z) \left[A_0(-z)S_0(z)G_0(z^2) + A_1(-z)S_1(z)G_1(z^2) \right]
-\end{split}
-\end{equation}
-If we let $D(z) = G_1(z^2) - G_0(z^2)$ then the above becomes:
-\begin{equation}
-  Y(z) = \frac{1}{2} X(z) \left[A_0(z)S_0(z)G_0(z^2) + A_1(z)S_1(z)G_1(z^2) \right] + 
-         \frac{1}{2}X(-z)D(z)A_1(-z)S_1(z) \label{eq:ch6:dwt_fwd}
-\end{equation}
-
-\subsubsection{Backpropagation}\label{sec:ch6:dwt_update}
-We start with the commonly known property that for a convolutional block, the
-gradient with respect to the input is the gradient with respect to the output
-convolved with the time reverse of the filter. More formally, if 
-$Y(z) = H(z) X(z)$:
-%
-\begin{equation}\label{eq:ch6:backprop}
-  \Delta X(z) = H(z^{-1}) \Delta Y(z)
-\end{equation}
-%
-where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
-$\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
-to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
-the loss with respect to the input. 
-
-Assume we already have access to the quantity $\Delta Y(z)$ (this is the input
-to the backwards pass). \autoref{fig:ch6:bwd_pass} illustrates the
-backpropagation procedure. An interesting result is that for orthogonal wavelet
-transforms, $S(z^{-1}) = A(z)$, so the backwards pass of an inverse wavelet
-transform is equivalent to doing a forward wavelet transform. Similarly, the
-backwards pass of the forward transform is equivalent to doing the inverse
-transform. The weight update gradients are then calculated by finding 
-$\Delta V_i(z) = S_i(z^{-1})Y(z)$ for $i=0,\ 1$, and then convolving with the
-time reverse of the saved wavelet coefficients from the forward pass -
-$U_i(z^{-1})$.
-
-\begin{equation}
-  \Delta G_i(z) = \Delta V_i(z) U_i(z^{-1}) \label{eq:ch6:g_update}
-\end{equation}
-
-Unsurprisingly, the passthrough gradients have similar form to \eqref{eq:ch6:dwt_fwd}
-\begin{equation}
-  \Delta X(z) = \frac{1}{2} \Delta Y(z) \left[A_0(z)S_0(z)G_0(z^{-2}) + A_1(z)S_1(z)G_1(z^{-2}) \right] + 
-         \frac{1}{2}\Delta Y(-z)D(z)A_1(-z)S_1(z) \label{eq:ch6:dwt_passthrough}
-\end{equation}
-
-Note that we only need to evaluate \eqref{eq:ch6:g_update},
-\eqref{eq:ch6:dwt_passthrough} over the support of $G(z)$ i.e., if it is a
-single number we only need to calculate $\left.\Delta G(z)\right\rvert_{z=0}$.
-
-\input{\path/figure2}
- 
-\subsubsection{The $\DTCWT$ Gain Layer}
-
-The $\DTCWT$ gain layer is the same in principle to the action of the DWT gain
-layer, but due to the different properties of the two transforms, the
-implementation is slightly different. 
-Now that we have the framework for applying a complex gain at one subband, we
-can extend this to all of the subbands in the $\DTCWT$. We also reintroduce the channel
-dimension. 
-
+\subsection{The $\DTCWT$ Gain Layer}
 To do the mixing across the $C_l$ channels at each subband, giving $C_{l+1}$
-output channels, we introduce the learnable filters:
+output channels, we introduce the learnable filters $g_{lp},\ g_{j,k}$:
 %
 \begin{align}
   g_{lp} &\in \reals[C_{l+1}\x C_l\x k_{lp}\x k_{lp}] \label{eq:ch6:glp} \\
@@ -196,76 +74,125 @@ output channels, we introduce the learnable filters:
   g_{J,6} &\in \complexes[C_{l+1}\x C_l\x k_J\x k_J]  \label{eq:ch6:gj6}
 \end{align}
 %
-where $k, k$ are the sizes of the mixing kernels. These could be $1\x 1$ for
+where the $k_j$ are the sizes of the mixing kernels. These could be $1\x 1$ for
 simple gain control, or could be larger, say $3\x 3$, to do more complex
-filtering on the subbands. 
+filtering on the subbands. Importantly, we can select the support size
+differently for each subband.
 
-With these gains we define $v = Gu$ to be:
-\begin{align}
-  v_{lp}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \\
+With these gains we define the action of the gain layer $v = Gu$ to be:
+\begin{align} 
+  v_{lp}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{lp}[c, \nn] \conv g_{lp}[f, c, \nn] \label{eq:ch6:gain1} \\
   v_{1,1}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{1,1}[c, \nn] \conv g_{1,1}[f, c, \nn] \\
   v_{1,2}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{1,2}[c, \nn] \conv g_{1,2}[f, c, \nn] \\
                   & \vdots \nonumber \\
-  v_{J,6}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] 
+  v_{J,6}[f, \nn] &=  \sum_{c=0}^{C_l-1} u_{J,6}[c, \nn] \conv g_{J,6}[f, c, \nn] \label{eq:ch:gain2}
 \end{align}
 
-Note that for complex signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv
-b_r - a_i \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$. This is shown 
-in Figure~\autoref{fig:ch6:dtcwt_blk_diagram}.
+To avoid ambiguity with complex conjugates we remind ourselves that for complex
+signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv b_r - a_i
+\conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$ (see
+\autoref{sec:appE:complex_conv}).
 
-\subsubsection{The Output}
-Unlike the DWT gain layer, the $\DTCWT$ gain layer can achieve aliasing
-cancelling and therefore has a transfer function. The proof of this is done in
-\autoref{app:ch6:dtcwt}. 
+The action of the gain layer with only a single-scale wavelet transform, $J=1$, is is shown in
+\autoref{fig:ch6:block_diagrams}.
 
-\begin{figure}[ht!]
+\begin{figure}[t!]
   \centering
-  \input{\imgpath/dtcwt_gain}
-  \mycaption{Block Diagram of 1-D $\DTCWT$ Gain Layer}{Here we show the real and
-  imaginary trees for a single subband. Note that while it may look similar to 
-  \autoref{fig:ch6:dwt_gain}, this diagram represents the two trees for one subband rather
-  than a single tree with a pair of subbands. The gain layer does a complex
-  multiply, using both the real and imaginary parts of the decomposed signal.
-  This preserves the shift invariance of the $\DTCWT$ for the reconstructed
-  signal $Y$.
-  }
-  \label{fig:ch6:dtcwt_gain}
+  % \resizebox{\textwidth}{!}{\input{\imgpath/block_diagram_dtcwt}}
+  \includegraphics[width=\textwidth]{\imgpath/block_diagram_dtcwt}
+  \label{fig:ch6:dtcwt_blk_diagram}
+  \mycaption{Diagram of proposed method to learn in the wavelet domain}{
+  Activations are shaded blue and learned parameters red. Deeper shades of blue
+  and red indicate complex valued activations/weights, and lighter values
+  indicate real valued activations/weights. The input $x^{(l)}\in
+  \mathbb{R}^{C_l\x H\x W}$ is taken into the wavelet domain (here $J=1$) and each 
+  subband is mixed independently with $C_{l+1}$ sets of convolutional filters.
+  After mixing, a possible wavelet nonlinearity $\sigma_w$ is applied to the
+  subbands, before returning to the pixel domain with an inverse wavelet
+  transform. Note the similarity to the regular convolutional layer in
+  \autoref{fig:ch2:conv_layer}.}
+  \label{fig:ch6:block_diagrams}
 \end{figure}
 
-For a single subband in the $\DTCWT$, the gain layer uses a complex learned
-weight $g$, but otherwise produces the output $v$ in much the same way as the
-DWT gain layer. \autoref{fig:ch6:dtcwt_gain} shows a single subband $\DTCWT$
-based gain layer. The output of this layer is:
+\subsubsection{The Output}
+% \begin{figure}[t]
+  % \centering
+  % \input{\imgpath/dtcwt_gain}
+  % \mycaption{Block Diagram of a single channel 1-D $\DTCWT$ Gain Layer}{Here we show the real and
+  % imaginary trees for a single subband. Note that while it may look similar to 
+  % a DWT block diagram, this diagram represents the two trees for one subband rather
+  % than a single tree with a pair of subbands. The gain layer does a complex
+  % multiply, using both the real and imaginary parts of the decomposed signal.
+  % This preserves the shift invariance of the $\DTCWT$ for the reconstructed
+  % signal $Y$.
+  % }
+  % \label{fig:ch6:dtcwt_gain}
+% \end{figure}
+\begin{figure}[t]
+  \centering
+  \makebox[\linewidth][c]{
+  \subfloat[]{%
+    % \includegraphics[width=\textwidth]{\imgpath/dtcwt_gain}
+    \input{\imgpath/dtcwt_gain}
+    \label{fig:ch6:fwd_pass}
+    }}
+   \newline
+  \makebox[\linewidth][c]{
+  \subfloat[]{%
+    \input{\imgpath/gain_layer}
+    % \includegraphics[width=\textwidth]{\imgpath/gain_layer}
+    \label{fig:ch6:bwd_pass}
+  }}
+  % \input{\imgpath/gain_layer}
+  \mycaption{Forward and backward block diagrams for $\DTCWT$ gain layer}{Based
+    on Figure~4 in \cite{kingsbury_complex_2001}. Ignoring the $G$ gains, the
+    top and bottom paths (through $A_r, S_r$ and $A_i, S_i$ respectively) make up the
+    the real and imaginary parts for \emph{one subband} of the dual tree system.
+    Combined, $A_r+jA_i$ and $S_r-jS_i$ make the complex filters necessary to have
+    support on one side of the Fourier domain (see
+    \autoref{fig:ch6:dtcwt_bands}). Adding in the complex gain $G_r + jG_i$, we
+    can now attenuate/shape the impulse response in each of the subbands. To
+    allow for learning, we need backpropagation. The bottom diagram indicates
+    how to pass gradients $\Delta Y(z)$ through the layer. Note that upsampling
+    has become downsampling, and convolution has become convolution with the
+  time reverse of the filter (represented by $z^{-1}$ terms).}
+  \label{fig:ch6:fwd_bwd}
+\end{figure}
+Due to the shift invariant properties of the $\DTCWT$, each wavelet subband has
+a unique transfer function which is almost free of aliasing (see
+\autoref{thm:ch6:shiftinv}). If we do complex convolution of the wavelet
+coefficients $u$ with gains $g$ as described in \eqref{eq:ch6:gain1} -
+\eqref{eq:ch6:gain2}, then we preserve the shift invariant properties (see
+\autoref{thm:ch6:shiftinvgain} and \autoref{thm:ch6:complex_multiply}). Then the
+inverse $\DTCWT$ of the outputs $v$ are free from aliasing.
 
-\begin{equation}\label{eq:ch6:dtcwt_fwd}
-  Y(z) = \frac{2}{M}X(z) \left[G_r(z^{M}) \left(A_r(z)S_r(z) + A_i(z)S_i(z)\right)
-  + G_i(z^{M}) \left(A_r(z)S_i(z) - A_i(z)S_r(z)\right) \right] \\
-\end{equation}
-See \autoref{app:ch6:dtcwt} for the derivation. The $G_r$ term modifies the
-subband gain $A_rS_r + A_iS_i$ and the $G_i$ term modifies its Hilbert Pair
-$A_rS_i - A_iS_r$. \autoref{fig:ch6:dtcwt_bands} show the contour plots for the
-frequency support of each of these subbands. The complex gain $g$ can be used to
-reshape the frequency response for each subband independently.
+We can do a complex multiply of the subband coefficients $u$ with gains $g$ by
+using the block diagram shown in \autoref{fig:ch6:fwd_pass}\footnote{Note that despite the resemblance to many block
+diagrams for fully decimated DWTs, \autoref{fig:ch6:fwd_pass} is different.
+The top rung corresponds to the real part of a subband and the bottom specifies
+the imaginary part.}
 
-\subsubsection{Backpropagation}\label{sec:ch6:dtcwt_update}
-If H were complex, the first term in \autoref{eq:ch6:backprop} would be
-$\bar{H}(1/\bar{z})$, but as each individual block in the $\DTCWT$ is purely
-real, we can use the simpler form $H(z^{-1})$. 
+Let us call the analysis filters $A = A_r + jA_i$ and 
+the synthesis filters $S = S_r - jS_i$ (these are normally called $H$ and
+$G$, but we keep those letters reserved for the CNN and gain layer filters). The
+gain for a specific subband previously was called $g_{j,k}$ but we here refer to
+it simply as $G = G_r + jG_i$. The output of this layer is:
+\begin{align}\label{eq:ch6:dtcwt_fwd}
+  Y(z) = \frac{2}{M}X(z) \left[\vphantom{z^{M}} \right. &  G_r(z^{M}) \left(A_r(z)S_r(z) + A_i(z)S_i(z)\right) \nonumber \\
+  +  & \left. G_i(z^{M}) \left( A_r(z)S_i(z) - A_i(z)S_r(z)\right) \right] 
+\end{align}
+Again, see \autoref{app:ch6:dtcwt} for the derivation which shows how the aliasing
+terms caused by the downsampling by $M$ are largely eliminated. 
 
-Again, let us calculate $\Delta V_r(z)$ and $\Delta V_i(z)$ by backpropagating
-$\Delta Y(z)$ through the inverse $\DTCWT$. Again this is the same as doing the
-forward $\DTCWT$ on $\Delta Y(z)$. Then the weight update equations are:
-
-\begin{gather}
-  \Delta G_r(z) = \Delta V_r(z) U_r(z^{-1}) + \Delta V_i(z) U_i(z^{-1})  \label{eq:ch6:gr_update}\\
-  \Delta G_i(z) =  -\Delta V_r(z) U_i(z^{-1}) + \Delta V_i(z) U_r(z^{-1})  \label{eq:ch6:gi_update} 
-\end{gather}
-%
-The passthrough equations have similar form to \eqref{eq:ch6:dtcwt_fwd}:
-\begin{equation}\label{eq:ch6:dtcwt_passthrough}
-    \Delta X(z) = \frac{2\Delta Y(z)}{M} \left[G_r(z^{-M})\left( A_r(z)S_r(z) + A_i(z)S_i(z) \right)\right. + 
-      \left. jG_i(z^{-M}) \left(A_r(z)S_i(z) - A_i(z)S_r(z) \right) \right] 
-\end{equation}
+The complex gain $G$ has a real and imaginary part. The real term $G_r$ 
+modifies the subband gain $A_rS_r + A_iS_i$ and the imaginary term $G_i$ modifies its
+Hilbert Pair $A_rS_i - A_iS_r$. \autoref{fig:ch6:dtcwt_bands} show the contour
+plots for the frequency support of each of these subbands. The complex gain
+vector $g$ has elements which adjust the gain and phase of each subband
+independently. The magnitude of each element controls the amplitude of the
+frequency response in the region of that subband, while its phase controls the
+phase of the response and thus modifies the detailed wave-shape (e.g. the
+locations of its zero crossings).
 
 \begin{figure}[t]
   \centering
@@ -276,85 +203,216 @@ The passthrough equations have similar form to \eqref{eq:ch6:dtcwt_fwd}:
   \hspace{1cm}
 %    \newline
   \subfloat[]{%
-    \includegraphics[height=5.7cm]{freqlearn/images/impulses.png}
+    \includegraphics[height=5.7cm]{\imgpath/impulses.png}
     \label{fig:ch6:dtcwt_bands_impulse}
   }
-  \mycaption{$\DTCWT$ subbands}{\subref{fig:ch6:dtcwt_bands_freq} -1dB and -3dB contour plots showing
-  the support in the Fourier domain of the 6 subbands of the $\DTCWT$ at scales
+  \mycaption{$\DTCWT$ subbands}{\subref{fig:ch6:dtcwt_bands_freq} -1dB and -3dB contour 
+  plots showing the support in the Fourier domain of the 6 subbands of the $\DTCWT$ at scales
   1 and 2, and the scale 2 lowpass. These are the product of the single side
-  band filters $P(z)$ and $Q(z)$ from \autoref{thm:ch6:shiftinv}.
+  band filters $P(z)$ and $Q(z)$ from \autoref{thm:ch6:shiftinv}, or half of the
+  support of the double side band filters $A_rS_r + A_iS_i$ and $A_rS_i -
+  A_iS_r$ from \eqref{eq:ch6:dtcwt_fwd}.
   \subref{fig:ch6:dtcwt_bands_impulse} The pixel domain impulse responses for
   the second scale wavelets. The Hilbert pair for each wavelet is the underlying
   sinusoid phase shifted by 90 degrees.}
   \label{fig:ch6:dtcwt_bands}
 \end{figure}
 
-\begin{figure}[t!]
-  \centering
-  \subfloat[]{%
-    \resizebox{\textwidth}{!} {\input{\imgpath/block_diagram_dwt}}
-    \label{fig:ch6:dwt_blk_diagram}
-  }\newline
-  \vspace{1cm}
-  \subfloat[]{%
-    \resizebox{\textwidth}{!} {\input{\imgpath/block_diagram_dtcwt}}
-    \label{fig:ch6:dtcwt_blk_diagram}
-  }
-  \mycaption{Block diagrams of proposed method to learn in the wavelet domain}{
-  Activations are shaded blue and learned parameters red. Darker shades of
-  blue and red indicate complex valued activations and weights, whereas the
-  lighter shades indicate purely real values. The input $x^{(l)}\in
-  \mathbb{R}^{C_l\x H\x W}$ is taken into the wavelet domain and each subband is
-  mixed independently with $C_{l+1}$ sets of convolutional filters (this is what
-  we call the `wavelet gain layer'. After mixing, a possible wavelet nonlinearity 
-  $\sigma_w$ is applied to the subbands, before returning to the pixel domain
-  with an inverse wavelet transform. \subref{fig:ch6:dwt_blk_diagram} shows 
-  the system in the DWT domain. The DWT has fewer coefficients, and the gain
-  layer requires fewer parameters; this is the simpler layer. 
-  \subref{fig:ch6:dtcwt_blk_diagram} shows the $\DTCWT$
-  based system. With 6 complex subbands and a larger lowpass, this is the more
-  complex layer.}
-  \label{fig:ch6:block_diagrams}
-\end{figure}
+\subsubsection{Backpropagation}\label{sec:ch6:dtcwt_update}
+
+We start with the property that for a convolutional block, the
+gradient with respect to the input is the gradient with respect to the output
+convolved with the time reverse of the filter (proved in \autoref{sec:ch2:conv_grad}).
+More formally, if $Y(z) = H(z) X(z)$:
+%
+\begin{equation}\label{eq:ch6:backprop}
+  \Delta X(z) = H(z^{-1}) \Delta Y(z)
+\end{equation}
+%
+where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
+$\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
+to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
+the loss with respect to the input. 
+If H were complex, the first term in \autoref{eq:ch6:backprop} would be
+$\bar{H}(1/\bar{z})$, but as each individual block in the $\DTCWT$ of
+\autoref{fig:ch6:fwd_bwd} is purely real, we can use the simpler form $H(z^{-1})$. 
+
+Assume we already have access to the quantity $\Delta Y(z)$ (this is the input
+to the backwards pass). \autoref{fig:ch6:bwd_pass} illustrates the
+backpropagation procedure.
+
+Let us calculate $\Delta V_r(z)$ and $\Delta V_i(z)$ by backpropagating
+$\Delta Y(z)$ through the inverse $\DTCWT$. This is the same as doing the
+forward $\DTCWT$ on $\Delta Y(z)$ with the synthesis and analysis filters
+swapped and time reversed\footnote{An interesting result is that for orthogonal wavelet
+transforms, $S(z^{-1}) = A(z)$, so the backwards pass of an inverse wavelet
+transform is equivalent to doing a forward wavelet transform. Similarly, the
+backwards pass of the forward transform is equivalent to doing the inverse
+transform.}. Then the weight update equations are:
+\begin{align}
+  \Delta G_r(z) &= \Delta V_r(z) U_r(z^{-1}) + \Delta V_i(z) U_i(z^{-1})  \label{eq:ch6:gr_update}\\
+  \Delta G_i(z) &=  -\Delta V_r(z) U_i(z^{-1}) + \Delta V_i(z) U_r(z^{-1})  \label{eq:ch6:gi_update} 
+\end{align}
+%
+The passthrough equations have similar form to \eqref{eq:ch6:dtcwt_fwd}:
+\begin{equation}\label{eq:ch6:dtcwt_passthrough}
+    \Delta X(z) = \frac{2\Delta Y(z)}{M} \left[G_r(z^{-M})\left( A_r(z)S_r(z) + A_i(z)S_i(z) \right) + \\
+       G_i(z^{-M}) \left(A_r(z)S_i(z) - A_i(z)S_r(z) \right) \right] 
+\end{equation}
 
 \subsection{Examples}
-\autoref{fig:ch6:examples} show example impulse responses of our layer for both
-the DWT and $\DTCWT$ systems. The DWT outputs come from three random variables: a $1\x 1$ 
+\autoref{fig:ch6:examples} show example impulse responses of the $\DTCWT$ gain
+layer. For comparison, we also show similar `impulse responses' for a gain layer
+done in the DWT domain\footnote{Modifying DWT coefficients causes a loss of the
+alias cancellation properties so these are not true impulse response.}. The DWT 
+outputs come from three random variables: a $1\x 1$ 
 convolutional weight applied to each of the low-high, high-low and high-high
-subbands. The $\DTCWT$ outputs come from twelve random variables. Again a $1\x
+subbands. The $\DTCWT$ outputs come from twelve random variables, again a $1\x
 1$ convolutional weight, but now applied to six complex subbands. 
-Our experiments have shown that the distribution of the normalized
-cross-correlation between 512 of such randomly generated shapes for the DWT matches the
-distribution for random vectors with roughly 2.8 degrees of freedom (c.f. 3
-random variables in the layer). Similarly for the $\DTCWT$, the distribution of
+
+To test the space of generated shapes by a vector gain layer gain $g_1$, we
+generate $N$ random vectors of length 12, with each entry taken
+from a Gaussian distribution with zero mean and
+unit variance. We then generate the equivalent point spread functions from
+\eqref{eq:ch6:dtcwt_fwd} for the $N$ different instances and measure their 
+normalized cross-correlation. We then sort the values and compare the
+distribution to a set of $N$ random vectors with $k$ degrees of freedom. 
+
+Our experiments show that the distribution for the $\DTCWT$ gain layer matches
+random vectors with roughly 11.5 degrees of freedom (c.f.\ the 12 variables 
+the layer has). 
+Similarly for the DWT, the 
 the normalized cross-correlation matches the distribution for random vectors
-with roughtly 11.5 degrees of freedom (c.f. 12 random variables in the layer).
+with roughly 2.8 degrees of freedom (c.f. 3 random variables in the layer).
 This is particularly reassuring for the $\DTCWT$ as it is showing that there is
 still representatitve power despite the redundancy of the transform.
 
 \begin{figure}
   \centering
   \subfloat[]{%
-  \includegraphics[width=\textwidth]{\imgpath/dwt_examples.png}
-    \label{fig:ch6:dwt_examples}
-  }
-  \newline
-  \subfloat[]{%
     \includegraphics[width=\textwidth]{\imgpath/dtcwt_examples.png}
     \label{fig:ch6:dtcwt_examples}
   }
+  \newline
+  \subfloat[]{%
+  \includegraphics[width=\textwidth]{\imgpath/dwt_examples.png}
+    \label{fig:ch6:dwt_examples}
+  }
   \mycaption{Example outputs from an impulse input for the proposed gain layers}{
-  Example outputs $y = \mathcal{W}^{-1}\mathcal{G}\mathcal{W}x$ for an impulse
-  $x$ for both the DWT and $\DTCWT$ based systems. \subref{fig:ch6:dwt_examples}
-  shows the outputs $y$ when $x$ is an impulse, $\mathcal{W}$ is the DWT with a
-  `db2' wavelet family and $\mathcal{G} = \mathtt{G}$ is the DWT gain layer. The
-  gain layer weights $\mathtt{g}_{lp}$ coefficients are set to 0 and
-  $\mathtt{g}_1$ coefficients have spatial size $1\x 1$ and are sampled
-  independently from a random normal of variance 1. The 60 samples come from 60
-  different random initializations.
+  Example outputs $y = W^{-1}GWx$ for an impulse
+  $x$ for the $\DTCWT$ gain layer and for a similarly designed DWT gain layer.
   \subref{fig:ch6:dtcwt_examples} shows the output $y$ for a $\DTCWT$ based
-  system. Again, $g_{lp} = 0$ and $g_1$ has spatial size $1\x 1$. The 12 values
-  in $g_1$ are independently sampled from a random normal of variance 1.}
+  system. $g_{lp} = 0$ and $g_1$ has spatial size $1\x 1$. The 12 values
+  in $g_1$ are independently sampled from a random normal of variance 1. 
+  The 60 samples come from 60 different random draws of the weights.
+  \subref{fig:ch6:dwt_examples}
+  shows the outputs $y$ when $x$ is an impulse and $W$ is the DWT with a
+  `db2' wavelet family. Here 3 random numbers are generated for the $g_1$
+  coefficients. The strong horizontal and vertical properties of the DWT
+  can clearly be seen in comparison to the much freer $\DTCWT$.}
   \label{fig:ch6:examples}
 \end{figure}
 
+
+\subsection{Implementation Details}
+Before analyzing its performance, we compare the implementation properties of
+our proposed layer to a standard convolutional layer.
+
+\subsubsection{Parameter Memory Cost}\label{sec:ch6:memory}
+A standard convolutional layer with $C_l$ input channels, $C_{l+1}$ output channels
+and kernel size $k\x k$ has $k^2C_{l}C_{l+1}$ parameters, with $k=3$ or $k=5$
+common choices for the spatial size.
+\begin{equation}
+  \text{\#conv params} = k^2C_lC_{l+1}
+\end{equation}
+
+We must choose the spatial sizes of both the lowpass and bandpass
+mixing kernels. In our work, we are somewhat limited in how large we would like
+to set the bandpass spatial size, as every extra pixel of support requires $2\x
+6=12$ extra parameters. For this reason, we almost always set it to have 
+support $1\x 1$. The lowpass gains are less costly, and we are free to set them to size
+$k_{lp}\x k_{lp}$ (with $k_{lp} = 1,3,5$ in many of our experiments).
+%
+Further, due to the size of the datasets we test on, we typically limit
+ourselves initially to only considering a single scale. If we wish, we can
+decompose the input into more scales, resulting in a larger net area of effect.
+In particular, it may be useful to do a two scale transform and discard the
+first scale coefficients. This does not increase the number of gains to learn,
+but changes the position of the bands in the frequency space.
+
+The number of parameters for the gain layer with $k_{lp}=1$ is then:
+\begin{equation}
+  \text{\#params} = (2\x 6 + 1)C_lC_{l+1} = 13C_lC_{l+1} \label{eq:ch6:memcost2}
+\end{equation} 
+%
+This is slightly larger than the $9C_lC_{l+1}$ parameters used in a
+standard $3\x 3$ convolution, but as \autoref{fig:ch6:examples} shows, the
+spatial support of the full filter is larger than an equivalent one
+parameterized in the filter domain. If $k_{lp}=3$ then we would have $21C_l
+C_{l+1}$ parameters, slightly fewer than the $25C_l C_{l+1}$ of a $5\x 5$ convolution.
+
+\subsubsection{Activation Memory Cost}\label{sec:ch6:act_memory}
+A standard convolutional layer needs to save the activation $x^{(l)}$ to
+convolve with the backpropagated gradient $\dydx{L}{y^{(l+1)}}$ on the backwards
+pass (to give $\dydx{L}{w^{(l)}}$). For an input with $C_l$ channels of spatial
+size $H\x W$, this means
+%
+\begin{equation}
+  \text{\#conv floats} = HWC_l 
+\end{equation}
+
+Our layers require us to save the wavelet coefficients $u_{lp}$ and $u_{j,k}$
+for updating the $g$ terms as in \eqref{eq:ch6:gr_update} and \eqref{eq:ch6:gi_update}.  
+For the $4:1$ redundant $\DTCWT$, this requires:
+%
+\begin{equation}
+  \text{\#$\DTCWT$ floats} = 4HWC_l 
+\end{equation}
+%
+to be saved for the backwards pass.  You can see this difference from the
+difference in the block diagrams in \autoref{fig:ch6:block_diagrams}.
+
+Note that a single scale $\DTCWT$ gain layer requires $16/7$ times as many
+floats to be saved as compared to the invariant layer of the previous chapter.
+The extra cost of this comes from two things. Firstly, we keep the real and
+imaginary components for the bandpass (as opposed to only the magnitude),
+meaning we need $3HWC_l$ floats, rather than $\frac{3}{2}HWC_l$. Additionally,
+the lowpass was downsampled in the previous chapter, requiring only
+$\frac{1}{4}HWC_l$, whereas we keep the full sample rate, costing $HWC_l$.
+
+If memory is an issue and the computation of the $\DTCWT$ is very fast, then we
+only need to save the $x^{(l)}$ coefficients and can calculate the $u$'s on the
+fly during the backwards pass. Note that a two scale $\DTCWT$ gain layer would
+still only require $4HWC_l$ floats.
+
+\subsubsection{Computational Cost}\label{sec:ch6:computation}
+A standard convolutional layer with kernel size $k\x k$ needs $k^2C_{l+1}$
+multiplies per input pixel (of which there are $C_{l}\x H\x W$).
+
+For the $\DTCWT$, the overhead calculations are the same as in
+\autoref{sec:ch5:computation}, so we will omit their derivation here. The mixing
+is however different, requiring complex convolution for the bandpass
+coefficients, and convolution over a higher resolution lowpass. The bandpass has
+one quarter spatial resolution at the first scale, but this is offset by the
+$4:1$ cost of complex multiplies compared to real multiplies. Again assuming we
+have set $J=1$ and $k_{lp} = 1$ then the total cost for the gain layer is:
+%
+\begin{equation}
+  % \frac{7}{4}C_{l+1} + 48 \label{eq:comp}
+  \text{\#mults/pixel} = \underbrace{\hphantom{1} \frac{6\x 4}{4}C_{l+1} \hphantom{1}}_{\textrm{bandpass}} +
+  \underbrace{\hphantom{1}\vphantom{\frac{6}{4}} C_{l+1} \hphantom{1}}_{\textrm{lowpass}} + 
+  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT} + 
+  \underbrace{\vphantom{\frac{6}{4}} 36}_{\DTCWT^{-1}} = \quad 7C_{l+1} + 72 \quad
+  \label{eq:ch6:comp_dtcwt}
+\end{equation}
+which is marginally smaller than the $9C_{l+1}$ of a $3\x 3$ convolutional layer (if $C_{l+1}$ > 36).
+
+\subsubsection{Parameter Initialization}
+For both layer types we use the Glorot Initialization scheme \cite{glorot_understanding_2010}
+with $a=1$: 
+%
+\begin{equation}
+  g_{ij} \drawnfrom U\left[ -\sqrt{\frac{6}{(C_l + C_{l+1})k^2}},\ \sqrt{\frac{6}{(C_l + C_{l+1})k^2}}\
+  \right] \label{eq:ch6:glorot}
+\end{equation}
+where $k$ is the kernel size.

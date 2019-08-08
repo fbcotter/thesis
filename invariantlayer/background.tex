@@ -15,7 +15,7 @@ learned way in the second stage. Of particular note are:
 \item 
 \citetitle{juefei-xu_local_2016} \cite{juefei-xu_local_2016}. This paper builds a
 first stage with a small $3\x 3$ kernel filled with zeros, and randomly insert
-plus and minus ones into it keeping a set sparsity level. This builds a very
+$\pm 1$ in several locations, keeping a set sparsity level. This builds a very
 crude spatial differentiator in random directions. The output of the first stage
 is then passed through a sigmoid nonlinearity before being mixed with a $1\x 1$
 convolution. The imposed structure on the first stage was found to be a good
@@ -41,15 +41,13 @@ inputs.
 
 \subsection{Convolutional Layers}\label{sec:ch5:conv}
 
-Let the output of a CNN at layer $l$ be:
-
-$$ \cnnlact{x}{l}{c}{\xy}, \quad c\in \{0, \ldots C_l-1\}, \xy \in \reals[2]$$
-
-where $c$ indexes the channel dimension , and $\xy$ is a vector of coordinates
+Let the output of a CNN at layer $l$ be 
+$ \cnnlact{x}{l}{c}{\xy}, \quad c\in \{0, \ldots C_l-1\}, \xy \in \reals[2]$
+where $c$ indexes the channel dimension, and $\xy$ is a vector of coordinates
 for the spatial position. Of course, $\xy$ is typically sampled on a grid, but
 we keep it continuous to more easily differentiate between the spatial and
-channel dimensions. A typical convolutional layer in a standard CNN (ignoring
-the bias term) is:
+channel dimensions. Recall from \eqref{eq:ch2:conv4} and \eqref{eq:ch2:conv4a} that
+a convolutional layer in a standard CNN is defined by the two operations:
 %
 \begin{eqnarray} 
   \cnnlact{y}{l+1}{f}{\xy} &=& \sum_{c=0}^{C_l - 1}  x^{(l)}(c,\xy) \conv h^{(l)}_{f}(c, \xy)
@@ -57,31 +55,25 @@ the bias term) is:
     \cnnlact{x}{l+1}{f}{\xy} & = & \sigma \left( \cnnlact{y}{l+1}{f}{\xy} \right) \label{eq:ch5:nonlin}
 \end{eqnarray}
 
-where $\cnnfilt{l}{f}{c}{\xy}$ is the $f$th filter of the $l$th layer (i.e. $f \in \{0,
-\ldots, C_{l+1}-1 \}$) with $C_l$ different point spread functions. $\sigma$ is a nonlinearity 
+where $\cnnfilt{l}{f}{c}{\xy}$ is the $f$th filter of the $l$th layer with $C_l$
+different point spread functions, and $f \in \{0, \ldots, C_{l+1}-1 \}$. $\sigma$ is a nonlinearity 
 such as the ReLU, possibly combined with scaling such as batch normalization. The convolution
 is done independently for each $c$ in the $C_l$ channels and the resulting outputs are
-summed together to give one activation map. This is repeated $C_{l+1}$ times to
-give $\left\{ \cnnlact{x}{l+1}{f}{\xy} \right\}_{f \in \{0, \ldots, C_{l+1}-1 \}, \xy \in \reals[2]}$
+summed together to give one activation map. 
 
 \subsection{Wavelet Transforms}\label{sec:ch5:wavelets}
-The 2-D wavelet transform is performed by convolving the input with a mother wavelet
-dilated by $2^j$ and rotated by $\theta$:
-
+Recall from \eqref{eq:ch2:wave2} that:
 \begin{equation}
-  \psi_{j, \theta}(\xy) = 2^{-j}\psi \left(2^{-j} R_{-\theta} \xy\right)
+  \mathcal{W}x(c, \xy) = \left\{x(c, \xy) \ast \phitd_J(\xy),\ x(c, \xy) \ast \psitd_{\lambda}(\xy) \right\}_{\lambda} \label{eq:ch5:wave2}
 \end{equation}
-
-where $R$ is the rotation matrix, $1 \leq j \leq J$ indexes the scale, and
-$1 \leq k \leq K$ indexes $\theta$ to give $K$ angles between $0$ and $\pi$. We
-copy notation from \cite{bruna_invariant_2013} and define $\lambda = (j, k)$ and
-the set of all possible $\lambda$s is $\Lambda$ whose size is $|\Lambda | = JK$.
-The wavelet transform, including lowpass, is then:
+Where $\psitd_\lambda$ is a mother wavelet dilated by $2^j,\ 1 \leq j \leq J$ and rotated by
+$\theta = \frac{\pi + 2k\pi}{12},\ 0\leq k < 6$:
 %
 \begin{equation}
-  Wx(c, \xy) = \left\{ x(c, \xy)\conv \phi_J(\xy), x(c, \xy)\conv \psi_\lambda (\xy) \right\}_{\lambda \in \Lambda}
+  \psi_{j, \theta}(\xy) = 2^{-j}\psi \left(2^{-j} r_{-\theta} \xy\right)
 \end{equation}
-
+Define the set of all possible $\lambda$s as $\Lambda$ whose size is $|\Lambda | = JK$.
+%
 \subsection{Scattering Transforms}\label{sec:ch5:scatter}
 As the real and imaginary parts of complex wavelets are in quadrature with
 each other, taking the modulus of the resulting transformed coefficients removes
@@ -95,55 +87,56 @@ We define the wavelet modulus propagator to be:
 %
 \begin{equation}
   \label{eq:ch5:wave_mod}
-  \tilde{W}x(c, \xy) = \left\{ x(c, \xy) \conv \phi_{J}(\xy), |x(c, \xy) \conv \psi_\lambda (\xy) | \right\}_{\lambda \in \Lambda} 
+\widetilde{\mathcal{W}}x(c, \xy) = \left\{ x(c, \xy) \conv \phi_{J}(\xy),\ |x(c, \xy) \conv \psi_\lambda (\xy) | \right\}_{\lambda \in \Lambda} 
 \end{equation}
+The modulus terms are called $U[\lambda] x = \lvert x \conv \psi_\lambda \rvert$, and the scattering terms
+are $S[\lambda] x = U[\lambda]x \conv \phi_J (\xy)$.
 
-Let us call these modulus terms $U[\lambda] x = \lvert x \conv \psi_\lambda
-\rvert$ and define a path as a sequence of $\lambda$s given by $p = \left(\lambda_1,
-\lambda_2, \ldots \lambda_m \right)$. Further, define the modulus propagator
-acting on a path $p$ by:
-%
-\begin{eqnarray}
-  U[p]x & = & U[\lambda_m] \cdots U[\lambda_2]U[\lambda_1]x \label{eq:ch5:u_paths}\\
-        & = & || \cdots | x\conv \psi_{\lambda_1} | \conv \psi_{\lambda_2} | \cdots \conv \psi_{\lambda_m} |
-\end{eqnarray}
+% If we define a path as a sequence of $\lambda$s given by $p = \left(\lambda_1,
+% \lambda_2, \ldots \lambda_m \right)$, then . Further, define the modulus propagator
+% acting on a path $p$ by:
+% %
+% \begin{eqnarray}
+  % U[p]x & = & U[\lambda_m] \cdots U[\lambda_2]U[\lambda_1]x \label{eq:ch5:u_paths}\\
+        % & = & || \cdots | x\conv \psi_{\lambda_1} | \conv \psi_{\lambda_2} | \cdots \conv \psi_{\lambda_m} |
+% \end{eqnarray}
 
-These descriptors are then averaged over the window $2^J$ by a scaled lowpass filter $\phi_J =
-2^{-J}\phi(2^{-J}\xy)$ giving the `invariant' scattering coefficient
-%
-\begin{equation}
-  S[p]x(\xy) = U[p]x \conv \phi_J(\xy)
-\end{equation}
+% These descriptors are then averaged over the window $2^J$ by a scaled lowpass filter $\phi_J =
+% 2^{-J}\phi(2^{-J}\xy)$ giving the `invariant' scattering coefficient
+% %
+% \begin{equation}
+  % S[p]x(\xy) = U[p]x \conv \phi_J(\xy)
+% \end{equation}
 
-If we define $p + \lambda = (\lambda_1, \ldots, \lambda_m, \lambda)$ then we can
-combine \eqref{eq:ch5:wave_mod} and \eqref{eq:ch5:u_paths} to give:
-%
-\begin{equation}
-  \tilde{W} U[p] x = \left\{S[p]x, U[p+\lambda]x \right\}_{\lambda}
-\end{equation}
+% If we define $p + \lambda = (\lambda_1, \ldots, \lambda_m, \lambda)$ then we can
+% combine \eqref{eq:ch5:wave_mod} and \eqref{eq:ch5:u_paths} to give:
+% %
+% \begin{equation}
+  % \tilde{W} U[p] x = \left\{S[p]x, U[p+\lambda]x \right\}_{\lambda}
+% \end{equation}
 
-Hence we iteratively apply $\tilde{W}$ to all of the propagated $U$ terms of
-the previous layer to get the next order of scattering coefficients and
-the new $U$ terms.
+% Hence we iteratively apply $\tilde{W}$ to all of the propagated $U$ terms of
+% the previous layer to get the next order of scattering coefficients and
+% the new $U$ terms.
 
-The resulting scattering coefficients have many nice properties, one of which is
-stability to diffeomorphisms (such as shifts and warping). From
-\cite{mallat_group_2012}, if $\mathcal{L}_\tau
-x = x(\xy -\tau(\xy))$ is a diffeomorphism which is bounded with 
-$\norm{\nabla \tau}_{\infty} \leq 1/2$, then there exists a $K_L > 0$ such
-that:
-%
-\begin{equation}
-  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq K_L P F(\tau) \norm{x}
-  \label{eq:ch5:stability}
-\end{equation}
+% The resulting scattering coefficients have many nice properties, one of which is
+% stability to diffeomorphisms (such as shifts and warping). From
+% \cite{mallat_group_2012}, if $\mathcal{L}_\tau
+% x = x(\xy -\tau(\xy))$ is a diffeomorphism which is bounded with 
+% $\norm{\nabla \tau}_{\infty} \leq 1/2$, then there exists a $K_L > 0$ such
+% that:
+% %
+% \begin{equation}
+  % \norm{ S \mathcal{L}_{\tau}x  - S x} \leq K_L P F(\tau) \norm{x}
+  % \label{eq:ch5:stability}
+% \end{equation}
 
-where $P = \F{length}(p)$ is the scattering order, and $F(\tau)$ is a function
-of the size of the displacement, derivative and Hessian of $\tau$, $H(\tau)$
-\cite{mallat_group_2012}: 
+% where $P = \F{length}(p)$ is the scattering order, and $F(\tau)$ is a function
+% of the size of the displacement, derivative and Hessian of $\tau$, $H(\tau)$
+% \cite{mallat_group_2012}: 
 
-\begin{equation}
-  F(\tau) = 2^{-J} \norm{\tau}_{\infty} + \norm{\nabla \tau}_{\infty} \max\left(\log
-  \frac{\norm{\Delta \tau}_{\infty} }{\norm{\nabla \tau}_{\infty}}, 1 \right) +
-  \norm{H(\tau)}_{\infty}
-\end{equation}
+% \begin{equation}
+  % F(\tau) = 2^{-J} \norm{\tau}_{\infty} + \norm{\nabla \tau}_{\infty} \max\left(\log
+  % \frac{\norm{\Delta \tau}_{\infty} }{\norm{\nabla \tau}_{\infty}}, 1 \right) +
+  % \norm{H(\tau)}_{\infty}
+% \end{equation}

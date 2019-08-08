@@ -60,7 +60,7 @@ To have a fast implementation of the Scattering Transform, we need a fast
 implementation of the $\DTCWT$\@. Similarly, for a fast implementation of the $\DTCWT$ we
 need a fast implementation of the DWT\@. Future work may also explore
 the DWT as a basis for learning, so having an implementation that is fast and
-can pass gradients through will prove beneficial in and of itself.
+can pass gradients through will prove beneficial in and of itself. 
 
 \subsection{The Input}
 Recall from \autoref{sec:ch2:conv_layers} that our input is a 3-D array with
@@ -115,7 +115,7 @@ and what is not needed for backpropagation.
 \begin{figure}
   \centering
   \includegraphics[width=0.8\textwidth]{\imgpath/dwt2d.pdf}
-  \mycaption{Block Diagram of 2-D DWT}{The components of a filter bank DWT in
+  \mycaption{2-D DWT Filter Bank Layout}{The components of a filter bank DWT in
   two dimensions. $Y^l, Y^h, Y^v, Y^d$ represent the lowpass, horizontal,
   vertical, and diagonal components.}
   \label{fig:ch3:dwt}
@@ -189,6 +189,7 @@ bank 1-D) functions as they are each other's backwards pass.
 \begin{algorithm}[tb]
 \caption{1-D analysis and synthesis stages of a DWT}\label{alg:ch3:fb1d}
 \begin{algorithmic}[1]
+  \label{alg:ch3:afb1d}
 \Function{afb1d}{$x,\ h_0,\ h_1,\ mode,\ axis$}
   % \mbox{\\$h_0,\ h_1$ are 1-D lowpass and highpass filters}
   % \State $ h_0,\ h_1 \gets \F{flip}(h_0),\ \F{flip}(h_1) $\Comment{flip the filters for \texttt{conv2d_down}}
@@ -205,14 +206,15 @@ bank 1-D) functions as they are each other's backwards pass.
 \EndFunction
 \end{algorithmic}\vspace{10pt}
 \begin{algorithmic}[1]
-\Function{sfb1d}{$lo,\ hi,\ g_0,\ g_1,\ mode,\ axis$}
+  \label{alg:ch3:sfb1d}
+\Function{sfb1d}{$lo,\ hi,\ g_0,\ g_1,\ axis$}
   % \mbox{\\$g_0,\ g_1$ are 1-D lowpass and highpass filters.}
   \If{axis = 3}
     \State $g_0,\ g_1 \gets g_0^t,\ g_1^t$  \Comment{row filtering}
   \EndIf
   \State $p \gets \F{len}(g_0) - 2$ \Comment{calculate output size}
-  \State $lo \gets \mathtt{pad}(lo,\ p,\ p,\ `zero')$ \Comment{pre pad the signal with zeros}
-  \State $hi \gets \mathtt{pad}(hi,\ p,\ p,\ `zero')$ \Comment{pre pad the signal with zeros}
+  \State $lo \gets \mathtt{pad}(lo,\ p,\ p,\ `zero \textrm')$ \Comment{pre pad the signal with zeros}
+  \State $hi \gets \mathtt{pad}(hi,\ p,\ p,\ `zero \textrm')$ \Comment{pre pad the signal with zeros}
   \State $x \gets \mathtt{conv2d\_up}(lo,\ g_0) + \mathtt{conv2d\_up}(hi,\ g_1)$
   \State \textbf{return} $x$
 \EndFunction
@@ -244,8 +246,8 @@ saved, giving this implementation almost no memory overhead.
 \begin{algorithm}[tb]
 \caption{2-D DWT and its gradient}\label{alg:ch3:dwt}
 \begin{algorithmic}[1]
-\Function{DWT.Forward}{$x,\ h_0^c,\ h_1^c,\ h_0^r,\ h_1^r,\ mode$}
-  \State \textbf{save} $h_0^c,\ h_1^c,\ h_0^r,\ h_1^r,\ mode$ \Comment{For the backwards pass} \label{line:ch3:dwt_save}
+\Function{DWT.Forward}{$x,\ h_0^r,\ h_1^r,\ h_0^c,\ h_1^c,\ mode$}
+  \State \textbf{save} $h_0^r,\ h_1^r,\ h_0^c,\ h_1^c,\ mode$ \Comment{For the backwards pass} \label{line:ch3:dwt_save}
   % \State $lo,\ hi \gets \F{afb1d}(x,\ h_0^c,\ h_1^c,\ mode,\ axis=-2)$ \Comment{column filter}
   % \State $ll,\ lh \gets \F{afb1d}(lo,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
   % \State $hl,\ hh \gets \F{afb1d}(hi,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
@@ -257,7 +259,7 @@ saved, giving this implementation almost no memory overhead.
 \end{algorithmic}\vspace{10pt}
 \begin{algorithmic}[1]
 \Function{DWT.Backward}{$\Delta ll,\ \Delta lh,\ \Delta hl,\ \Delta hh$}
-  \State \textbf{load} $h_0^c,\ h_1^c,\ h_0^r,\ h_1^r,\ mode$
+  \State \textbf{load} $h_0^r,\ h_1^r,\ h_0^c,\ h_1^c,\ mode$
   % \State $ h_0^c,\ h_1^c \gets \F{flip}(h_0^c),\ \F{flip}(h_1^c) $\Comment{flip the filters as in \eqref{eq:ch3:backprop}}
   % \State $ h_0^r,\ h_1^r \gets \F{flip}(h_0^r),\ \F{flip}(h_1^r)$
   % \mbox{\\$g_0,\ g_1$ are 1-D lowpass and highpass filters.}
@@ -271,26 +273,47 @@ saved, giving this implementation almost no memory overhead.
 
 
 \section{Fast Calculation of the $\DTCWT$}\label{sec:ch3:dtcwt}
-% \begin{figure}
+\begin{figure}
   % \includegraphics[width=\textwidth]{\imgpath/dtcwt_fb.png}
-  % \mycaption{2-D $\DTCWT$ block diagram}{Two levels of the complex wavelet tree
-  % for a real 2-D input image $x$. Image taken from \cite{kingsbury_image_1999}.}
-  % \label{fig:ch3:dtcwt_fb}
-% \end{figure}
+  \includegraphics[trim=3cm 11.8cm 4cm 2.5cm, clip, width=\textwidth]{\imgpath/dtcwt_fb2}
+  \mycaption{2-D $\DTCWT$ filter bank layout}{Two levels of the complex wavelet tree
+  for a real 2-D input image $x$. The four DWTs involved in the $\DTCWT$ are
+  labelled with $r$, $j_1$, $j_2$ and $j_1j_2$. Image taken from \cite{kingsbury_image_1999}.}
+  \label{fig:ch3:dtcwt_fb}
+\end{figure}
 We have built upon previous implementations of the $\DTCWT$
 \cite{kingsbury_dtcwt_2003, cai_2-d_2011, wareham_dtcwt_2014}. The `dual-tree'
 part of the $\DTCWT$ comes from it having two trees, each with their own set of filters:
 $a = \{h_0^a, h_1^a, g_0^a, g_1^a\}$ and $b = \{h_0^b, h_1^b, g_0^b, g_1^b\}$. In one dimension, this
 can be done with two DWTs, one using the $a$ filters and the other using the $b$
 filters. In two dimensions, we must instead do
-four multiscale DWTs. We call each DWT $aa$, $ab$, $ba$ and $bb$, where the first letter
-indicates which filter to use for the row operations and the second letter
-indicates which filter to use for the columns.
+four multiscale DWTs. We follow the notation in \cite{kingsbury_image_1999} and
+maintain separate imaginary operators $j_1$ and $j_2$ for the row and column
+processing. We call our four DWTs $r,\ j_1,\ j_2,\ j_1j_2$ and show how the
+filter bank system is connected in \autoref{fig:ch3:dtcwt_fb}. The output of
+these four DWTs can be interpreted as a four-element `complex' vector $\{a, b,
+c, d\} = a + bj_1 + cj_2 + dj_1j_2$. This 4-vector can be converted into a pair
+of complex 2-vectors by letting $j_1 = j_2 = j$ in one case and $j_1 = -j_2=-j$
+in the other case, producing the two outputs:
+\begin{align}
+  (a-d) + (b+c)j\\
+  (a+d) + (-b+c)j
+\end{align}
+corresponding to the first and second quadrant directional filters respectively.
+The sum and difference blocks $\Sigma/\Delta$ in \autoref{fig:ch3:dtcwt_fb} do
+this operation \cite{kingsbury_image_1999}. 
+% We call each DWT $aa$, $ab$, $ba$ and $bb$, where the first letter
+% indicates which filter to use for the row operations and the second letter
+% indicates which filter to use for the columns.
 
-The four DWTs give twelve bandpass coefficients at each scale. These are added and
-subtracted from each other to get the six orientations' real and imaginary
-components (see \autoref{alg:ch3:q2c} for the code for how to do this). The four
-lowpass coefficients from each scale are used for the next scale DWTs. At the
+% The four DWTs give twelve bandpass coefficients at each scale. These are added and
+% subtracted from each other to get the six orientations' real and imaginary
+% components (see \autoref{alg:ch3:q2c} for the code for how to do this). 
+% Note that the $r$ DWT uses the $a$
+% filters for both the row and column filtering, the $j_1$ uses the $b$ row filters 
+% and $a$ column filters, the $j_2$ DWT uses $a$ row filters and $b$ column
+% filters and $j_1j_2$
+The four lowpass coefficients from each scale are used for the next scale DWTs. At the
 final scale, they are interleaved to get four times the expected lowpass output
 area expected from a single decimated DWT.
 See \autoref{alg:ch3:dtcwt} for the code on how to do the full $\DTCWT$.
@@ -300,30 +323,42 @@ scale to all subsequent scales \cite{selesnick_dual-tree_2005}. We have not
 shown this in \autoref{alg:ch3:dtcwt} for simplicity, but it would simply mean
 we would have to handle the $j=1$ case separately.
 
-\begin{algorithm}[tb]
-\caption{2-D $\DTCWT$}\label{alg:ch3:dtcwt}
+We have moved the inverse $\DTCWT$ algorithm to \autoref{alg:ch3:idtcwt}. Note
+that for both the $\DTCWT$ and inverse $\DTCWT$, we rely on autograd to
+calculate the backwards pass by calling our defined DWT.Forward and 
+DWT.Backward methods.
+
+\begin{algorithm}[t]
+\caption{2-D $\DTCWT$. }\label{alg:ch3:dtcwt}
 \begin{algorithmic}[1]
 \Function{DTCWT}{$x,\ J,\ mode$}
-\State \textbf{load} $h_0^a,\ h_1^a,\ h_0^b,\ h_1^b$
-\State $ll^{aa},\ ll^{ab},\ ll^{ba},\ ll^{bb} \gets x$
+\State \textbf{load} $h_0^a,\ h_1^a,\ h_0^b,\ h_1^b$ \Comment{Load from memory}
+\State $ll_{r},\ ll_{j_1},\ ll_{j_2},\ ll_{j_1j_2} \gets x/2$
 % \State $H = \left[h_
 \For{$1 \le j \le J$}
-\State $ll^{aa},\ lh^{aa},\ hl^{aa},\ hh^{aa} \gets \F{DWT}_{aa}(ll^{aa},\ h_0^a,\ h_1^a,\ h_0^a,\ h_1^a,\ mode)$
-\State $ll^{ab},\ lh^{ab},\ hl^{ab},\ hh^{ab} \gets \F{DWT}_{ab}(ll^{ab},\ h_0^a,\ h_1^a,\ h_0^b,\ h_1^b,\ mode)$
-\State $ll^{ba},\ lh^{ba},\ hl^{ba},\ hh^{ba} \gets \F{DWT}_{ba}(ll^{ba},\ h_0^b,\ h_1^b,\ h_0^a,\ h_1^a,\ mode)$
-\State $ll^{bb},\ lh^{bb},\ hl^{bb},\ hh^{bb} \gets \F{DWT}_{bb}(ll^{bb},\ h_0^b,\ h_1^b,\ h_0^b,\ h_1^b,\ mode)$
-  \State \begin{varwidth}[t]{\linewidth}
-    $yh[j] \gets \F{Q2C}( $\par
-        \hskip\algorithmicindent $lh^{aa},\ hl^{aa},\ hh^{aa},$ \par
-        \hskip\algorithmicindent $lh^{ab},\ hl^{ab},\ hh^{ab},$ \par
-        \hskip\algorithmicindent $lh^{ba},\ hl^{ba},\ hh^{ba},$ \par
-        \hskip\algorithmicindent $lh^{bb},\ hl^{bb},\ hh^{bb})$
-        \end{varwidth}
+\State $ll_{r},\ lh_{r},\ hl_{r},\ hh_{r} \gets \F{DWT}_{r}(ll_{r},\ h_0^a,\ h_1^a,\ h_0^a,\ h_1^a,\ mode)$
+\State $ll_{j_1},\ lh_{j_1},\ hl_{j_1},\ hh_{j_1} \gets \F{DWT}_{j_1}(ll_{j_1},\ h_0^b,\ h_1^b,\ h_0^a,\ h_1^a,\ mode)$
+\State $ll_{j_2},\ lh_{j_2},\ hl_{j_2},\ hh_{j_2} \gets \F{DWT}_{j_2}(ll_{j_2},\ h_0^a,\ h_1^a,\ h_0^b,\ h_1^b,\ mode)$
+\State $ll_{j_1j_2},\ lh_{j_1j_2},\ hl_{j_1j_2},\ hh_{j_1j_2} \gets \F{DWT}_{j_1j_2}(ll_{j_1j_2},\ h_0^b,\ h_1^b,\ h_0^b,\ h_1^b,\ mode)$
+  % \State \begin{varwidth}[t]{\linewidth}
+    % $yh[j] \gets \F{Q2C}( $\par
+        % \hskip\algorithmicindent $lh_{r},\ hl_{r},\ hh_{r},$ \par
+        % \hskip\algorithmicindent $lh_{j_1},\ hl_{j_1},\ hh_{j_1},$ \par
+        % \hskip\algorithmicindent $lh_{j_2},\ hl_{j_2},\ hh_{j_2},$ \par
+        % \hskip\algorithmicindent $lh_{j_1j_2},\ hl_{j_1j_2},\ hh_{j_1j_2})$
+        % \end{varwidth}
+  \State $x_{1a} \gets (lh_{r} - lh_{j_1j_2}) + j(lh_{j_1} + lh_{j_2}) $ 
+  \State $x_{1b} \gets (lh_{r} + lh_{j_1j_2}) + j(-lh_{j_1} + lh_{j_2}) $ 
+  \State $x_{2a} \gets (hl_{r} - hl_{j_1j_2}) + j(hl_{j_1} + hl_{j_2}) $ 
+  \State $x_{2b} \gets (hl_{r} + hl_{j_1j_2}) + j(-hl_{j_1} + hl_{j_2}) $ 
+  \State $x_{3a} \gets (hh_{r} - hh_{j_1j_2}) + j(hh_{j_1} + hh_{j_2}) $ 
+  \State $x_{3b} \gets (hh_{r} + hh_{j_1j_2}) + j(-hh_{j_1} + hh_{j_2}) $ 
+  \State $yh[j] \gets (x_{1b},x_{3b}, x_{2b}, x_{2a}, x_{3a}, x_{1a}) $
 \EndFor
-\State $yl \gets \F{interleave}(ll^{aa},\ ll^{ab},\ ll^{ba},\ ll^{bb})$
+\State $yl \gets \F{interleave}(ll_{r},\ ll_{j_1},\ ll_{j_2},\ ll_{j_1j_2})$
 \State \textbf{return} $yl,\ yh$
 \EndFunction
-\end{algorithmic}\vspace{10pt}
+\end{algorithmic}
 \end{algorithm}
 
 \section{The $\DTCWT$ ScatterNet}\label{sec:ch3:scat}
@@ -419,7 +454,7 @@ $\dydx{r_s}{x}$ and $\dydx{r_s}{y}$ as opposed to saving only the phase.
 \Function{DTCWT\_SCAT}{$x,\ J=2,\ M=2$}
 \State $Z \gets x$
 \For{$1 \le m \le M$}
-  \State $yl,\ yh \gets \DTCWT(Z,\ J=1,\ mode=\F{`symmetric'})$
+  \State $yl,\ yh \gets \DTCWT(Z,\ J=1,\ mode=\F{`symmetric \textrm'})$
   \State $S \gets \F{avg\_pool}(yl,\ 2)$
   \State $U \gets \F{mag}(\real{yh},\ \imag{yh})$
   \State $Z \gets \F{concatenate}(S,\ U,\ axis=1)$ \Comment{stack 1 lowpass with 6 magnitudes}

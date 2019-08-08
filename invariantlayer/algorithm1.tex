@@ -2,28 +2,25 @@
 \caption{Locally Invariant Convolutional Layer forward and backward
 passes}\label{alg:ch5:inv}
 \begin{algorithmic}[1]
-\Procedure{LOCALINVFWD}{$x, A$}
-  \State $yl,\ yh \gets \DTCWT(x^l, \mbox{nlevels}=1) $ \Comment{yh has 6
-  orientations and is complex}
-  \State $U \gets \F{COMPLEXMAG}(yh)$
-  \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample and recentre lowpass
-  to match U size}
-  \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{concatenated along the
-  channel dimension}
+\Procedure{INVLAYER.Forward}{$x, A$}
+\State $yl,\ yh \gets \F{\DTCWT.Forward}(x^l, \mbox{nlevels}=1) $ 
+  \State $U \gets \F{MAG\_SMOOTH.Forward}(yh)$ \Comment{See \autoref{alg:ch3:mag_smooth}}
+  \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample lowpass to match U size}
+  \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{Concatenate along the channel dim}
   \State $Y \gets AZ$ \Comment{Mix}
-  \State \textbf{save} $Z$ \Comment{For the backwards pass}
+  \State \textbf{save} $A, Z$ \Comment{For the backwards pass}
   \State \textbf{return} $Y$ 
 \EndProcedure
 \end{algorithmic}\vspace{10pt}
 \begin{algorithmic}[1]
-\Procedure{LOCALINVBWD}{$\dydx{L}{Y},\ A$}
-  \State \textbf{load} $Z$
-  \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$ \Comment{The weight gradient}
-  \State $\Delta{Z} \gets A^T\dydx{L}{Y}$
+\Procedure{INVLAYER.Backward}{$\dydx{L}{Y}$}
+  \State \textbf{load} $A, Z$
+  \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$ \Comment{Calculate update gradient}
+  \State $\Delta{Z} \gets A^T\dydx{L}{Y}$ 
   \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
-  \State $\Delta yl \gets \F{AVGPOOL2x2BWD}(\Delta yl)$
-  \State $\Delta yh \gets \F{COMPLEXMAGBWD}(\Delta U)$
-  \State $\dydx{L}{x} \gets \F{\DTCWT BWD}(\Delta yl,\ \Delta yh)$ \Comment{The propagated gradient}
+  \State $\Delta yl \gets \F{AVGPOOL2x2.Backward}(\Delta yl)$
+  \State $\Delta yh \gets \F{MAG\_SMOOTH.Backward}(\Delta U)$
+  \State $\dydx{L}{x} \gets \F{\DTCWT.Backward}(\Delta yl,\ \Delta yh)$ \Comment{Calculate passthrough gradient}
   \State \textbf{return} $\dydx{L}{x},\ \dydx{L}{A}$
 \EndProcedure
 \end{algorithmic}

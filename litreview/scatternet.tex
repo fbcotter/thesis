@@ -149,7 +149,7 @@ $m$ describing the order of application of wavelets, and define:
 \begin{align}
   U[p]x &= U[\lambda_m]U[\lambda_{m-1}]\cdots U[\lambda_1]x \\
         &= || \cdots |x \conv \psitd_{\lambda_1}| \conv \psitd_{\lambda_2} | \cdots
-  \conv \psitd_{\lambda_m}|
+  \conv \psitd_{\lambda_m}| \label{eq:ch2:u_path}
 \end{align}
 and the $m$th order scattering coefficient along the path $p$ is $S[p]x = U[p]x
 \conv \phitd_J$. Further, let $p+\lambda = (\lambda_1, \lambda_2, \ldots
@@ -235,8 +235,7 @@ and $\norm{\nabla \tau}_\infty = \sup_u |\nabla \tau(\xy)| < 1$ then it is
 proven in \cite{mallat_group_2012} that:
 %
 \begin{equation}
-  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq C P \norm{x}
-  (2^{-J}\norm{\tau}_\infty + \norm{\nabla \tau}_\infty )
+  \norm{ S \mathcal{L}_{\tau}x  - S x} \leq C P \norm{x} (2^{-J}\norm{\tau}_\infty + \norm{\nabla \tau}_\infty )
 \end{equation}
 %
 where $P = \F{length}(p)$ is the scattering order and $C$ is a constant
