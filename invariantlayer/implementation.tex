@@ -51,7 +51,34 @@ spatial size $\frac{HW}{4}$. This means that our proposed layer needs to save
 $\frac{7}{4}HWC_l$ floats, a $\frac{7}{4}$ times memory increase on the standard
 layer.
 
-\input{\path/algorithm1}
+\begin{algorithm}[tb]
+\caption{Locally Invariant Convolutional Layer forward and backward
+passes}\label{alg:ch5:inv}
+\begin{algorithmic}[1]
+\Procedure{INVLAYER.Forward}{$x, A$}
+\State $yl,\ yh \gets \F{\DTCWT.Forward}(x^l, \mbox{nlevels}=1) $ 
+  \State $U \gets \F{MAG\_SMOOTH.Forward}(yh)$ \Comment{See \autoref{alg:ch3:mag_smooth}}
+  \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample lowpass to match U size}
+  \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{Concatenate along the channel dim}
+  \State $Y \gets AZ$ \Comment{Mix}
+  \State \textbf{save} $A, Z$ \Comment{For the backwards pass}
+  \State \textbf{return} $Y$ 
+\EndProcedure
+\end{algorithmic}\vspace{10pt}
+\begin{algorithmic}[1]
+\Procedure{INVLAYER.Backward}{$\dydx{L}{Y}$}
+  \State \textbf{load} $A, Z$
+  \State $\dydx{L}{A} \gets \dydx{L}{Y} Z^T$ \Comment{Calculate update gradient}
+  \State $\Delta{Z} \gets A^T\dydx{L}{Y}$ 
+  \State $\Delta yl,\ \Delta U \gets \F{UNSTACK}(\Delta Z)$ 
+  \State $\Delta yl \gets \F{AVGPOOL2x2.Backward}(\Delta yl)$
+  \State $\Delta yh \gets \F{MAG\_SMOOTH.Backward}(\Delta U)$
+  \State $\dydx{L}{x} \gets \F{\DTCWT.Backward}(\Delta yl,\ \Delta yh)$ \Comment{Calculate passthrough gradient}
+  \State \textbf{return} $\dydx{L}{x},\ \dydx{L}{A}$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
 
 \subsection{Computational Cost}\label{sec:ch5:computation}
 A standard convolutional layer with kernel size $L\x L$ needs $L^2C_{l+1}$
@@ -95,4 +122,6 @@ There are two layer-hyperparameters to choose:
 Assuming we have already chosen these values, 
 then the forward and backward algorithms can be computed with
 Algorithm~\autoref{alg:ch5:inv}.
+
+
 

@@ -38,11 +38,11 @@ and our gain layer $G$.
 % Let $\lnorm{H}{2}$, $\lnorm{G}{2}$ be the $\ell_2$ norm
 % of the weights for each layer.
 We assume that we do not have direct
-access to $H_0$ but only the convolved outputs $Y=H_0 X$. Then, we would like to solve:
+access to $H_0$ but only the convolved outputs $y=H_0 x$. Then, we would like to solve:
 \begin{align}
-  & \argmin_{H}\ (Y - HX)^2 %+ \frac{\lambda}{2} \lnorm{H}{2}^2
+  & \argmin_{H}\ (y - Hx)^2 %+ \frac{\lambda}{2} \lnorm{H}{2}^2
   \condition{s.t. $h[c, \nn] = 0,\ \forall \nn \notin \mathcal{R}$} \label{eq:ch6:conv_regression}\\
-  & \argmin_{G}\ (Y - \mathcal{W}^{-1}G\mathcal{W}X)^2 %+ \frac{\lambda}{2} \lnorm{G}{2}^2
+  & \argmin_{G}\ (y - \mathcal{W}^{-1}G\mathcal{W}x)^2 %+ \frac{\lambda}{2} \lnorm{G}{2}^2
   \condition{s.t. $g_{j,k}[c, \nn] = 0,\ \forall \nn \notin \mathcal{R'}$} \label{eq:ch6:gain_regression}
 \end{align}
 for some support regions $\mathcal{R},\mathcal{R'}$. E.g. $\mathcal{R}$ is a $3\x3$ or $5\x5$
@@ -52,9 +52,9 @@ subband.
 \eqref{eq:ch6:conv_regression} and \eqref{eq:ch6:gain_regression} are both
 regression problems convex in the parameters of $H$ and $G$, with many possible
 ways to solve. We are not worried with the optimization procedure chosen here,
-but of the final distances $\norm{Y-HX}$ and $\norm{Y-\mathcal{W}^{-1}G\mathcal{W}x}$ (or
+but of the final distances $\norm{y-Hx}$ and $\norm{y-\mathcal{W}^{-1}G\mathcal{W}x}$ (or
 equivalently, their squares). We choose to find $H$ and $G$ by gradient descent,
-using the validation set for ImageNet as the data input-output pair $(X, Y)$.
+using the validation set for ImageNet as the data input-output pair $(x, y)$.
 After 3--5 epochs, both $H$ and $G$ typically settle into their global minimum.
 Because of the large size of the input filters, we allow for both a $J=1$ and
 $J=2$ scale gain layer but only learn weights at the lowest frequency bandpass
@@ -62,9 +62,9 @@ $J=2$ scale gain layer but only learn weights at the lowest frequency bandpass
 only learn $g_2$).
 
 After training, we report the final normalized mean squared errors between the
-target values $Y$ and the estimated outputs $\hat{Y}$, defined as:
+target values $y$ and the estimated outputs $\hat{y}$, defined as:
 \begin{equation}
-  NMSE = \frac{1}{N} \sum_{n=1}^N \frac{\mathbb{E}\left[(Y-\hat{Y})^2\right]}{\mathbb{E}\left[Y^2\right]}
+  NMSE = \frac{1}{N} \sum_{n=1}^N \frac{\mathbb{E}\left[(y-\hat{y})^2\right]}{\mathbb{E}\left[y^2\right]}
 \end{equation}
 The resulting NMSEs are shown in \autoref{fig:ch6:gainlayer_regression} . A label
 `gl$ab$' indicates a single scale gain layer with $a\x a$ support in the lowpass
@@ -103,7 +103,7 @@ with small kernels used in \autoref{ch:invariant} and include the results in
 
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
 \subsubsection{Large Kernel Ablation}
-\input{\path/ablation_arch2}
+\input{\path/tables/ablation_arch2}
 
 In this experiment, we build a three-layer CNN with $5\x 5$ convolutional
 kernels, described in \autoref{tab:ch6:ablation_arch}.  To help differentiate

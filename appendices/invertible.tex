@@ -1,0 +1,72 @@
+\chapter{Invertible Transforms and Optimization} \label{app:ch6:invertible}
+\def \path {freqlearn/}
+\def \imgpath {freqlearn/images}
+This Appendix proves the assertion made in \autoref{sec:ch6:related}, namely
+that:
+\begin{quote}
+  Any invertible linear transform of the parameter space will not change the updates if a linear
+  optimization scheme is used (for example standard gradient descent, or SGD with momentum).
+\end{quote}
+We prove the case for the DFT as the invertible transform, but it can easily be
+extended to other transforms so long as \eqref{eq:ch6:dft_grad} and
+\eqref{eq:ch6:dft_grad2} hold.
+
+\section{Background}
+We define the DFT as the orthonormal version, i.e.
+$$ U_{ab} = \frac{1}{\sqrt{N}} \exp\{ \frac{-2j\pi ab}{N} \} $$
+%
+then call $X = \DFT{x}$. In matrix form the 2-D DFT is then
+\cite[Chapter 2]{petrou_image_2010}:
+\begin{align}
+  X &= \DFT{x} = UxU \\
+  x &= \IFT{X} = U^*XU^* 
+\end{align}
+The gradients of these linear operators are:
+\begin{align}
+  \dydx{L}{X} &= U \dydx{L}{x} U = \DFT{\dydx{L}{x}} \label{eq:ch6:dft_grad}\\
+  \dydx{L}{x} &= U^* \dydx{L}{X} U^* = \IFT{\dydx{L}{X}} \label{eq:ch6:dft_grad2}
+\end{align}
+
+\section{Analysis}
+Consider a single filter parameterized in the DFT and spatial domains
+presented with the exact same data and with the same \ltwo\ regularization
+$\lambda$, and learning rate $\eta$. Let
+the spatial filter at time $t$ be $\vec{w}_t$ and the Fourier-parameterized
+filter be $\hat{\vec{w}}_t$, and let 
+\begin{equation}
+  \hat{\vec{w}}_1 = \F{DFT}\{\vec{w}_1\} \label{eq:ch6:initial_condition}
+\end{equation}
+We need to prove that presenting the data to each system in the same order
+results in the same outputs for all time $t$.
+%
+\begin{proof}
+  Assume that $\hat{\vec{w}}_t = \F{DFT}\{\vec{w}_t\}$ for a given timestep $t$.
+
+After presenting both systems with the same minibatch of samples $\mathcal{D}$
+and calculating the gradient $\dydx{L}{\vec{w}_t}$ we update both parameters:
+\begin{align}
+  \vec{w}_{t+1} & =  \vec{w}_t - \eta \left(
+    \dydx{L}{\vec{w}_t} + \lambda \vec{w}_t \right) \\
+    &= (1-\eta\lambda)\vec{w}_t - \eta \dydx{L}{\vec{w}_t} \\
+    \hat{\vec{w}}_{t+1} & =  \hat{\vec{w}}_t - \eta \left(
+     \dydx{L}{\hat{\vec{w}_t}} + \lambda \hat{\vec{w}}_t \right)  \\
+     &= (1-\eta\lambda)\hat{\vec{w}}_t - \eta \dydx{L}{\hat{\vec{w}}_t} 
+\end{align}
+We can then compare the effect the new parameters would have on the next
+minibatch by calculating $\F{DFT}^{-1} \{\hat{\vec{w}}_{t+1} \}$. We then get:
+\begin{align}
+  \IFT{\hat{\vec{w}}_{t+1}} &= \IFT{(1-\eta\lambda)\hat{\vec{w}}_t - \eta\ \dydx{L}{\hat{\vec{w}}_t}} \\       
+                        & =  (1-\eta\lambda)\vec{w}_t - \eta\ \IFT{\dydx{L}{\hat{\vec{w}}_t}} \\
+                        & =  (1-\eta\lambda)\vec{w}_t - \eta \dydx{L}{\vec{w}_t} \\
+                        & =  \vec{w}_{t+1}
+\end{align}
+where we have used \eqref{eq:ch6:dft_grad2} for the second last line.
+Since the IFT of $\hat{\vec{w}}$ is the same as $\vec{w}$ at timestep $t+1$ given
+they are the same at timestep $t$, and we have set them equal to each other at
+timestep 1, by induction they will be the same for all time.
+\end{proof}
+We have proved the simpler case for simple SGD, but the same result holds when
+momentum terms are added. This does not however hold for the Adam \cite{kingma_adam:_2014} or Adagrad
+\cite{duchi_adaptive_2011} optimizers, which automatically rescale the learning
+rates for each parameter based on estimates of the parameter's variance.
+

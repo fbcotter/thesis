@@ -1,0 +1,44 @@
+\begin{table}
+  \renewcommand{\arraystretch}{1.2}
+  \centering
+  \mycaption{Results for testing VGG like architecture with convolutional and
+  wavelet gain layers on several datasets}{An architecture with `gainX' means the
+  equivalent convolutional layer `convX' from \autoref{tab:ch5:arch} was swapped for
+  our proposed layer. The top row is the reference architecture using all
+  convolutional layers. The DWT architecture takes a single scale DWT of the
+  activations at the given layer, and mixes the coefficients to get new wavelet
+  coefficients. The lowpass mixing coefficients for the DWT architecture have spatial
+  size $3\x 3$ and the bandpass coefficients have spatial size $1\x 1$. The
+  $\DTCWT$ architecture takes a single scale $\DTCWT$ and mixes the lowpass and 
+  complex bandpass coefficients. Both the lowpass and bandpass coefficients have
+  spatial size $1\x 1$. Numbers are averages over 3 runs.} 
+  % \begin{tabular}{@{}lllcllcll@{}}
+  \begin{tabular}{@{}llcclcclcc@{}}
+    \toprule
+    & \phantom{b} & \multicolumn{2}{c}{CIFAR-10} & \phantom{abc} & 
+                     \multicolumn{2}{c}{CIFAR-100} & \phantom{abc} & 
+                     \multicolumn{2}{c}{Tiny ImgNet} \\ 
+    \cline{3-4}\cline{6-7}\cline{9-10}
+    && DWT & $\DTCWT$ &&  DWT & $\DTCWT$ && DWT & $\DTCWT$ \\ 
+    \midrule
+    reference && \multicolumn{2}{c}{92.6} && \multicolumn{2}{c}{72.0} && \multicolumn{2}{c}{59.3} \\ 
+    \midrule
+    gainA        && 93.0 & 93.0 && 72.3 & 72.8 && 61.3 & 60.8 \\
+    gainB        && 93.0 & 92.9 && 72.5 & 73.4 && 61.3 & 61.3\\
+    gainC        && 92.8 & 93.2 && 72.1 & 72.8 && 60.8 & 60.7\\
+    gainD        && 92.9 & 93.3 && 72.9 & 73.1 && 60.3 & 60.3\\
+    gainE        && 93.3 & 93.0 && 72.8 & 72.7 && 60.8 & 60.6\\
+    gainF        && 93.6 & 93.1 && 73.6 & 72.7 && 61.3 & 61.3\\
+    gainA, gainB && 91.9 & 92.2 && 70.6 & 72.3 && 60.6 & 60.9\\
+    gainB, gainC && 92.1 & 92.6 && 71.7 & 73.1 && 60.3 & 60.7\\
+    gainC, gainD && 91.9 & 92.9 && 71.0 & 72.4 && 60.1 & 59.9\\
+    gainD, gainE && 93.1 & 92.8 && 72.4 & 71.9 && 60.6 & 60.0\\
+    gainA, gainC && 92.4 & 92.8 && 71.8 & 73.6 && 60.7 & 60.0\\
+    gainB, gainD && 92.5 & 92.8 && 71.7 & 72.9 && 60.6 & 61.2\\
+    gainC, gainE && 92.4 & 92.7 && 71.7 & 72.2 && 59.7 & 60.1\\ 
+    \midrule
+    gainA-F      && & &&      &      && & \\ 
+    \bottomrule
+  \end{tabular}\label{tab:ch6:ablation_results}
+\end{table}
+

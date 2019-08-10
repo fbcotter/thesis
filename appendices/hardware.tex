@@ -1,0 +1,20 @@
+\chapter{Architecture Used for Experiments} \label{app:arch}
+\def \path {dtcwt_scat}
+\def \imgpath {\path/images}
+
+The experiments for this thesis were run on a single server with 8 GPUs and 14
+CPUs. The GPUs were each NVIDIA GeForce GTX 1080 cards released in May 2016.
+They each have 8GiB of RAM, 2560 CUDA cores and 320 GB/s memory bandwidth.
+The CPUs were Intel(R) Xeon(R) E5-2660 models. 
+
+At the completion of the project, we were running CUDA 10.0 with cuDNN 7.6 and 
+PyTorch version 1.1.
+
+To do hyperparameter search we used the Tune package \cite{liaw2018tune} which
+we highly recommend, as it makes running trials in parallel very easy.
+
+\section{Run Times of some of the Proposed Layers}
+.
+
+
+\input{appendix1}

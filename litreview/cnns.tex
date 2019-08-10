@@ -113,18 +113,18 @@ where $w^{(l)}$ denotes the weights for the $l$-th layer, of which
 called \emph{fully connected} as each node in the previous layer affects every
 node in the next.
 
-If we were to expand this network to have $L$ such fully connected layers, we
+If we were to expand this network to have $N_l$ such fully connected layers, we
 could rewrite the action of each layer in a recursive fashion:
 %
 \begin{align}
-  Y^{(l+1)} &= W^{(l+1)}X^{(l)}  \label{eq:ch2:fc1}\\
-  X^{(l+1)} &= \sigma\left(Y^{(l+1)}\right) \label{eq:ch2:fc2}
+  y^{(l+1)} &= W^{(l+1)}x^{(l)}  \label{eq:ch2:fc1}\\
+  x^{(l+1)} &= \sigma\left(y^{(l+1)}\right) \label{eq:ch2:fc2}
 \end{align}
 where $W$ is now a weight matrix, acting on the vector of previous layer's
-outputs $X^{(l)}$. As we are now considering every layer to be an input to the next
+outputs $x^{(l)}$. As we are now considering every layer to be an input to the next
 stage, we have removed the $h$ notation and added the superscript $(l)$ to
-define the depth. $X^{(0)}$ is the network input and $Y^{(L)}$ is the network
-output. Let us say that the output has $C$ nodes, and a hidden layer $X^{(l)}$
+define the depth. $x^{(0)}$ is the network input and $y^{(N_l)}$ is the network
+output. Let us say that the output has $C$ nodes, and a hidden layer $x^{(l)}$
 has $C_l$ nodes.
 
 \begin{figure}[t]
@@ -141,7 +141,7 @@ has $C_l$ nodes.
 \subsection{Backpropagation}
 It is important to truly understand backpropagation when designing neural
 networks, so we describe the core concepts now for a neural network with
-$L$ layers.
+$N_l$ layers.
 
 The delta rule, initially designed for networks with no hidden layers
 \cite{widrow_neurocomputing:_1988}, was expanded to what we now consider
@@ -150,67 +150,68 @@ is conceptually just the application of the chain rule, Rumelhart, Hinton, and
 Williams successfully updated the delta rule to networks with hidden layers,
 laying a key foundational step for deeper networks.
 
-With a deep network, calculating $\dydx{J}{w}$ may not seem easy,
+With a deep network, calculating $\dydx{L_{data}}{w}$ may not seem easy,
 particularly if $w$ is a weight in one of the earlier layers. We need
-to define a rule for updating the weights in all $L$ layers of the network,
-$W^{(1)}, W^{(2)}, \ldots W^{(L)}$ however, only the final set $W^{(L)}$ are
-connected to the objective function $J$.
+to define a rule for updating the weights in all $N_l$ layers of the network,
+$W^{(1)}, W^{(2)}, \ldots W^{(N_l)}$ however, only the final set $W^{(N_l)}$ are
+connected to the data loss function $L_{data}$.
 
 \subsubsection{Regression Loss}
-Let us start with writing down the derivative of $J$ with respect to the network
-output $Y^{(L)}$ using the regression objective function \eqref{eq:ch2:mle_reg}.
-As we now have two superscripts,
-one for the sample number and one for the layer number, we combine them into a
-tuple of superscripts.
+Let us start with writing down the derivative of $L$ (dropping the \emph{data}
+subscript for now) with respect to the network
+output $\hat{y} = y^{(N_l)}$ using the regression objective function \eqref{eq:ch2:mle_reg}.
 \begin{align}
-  \dydx{J}{Y^{(L)}} &= \dydx{}{Y^{(L)}} \left( \frac{1}{N}\sum_{n=1}^{N_b}\frac{1}{2} \left(y^{(n)} - Y^{(L, n)}\right)^2\right) \\
-                    &= \frac{1}{N}\sum_{n=1}^{N_b} \left(Y^{(L, n)} - y^{(n)} \right) \\
+  \dydx{L}{y^{(N_l)}} &= \dydx{}{\hat{y}} \left( \frac{1}{N}\sum_{n=1}^{N_b}\frac{1}{2} \left(y^{(n)} - \hat{y}^{(n)}\right)^2\right) \\
+                    &= \frac{1}{N}\sum_{n=1}^{N_b} \left(\hat{y}^{(n)} - y^{(n)} \right) \\
                     &= e \in \reals \label{eq:ch2:reg_b1}
 \end{align}
-where we have used the fact that for the regression case, $y^{(n)}, Y^{(L,n)}
+where we have used the fact that for the regression case, $y^{(n)},\ \hat{y}^{(n)}
 \in \reals$.
 
 \subsubsection{Classification Loss}
 For the classification case \eqref{eq:ch2:mle_class}, let us keep the output of
-the network $Y^{(L,n)} \in \reals[C]$ and define an intermediate value $\hat{y}$ the
-softmax applied to this vector $\hat{y}^{(n)}_c = \sigma_c\left(Y^{(L, n)}\right)$.
+the network as $y^{(N_l)} \in \reals[C]$ and define $\hat{y}$ as the
+softmax applied to this vector $\hat{y}^{(n)}_c = \sigma_c\left(y^{(N_l, n)}\right)$.
+As we now have two superscripts,
+one for the sample number and one for the layer number, we combine them into a
+tuple of superscripts.
+
 Note that the softmax is a vector-valued function going from $\reals[C] \rightarrow
-\reals[C]$ so has a Jacobian matrix $S_{ij} = \dydx{\hat{y}_i}{Y^{(L)}_j}$ with
-values:
+\reals[C]$ so has a Jacobian matrix $S$ with values:
 \begin{equation}
-  S_{ij} = \begin{cases}
+  S_{ij} = \dydx{\hat{y}_i}{y^{(N_l)}_j} = \begin{cases}
     \sigma_i (1-\sigma_j) & \text{if $i=j$}\\
     -\sigma_i \sigma_j & \text{if $i\neq j$}\\
   \end{cases}
 \end{equation}
 
 Now, let us return to \eqref{eq:ch2:mle_class} and find the derivative of the
-objective function to this intermediate value $\hat{y}$:
+objective function to this output value $\hat{y}$:
 \begin{align}
-  \dydx{J}{\hat{y}} &=  \dydx{}{\hat{y}} \left( \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C
+  \dydx{L}{\hat{y}} &=  \dydx{}{\hat{y}} \left( \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C
   y^{(n)}_c \log \hat{y}^{(n)}_c \right) \\
   &= \frac{1}{N}\sum_{n=1}^{N_b} \sum_{c=1}^C \frac{y^{(n)}_c}{\hat{y}^{(n)}_c} \\
   &= d \in \reals[C] \label{eq:ch2:class_b1}
 \end{align}
 Note that unlike \eqref{eq:ch2:reg_b1}, this derivative is vector-valued. To
-find $\dydx{J}{Y^{(L)}}$ we use the chain rule. It is easier to find the
+find $\dydx{L}{y^{(N_l)}}$ we use the chain rule. It is easier to find the
 partial derivative with respect to one node in the output first, and then expand
 from here. I.e.:
 
 \begin{align}
-  \dydx{J}{Y^{(L)}_j} &= \sum_{i=1}^C \dydx{J}{\hat{y}_i}\dydx{\hat{y}_i}{Y^{(L)}_j} \\
+  \dydx{L}{y^{(N_l)}_j} &= \sum_{i=1}^C \dydx{L}{\hat{y}_i}\dydx{\hat{y}_i}{y^{(N_l)}_j} \\
                       &= S_j^T d
 \end{align}
 where $S_j$ is the $j$th column of the Jacobian matrix $S$. It becomes clear now
-that to get the entire vector derivative for all nodes in $Y^{(L)}$, we must
+that to get the entire vector derivative for all nodes in $y^{(N_l)}$, we must
 multiply the transpose of the Jacobian matrix with the error term from
 \eqref{eq:ch2:class_b1}:
 \begin{equation}
-  \dydx{J}{Y^{(L)}} = S^T d
+  \dydx{L}{y^{(N_l)}} = S^T d
 \end{equation}
 
 \subsubsection{Final Layer Weight Gradient} \label{sec:ch2:weight}
-Let us continue by assuming $\dydx{J}{Y^{(L)}}$ is vector-valued as was the case
+Let us continue by assuming $\dydx{L}{y^{(N_l)}}$ is vector-valued as was the case
 with classification. For regression, it is easy to set $C=1$ in the following to
 get the necessary results. For clarity we drop the layer
 superscript in the intermediate calculations.
@@ -218,31 +219,32 @@ superscript in the intermediate calculations.
 We call the gradient for the final layer weights the \emph{update} gradient.
 It can be computed by the chain rule again:
 \begin{align}
-  \dydx{J}{W_{ij}} &= \dydx{J}{Y_i} \dydx{Y_i}{W_{ij}} + 2\lambda W_{ij} \\
-                   &= \dydx{J}{Y_i} X_j + 2\lambda W_{ij}
+  \dydx{J}{W_{ij}} &= \dydx{L_{data}}{y_i} \dydx{y_i}{W_{ij}} + \lambda W_{ij} \\
+                   &= \dydx{L_{data}}{y_i} x_j + \lambda W_{ij}
 \end{align}
 where the second term in the above two equations comes from the regularization
-loss that is added to the objective. The gradient of the entire weight matrix is
+loss that is added to the objective. The update gradient of the entire weight matrix is
 then:
 \begin{align}
-  \dydx{J}{W^{(L)}} &= \dydx{J}{\hat{y}} X^T +2\lambda W \\
-                    &= S^T d \left(X^{(L-1)}\right)^T + 2\lambda W^{(L)} \in \reals[C \x C_{L-1}]
+  \dydx{J}{W^{(N_l)}} &= \dydx{L_{data}}{\hat{y}} x^T +2\lambda W \\
+                    &= S^T d \left(x^{(N_l-1)}\right)^T + 2\lambda W^{(N_l)} \in \reals[C \x C_{N_l-1}]
 \end{align}
 
 \subsubsection{Final Layer Passthrough Gradient} \label{sec:ch2:passthrough}
 We also want to find the \emph{passthrough} gradients of the final
-layer $\dydx{J}{X^{(L-1)}}$. In a similar fashion, we first find the gradient
-with respect to individual elements in $X^{(L-1)}$ before generalizing to the
-entire vector:
+layer $\dydx{L}{x^{(N_l-1)}}$ (these are not affected by the regularization
+terms, so we only need to find the gradient w.r.t. the data loss $L$). In a
+similar fashion, we first find the gradient with respect to individual elements
+in $x^{(N_l-1)}$ before generalizing to the entire vector:
 \begin{align}
-  \dydx{J}{X_i} &= \sum_{j=1}^{C} \dydx{J}{Y_j} \dydx{Y_j}{X_i} \\
-                &= \sum_{j=1}^{C} \dydx{J}{Y_j} W_{j,i} \\
-                &= W_{i}^T\dydx{J}{Y} \\
+  \dydx{L}{x_i} &= \sum_{j=1}^{C} \dydx{L}{y_j} \dydx{y_j}{x_i} \\
+                &= \sum_{j=1}^{C} \dydx{L}{y_j} W_{j,i} \\
+                &= W_{i}^T\dydx{L}{y} \\
 \end{align}
 where $W_i$ is the $i$th column of $W$. Thus
 \begin{align}
-  \dydx{J}{X^{(L-1)}} &= \left(W^{(L)}\right)^T \dydx{J}{Y^{(L)}} \\
-                      &= \left( W^{(L)} \right)^T S^T d
+  \dydx{L}{x^{(N_l-1)}} &= \left(W^{(N_l)}\right)^T \dydx{L}{y^{(N_l)}} \\
+                      &= \left( W^{(N_l)} \right)^T S^T d
 \end{align}
 This passthrough gradient then can be used to update the next layer's weights by
 repeating \autoref{sec:ch2:weight} and \autoref{sec:ch2:passthrough}.
@@ -253,8 +255,8 @@ automatic differentiation packages is the block definition shown in
 \autoref{fig:ch2:block_form}. For all neural network components (even if they do
 not have weights), the operation must not only be able to calculate the forward
 pass $y=f(x, w)$ given weights $w$ and inputs $x$, but also calculate the
-\emph{update} and \emph{passthrough} gradients $\dydx{J}{w}, \dydx{J}{x}$ given
-an input gradient $\dydx{J}{y}$. The input gradient will have the same shape as
+\emph{update} and \emph{passthrough} gradients $\dydx{L}{w}, \dydx{L}{x}$ given
+an input gradient $\dydx{L}{y}$. The input gradient will have the same shape as
 $y$ as will the update and passthrough gradients match the shape of $w$ and $x$.
 This way, gradients for the entire network can be computed in an iterative
 fashion starting at the loss function and moving backwards.
@@ -265,7 +267,7 @@ fashion starting at the loss function and moving backwards.
   \includegraphics{\imgpath/deeplearn_block.pdf}
   \mycaption{General block form for autograd}{All neural network functions
   need to be able to calculate the forward pass $y=f(x,w)$ as well as the
-  update and passthrough gradients $\dydx{J}{w}, \dydx{J}{x}$. Backpropagation
+  update and passthrough gradients $\dydx{L}{w}, \dydx{L}{x}$. Backpropagation
   is then easily done by allowing data to flow backwards through these blocks
   from the loss.}
   \label{fig:ch2:block_form}
@@ -296,14 +298,14 @@ used in CNNs that have become popular in the past few years.
 
 \subsection{Convolutional Layers}\label{sec:ch2:conv_layers}
 In the analysis of neural networks so far, we have considered column vectors
-$X^{(l)},Y^{(l)} \in \reals[C_{l}]$. Convolutional layers for image analysis
+$x^{(l)},y^{(l)} \in \reals[C_{l}]$. Convolutional layers for image analysis
 have a different format, with the spatial component of the input is
 preserved.
 
 Let us first consider the definition of 2-D convolution for single-channel
 images:
 \begin{align}
-  y[\nn] = (x\conv h)[\nn] &= \sum_{\mathbf{k}} x[\mathbf{k}]h[\nn-\mathbf{k}] \label{eq:ch2:conv1}\\
+  y[\nn] = (x\conv h)[\nn] &= \sum_{\kk} x[\kk]h[\nn-\kk] \label{eq:ch2:conv1}\\
                            &= \sum_{k_1, k_2} x[k_1,k_2]h[n_1-k_1, n_2-k_2]
 \end{align}
 where the sum is done over the support of $h$. For an input $x\in \reals[H\x W]$
@@ -330,7 +332,7 @@ done only over the two spatial dimensions
 and the $C$ outputs are summed at each pixel location. This makes
 \eqref{eq:ch2:conv1}:
 \begin{equation}
-  y[\nn] = \sum_{c=0}^{C-1} \sum_{\mathbf{k}} x[c, \mathbf{k}]h[c, \nn-\mathbf{k}]
+  y[\nn] = \sum_{c=0}^{C-1} \sum_{\kk} x[c, \kk]h[c, \nn-\kk]
   \label{eq:ch2:conv2}
 \end{equation}
 
@@ -343,7 +345,7 @@ filters. We then stack each of the single channel outputs from
 \eqref{eq:ch2:conv2} to give the output $y \in \reals[C_{l+1} \x H\x W]$:
 %
 \begin{equation}
-  y[f, \nn] = \sum_{c=0}^{C-1} \sum_{\mathbf{k}} x[c, \mathbf{k}]h_f[c, \nn-\mathbf{k}]
+  y[f, \nn] = \sum_{c=0}^{C-1} \sum_{\kk} x[c, \kk]h[f, c, \nn-\kk]
   \label{eq:ch2:conv3}
 \end{equation}
 
@@ -354,9 +356,9 @@ sigmoid function $\sigma$, but is now more commonly the ReLU. Revisiting
 \eqref{eq:ch2:fc2}, we can rewrite this for a convolutional layer at depth $l$
 with $C_l$ input and $C_{l+1}$ output channels:
 \begin{align}
-  Y^{(l+1)}[f, \nn] &= \sum_{c=0}^{C_l-1} X^{(l)}[c, \nn] \conv h^{(l)}_f[c, \nn]
+  y^{(l+1)}[f, \nn] &= \sum_{c=0}^{C_l-1} x^{(l)}[c, \nn] \conv h^{(l)}[f, c, \nn]
     \label{eq:ch2:conv4}\\
-    X^{(l+1)}[f, \nn] &= \sigma\left(Y^{(l)}[f, \nn]\right) \label{eq:ch2:conv4a}
+    x^{(l+1)}[f, \nn] &= \sigma\left(y^{(l)}[f, \nn]\right) \label{eq:ch2:conv4a}
 \end{align}
 where $f \in \{0, 1,\ldots C_{l+1}-1\}$ indexes the filter number/output channel. A diagram
 representing this operation is shown in \autoref{fig:ch2:conv_layer}.
@@ -397,45 +399,45 @@ processing, this is simply called decimation by 2.
 
 \subsubsection{Gradients}\label{sec:ch2:conv_grad}
 To get the update and passthrough gradients for the convolutional layer we will need to expand
-\eqref{eq:ch2:conv4}. Again we will drop the layer superscripts for clarity:
+\eqref{eq:ch2:conv4} (again we will drop the layer superscripts for clarity):
 \begin{equation}
   % Y[f, n_1, n_2] &=& \sum_{c=1}^C \sum_{k_1=a}^{b} \sum_{k_2=a}^b x[c, k_1, k_2]
   % h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
-  Y[f, n_1, n_2] = \sum_{c=0}^{C-1} \sum_{k_1} \sum_{k_2} X[c, k_1, k_2]
-  h_f[c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
+  y[f, n_1, n_2] = \sum_{c=0}^{C-1} \sum_{k_1} \sum_{k_2} x[c, k_1, k_2]
+  h[f, c, n_1-k_1, n_2-k_2] \label{eq:ch2:conv5}
 \end{equation}
-The derivative for an activation in $Y$ to a single activation in $X$ is then
+The derivative for a single output $y[f, n_1, n_2]$ w.r.t.\ a single input $x[c, k_1, k_2]$ is then
 simply:
 \begin{equation}
-  \dydx{Y_{f, n_1, n_2}}{X_{c, k_1, k_2}} = h_f[c, n_1 - k_1, n_2 - k_2]
+  \dydx{y_{f, n_1, n_2}}{x_{c, k_1, k_2}} = h[f, c, n_1 - k_1, n_2 - k_2]
 \end{equation}
-It is clear from \eqref{eq:ch2:conv5} that a single activation $X[c, n_1, n_2]$ affects
+It is clear from \eqref{eq:ch2:conv5} that a single activation $x[c, k_1, k_2]$ affects
 many output values. Thus, the derivative for the loss function to this single
-point in $X$ is the sum of the chain rule applied to all output positions:
+point in $x$ is the sum of the chain rule applied to all output positions:
 \begin{align}
-  \dydx{L}{X_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}}
-  \dydx{Y_{f, n_1, n_2}}{X_{c,k_1,k_2}} \\
-  &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} h_f[c, n_1 - k_1, n_2 - k_2] \label{eq:ch2:conv6}
+  \dydx{L}{x_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{L}{y_{f, n_1, n_2}}
+  \dydx{y_{f, n_1, n_2}}{x_{c,k_1,k_2}} \\
+  &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{L}{y_{f, n_1, n_2}} h[f, c, n_1 - k_1, n_2 - k_2] \label{eq:ch2:conv6}
 \end{align}
-Now we let $\Delta Y[f, n_1, n_2] = \dydx{J}{Y_{f, n_1, n_2}}$ be the passthrough gradient
-signal from the next layer, and $\tilde{h}_\alpha[\beta, \gamma, \delta] = h_\beta[\alpha, -\gamma, -\delta]$
+Now we let $\Delta y[f, n_1, n_2] = \dydx{L}{y_{f, n_1, n_2}}$ be the passthrough gradient
+signal from the next layer, and $\tilde{h}[\alpha, \beta, \gamma, \delta] = h[\beta, \alpha, -\gamma, -\delta]$
 be a set of filters that have been mirror-imaged in the spatial domain and had
-the order of their channel and filter number swapped. Combining these two and
-substituting into \eqref{eq:ch2:conv6} we get the passthrough gradient for the
+their filter and channel dimensions transposed. Combining these two and
+substituting into \eqref{eq:ch2:conv6}, we get the passthrough gradient for the
 convolutional layer:
 \begin{align}
-  \dydx{L}{X_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] \tilde{h}_c[f, k_1-n_1, k_2-n_2 ] \\
-                          &= \sum_f \Delta Y[f, \nn] \conv \tilde{h}_c[f, \nn] \label{eq:ch2:cnn_passthrough}
+  \dydx{L}{x_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \Delta y[f, n_1, n_2] \tilde{h}[c, f, k_1-n_1, k_2-n_2 ] \\
+                          &= \sum_f \Delta y[f, \kk] \conv \tilde{h}[c, f, \kk] \label{eq:ch2:cnn_passthrough}
 \end{align}
 which is the same as \eqref{eq:ch2:conv4}. I.e. we can backpropagate the
 gradients through a convolutional layer by mirror-imaging the filters spatially,
 transposing them in the channel and filter dimensions, and doing a forward
-convolutional layer with $\tilde{h}$ applied to $\Delta Y$. Similarly, we
+convolutional layer with $\tilde{h}$ applied to $\Delta y$. Similarly, we
 find the update gradients to be:
 \begin{align}
-  \dydx{L}{h_{f,c,k_1,k_2}} &= \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} \dydx{Y_{f, n_1, n_2}}{h_{f, c, k_1, k_2}} \\
-                            &= \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] X[x, n_1-k_1, n_2-k_2 ] \\
-                            &= \left(\Delta Y[f, \nn] \star X[c, \nn]\right)[k_1, k_2] \label{eq:ch2:cnn_weight_update}
+  \dydx{L}{h_{f,c,k_1,k_2}} &= \sum_{n_1} \sum_{n_2} \dydx{L}{y_{f, n_1, n_2}} \dydx{y_{f, n_1, n_2}}{h_{f, c, k_1, k_2}}  \\
+                            &= \sum_{n_1} \sum_{n_2} \Delta y[f, n_1, n_2] x[c, n_1-k_1, n_2-k_2 ] \\
+                            &= \left(\Delta y[f] \star x[c]\right)[k_1, k_2] \label{eq:ch2:cnn_weight_update}
 \end{align}
 where $\star$ is the cross-correlation operation.
 
@@ -495,8 +497,8 @@ First let us define $\mu_c^{(l)}$ and $\sigma_c^{(l)}$ as the mean and standard 
 for a channel in a given activation at layer $l$. This mean and standard deviation is taken by
 averaging across the entire dataset (with $N$ samples), and at every spatial location.
 \begin{align}
-  \mu_c^{(l)} &= \frac{1}{N}\sum_{i=0}^{N-1} \sum_\nn X^{(l, i)}[c, \nn] \\
-  (\sigma_c^{(l)})^2 &=  \frac{1}{N} \sum_{i=0}^{N-1} \sum_\nn \left(X^{(l, i)}[c, \nn]\right)^2 - (\mu^{(l)}_c)^2
+  \mu_c^{(l)} &= \frac{1}{N}\sum_{i=0}^{N-1} \sum_\nn x^{(l, i)}[c, \nn] \\
+  (\sigma_c^{(l)})^2 &=  \frac{1}{N} \sum_{i=0}^{N-1} \sum_\nn \left(x^{(l, i)}[c, \nn]\right)^2 - (\mu^{(l)}_c)^2
 \end{align}
 where $\mu, \sigma \in \reals[C]$.
 Batch normalization removes the mean and variance of the data, scales the data
@@ -504,7 +506,7 @@ by a learnable gain $\gamma$ and shifts the data to a learnable mean $\beta$,
 with $\gamma, \beta \in \reals[C]$. If we drop the layer superscripts, this
 means the action of batch normalization is defined by:
 \begin{equation}
-  Y[c, \nn] = \frac{X[c, \nn] - \mu_c}{\sigma_c + \epsilon}\gamma_c + \beta_c
+  y[c, \nn] = \frac{x[c, \nn] - \mu_c}{\sigma_c + \epsilon}\gamma_c + \beta_c
 \end{equation}
 where $\epsilon$ is a small value to avoid dividing by 0.
 
@@ -514,9 +516,9 @@ is to keep an exponential moving average estimate of these values.
 
 The passthrough and update gradients are:
 \begin{align}
-  \dydx{J}{X_{c, n_1, n_2}} &= \dydx{J}{Y_{c, n_1, n_2}}\frac{\gamma}{\sigma + \epsilon}\\
-  \dydx{J}{\beta_c} &=  \sum_\nn \dydx{J}{Y_{c, \nn}}\\
-  \dydx{J}{\gamma_c} &= \sum_\nn \dydx{J}{Y_{c, \nn}}\frac{X_{c, \nn} - \mu_c}{\gamma_c + \epsilon}
+  \dydx{L}{x_{c, n_1, n_2}} &= \dydx{L}{y_{c, n_1, n_2}}\frac{\gamma}{\sigma + \epsilon}\\
+  \dydx{L}{\beta_c} &=  \sum_\nn \dydx{L}{y_{c, \nn}}\\
+  \dydx{L}{\gamma_c} &= \sum_\nn \dydx{L}{y_{c, \nn}}\frac{x_{c, \nn} - \mu_c}{\gamma_c + \epsilon}
 \end{align}
 
 Batch normalization layers are typically placed \emph{between} convolutional layers

@@ -44,7 +44,7 @@ enforcing it to do convolution by product of FFTs, as the FFT size needed for
 the filter will likely be larger than $K\x K$, which would require resampling
 the coefficients.}. 
 
-Note that an important point should be laboured about reparameterizing filters
+Note that an important point should be emphasized about reparameterizing filters
 in either the wavelet or Fourier domains: any invertible linear
 transform of the parameter space will not change parameter updates if a linear
 optimization scheme is used (for example standard GD, or SGD with momentum)\footnote{This fact 
@@ -56,7 +56,7 @@ taking inverse transforms to the pixel domain and doing normal convolution.
 
 The work presented in this chapter does not learn wavelet coefficients 
 for convolutional filters to be applied in the pixel domain, rather we learn wavelet filters 
-\emph{and} do convolution in the wavelet domain too.
+\emph{and} perform filtering in the wavelet domain too.
 
 \subsection{Notation}
 We make use of the 2-D $Z$-transform to simplify our analysis:

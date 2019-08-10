@@ -148,8 +148,8 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   method \cite[Chapter~9]{boyd_convex_2004}. Such techniques sadly do not scale
   with size, as computing the Hessian is proportional to the number of
   parameters squared, and many neural networks have hundreds of thousands, if
-  not millions of parameters. In this thesis, we only consider \emph{first-order
-  optimization} algorithms.
+  not millions of parameters. In this thesis, we only consider
+  \emph{first-order} optimization algorithms.
 
   \begin{figure}[t]
   \centering
@@ -185,7 +185,7 @@ noisy estimates for the gradient have a regularizing effect on the network
 \cite{wilson_general_2003}. Increasing the batch size to larger values allows
 you to easily parallelize computation as well as increasing your accuracy for
 the gradient, allowing you to take larger step sizes \cite{smith_dont_2017}.
-A good initial starting point is to set the batch size to about 100 samples and
+A good initial starting point is to set the batch size to 128 samples and
 increase/decrease from there \cite{goodfellow_deep_2016}.
 
 \subsection{Gradient Descent and Learning Rate}
