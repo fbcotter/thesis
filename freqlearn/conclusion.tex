@@ -1,18 +1,18 @@
 \section{Conclusion}
 In this chapter we have presented the novel idea of learning filters by taking
-activations into the wavelet domain. In the wavelet domain then we can apply
-the proposed \emph{gain layer} $G$ instead of a pixel wise convolution. We can
+activations into the wavelet domain. There, we can apply
+the proposed \emph{wavelet gain layer} $G$ instead of a pixel-wise convolution. We can
 return to the pixel domain to apply a ReLU, or stay in the wavelet domain
-and apply wavelet based nonlinearities $\sigma_{lp}, \sigma_{bp}$. We have considered the possible
-challenges this proposes and described how a multirate system can learn through
-backpropagation. 
+and apply wavelet-based nonlinearities $\sigma_{lp}, \sigma_{bp}$. We have
+considered the possible challenges this proposes and described how a multi-rate
+system can learn through backpropagation.
 
 Our experiments have been promising but are still only preliminary. We have
-shown that the \emph{gain layer} can learn in an end-to-end system, achieving nearly
+shown that the gain layer can learn in an end-to-end system, achieving nearly
 the same accuracies on CIFAR-10, CIFAR-100 and Tiny ImageNet to the reference system with
 convolutional layers (\autoref{fig:ch6:gl_results}). This is a good start and shows the plausibility of
-the wavelet gain layer, but more experiments on larger datasets and more wavelet
-gain layers is needed. Despite the slight reduction in performance, we saw some
+the wavelet gain layer, but more experiments on larger datasets and deeper
+networks is needed. Despite the slight reduction in performance, we saw some
 nice properties to the gain layer. Most of the bandpass gains are near zero
 (\autoref{fig:ch6:bp_info}),
 which does not affect training but could offer speedups for inference.
@@ -27,17 +27,17 @@ improved the performance of the gain layer considerably. This is an exciting
 development and indicates that we may not need to return to the pixel domain at
 all, possibily eliminating the need for the inverse wavelet
 transforms used in our experiments (see steps 6 and 7 in
-\autoref{alg:ch6:wavelayer}). However, one needs to be careful, as taking the inverse transform 
+\autoref{alg:ch6:wavelayer}). However, one needs to be careful, as taking the inverse transform
 followed by taking the forward transform does not necessarily give the same
 wavelet coefficients due to the redundancy of the $\DTCWT$, instead projecting
 onto the range space of the transform. Removing the inverse transform is
 something we did not have time to fully explore and so we have included it in
-our future work section. 
+our future work section.
 
-When we added the nonlinearities to the gain layer to
-make the \emph{wave layer}, we saw that we were able to achieve some
+When we added the nonlinearities to the gain layer
+we saw that we were able to achieve some
 improvements in performance over a fully convolutional architecture
-(\autoref{fig:ch6:nonlinear_ablation}). The \emph{wave layer}
+(\autoref{fig:ch6:nonlinear_ablation}). The proposed layer
 worked best at the beginning of the CNN, which matches the intuition for doing
 this work described in the introduction to the chapter. More research still
-needs to be done with the wave layer as part of a deeper system. 
+needs to be done with the wave layer as part of a deeper system.

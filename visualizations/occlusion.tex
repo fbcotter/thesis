@@ -46,7 +46,7 @@ unit energy representing the different output channels after conv1. The row
 values then show how much each scattering channel contributes to each output
 channel. This is shown in \autoref{fig:ch4:weights}.
 
-\subsection{Results}
+\subsection{Results}\label{sec:ch4:occlusion_results}
 First, we look at Tiny ImageNet in \autoref{fig:ch4:occlusion1}.
 Note that when any of the $S_0$ channels are removed, 
 the validation accuracy drops sharply for all 3 colours. A similar result
@@ -59,8 +59,8 @@ $135\degs$ wavelets. Often the high-high portion of the first scale coefficients
 are considered mostly noise, but this does not explain why the $45\degs$
 and $135\degs$ channels for the second scale coefficients are also less
 important. A possible interesting conclusion to be drawn from this is that the
-dataset does not have as many diagonal edges in it as horizontal and vertical
-edges. 
+dataset does not have as many important diagonal edges in it as horizontal and vertical
+edges, and the network has learned this difference in importance. 
 
 To test this, we retrain the network but this time rotate the input
 images randomly $30\degs$ clockwise or anti-clockwise in both training and

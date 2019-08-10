@@ -1,17 +1,17 @@
-\section{Experiments}\label{sec:ch5:experiments}
-In this section we examine the effectiveness of our invariant layer by testing
-its performance on the well known datasets (listed in the order of increasing
-difficulty):
-\begin{itemize}
-  \item MNIST: 10 classes, 6000 images per class, $28\x 28$ pixels per image.
-  \item CIFAR-10: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
-  \item CIFAR-100: 100 classes, 500 images per class, $32\x 32$ pixels per image. 
-  \item Tiny ImageNet\cite{li_tiny_2017}: 200 classes, 500 images per class, 
-    $64 \x 64$ pixels per image. 
-\end{itemize}
-Our experiment code is available at \cite{cotter_learnable_2019-1}.
+% \section{Experiments}\label{sec:ch5:experiments}
+% In this section we examine the effectiveness of our invariant layer by testing
+% its performance on the well known datasets (listed in the order of increasing
+% difficulty):
+% \begin{itemize}
+  % \item MNIST: 10 classes, 6000 images per class, $28\x 28$ pixels per image.
+  % \item CIFAR-10: 10 classes, 5000 images per class, $32\x 32$ pixels per image.
+  % \item CIFAR-100: 100 classes, 500 images per class, $32\x 32$ pixels per image. 
+  % \item Tiny ImageNet\cite{li_tiny_2017}: 200 classes, 500 images per class, 
+    % $64 \x 64$ pixels per image. 
+% \end{itemize}
+% Our experiment code is available at \cite{cotter_learnable_2019-1}.
 
-\subsection{Layer Introduction with MNIST}\label{sec:ch5:mnist}
+\section{Layer Introduction with MNIST}\label{sec:ch5:mnist}
 \input{\path/mnist_arch_table}
 
 \input{\path/mnist_hyper_table}
@@ -68,7 +68,7 @@ the accuracy. The results of these runs are listed in
 \autoref{tab:ch5:mnist_initial_results}.
 
 
-\subsubsection{Proposed Expansions}\label{sec:ch5:mnist_newlayer}
+\subsection{Proposed Expansions}\label{sec:ch5:mnist_newlayer}
 The results from the previous section seem to indicate that our proposed
 invariant layer is a slightly worse substitute for a convolutional layer.
 
@@ -129,7 +129,7 @@ We test a range of possible $\alpha$'s each with varying complexity/overhead:
     learning all of $g$. 
 \end{enumerate}
 
-\subsubsection{Expanded MNIST experiments}
+\subsection{Expanded MNIST experiments}
 We test if the expansions from the previous section improve the MNIST
 performance. Again, we search over the hyperparameter space to find the optimal
 hyperparameters and then run 10 runs at the best set of hyperparameters, and
@@ -156,7 +156,7 @@ parameter cost.
 
 \input{\path/mnist_modified_results}
 
-\subsection{Layer Comparison with CIFAR and Tiny ImageNet}\label{sec:ch5:conv_exp}
+\section{Ablation Experiments with CIFAR and Tiny ImageNet}\label{sec:ch5:conv_exp}
 \input{\path/cifar_arch_table}
 Now we look at expanding our layer to harder datasets, focusing more on the
 final classification accuracy. We do this again by comparing to a reference
@@ -269,7 +269,7 @@ convolutional backend in the reference architecture (\autoref{tab:ch5:cifar_tiny
 provided the necessary spatial separation to build rich shapes, something that
 we did not have in the MNIST experiments.
 
-\subsection{Network Comparison}\label{sec:ch5:scat_exp}
+\section{A New Hybrid ScatterNet}\label{sec:ch5:scat_exp}
 \input{\path/scat_arch_table}
 
 In the previous section, we examined how the locally invariant layer performs when

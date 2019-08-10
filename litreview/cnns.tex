@@ -413,7 +413,7 @@ It is clear from \eqref{eq:ch2:conv5} that a single activation $X[c, n_1, n_2]$ 
 many output values. Thus, the derivative for the loss function to this single
 point in $X$ is the sum of the chain rule applied to all output positions:
 \begin{align}
-  \dydx{J}{X_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}}
+  \dydx{L}{X_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}}
   \dydx{Y_{f, n_1, n_2}}{X_{c,k_1,k_2}} \\
   &= \sum_f \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} h_f[c, n_1 - k_1, n_2 - k_2] \label{eq:ch2:conv6}
 \end{align}
@@ -424,8 +424,8 @@ the order of their channel and filter number swapped. Combining these two and
 substituting into \eqref{eq:ch2:conv6} we get the passthrough gradient for the
 convolutional layer:
 \begin{align}
-  \dydx{J}{X_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] \tilde{h}_c[f, k_1-n_1, k_2-n_2 ] \\
-                          &= \sum_f \Delta Y[f, \nn] \conv \tilde{h}_c[f, \nn]
+  \dydx{L}{X_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] \tilde{h}_c[f, k_1-n_1, k_2-n_2 ] \\
+                          &= \sum_f \Delta Y[f, \nn] \conv \tilde{h}_c[f, \nn] \label{eq:ch2:cnn_passthrough}
 \end{align}
 which is the same as \eqref{eq:ch2:conv4}. I.e. we can backpropagate the
 gradients through a convolutional layer by mirror-imaging the filters spatially,
@@ -433,12 +433,11 @@ transposing them in the channel and filter dimensions, and doing a forward
 convolutional layer with $\tilde{h}$ applied to $\Delta Y$. Similarly, we
 find the update gradients to be:
 \begin{align}
-  \dydx{J}{h_{f,c,k_1,k_2}} &= \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} \dydx{Y_{f, n_1, n_2}}{h_{f, c, k_1, k_2}} \\
+  \dydx{L}{h_{f,c,k_1,k_2}} &= \sum_{n_1} \sum_{n_2} \dydx{J}{Y_{f, n_1, n_2}} \dydx{Y_{f, n_1, n_2}}{h_{f, c, k_1, k_2}} \\
                             &= \sum_{n_1} \sum_{n_2} \Delta Y[f, n_1, n_2] X[x, n_1-k_1, n_2-k_2 ] \\
-                            &= \left(\Delta Y[f, \nn] \star X[c, \nn]\right)[k_1, k_2]
+                            &= \left(\Delta Y[f, \nn] \star X[c, \nn]\right)[k_1, k_2] \label{eq:ch2:cnn_weight_update}
 \end{align}
 where $\star$ is the cross-correlation operation.
-
 
 \subsection{Pooling}
 \emph{Pooling} layers are common in CNNs where we want to reduce the spatial size. As

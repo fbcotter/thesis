@@ -1,27 +1,32 @@
-In this chapter, we move away from the ScatterNet ideas from the previous 
+In this final section of our work, we move away from the ScatterNet ideas from the previous
 chapters and instead look at using the wavelet domain as a new space in which to
 learn. With ScatterNets, complex wavelets are used to scatter the energy into
 different channels (corresponding to the different wavelet subbands), before the
 complex modulus demodulates the signal to low frequencies. These channels can
-then be mixed before scattering again (as we saw in the learnable scatternet),
-but the progressive stages all result in a steady demodulation of signal energy
-towards zero frequency. 
+then be mixed before scattering again (as we saw in the learnable ScatterNet),
+but successive use of such layers compounds the demodulation of signal energy
+towards zero frequency. We saw in the previous chapter that as a result, the
+modulus-based invariant layer worked best at the location of sample rate changes
+in a CNN. Most modern CNNs
+operate at only a handful of spatial resolutions, restricting the number of
+locations it may be useful in.
 
-In this chapter we introduce the \emph{wavelet gain layer}
+In this chapter, we introduce the \emph{wavelet gain layer}
 which starts in a similar fashion to the ScatterNet -- by taking the $\DTCWT$ of
-a multi-channel input. Next, instead of taking a complex modulus, we learn a 
-complex gain for each subband in each input channel. A single value here can 
-amplify or attenuate all the energy in one part of the frequency plane. Then, 
-while still in the wavelet domain, we mix the different input channels by subband (e.g.
+a multi-channel input. Next, instead of taking a complex modulus, we learn a
+complex gain for each subband in each input channel. A single value here can
+amplify or attenuate all the energy in one part of the frequency plane. Then,
+while still in the wavelet domain, we mix the different input channels \emph{by subband} (e.g.
 all the $15\degs$ wavelet coefficients at a given scale are mixed together, but
 the $75\degs$ and $45\degs$ coefficients are not). We can then return to the
 pixel domain with the inverse wavelet transform. The shift-invariant properties
-of the $\DTCWT$ allows gains and phases to be changed at will without
-introducing sampling artifacts.
+of the $\DTCWT$ allow the wavelet coefficients to be changed without
+introducing sampling artefacts.
 
 We also briefly explore the possibility of doing nonlinearities in the wavelet
-domain. The goal being to ultimately connect multiple wavelet gain layers
-together with nonlinearities before returning to the pixel domain. 
+domain. Our ultimate goal is to connect multiple wavelet gain layers
+together with nonlinearities before returning to the pixel domain. See
+\autoref{sec:ch6:learning} for a more detailed description of this.
 
 The proposed wavelet gain layer can be used in conjunction with regular
 convolutional layers, with a network moving into the wavelet or pixel space and
@@ -29,7 +34,14 @@ learning filters in one that would be difficult to learn in the other.
 
 Our experiments so far have shown some promise. We are able to learn complex
 wavelet gains and have found that the ReLU works well as a wavelet nonlinearity.
-However, replacing a convolutional layer with a gain layer degrades performance
-by a small amount.
+We have found that the wavelet gain layer works well at the beginning of a
+CNN but have not yet seen significant improvements for later layers.
 
 \section{Chapter Layout}
+We review some related work and notation in \autoref{sec:ch6:background} before
+describing the operation of our layer in \autoref{sec:ch6:gainlayer}.
+In \autoref{sec:ch6:gainlayer_experiments}, we describe some of the preliminary
+experiments and results we achieve by learning in the wavelet domain but
+returning to the pixel domain to perform nonlinearities. \Autoref{Section}{sec:ch6:nonlinearities}
+describes expansions on this work to include nonlinearities in the wavelet
+domain and describes the preliminary results we have achieved so far.

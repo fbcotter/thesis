@@ -1,11 +1,12 @@
 \begin{table}[t]
   \renewcommand{\arraystretch}{1.2}
   \centering
-  \mycaption{Frontends for learnable hybrid ScatterNet}{Frontends 
-  used for experiments on CIFAR-10 and CIFAR-100. With the exception of \subref{tab:ch5:net_scatD} 
-  all options have the same output activation size - $147\x 8\x 8$. The backend
-  is not shown here for compactness, but matches the convC to conv F backend
-  from \autoref{tab:ch5:cifar_tiny_arch}.}
+  \mycaption{Hybrid ScatterNet models}{
+  Hybrid ScatterNet architectures used for experiments on CIFAR-10 and
+  CIFAR-100. For the reference architecture we show the front and back ends. The
+  ScatNet A and ScatNet B architectures use the same back end as the reference.
+  $N_c$ is the number of output classes; in our experiments we set the channel
+  multiplier to be $C=96$.}
   \label{tab:ch5:cifar_arch2}
   \subfloat[Reference 1]{%
     \label{tab:ch5:net_ref}
@@ -20,12 +21,24 @@
       \end{tabular} &
       \begin{tabular}{@{}l@{}}
         $3\x 32\x 32$ \\ $21 \x 32\x 32$ \\ $21 \x 16\x 16$ \\ $147\x 16\x 16$ \\
-        $147\x 8 \x 8$ \\
+        $147\x 8 \x 8$ \\ 
+      \end{tabular}\\ \midrule 
+      \begin{tabular}{@{}l@{}}
+        convC, $w\in \reals[2C\x 147\x 3\x 3]$ \\
+        convD, $w\in \reals[2C\x 2C\x 3\x 3]$ \\
+        convE, $w\in \reals[4C\x 2C\x 3\x 3]$ \\
+        convF, $w\in \reals[4C\x 4C\x 3\x 3]$ \\
+        avg pool $8\x 8$ \\
+        fc1, $4C\x N_c$
+      \end{tabular} & 
+      \begin{tabular}{@{}l@{}}
+        \\$2C\x 8\x 8$ \\$2C\x 8\x 8$ \\$4C\x 8\x 8$ \\$4C\x 8\x 8$ \\
+        $4C$ \\ $N_c$ \\
       \end{tabular}\\
       \bottomrule
     \end{tabular}
-    }\\
-  \subfloat[ScatNet A]{%
+    } \\
+  \subfloat[ScatNet A Front End]{%
     \label{tab:ch5:net_scatA}
     \begin{tabular}{l l}
       \toprule
@@ -39,8 +52,8 @@
       \end{tabular}\\
       \bottomrule
     \end{tabular}
-  }\quad
-  \subfloat[ScatNet B]{%
+  }
+  \subfloat[ScatNet B Front End]{%
     \label{tab:ch5:net_scatB}
     \begin{tabular}{l l}
       \toprule
@@ -56,11 +69,16 @@
     \end{tabular}
   } 
 \end{table}
-\begin{table}
+\begin{table}[t]
   \renewcommand{\arraystretch}{1.2}
   \centering
-  \mycaption{Frontends for learnable hybrid ScatterNet with convolutional layer
-  first}{}
+  \mycaption{Hybrid ScatterNet models with convolutional layer
+  first}{New front ends for 3 models. The two ScatNet models are the same
+  learnable scatternet from \autoref{tab:ch5:net_scatB} but with a small
+  convolutional layer (`conv0') before it. ScatNet C ensures the same $147\x 8\x
+  8$ output size as the models in \autoref{tab:ch5:cifar_arch2} but ScatNet D
+  has a larger output size, allowing for the natural growth of a second-order
+  ScatterNet model from $C$ input channels to $49C$ output channels.}
   \subfloat[Reference 2]{%
     \label{tab:ch5:net_ref2}
     \begin{tabular}{l l}
@@ -79,8 +97,7 @@
       \end{tabular}\\
       \bottomrule
     \end{tabular}
-  }
-\\
+  }\\
   \subfloat[ScatNet C]{%
     \label{tab:ch5:net_scatC}
     \begin{tabular}{l l}

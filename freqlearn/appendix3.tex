@@ -60,32 +60,31 @@ properties of real convolution, we have:
 \end{align}
 
 \section{Regularization}\label{sec:appE:complex_reg}
-We must be careful with regularizing complex weights. We want to set some
-of the weights to 0, and let the remaining ones evolve to whatever phase they
-please. To do this, either use the L-2 norm on the real and imaginary parts
-independently, or be careful about using the L-1 norm. This is because we
-really want to be penalising the magnitude of the complex weights, $r$ and: 
+We must be careful with regularizing complex weights. We want to promote the
+magnitude of the weights to be small but allow the phase to change unrestricted.
+
+To do $\ell_2$ regularization we can apply $\ell_2$ to the real and imaginary parts
+independently:
 \begin{equation}
   \lnorm{r}{2}^2 = \lnorm{\sqrt{x_r^2+x_i^2}}{2}^2 = \sum_{\nn} x_r[\nn]^2 + x_i[\nn]^2 = 
   \sum_\nn x_r[\nn]^2 + \sum_\nn x_i[\nn]^2 = \lnorm{x_r}{2}^2 + \lnorm{x_i}{2}^2
 \end{equation}
-But for $\ell_1$ regularization:
+But this does not hold for $\ell_1$ regularization as:
 \begin{equation}
   \lnorm{r}{1} = \lnorm{\sqrt{x_r^2+x_i^2}}{1} = \sum_\nn \sqrt{x_r[\nn]^2 + x_i[\nn]^2} \neq \lnorm{x_r}{1} + \lnorm{x_i}{1}
 \end{equation}
-Note that for $\ell_1$ regularization the derivatives have a singularity at the complex
+
+Also, for $\ell_1$ regularization the derivatives have a singularity at the complex
 origin as:
 \begin{equation}
   \dydx{\ell_1}{x_r[\nn]} = \frac{x_r[\nn]}{\sqrt{x_r[\nn]^2 + x_i[\nn]^2}}
 \end{equation}
 is not defined when $x_r=x_i=0$. A similar problem was mentioned in \autoref{sec:ch3:mag}
 where we wanted to pass gradients through the magnitude operation of a
-ScatterNet. We choose to use the same solution here and define a smooth $\ell_1$
-regularization:
-\begin{equation}
-  \lnorm{r_s}{1} = \lnorm{\sqrt{x_r^2+x_i^2 + b}}{1}
-\end{equation}
-where $b$ is a small positive number.
+ScatterNet. Since we do not explicitly care if weights are zero or near zero, we choose
+to handle this by setting the gradient at the origin to be 0. It is unlikely our
+weights will ever be zero with this method, but if they are, we cover the case of dividing 
+by zero. 
 
 \section{ReLU applied to the real and imaginary parts independently}\label{sec:appE:complex_relu}
 If we define a nonlinearity to be $y = \sigma(x)$ where:

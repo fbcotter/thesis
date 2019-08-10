@@ -1,23 +1,22 @@
-\subsection{Nonlinearity Experiments}
+\section{Gain Layer Nonlinearity Experiments}\label{sec:ch6:nonlinear_exps}
 \begin{algorithm}[t]
-  \caption{The \emph{wave layer} pseudocode}\label{alg:ch6:wavelayer}
+  \caption{The \emph{wavelet gain layer} pseudocode}\label{alg:ch6:wavelayer}
 \begin{algorithmic}[1]
-  \Procedure{WaveLayer}{$x$}
+  \Procedure{WaveGainLayer}{$x$}
   \State $u_{lp},\ u_{1} \gets \DTCWT(x, \mbox{nlevels}=1) $ 
   \State $v_{lp},\ v_{1} \gets G(u_{lp},\ u_{1}) $ \Comment{the normal wave gain layer}
-  \State $w_{lp} \gets \sigma_{lp}(v_{lp})$ \Comment{lowpass nonlinearity}
-  \State $w_{1} \gets \sigma_{bp}(v_{1})$ \Comment{bandpass nonlinearity}
-  \State $y \gets \DTCWT^{-1}(w_{lp},\ w_{1})$
+  \State $u_{lp} \gets \sigma_{lp}(v_{lp})$ \Comment{lowpass nonlinearity}
+  \State $u_{1} \gets \sigma_{bp}(v_{1})$ \Comment{bandpass nonlinearity}
+  \State $y \gets \DTCWT^{-1}(u_{lp},\ u_{1})$
   \State $x \gets \sigma_{pixel}(y)$ \Comment{pixel nonlinearity}
   \State \textbf{return} $x$
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
 Taking the same `gain1\_2\_3' architecture used for CIFAR-100, we expand the
-\emph{wave gain layer} into one bigger layer
-dubbed the \emph{wave layer}, described in \autoref{alg:ch6:wavelayer}. In the wave
-layer, we have 3 different nonliearities: the pixel, the lowpass 
-and the bandpass nonlinearity.
+\emph{wavelet gain layer} by including nonlinearities as described in 
+\autoref{alg:ch6:wavelayer}. In this layer, we have three different nonlinearities:
+the pixel, the lowpass, and the bandpass nonlinearity.
 
 For these experiments, we test over a grid of possible options for these three
 functions:
@@ -25,7 +24,7 @@ functions:
   \centering
 \begin{tabular}{l l l l l l l}
   \toprule
-  Nonlinearity & \hphantom{abc} & \multicolumn{4}{l}{Values} \\
+  Nonlinearity & \hphantom{abc} & \multicolumn{4}{l}{Options} \\
   \midrule
   Pixel && None & BN+ReLU \\
   Lowpass && None & ReLU & BN+ReLU & $\mathcal{S}$ \\
@@ -37,18 +36,19 @@ functions:
 Where:
 \begin{itemize}
   \item `None' means no nonlinearity -- $\sigma(x) = x$.
-  \item `BN+ReLU' is batch normalization and ReLU (applies only to real valued
-    activations) e.g. \eqref{eq:ch6:bnrelu_lp}.
-  \item `ReLU' is a ReLU without batch normalization. Can be applied to the real
-    and imaginary parts of a complex activation independently i.e.
+  \item `ReLU' is a ReLU without batch normalization. For real values, is a
+    normal ReLU, for complex values is a ReLU applied independently to real and
+    imaginary parts, i.e.
     \eqref{eq:ch6:relu_bp}. See \autoref{sec:appE:complex_relu} for equations
     for the passthrough gradients for this nonlinearity.
+  \item `BN+ReLU' is batch normalization and ReLU (applicable only to real-valued
+    activations) e.g. \eqref{eq:ch6:bnrelu_lp}.
   \item `BN+MagReLU' applies batch normalization to the magnitude of complex
     coefficients and then makes them strictly positive with a ReLU. This action
     is defined in \eqref{eq:ch6:magrelu_bp}. See \autoref{sec:appE:bnrelu} for
     information on the passthrough and update equations for this nonlinearity.
   \item $\mathcal{S}$ is the soft thresholding of \eqref{eq:ch6:relu_st2}
-    applied to the magnitudes of coefficients.  See
+    applied to the magnitudes of coefficients with learnable thresholds.  See
     \autoref{sec:appE:soft_shrink} for information on the passthrough and update
     equations for this nonlinearity.
     % We choose a
@@ -60,14 +60,14 @@ Where:
 
 \input{\path/nonlinear_table}
 
-As the pixel nonliearity has only two options, the results are best displayed as
+As the pixel nonlinearity has only two options, the results are best displayed as
 a pair of tables, firstly for no nonlinearity and secondly for the
-the standard batch normalization and ReLU. See
+standard batch normalization and ReLU. See
 \autoref{tab:ch6:nonlinearities} for these two tables. 
 
 Digesting this information gives us some useful insights: 
 \begin{enumerate}
-  \item It is possible to improve on the gainlayer from the previous experiments
+  \item It is possible to improve on the gain layer from the previous experiments
     with the right nonlinearities. The previous section's gain layer corresponds
     to $\sigma_{lp} = \sigma_{bp} = \F{None}$ and $\sigma_{pixel} = \F{ReLU}$, or
     the top left entry of \autoref{tab:ch6:nonlinearities2}.
@@ -82,20 +82,21 @@ Digesting this information gives us some useful insights:
 
 The best accuracy score of $65.3\%$ is now $0.1\%$ lower than the fully
 convolutional architecture, an improvement from the $62.8\%$ score achieved with
-only a pixel nonlinearity.
+only a pixel nonlinearity. This happens when there is no pixel nonlinearity, use
+a ReLU on the lowpass coefficients and Batch Normalization and a ReLU on the
+magnitudes of the bandpass coefficients.
 
 \subsection{Ablation Experiments with Nonlinearities}
-Now that we have found the best nonlinearity to use for the \emph{wave layer},
+Now that we have found the best nonlinearity to use for the gain layer,
 will this improve our ablation study from \autoref{sec:ch6:ablation}? To test this, 
-we repeat the
-same experiment on CIFAR-100 only, but use the \emph{wave layer} described in
-\autoref{alg:ch6:wavelayer}, with $\sigma_{pixel} = \F{None},\ \sigma_{lp} =
-\F{ReLU},\ \text{and } \sigma_{bp} = \F{BN+ReLU}$.
+we repeat the same experiment on CIFAR-100 using the newly found nonlinearities
+in \autoref{alg:ch6:wavelayer} (i.e., $\sigma_{pixel} = \F{None},\ \sigma_{lp} =
+\F{ReLU},\ \text{and } \sigma_{bp} = \F{BN+ReLU}$).
 
 See \autoref{fig:ch6:nonlinear_ablation} for the results from these experiments.
-When we use the wavelet based nonlinearities, the results change considerably. 
+When we use the wavelet-based nonlinearities, the results change considerably. 
 We see an improvement by $1\%$ when the first layer in the CNN is
-changed for a wave layer, but any other changes degrade performance.
+changed for a wave layer, but any other changes degrade performance from this.
 
 \begin{figure}[tb]
   \centering
@@ -103,14 +104,15 @@ changed for a wave layer, but any other changes degrade performance.
   \mycaption{CIFAR-100 Ablation results with the \emph{wave layer}}{We use the
   same naming scheme from \autoref{sec:ch6:ablation} but to differentiate
   between the results from \autoref{fig:ch6:cifar100_gl} we call the options
-  `waveX' (for \emph{wave layer} vs \emph{gain layer}). When we add
-  nonlinearities in the wavelet domain, the ablation results 
-  change dramatically. It appears that learning in
-  the wavelet domain works best for the first layer of the CNN (wave1), and this
-  improves on the purely convolutional method by a whole percentage point.
-  Replacing the second and third layers degrades performance independently of
-  what was used in the first layer. Swapping the first two layers (wave1\_2)
-  performs nearly as well and with a narrower spread.}
+  `waveX'. Results show the mean of 3 runs with $\pm 1$ standard deviation lines
+  in dark blue.
+  When we add nonlinearities in the wavelet domain, the ablation
+  results change dramatically. It appears that learning in the wavelet domain
+  works best for the first layer of the CNN (wave1), and this improves on the
+  purely convolutional method by a whole percentage point.  Replacing the second
+  and third layers degrades performance independently of what was used in the
+  first layer. Swapping the first two layers (wave1\_2) performs nearly as well
+  and with a slightly narrower spread.}
   \label{fig:ch6:nonlinear_ablation}
 \end{figure}
 

@@ -4,14 +4,14 @@
   \centering
   \def \mywidth {1.4cm}
   \mycaption{Different Nonlinearities in the Gain Layer}{Top-1 Accuracies for
-  `gain1\_2\_3' network trained on CIFAR-100 using different wavelet and pixel nonlinearities.
+  the `gain1\_2\_3' network trained on CIFAR-100 using different wavelet and pixel nonlinearities.
   The rows of the table correspond to different bandpass nonlinearities and the
   columns correspond to different lowpass nonlinearities.
   $\sigma_{pixel}=\sigma_{lp}=\sigma_{bp}=\text{None}$ is a linear system (with
   max pooling). $\sigma_{pixel}=\F{ReLU},\ \sigma_{lp}=\sigma_{bp}=\text{None}$
-  is the system used in earlier experiments which is linear in the wavelet
-  domain and has a nonlinearity in the pixel domain. 
- % Results are averages over 3 runs. 
+  is the system used in earlier experiments, which is linear in the wavelet
+  domain and has a nonlinearity in the pixel domain.
+ % Results are averages over 3 runs.
   The best result is highlighted in bold corresponding to
   $\sigma_{pixel} = \F{None}$, $\sigma_{lp} = \F{ReLU}$ and $\sigma_{bp} =
   \F{BN+ReLU}$.}
