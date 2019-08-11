@@ -1,0 +1,24 @@
+\begin{table}[hbt]
+  \renewcommand{\arraystretch}{1.4}
+  \centering
+  \mycaption{Modified architecture performance comparison}{Numbers reported are the mean
+  and standard deviation of accuracy over 10 runs with the optimal
+  hyperparameters, $\theta$. We also list parameter cost and number
+  of multiplies for each layer option, relative to the standard $3\x 3$
+  convolutional layer to highlight the benefits/drawbacks of each option.}
+  \label{tab:ch5:mnist_new_results}
+  \begin{tabular}{@{}l c c c c c@{}}
+    \toprule
+    & & \multicolumn{2}{c}{cost} & \multicolumn{2}{c}{accuracy} \\\cline{3-4}\cline{5-6}
+    Architecture & $\theta = \{\F{lr}, \F{mom}, \F{wd}, \F{a}\}$ & param & mults & mean & std  \\\midrule
+    Convolutional & $\{0.1,\ 0.5,\ 10^{-5},\ 1.5 \}$ & 1 & 1 & 97.3 & 0.29 \\
+    Invariant & $\{0.032,\ 0.9,\ 3.2\x 10^{-5},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{36}$ & 96.6 & 0.26 \\\midrule
+    Shifted impulses (a) & $\{0.32,\ 0.5,\ 10^{-4},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{36}$ & 97.9 & 0.25 \\
+    Shifted gaussians (b) & $\{1.0,\ 0.0,\ 10^{-5},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{4}$ & 97.7 & 0.56\\
+    Random $3\x3$ kernel (c) & $\{1.0,\ 0.9,\  10^{-5},\ 1.0 \}$ & $\frac{7}{9}$ & $\frac{7}{4}$ & 95.8 & 1.01\\
+    Learned 3 DCT coeffs (d) & $\{1.0,\ 0.0,\ 10^{-5},\ 1.0 \}$ & $\frac{7}{3}$ & $\frac{7}{4}$ & 98.1 & 0.37\\\midrule
+    Learned $3\x3$ kernel & $\{0.1,\ 0.5,\  10^{-4},\ 1.0 \}$ & \textbf{7} & $\frac{7}{4}$ & \textbf{99.0} & 0.12 \\\midrule
+    Wide Convolutional & $\{0.32,\ 0.5,\ 10^{-5},\ 1.5 \}$ & 7 & 7 & 98.7 & 0.25  \\
+    \bottomrule
+  \end{tabular}
+\end{table}

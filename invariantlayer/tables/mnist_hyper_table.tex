@@ -1,0 +1,40 @@
+\begin{table}[hbt]
+  \centering
+  \mycaption{Hyperparameter settings for the MNIST experiments}{The weight gain is
+  the term $a$ from \autoref{eq:ch5:glorot}. Note that $\log_{10} 3.16 = 0.5$.}
+  \label{tab:ch5:hyper_options}
+  \begin{tabular}{c c}
+    \toprule
+    Hyperparameter & Values \\
+    \midrule
+    Learning Rate (lr) & $\left\{ 0.0316,\ 0.1,\ 0.316,\ 1 \right\}$ \\
+    Momentum (mom) & $\left\{ 0,\ 0.25,\ 0.5,\ 0.9 \right\}$ \\
+    Weight Decay (wd) & $\left\{ 10^{-5},\ 3.16\x 10^{-5},\ 10^{-4},\ 3.16\x 10^{-4} \right\} $\\
+    Weight Gain (a) & $\left\{0.5,\ 1.0,\ 1.5,\ 2.0 \right\}$
+    \\\bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[hbt]
+  \centering
+  \mycaption{Architecture performance comparison}{Numbers reported are the mean
+  and standard deviation of accuracy over 10 runs with the optimal
+  hyperparameters, $\theta$. Note that for
+  both architectures we found that the learning rate, $\F{lr}$, was the most important
+  hyperparameter to choose correctly, and had the largest impact on the
+  performance.
+  % We also use
+  % fANOVA\cite{hutter_efficient_2014} analysis to weight the importance of these 
+  % hyperparameters. High values imply the accuracy is more sensitive to this
+  % hyperparameter. 
+  }
+  \label{tab:ch5:mnist_initial_results}
+  \begin{tabular}{@{}l c c c@{}}
+    \toprule
+     & &\multicolumn{2}{c}{accuracy} \\\cline{3-4}
+    Architecture & $\theta = \{\F{lr}, \F{mom}, \F{wd}, \F{a}\}$ & mean & std  \\\midrule
+    Convolutional & $\{0.1,\ 0.5,\ 10^{-5},\ 1.5 \}$ & 97.3 & 0.29 \\
+    Invariant & $\{0.032,\ 0.9,\ 3.2\x 10^{-5},\ 1.0 \}$ & 96.6 & 0.26 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

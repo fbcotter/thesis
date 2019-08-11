@@ -1,0 +1,44 @@
+\begin{table}
+  \renewcommand{\arraystretch}{1.2}
+  \centering
+  \mycaption{Hybrid ScatterNet top-1 classification accuracies on CIFAR}{ 
+  $N_l$ is the number of learned convolutional layers, \#param is the number of
+  parameters, and \#mults is the number of multiplies per $3\x 32\x 32$ image. An asterisk indicates
+  that the value was estimated from the architecture description.}\label{tab:ch5:hybrid_scat}
+  % \hspace{-10pt}
+  \begin{tabular}{@{}lccccccc@{}}
+  % \begin{tabular}{@{}llllllll@{}}
+    \toprule
+    & \multicolumn{3}{c}{Arch. Properties} && \multicolumn{3}{c}{Top 1 Accuracies (\%)} \\\cline{2-4}\cline{6-7}
+    Arch. Name \phantom{abcde} & $N_l$ &\#Mparam &\#Mmults&\phantom{ab}&CIFAR-10&CIFAR-100\\ \midrule
+    Reference 1 & 6 & 2.65 & 165 && 91.2 & 70.0 \\ 
+    ScatNet A & 4 & 2.60 & 165 && 89.5 & 68.2 \\ 
+    ScatNet B & 6 & 2.64 & 167 && 91.5 & 70.5  \\\midrule %
+    Reference 2 & 7 & 2.69 & 165 && 92.2 & 72.2  \\ 
+    ScatNet C & 7 & 2.64 & 251 && 92.6 & 72.7  \\ 
+    ScatNet D & 7 & 3.7 & 251 && 93.3 & 73.6 \\ \midrule 
+    All Conv\cite{springenberg_striving_2014-3} & 8 & 1.4 & 281\textsuperscript{*} && 92.8 & 66.3 \\ %    & - \\
+    VGG16\cite{liu_very_2015} & 16 & 138\textsuperscript{*} & 313\textsuperscript{*}  && 91.6 & -  \\ 
+    FitNet\cite{romero_fitnets:_2014} & 19 & 2.5 & 382 && 91.6 & 65.0 \\ %  & - \\
+    % ResNet-110\cite{he_deep_2016} & 109 & 1.7 & 255\textsuperscript{*}& 93.6 & 74.8 \\ %              &  -\\
+    ResNet-1001\cite{he_identity_2016} & 1000 & 10.2 & 4453\textsuperscript{*}&& 95.1 & 77.3 \\ %              &  -\\
+    WRN-28-10\cite{zagoruyko_wide_2016} & 28 & 36.5 & 5900\textsuperscript{*} && 96.1 & 81.2 \\ %    & - \\
+    \bottomrule
+  \end{tabular}
+  \\\vspace{20pt}
+  \mycaption{Hybrid ScatterNet top-1 classification accuracies on Tiny ImageNet}{ 
+  $N_l$ is the number of learned convolutional layers, \#param is the number of
+  parameters, and \#mults is the number of multiplies per $32\x 32\x 3$ image. An asterisk indicates
+  that the value was estimated from the architecture description.}\label{tab:ch5:hybrid_scat_ti}
+  \begin{tabular}{@{}llc@{}}
+    \toprule
+    Arch. Name & \phantom{abc} & Top-1 Acc (\%)\\\midrule
+    Reference1 && \\
+    ScatNet A && \\
+    ScatNet B && \\\midrule
+    Reference 2 && \\
+    ScatNet C && \\
+    ScatNet D && \\ \bottomrule
+  \end{tabular}
+\end{table}
+

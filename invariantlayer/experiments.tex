@@ -12,9 +12,9 @@
 % Our experiment code is available at \cite{cotter_learnable_2019-1}.
 
 \section{Layer Introduction with MNIST}\label{sec:ch5:mnist}
-\input{\path/mnist_arch_table}
+\input{\path/tables/mnist_arch_table}
 
-\input{\path/mnist_hyper_table}
+\input{\path/tables/mnist_hyper_table}
 To begin experiments on the proposed locally invariant layer, we look at how
 well a simple system works on MNIST, and compare it to an equivalent system with
 convolutions. Because of the small size of the MNIST challenge, we can quickly
@@ -154,10 +154,10 @@ system. The first improves the mean accuracy by $1.3\%$ without any extra
 learning. The second improves the performance by $2.4\%$ but with a large
 parameter cost. 
 
-\input{\path/mnist_modified_results}
+\input{\path/tables/mnist_modified_results}
 
 \section{Ablation Experiments with CIFAR and Tiny ImageNet}\label{sec:ch5:conv_exp}
-\input{\path/cifar_arch_table}
+\input{\path/tables/cifar_arch_table}
 Now we look at expanding our layer to harder datasets, focusing more on the
 final classification accuracy. We do this again by comparing to a reference
 architecture. For this task, we choose a VGG-like network as our reference.
@@ -258,7 +258,6 @@ We recall that the magnitude operation in the ScatterNet effectively
 demodulates the energy from higher spatial frequencies to lower ones. This
 perhaps may explain why the best place for learnable scattering layers
 are at positions where you want to downsample in a network.
-% \input{\path/cifar_ablation_table}
 
 We also tested the variations from \autoref{sec:ch5:mnist_newlayer} that added
 spatial offsets to the gain layer by a fixed kernel and saw similar, if not
@@ -270,7 +269,7 @@ provided the necessary spatial separation to build rich shapes, something that
 we did not have in the MNIST experiments.
 
 \section{A New Hybrid ScatterNet}\label{sec:ch5:scat_exp}
-\input{\path/scat_arch_table}
+\input{\path/tables/scat_arch_table}
 
 In the previous section, we examined how the locally invariant layer performs when
 directly swapped for a convolutional layer in an CNN based architecture.
@@ -348,4 +347,4 @@ and B compared to 2 to 4 hours for the networks in \autoref{sec:ch5:conv_exp}).
 % these have more parameters and multiplies from the extra layers we exclude them
 % from \autoref{tab:hybrid_scat}.
 
-\input{\path/cifar_scatnet_results}
+\input{\path/tables/cifar_scatnet_results}

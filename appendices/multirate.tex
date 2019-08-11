@@ -1,18 +1,22 @@
-\chapter{Forward and Backward Algorithms} \label{app:ch3:fwd_bwd}
+\chapter{Extra Proofs and Algorithms} \label{appB:extra}
 \def \path {dtcwt_scat/}
 \def \imgpath {dtcwt_scat/images}
-We have listed some of the forward and backward algorithms here that are not
-included in the main text for the interested reader. We also have included 
-proofs for the gradients of decimation, interpolation and an entire analysis
-decomposition.
+We derive proofs for the gradients of decimation, interpolation, and 
+for the forward 2-D DWT. These are needed for \autoref{sec:ch3:primitives}.
 
-\section{Gradients of Sample Rate Changes}\label{sec:app:samplegrads}
+We have also listed some of the algorithms that are not
+included in the main text for the interested reader. In particular, 
+the inverse DWT (used in \autoref{sec:ch3:2d_dwt}), the inverse $\DTCWT$ (used in
+\autoref{sec:ch3:dtcwt}), and the smooth magnitude operation (used in
+\autoref{sec:ch3:mag}).
+
+\section{Gradients of Sample Rate Changes}\label{sec:appB:samplegrads}
 Consider 1D decimation and interpolation of a signal $x$. The results we prove
 here easily extrapolate to 2D, but for ease we have kept to the 1D case. 
 
-Decimation of a signal $x$ by $M$ is defined as:
+Decimation of a signal $x$ by $M \in \integers$ is defined as:
 \begin{equation}
-  y[n] = x[Mn] \label{eq:app:decimation}
+  y[n] = x[Mn] \label{eq:appB:decimation}
 \end{equation}
 and interpolation by $M$ as:
 \begin{equation}
@@ -20,11 +24,11 @@ and interpolation by $M$ as:
     x[\frac{n}{M}] & n = Mk,\ k\in \integers \\
     0 & \text{otherwise} \\ 
   \end{array}\right.
-  \label{eq:app:interpolation}
+  \label{eq:appB:interpolation}
 \end{equation}
 
 \subsection{Decimation Gradient}
-From \eqref{eq:app:decimation} the gradient $\dydx{y_n}{x_k}$ is: 
+From \eqref{eq:appB:decimation} the gradient $\dydx{y_n}{x_k}$ is: 
 \begin{equation}
   \dydx{y_n}{x_k} = \left\{ \begin{array}{ll}
     1 & k = Mn \\
@@ -39,10 +43,10 @@ By the chain rule, $\dydx{L}{x_k}$ is:
                   0 & \text{otherwise} \\
                 \end{array}\right.
 \end{align}
-which is interpolating $\Delta y$ by $M$ from \eqref{eq:app:interpolation}.
+which is interpolating $\Delta y$ by $M$ from \eqref{eq:appB:interpolation}.
 
 \subsection{Interpolation Gradient}
-From \eqref{eq:app:interpolation} the gradient $\dydx{y_n}{x_k}$ is:
+From \eqref{eq:appB:interpolation} the gradient $\dydx{y_n}{x_k}$ is:
 \begin{equation}
   \dydx{y_n}{x_k} = \left\{ \begin{array}{ll}
     1 & n = Mk \\
@@ -60,37 +64,37 @@ and then the gradient $\dydx{L}{x_k}$ is:
 \end{align}
 which is decimation of $\Delta y$ by $M$.
  
-\section{Gradient of Wavelet Analysis Decomposition}\label{sec:app:analysis_gradient}
+\section{Gradient of Wavelet Analysis Decomposition}\label{sec:appB:analysis_gradient}
 \begin{figure}
   \centering
   \includegraphics{\imgpath/dwt2d_grad.pdf}
   \mycaption{Gradient of DWT analysis}{Each block in the forward pass of
   \autoref{fig:ch3:dwt} has been swapped for its gradient. The resulting
   gradient has the same form as the inverse DWT.}
-  \label{fig:app:dwt_grad_fb}
+  \label{fig:appB:dwt_grad_fb}
 \end{figure}
 We mention in \autoref{sec:ch3:primitives} that the gradient of a forward DWT with
 orthogonal wavelets is just the inverse DWT. 
 This easily follows from applying the chain rule and using the gradients of each of the
 stages of the DWT (convolution becomes correlation, downsampling becomes
 upsampling). The equivalent backwards pass of \autoref{fig:ch3:dwt} is
-shown in \autoref{fig:app:dwt_grad_fb}.
+shown in \autoref{fig:appB:dwt_grad_fb}. The algorithm for computing this is
+shown below in \autoref{alg:appB:idwt}.
 
-For an orthogonal wavelet transform, the synthesis filters are the time reverse of
-the analysis filters \cite[Chapter 3]{vetterli_wavelets_2007}. This means that
-the blocks $H_0(z^{-1}), H_1(z^{-1})$ can be replaced with $G_0(z), G_1(z)$
-respectively, giving the inverse DWT.
+It is interesting to note that for an orthogonal wavelet transform, the
+synthesis filters are the time reverse of the analysis filters \cite[Chapter
+3]{vetterli_wavelets_2007}. This means that the blocks $H_0(z^{-1}),\ H_1(z^{-1})$ 
+are $G_0(z), G_1(z)$ respectively, and the gradient of the forward DWT is the 
+inverse DWT.
 
 \section{Extra Algorithms}
-In the text we refer to the 2-D inverse DWT which we have listed in
-\autoref{alg:ch3:idwt}, as well as the smooth magnitude operation
-(\autoref{alg:ch3:mag_smooth}) and the inverse $\DTCWT$ \autoref{alg:ch3:idtcwt}.
-
+Below are some algorithms referred to in the text that we have moved here for
+compactness.
 \begin{algorithm}[h!]
-\caption{2-D Inverse DWT and its gradient}\label{alg:ch3:idwt}
+\caption{2-D Inverse DWT and its gradient}\label{alg:appB:idwt}
 \begin{algorithmic}[1]
 \Function{IDWT.Forward}{$ll,\ lh,\ hl,\ hl,\ g_0^c,\ g_1^c,\ g_0^r,\ g_1^r,\ mode$}
-  \State \textbf{save} $g_0^c,\ g_1^c,\ g_0^r,\ g_1^r,\ mode$ \Comment{For the backwards pass} \label{line:ch3:idwt_save}
+  \State \textbf{save} $g_0^c,\ g_1^c,\ g_0^r,\ g_1^r,\ mode$ \Comment{For the backwards pass} \label{line:appB:idwt_save}
   \State $lo \gets \F{sfb1d}(ll,\ lh,\ g_0^c,\ g_1^c,\ mode,\ axis=2) $ \Comment{See \autoref{alg:ch3:fb1d}}
   \State $hi \gets \F{sfb1d}(hl,\ hh,\ g_0^c,\ g_1^c,\ mode,\ axis=2) $
   \State $x \gets \F{sfb1d}(lo,\ hi,\ g_0^r,\ g_1^r,\ mode,\ axis=3) $
@@ -110,29 +114,7 @@ In the text we refer to the 2-D inverse DWT which we have listed in
 \end{algorithm}
 
 \begin{algorithm}[tb]
-\caption{Smooth Magnitude}\label{alg:ch3:mag_smooth}
-\begin{algorithmic}[1]
-\Function{MAG\_SMOOTH.Forward}{$x,\ y,\ b$}
-  \State $b \gets \max(b,\ 0)$
-  \State $r \gets \sqrt{x^2 + y^2 + b^2}$
-  \State $\dydx{r}{x} \gets \frac{x}{r}$
-  \State $\dydx{r}{y} \gets \frac{y}{r}$
-  \State \textbf{save} $\dydx{r}{x},\ \dydx{r}{x}$
-  \State \textbf{return} $r - b$
-\EndFunction
-\end{algorithmic}\vspace{10pt}
-\begin{algorithmic}[1]
-\Function{MAG\_SMOOTH.Backward}{$\Delta r$}
-  \State \textbf{load} $\dydx{r}{x},\ \dydx{r}{y}$
-  \State $\Delta x \gets \Delta r \dydx{r}{x}$
-  \State $\Delta y \gets \Delta r \dydx{r}{y}$
-  \State \textbf{return} $\Delta x,\ \Delta y$
-\EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[tb]
-\caption{2-D Inverse $\DTCWT$}\label{alg:ch3:idtcwt}
+\caption{2-D Inverse $\DTCWT$}\label{alg:appB:idtcwt}
 \begin{algorithmic}[1]
 \Function{IDTCWT}{$yl,\ yh,\ mode$}
 \State \textbf{load} $g_0^a,\ g_1^a,\ g_0^b,\ g_1^b$ \Comment{Load from memory}
@@ -151,6 +133,28 @@ In the text we refer to the 2-D inverse DWT which we have listed in
 \State $ll_{j_1j_2} \gets \F{IDWT}_r(ll_{j_1j_2},\ lh_{j_1j_2},\ hl_{j_1j_2},\ hh_{j_1j_2},\ g_0^b,\ g_1^b,\ g_0^b,\ g_1^b,\ mode)$
 \EndFor
 \State \textbf{return} $\left(ll_{r} + ll_{j_1} + ll_{j_2} + ll_{j_1j_2}\right)/2$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[tb]
+\caption{Smooth Magnitude}\label{alg:appB:mag_smooth}
+\begin{algorithmic}[1]
+\Function{MAG\_SMOOTH.Forward}{$x,\ y,\ b$}
+  \State $b \gets \max(b,\ 0)$
+  \State $r \gets \sqrt{x^2 + y^2 + b^2}$
+  \State $\dydx{r}{x} \gets \frac{x}{r}$
+  \State $\dydx{r}{y} \gets \frac{y}{r}$
+  \State \textbf{save} $\dydx{r}{x},\ \dydx{r}{x}$
+  \State \textbf{return} $r - b$
+\EndFunction
+\end{algorithmic}\vspace{10pt}
+\begin{algorithmic}[1]
+\Function{MAG\_SMOOTH.Backward}{$\Delta r$}
+  \State \textbf{load} $\dydx{r}{x},\ \dydx{r}{y}$
+  \State $\Delta x \gets \Delta r \dydx{r}{x}$
+  \State $\Delta y \gets \Delta r \dydx{r}{y}$
+  \State \textbf{return} $\Delta x,\ \Delta y$
 \EndFunction
 \end{algorithmic}
 \end{algorithm}

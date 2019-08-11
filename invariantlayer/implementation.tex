@@ -57,7 +57,7 @@ passes}\label{alg:ch5:inv}
 \begin{algorithmic}[1]
 \Procedure{INVLAYER.Forward}{$x, A$}
 \State $yl,\ yh \gets \F{\DTCWT.Forward}(x^l, \mbox{nlevels}=1) $ 
-  \State $U \gets \F{MAG\_SMOOTH.Forward}(yh)$ \Comment{See \autoref{alg:ch3:mag_smooth}}
+  \State $U \gets \F{MAG\_SMOOTH.Forward}(yh)$ \Comment{See \autoref{alg:appB:mag_smooth}}
   \State $yl \gets \F{AVGPOOL2x2}(yl)$  \Comment{Downsample lowpass to match U size}
   \State $Z \gets \F{CONCATENATE}(yl,\ U)$ \Comment{Concatenate along the channel dim}
   \State $Y \gets AZ$ \Comment{Mix}

@@ -1,72 +1,86 @@
-\chapter{Invertible Transforms and Optimization} \label{app:ch6:invertible}
+\chapter{Invertible Transforms and Optimization} \label{appC:invertible}
 \def \path {freqlearn/}
 \def \imgpath {freqlearn/images}
-This Appendix proves the assertion made in \autoref{sec:ch6:related}, namely
-that:
-\begin{quote}
-  Any invertible linear transform of the parameter space will not change the updates if a linear
-  optimization scheme is used (for example standard gradient descent, or SGD with momentum).
-\end{quote}
-We prove the case for the DFT as the invertible transform, but it can easily be
-extended to other transforms so long as \eqref{eq:ch6:dft_grad} and
-\eqref{eq:ch6:dft_grad2} hold.
+
+This Appendix proves that reparameterization of filters with an invertible
+transform can affect linear methods like SGD. This section is referenced from 
+\autoref{sec:ch6:related} in the main thesis.
+
+We initially looked at this problem after seeing the claim in
+\cite{rippel_spectral_2015} that \emph{any} invertible transform of the parameter
+space would not change the update equations for linear methods like SGD. In
+their work, they examine reparameterizing convolutional filters in the DFT
+space. The filters are taken into the pixel domain with the inverse DFT before
+regular convolution was applied. We wondered if this also applied to redundant
+representations like the $\DTCWT$.
+
+We prove in this section that this statement only holds for tight frames.
+To prove this we follow some notation and theory from 
+\cite{kovacevic_introduction_2008}.
 
 \section{Background}
-We define the DFT as the orthonormal version, i.e.
-$$ U_{ab} = \frac{1}{\sqrt{N}} \exp\{ \frac{-2j\pi ab}{N} \} $$
-%
-then call $X = \DFT{x}$. In matrix form the 2-D DFT is then
-\cite[Chapter 2]{petrou_image_2010}:
+Consider a pair of dual frames $\{\Phi, \tilde{\Phi}\}$ where $\tilde{\Phi}$ is
+the \emph{analysis} operator and $\Phi$ is the \emph{synthesis} operator. 
+In $\reals[n], \complexes[n]$ $\tilde{\Phi}$ is an $n\x m$ matrix describing the
+frame change (with $m \geq n$), with the \emph{dual} frame vectors as its columns.
+Similarly, $\Phi$ is an $n\x m$ matrix containing the frame vectors as its
+columns. The analysis and synthesis operations respectively are:
 \begin{align}
-  X &= \DFT{x} = UxU \\
-  x &= \IFT{X} = U^*XU^* 
+  X &= \tilde{\Phi}^* x \label{eq:appC:analysis}\\
+  x &= \Phi X \label{eq:appC:synthesis}
 \end{align}
-The gradients of these linear operators are:
-\begin{align}
-  \dydx{L}{X} &= U \dydx{L}{x} U = \DFT{\dydx{L}{x}} \label{eq:ch6:dft_grad}\\
-  \dydx{L}{x} &= U^* \dydx{L}{X} U^* = \IFT{\dydx{L}{X}} \label{eq:ch6:dft_grad2}
-\end{align}
+As $\tilde{\Phi}$ is the dual of $\Phi$, $\Phi \tilde{\Phi}^* = I_n$.
 
-\section{Analysis}
-Consider a single filter parameterized in the DFT and spatial domains
-presented with the exact same data and with the same \ltwo\ regularization
-$\lambda$, and learning rate $\eta$. Let
-the spatial filter at time $t$ be $\vec{w}_t$ and the Fourier-parameterized
-filter be $\hat{\vec{w}}_t$, and let 
+\section{Proof}
+Consider a single filter parameterized in the pixel and frame space. In one
+system, the original filter parameters are updated. In a second system the
+frame representation of them are updated. We want to track the evolution of the
+two filters and compare them when the same data are present to them, they have
+the same $\ell_2$ regularization rate $\lambda$ and the same learning rate $\eta$.
+
+Let us assume that the weights at time $t$ are $\vec{w}_t$ and the frame-parameterized
+filter is:
 \begin{equation}
-  \hat{\vec{w}}_1 = \F{DFT}\{\vec{w}_1\} \label{eq:ch6:initial_condition}
+  \hat{\vec{w}}_t = \tilde{\Phi}^* \vec{w}_t \label{eq:appC:initial_condition}
+ \end{equation}
+ It follows from \eqref{eq:appC:synthesis} and our definition of
+ $\hat{\vec{w}}_t$ that:
+\begin{equation}
+  \dydx{L}{\hat{\vec{w}}_t} =\dydx{\vec{w}_t}{\hat{\vec{w}}_t} \dydx{L}{\vec{w}_t} =  {\Phi}^* \dydx{L}{\vec{w}_t} \label{eq:appC:synthesis_grad}
 \end{equation}
-We need to prove that presenting the data to each system in the same order
-results in the same outputs for all time $t$.
-%
-\begin{proof}
-  Assume that $\hat{\vec{w}}_t = \F{DFT}\{\vec{w}_t\}$ for a given timestep $t$.
+
 
 After presenting both systems with the same minibatch of samples $\mathcal{D}$
 and calculating the gradient $\dydx{L}{\vec{w}_t}$ we update both parameters:
 \begin{align}
-  \vec{w}_{t+1} & =  \vec{w}_t - \eta \left(
-    \dydx{L}{\vec{w}_t} + \lambda \vec{w}_t \right) \\
-    &= (1-\eta\lambda)\vec{w}_t - \eta \dydx{L}{\vec{w}_t} \\
-    \hat{\vec{w}}_{t+1} & =  \hat{\vec{w}}_t - \eta \left(
-     \dydx{L}{\hat{\vec{w}_t}} + \lambda \hat{\vec{w}}_t \right)  \\
-     &= (1-\eta\lambda)\hat{\vec{w}}_t - \eta \dydx{L}{\hat{\vec{w}}_t} 
+  \vec{w}_{t+1} & =  \vec{w}_t - \eta \left( \dydx{L}{\vec{w}_t} + \lambda \vec{w}_t \right) \\
+                &= (1-\eta\lambda)\vec{w}_t - \eta \dydx{L}{\vec{w}_t} \label{eq:appC:update} \\
+  \hat{\vec{w}}_{t+1} & = (1-\eta\lambda)\hat{\vec{w}}_t - \eta \dydx{L}{\hat{\vec{w}}_t} 
 \end{align}
-We can then compare the effect the new parameters would have on the next
-minibatch by calculating $\F{DFT}^{-1} \{\hat{\vec{w}}_{t+1} \}$. We then get:
+If we left multiply \eqref{eq:appC:update} by the analysis operator we get:
+% We can then compare the effect the new parameters would have on the next
+% minibatch by calculating $\Phi \hat{\vec{w}}_{t+1}$. This gives us:
 \begin{align}
-  \IFT{\hat{\vec{w}}_{t+1}} &= \IFT{(1-\eta\lambda)\hat{\vec{w}}_t - \eta\ \dydx{L}{\hat{\vec{w}}_t}} \\       
-                        & =  (1-\eta\lambda)\vec{w}_t - \eta\ \IFT{\dydx{L}{\hat{\vec{w}}_t}} \\
-                        & =  (1-\eta\lambda)\vec{w}_t - \eta \dydx{L}{\vec{w}_t} \\
-                        & =  \vec{w}_{t+1}
+  \tilde{\Phi}^* \vec{w}_{t+1} &= \tilde{\Phi}^* \left( (1-\eta\lambda){\vec{w}}_t - \eta\ \dydx{L}{{\vec{w}}_t}\right) \\       
+                               & =  (1-\eta\lambda)\hat{\vec{w}}_t - \eta \tilde{\Phi}^* \dydx{L}{{\vec{w}}_t} 
 \end{align}
-where we have used \eqref{eq:ch6:dft_grad2} for the second last line.
-Since the IFT of $\hat{\vec{w}}$ is the same as $\vec{w}$ at timestep $t+1$ given
-they are the same at timestep $t$, and we have set them equal to each other at
-timestep 1, by induction they will be the same for all time.
-\end{proof}
-We have proved the simpler case for simple SGD, but the same result holds when
-momentum terms are added. This does not however hold for the Adam \cite{kingma_adam:_2014} or Adagrad
+In general, this does not reduce further. However, if $\tilde{\Phi} =
+{\Phi}$ as is the case with tight frames \cite{kovacevic_introduction_2008},
+then we can use \eqref{eq:appC:synthesis_grad} and this last line simplifies to:
+\begin{align}
+  \tilde{\Phi}^* \vec{w}_{t+1} &= (1-\eta\lambda)\hat{\vec{w}_t} - \eta \dydx{L}{\hat{\vec{w}}_t} \\
+                               &= \hat{\vec{w}}_{t+1}
+\end{align}
+Which shows that they remain related at time $t+1$ given they were
+related at time $t$.
+
+This proves the simpler case for SGD, but the same result holds when
+momentum terms are added due to the linearity of the update equations. This does
+not however hold for the Adam \cite{kingma_adam:_2014} or Adagrad
 \cite{duchi_adaptive_2011} optimizers, which automatically rescale the learning
 rates for each parameter based on estimates of the parameter's variance.
 
+We mention in \autoref{sec:ch2:dtcwt_tight} that when the $\DTCWT$ uses orthogonal
+wavelet transforms, as is the case with the q-shift filters \cite{kingsbury_dual-tree_2000}, then it
+forms a tight frame. If the biorthogonal filters are used (as is often the case
+for the first scale of the transform), it does not form a tight frame.

@@ -15,45 +15,6 @@ to manually calculate the gradients and design the most efficient way of
 programming them.  
 For clarity and repeatability, we give pseudocode for all the core operations
 developed in our package \emph{PyTorch Wavelets}. 
-% We carry this through to other chapters
-% when we design different wavelet-based blocks. By the end of this thesis, it should be
-% clear how every attempted method has been implemented.
-
-% Using inbuit blocks is very useful and makes development and testing quick to
-% do. However, when doing operations with fixed filters such as those found in
-% wavelet transforms, autograd will unnecessarily save lots of activations, using
-% precious GPU memory. This is why as part of this thesis we describe how
-% autograd blocks units for the operations we use/have developed.
-
-% Note that the pseudocode can be for a simple routine or as part of an autograd
-% block. The latter will be clear as it will involve saving of activations for the
-% bacwkards pass.
-% \begin{enumerate}
-  % \item Gradient-less code - these are low-level functions that can be used for
-    % both the forward and backward calculations. E.g. \autoref{alg:ch3:fb1d}. We
-    % name these \texttt{NG:<name>}, NG for no gradients.
-  % \item Autograd blocks - the modules as shown in
-    % \autoref{fig:ch2:block_form}. These always have a forward and backward pass, and
-    % are named \texttt{AG:<name>}. E.g. \autoref{alg:ch3:dwt}.
-  % \item Higher level modules - these make use of efficient autograd functions
-    % and are named \texttt{MOD:<name>}. E.g. \autoref{alg:ch3:dtcwt}.
-% \end{enumerate}
-
-% \begin{figure}
-  % \centering
-  % \input{\imgpath/deeplearn_block}
-  % \mycaption{An autograd block}{The building block of modern deep learning
-  % frameworks. Every function needs to be able to not only take an input (and
-  % possibly a weight parameter) to give an output $y=f(x,w)$, it must also
-  % be able to take a backpropagated input $\dLdx{y}$ and give
-  % backpropagated outputs $\dLdx{x},\ \dLdx{w}$. The
-  % former is then passed onto the previous block's backpropagated input, and the
-  % latter, if it exists, is used to update weights. As a key step in
-  % doing this, the gradients $\dydx{y}{x},\ \dydx{y}{w}$ evaluated at the current
-  % values of $x$ and $w$ must be saved on the forward pass. This takes up memory
-  % which can then be freed once the backpropagated outputs have been calculated.}
-  % \label{fig:ch3:autograd_blk}
-% \end{figure}
 
 \section{Fast Calculation of the DWT and IDWT}\label{sec:ch3:dwt}
 To have a fast implementation of the Scattering Transform, we need a fast
@@ -136,8 +97,8 @@ to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
 the loss with respect to the input. This was proved in \autoref{sec:ch2:conv_grad}, we
 have just rewritten it in terms of $Z$-transforms here.
 
-Additionally, for a decimation by two block, the passthrough gradient is
-interpolation by two (see \autoref{sec:app:samplegrads}
+Additionally, for a decimation block, the passthrough gradient is
+interpolation (see \autoref{sec:appB:samplegrads}
 for a proof of this).
 
 \autoref{fig:ch3:dwt} shows the block diagram for performing the forward pass of
@@ -149,7 +110,7 @@ used as the synthesis filters. For orthogonal wavelet transforms, the synthesis
 filters are the time reverse of the analysis filters so backpropagation can be
 done by doing the inverse wavelet transform with $\Delta Y^l(z), \Delta Y^h(z),
 \Delta Y^v(z), \Delta Y^d(z)$. 
-See \autoref{sec:app:analysis_gradient} for more information on this
+See \autoref{sec:appB:analysis_gradient} for more information on this
 and the equivalent figure for the backwards pass.
 
 {
@@ -221,12 +182,12 @@ bank 1-D) functions as they are each other's backwards pass.
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{2-D Transforms and Their Gradients}
+\subsection{2-D Transforms and Their Gradients}\label{sec:ch3:2d_dwt}
 Having built the 1-D filter banks, we can easily generalize them to 2-D.
 Furthermore, we can define the backwards steps of both the forward 2-D DWT
 and the inverse 2-D DWT using these filter banks. We show how to do do this in
 \autoref{alg:ch3:dwt}. The inverse transform logic is moved to the appendix - in
-\autoref{alg:ch3:idwt}.
+\autoref{alg:appB:idwt}.
 
 Note that we have allowed for different row and column
 filters in \autoref{alg:ch3:dwt}. Most commonly used wavelets will use the same
@@ -248,9 +209,6 @@ saved, giving this implementation almost no memory overhead.
 \begin{algorithmic}[1]
 \Function{DWT.Forward}{$x,\ h_0^r,\ h_1^r,\ h_0^c,\ h_1^c,\ mode$}
   \State \textbf{save} $h_0^r,\ h_1^r,\ h_0^c,\ h_1^c,\ mode$ \Comment{For the backwards pass} \label{line:ch3:dwt_save}
-  % \State $lo,\ hi \gets \F{afb1d}(x,\ h_0^c,\ h_1^c,\ mode,\ axis=-2)$ \Comment{column filter}
-  % \State $ll,\ lh \gets \F{afb1d}(lo,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
-  % \State $hl,\ hh \gets \F{afb1d}(hi,\ h_0^r,\ h_1^r,\ mode,\ axis=-1)$ \Comment{row filter}
   \State $lo,\ hi \gets \mathtt{afb1d}(x,\ h_0^r,\ h_1^r,\ mode,\ axis=3)$ \Comment{row filter}
   \State $ll,\ lh \gets \mathtt{afb1d}(lo,\ h_0^c,\ h_1^c,\ mode,\ axis=2)$ \Comment{column filter}
   \State $hl,\ hh \gets \mathtt{afb1d}(hi,\ h_0^c,\ h_1^c,\ mode,\ axis=2)$ \Comment{column filter}
@@ -260,9 +218,6 @@ saved, giving this implementation almost no memory overhead.
 \begin{algorithmic}[1]
 \Function{DWT.Backward}{$\Delta ll,\ \Delta lh,\ \Delta hl,\ \Delta hh$}
   \State \textbf{load} $h_0^r,\ h_1^r,\ h_0^c,\ h_1^c,\ mode$
-  % \State $ h_0^c,\ h_1^c \gets \F{flip}(h_0^c),\ \F{flip}(h_1^c) $\Comment{flip the filters as in \eqref{eq:ch3:backprop}}
-  % \State $ h_0^r,\ h_1^r \gets \F{flip}(h_0^r),\ \F{flip}(h_1^r)$
-  % \mbox{\\$g_0,\ g_1$ are 1-D lowpass and highpass filters.}
   \State $\Delta lo \gets \mathtt{sfb1d}(\Delta ll,\ \Delta lh,\ h_0^c,\ h_1^c,\ mode,\ axis=2) $
   \State $\Delta hi \gets \mathtt{sfb1d}(\Delta hl,\ \Delta hh,\ h_0^c,\ h_1^c,\ mode,\ axis=2) $
   \State $\Delta x \gets \mathtt{sfb1d}(\Delta lo,\ \Delta hi,\ h_0^r,\ h_1^r,\ mode,\ axis=3) $
@@ -270,7 +225,6 @@ saved, giving this implementation almost no memory overhead.
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
-
 
 \section{Fast Calculation of the $\DTCWT$}\label{sec:ch3:dtcwt}
 \begin{figure}
@@ -323,7 +277,7 @@ scale to all subsequent scales \cite{selesnick_dual-tree_2005}. We have not
 shown this in \autoref{alg:ch3:dtcwt} for simplicity, but it would simply mean
 we would have to handle the $j=1$ case separately.
 
-We have moved the inverse $\DTCWT$ algorithm to \autoref{alg:ch3:idtcwt}. Note
+We have moved the inverse $\DTCWT$ algorithm to \autoref{alg:appB:idtcwt}. Note
 that for both the $\DTCWT$ and inverse $\DTCWT$, we rely on autograd to
 calculate the backwards pass by calling our defined DWT.Forward and 
 DWT.Backward methods.
@@ -443,7 +397,7 @@ revisit in \autoref{sec:ch3:dtcwt_hypes}. The partial derivatives now become:
 \end{eqnarray}
 There is a memory cost associated with this, as we will now need to save both
 $\dydx{r_s}{x}$ and $\dydx{r_s}{y}$ as opposed to saving only the phase.
-\autoref{alg:ch3:mag_smooth} has the pseudocode for the smooth magnitude.
+\autoref{alg:appB:mag_smooth} has the pseudocode for the smooth magnitude.
 
 \subsection{Putting it all Together}\label{sec:ch3:combining}
 

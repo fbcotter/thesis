@@ -36,7 +36,7 @@ $\hat{w} \in \complexes[F\x C\x K \x \ceil{K/2}]$
 filter to be real, so the parameterization is symmetric). On the forward pass of
 the neural network, they take the inverse DFT of $\hat{w}$ to obtain
 $w$ and then convolve this with the input $x$ as a normal CNN
-would do.\footnote{The convolution may be done by taking both the image and
+would do\footnote{The convolution may be done by taking both the image and
 filter back into the Fourier space but this is typically decided by the
 framework, which selects the optimal convolution strategy for the filter and
 input size. Note that there is not necessarily a saving to be gained by
@@ -45,18 +45,20 @@ the filter will likely be larger than $K\x K$, which would require resampling
 the coefficients.}. 
 
 Note that an important point should be emphasized about reparameterizing filters
-in either the wavelet or Fourier domains: any invertible linear
+in either the wavelet or Fourier domains: many invertible linear
 transform of the parameter space will not change parameter updates if a linear
-optimization scheme is used (for example standard GD, or SGD with momentum)\footnote{This fact 
-is something that \citeauthor{rippel_spectral_2015} briefly allude to, but do not make clear.}.
-This is proved in \autoref{app:ch6:invertible}.  
+optimization scheme is used (for example standard GD, or SGD with momentum). 
+\citeauthor{rippel_spectral_2015}
+mention in their work that this holds for \emph{all} invertible
+transforms but this is not strictly true, and we prove in
+\autoref{appC:invertible} that it only holds for \emph{tight frames}. 
 We make this point clear as a natural extension to continue the work
-in \cite{rippel_spectral_2015} would be to parameterize filters in the wavelet domain,
-taking inverse transforms to the pixel domain and doing normal convolution. 
+in \cite{rippel_spectral_2015} would be to parameterize filters in the \emph{wavelet} domain,
+taking inverse transforms and then doing normal convolution. 
 
-The work presented in this chapter does not learn wavelet coefficients 
-for convolutional filters to be applied in the pixel domain, rather we learn wavelet filters 
-\emph{and} perform filtering in the wavelet domain too.
+While \cite{rippel_spectral_2015} was an inspiration for this chapter, the work we
+present here is not a reparameterization in the wavelet domain with convolution
+in the pixel domain. Instead, we learn wavelet filters \emph{and} perform filtering in the wavelet domain too.
 
 \subsection{Notation}
 We make use of the 2-D $Z$-transform to simplify our analysis:
