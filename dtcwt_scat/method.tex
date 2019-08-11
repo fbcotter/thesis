@@ -256,17 +256,7 @@ in the other case, producing the two outputs:
 corresponding to the first and second quadrant directional filters respectively.
 The sum and difference blocks $\Sigma/\Delta$ in \autoref{fig:ch3:dtcwt_fb} do
 this operation \cite{kingsbury_image_1999}. 
-% We call each DWT $aa$, $ab$, $ba$ and $bb$, where the first letter
-% indicates which filter to use for the row operations and the second letter
-% indicates which filter to use for the columns.
 
-% The four DWTs give twelve bandpass coefficients at each scale. These are added and
-% subtracted from each other to get the six orientations' real and imaginary
-% components (see \autoref{alg:ch3:q2c} for the code for how to do this). 
-% Note that the $r$ DWT uses the $a$
-% filters for both the row and column filtering, the $j_1$ uses the $b$ row filters 
-% and $a$ column filters, the $j_2$ DWT uses $a$ row filters and $b$ column
-% filters and $j_1j_2$
 The four lowpass coefficients from each scale are used for the next scale DWTs. At the
 final scale, they are interleaved to get four times the expected lowpass output
 area expected from a single decimated DWT.

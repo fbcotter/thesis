@@ -29,7 +29,8 @@ columns. The analysis and synthesis operations respectively are:
   X &= \tilde{\Phi}^* x \label{eq:appC:analysis}\\
   x &= \Phi X \label{eq:appC:synthesis}
 \end{align}
-As $\tilde{\Phi}$ is the dual of $\Phi$, $\Phi \tilde{\Phi}^* = I_n$.
+Where $\tilde{\Phi}^*$ is the Hermitian transpose of $\tilde{\Phi}$. As
+$\tilde{\Phi}$ is the dual of $\Phi$, $\Phi \tilde{\Phi}^* = I_n$.
 
 \section{Proof}
 Consider a single filter parameterized in the pixel and frame space. In one
@@ -48,7 +49,6 @@ filter is:
 \begin{equation}
   \dydx{L}{\hat{\vec{w}}_t} =\dydx{\vec{w}_t}{\hat{\vec{w}}_t} \dydx{L}{\vec{w}_t} =  {\Phi}^* \dydx{L}{\vec{w}_t} \label{eq:appC:synthesis_grad}
 \end{equation}
-
 
 After presenting both systems with the same minibatch of samples $\mathcal{D}$
 and calculating the gradient $\dydx{L}{\vec{w}_t}$ we update both parameters:

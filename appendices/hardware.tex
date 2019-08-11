@@ -14,42 +14,87 @@ To do hyperparameter search we used the Tune package \cite{liaw2018tune} which
 we highly recommend, as it makes running trials in parallel very easy.
 
 \section{Run Times of some of the Proposed Layers}
+Throughout the main body of the thesis, we derive theoretical computational
+costs for many of our methods and compare these to convolutional operations.
+While this is useful to give a rough guide about the cost of our methods, we
+give experimental values here. 
+
+The numbers in the tables are calculated by running the specified input through our
+layer five times and then averaging the values. Timings were done by using
+NVIDIA's `nvprof' command, which allows us to get millisecond timing on kernel
+execution times.
+
+We test the effect of changing the spatial size for a constant batch and channel
+size in \autoref{tab:appA:spatial}, and we test the effect of changing the
+channel dimension size for constant batch and spatial size in
+\autoref{tab:appA:channel}. Our reference is a $10\x 10$ convolutional layer
+that does not do mixing across the channels. We compare the run time of this operation
+to each of our layers on an input of size $C\x H\x W$.
+
+% \pagebreak
+Using results from \autoref{sec:ch3:dtcwt} (for the $\DTCWT$ and ScatterNet),
+\autoref{sec:ch5:computation} (for the invariant layer) and
+\autoref{sec:ch6:computation} (for the gain layer), the \emph{theoretical}
+computational costs for the testsed layers for an input with size $C\x H\x W$
+are:
+
+\pagebreak
+\begin{itemize}
+  \item \textbf{$10\x10$ Convolution}: 100 multiplies per input pixel
+  \item \textbf{$\DTCWT$ with $J=1$}: 36 multiplies per input pixel
+  \item \textbf{$\DTCWT^{-1}$ with $J=1$}: 36 multiplies per input pixel
+  \item \textbf{$\DTCWT$ ScatterNet with $J=1$}: 39 multiplies per input pixel
+  \item \textbf{Invariant Layer with square $A$ matrix:}: $\frac{7}{4}C + 36$ multiplies per input pixel
+  \item \textbf{$\DTCWT$ Gain Layer with $J=1$}: $7C + 72$ multiplies per input pixel
+  % \item \textbf{$\DTCWT$ Gain Layer with $J=2$}:
+\end{itemize}
+
+While we were able to create a reasonably fast method for calculating the $\DTCWT$, it is
+still slower than what we believe it ought to be, with it often running 1 to 2 times
+slower than a $10\x 10$ convolution. As it is the core for the other layers in
+this thesis, these are also affected.
 
 \begin{table}[bt]
   \renewcommand{\arraystretch}{1.2}
   \centering
-  \mycaption{Run time speeds for layers in thesis}{}
+  \mycaption{Run time speeds for different layers with increasing spatial size}{Input size is $32\x 32\x H\x H$
+  where $H$ is the column heading listed below. Run times are in milliseconds,
+  averaged over five runs.}
+  \label{tab:appA:spatial}
   % \begin{tabular}{@{}lllcllcll@{}}
   \begin{tabular}{@{}l ccccc@{}}
     \toprule
-    & 16 & 32 & 64 & 128 & 256 \\
+    Spatial Size & 16 & 32 & 64 & 128 & 256 \\
     \midrule
-    conv & 0.2 & 0.8 & 6.2 & 22.4 & 112 \\
-    $\DTCWT$ & 0.5 & 2.16 & 7.6 & 29.4 & 118 \\
+    Conv10x10 & 0.2 & 0.8 & 6.2 & 22.4 & 112 \\
+    $\DTCWT$ & 0.5 & 2.0 & 7.6 & 29.4 & 118 \\
     $\DTCWT^{-1}$ & 0.6 & 2.1 & 8.1 & 33.3 & 123\\
     Scatter & 0.6 & 2.1 & 8.7 & 31.8 & 125 \\
     Invariant & 0.7 & 2.4 & 9.6 & 37.4 & 144 \\
     Gain ($J=1$) & 1.5 & 5.7 & 21.6 & 80 &  336 \\
-    Gain ($J=2$) & 1.7 & 4.7 & 16.7 & 61.6 & 236 \\
+    % Gain ($J=2$) & 1.7 & 4.7 & 16.7 & 61.6 & 236 \\
     \bottomrule
   \end{tabular}
 \end{table}
 \begin{table}[t]
   \renewcommand{\arraystretch}{1.2}
   \centering
-  \mycaption{Run time speeds for layers in thesis}{}
+  \mycaption{Run time speeds for different layers with increasing channel
+  size}{Input size is $32\x C\x 64\x 64$ where $C$ is the column heading listed
+  below. Run times are in milliseconds, averaged over five runs.}
+  \label{tab:appA:channel}
   % \begin{tabular}{@{}lllcllcll@{}}
   \begin{tabular}{@{}l ccccc@{}}
     \toprule
-    & 3 & 10 & 32 & 64 & 128 \\
+    Channel Size & 3 & 10 & 32 & 64 & 128 \\
     \midrule
-    conv & 2 & 4.6 & 15.8 & 28.4 & 70 \\
+    Conv10x10 & 2 & 4.6 & 15.8 & 28.4 & 70 \\
     $\DTCWT$ & 3.2 & 10.5 & 30.0 & 58.6 & 126 \\
     $\DTCWT^{-1}$ & 4.1 & 13.3 & 37.0 & 79.4 & 152 \\
     Scatter & 3.4 & 11.0 & 31.4 & 65.8 & 133 \\
     Invariant & 3.6 & 11.8 & 34.6 & 73.6 & 164 \\
-    Gain ($J=1$) & 9.7 & 28.4 & 79.4 & 158 & 371 \\
-    Gain ($J=2$) & 7.4 & 20.4 & 64.4 & 121 & 245 \\
+    Gain Layer & 9.7 & 28.4 & 79.4 & 158 & 371 \\
+    % Gain ($J=2$) & 7.4 & 20.4 & 64.4 & 121 & 245 \\
     \bottomrule
   \end{tabular}
 \end{table}

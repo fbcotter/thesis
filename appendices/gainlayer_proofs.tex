@@ -41,22 +41,30 @@ subband and set all the others to zero, then we have a reduced tree as shown in
 where the aliasing terms are formed from the addition of the rotated z
 transforms, i.e.\ when $k \neq 0$.
 
+As is standard for filter design in the real DWT, it is possible to make $A$ and $C$ have
+similar frequency responses. We can also make $A(W^{\pm 2}z) C(z)$ near zero if
+their stopbands can be made reasonably small. It is not possible however to make
+the terms $A(W^{\pm 1}z)C(z)$ zero, as the transition band of the shifted
+analysis filter $A(W^{\pm 1}z)$ overlap with those of the reconstruction filter
+$C(z)$. This leads us to our first theorem:
+
 \begin{theorem} \label{thm:ch6:shiftinv}
-  The aliasing terms for \eqref{eq:ch6:aliasing} cancel out if the impulse
+  The odd $k$ aliasing terms in \eqref{eq:ch6:aliasing} cancel out if the impulse
   responses of $B$ and $D$ are Hilbert transforms of the impulse responses of
-  $A$ and $C$ respectively, and the system in \autoref{fig:ch6:dtcwt_two_tree}
-  is nearly shift invariant.
+  $A$ and $C$ respectively.
 \end{theorem}
 
 \begin{proof}
-  See section 4 of \cite{kingsbury_complex_2001} for the full proof of
-  this, and section 7 for the bounds on what `nearly' shift invariant means. 
+  See \cite[section 4]{kingsbury_complex_2001} for the full proof of
+  this. The full cancellation of aliasing terms for all $k \neq 0$ makes the $\DTCWT$ 
+  nearly shift invariant (also see \cite[section 7]{kingsbury_complex_2001} for the
+  bounds on what `nearly' shift invariant means).  
 \end{proof}
 
-Consider the complex filters defined as:
+Now, consider the complex filters defined as:
 \begin{align}
-  P(z) &= \frac{1}{2}\left(A(z) + jB(z)\right) \\
-  Q(z) &= \frac{1}{2}\left(C(z) - jD(z)\right)
+  P(z) &= \frac{1}{2}\left(A(z) + jB(z)\right) \label{eq:appD:p_eq}\\
+  Q(z) &= \frac{1}{2}\left(C(z) - jD(z)\right) \label{eq:appD:q_eq}
 \end{align}
 and define $P^*(z) = \sum_{n} p^{*}[n] z^{-n}$ as the $Z$-transform of $p$
 after taking the complex conjugate of the filter taps. 
@@ -73,18 +81,23 @@ Substituting these into \eqref{eq:ch6:aliasing} gives:
 \begin{equation}
   A(W^k z)C(z) + B(W^k z)D(z) = 2P(W^kz)Q(z) + 2P^*(W^kz)Q^*(z) \label{eq:ch6:complex_filts}
 \end{equation}
-Using \eqref{eq:ch6:complex_filts}, Kingsbury show that if $B$ is the Hilbert pair
+This result is important as it shows that the $P^*Q$ and
+$PQ^*$ terms cancel out when $BD$ is added to $AC$, which are the terms that
+would cause significant aliasing.
+
+Using \eqref{eq:appD:p_eq} and \eqref{eq:appD:q_eq} Kingsbury showed that if $B$ is the Hilbert pair
 of $A$ then $P$ has support only on the right hand side of the frequency plane.
 Similarly if $D$ is the Hilbert pair of $C$ then $Q$ also has support only on
 the right hand side of the frequency plane. If $P$ and $Q$ are single side band,
 then so are $P^*$ and $Q^*$, but they now have support only on the left hand
 side of the frequency plane. 
 
-Given these properties, the shifted versions of $P(W^k z)$ have negligible overlap
-with $Q(z)$ except for $k=0$ (the wanted term) and $k=\pm 1$ where the
-transition bands overlap. Similarly $P^*(W^k z)$ only overlaps with $Q^*(z)$ 
-when $k=0$ and a small amount for $k = \pm 1$. \cite{kingsbury_complex_2001}
-quantify the amount of transition band overlap and show it is negligible.
+Given these properties, \cite[figure 5]{kingsbury_complex_2001} shows that the
+shifted versions of $P(W^k z)$ have negligible overlap with $Q(z)$ except for
+$k=0$ (the wanted term) and $k=\pm 1$ where the transition bands overlap.
+Similarly $P^*(W^k z)$ only overlaps with $Q^*(z)$ when $k=0$ and a small amount
+for $k = \pm 1$. \cite{kingsbury_complex_2001} quantifies the amount of transition
+band overlap and shows that it is negligible.
 
 This means $A(W^k z)C(z) + B(W^k z)D(z) = 0$ when $k\neq 0$ and 
 \eqref{eq:ch6:aliasing} reduces to:
@@ -121,24 +134,13 @@ Further, $Y_a$ and $Y_b$ are:
   Y_b(z) &=& D(z)V_b(z^M)
 \end{eqnarray}
 %
-Then the output is:
+and the output is their sum:
 \begin{alignat}{2}
     Y(z) &= Y_{a}(z) + Y_{b}(z) \\
-         &= \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z) & \left[  A(W^kz)C(z)G_{aa}(z^M) + B(W^kz)D(z)G_{bb}(z) + \right. \nonumber \\
-         &                                        & \left. \hphantom{[}  B(W^kz)C(z)G_{ba}(z^M) + A(W^kz)D(z)G_{ba}(z) \right] 
+         &= \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z) & \left[  A(W^kz)C(z)G_{aa}(z^M) + B(W^kz)D(z)G_{bb}(z^M) + \right. \nonumber \\
+         &                                        & \left. \hphantom{[}  B(W^kz)C(z)G_{ba}(z^M) + A(W^kz)D(z)G_{ba}(z^M) \right] 
     \label{eq:ch6:transfer}
 \end{alignat}
-% \begin{equation}
-  % \begin{split}
-  % % \begin{multline}
-    % Y(z) &= Y_{a}(z) + Y_{b}(z) \\
-    % &= \frac{1}{M} \sum_{k=0}^{M-1} X(W^k z)
-    % & \left[  A(W^kz)C(z)G_{aa}(z^M) + B(W^kz)D(z)G_{bb}(z) + \right. \\
-    % & \left. \hphantom{[}  B(W^kz)C(z)G_{ba}(z^M) + A(W^kz)D(z)G_{ba}(z) \right] 
-    % \label{eq:ch6:transfer}
-  % % \end{multline}
-  % \end{split}
-% \end{equation}
 
 \begin{theorem}\label{thm:ch6:shiftinvgain}
   If we let $G_{aa}(z) = G_{bb}(z) = G_r(z)$ and $G_{ab}(z) = -G_{ba}(z) = G_i(z)$
@@ -158,8 +160,10 @@ Then the output is:
   \begin{eqnarray}
     A(W^kz)D(z) - B(W^kz)C(z) &=& j\left[P(W^kz) + P^*(W^kz)\right]\left[Q(z) -Q^*(z)\right] +\\
                               &&j\left[P(W^kz) -P^*(W^kz)\right]\left[Q(z) + Q^*(z)\right] \\
-                              &=& 2j\left[P(W^kz)Q(z) - P^*(W^kz)Q^*(z)\right]
+                              &=& 2j\left[P(W^kz)Q(z) - P^*(W^kz)Q^*(z)\right] \label{eq:appD:imaginary}
   \end{eqnarray}
+  Again, \eqref{eq:appD:imaginary} shows that the $P^*Q$ and $PQ^*$ cancel out,
+  removing the sources of aliasing.
   We note that the difference
   between the $G_r$ and $G_i$ terms is just in the sign of the negative
   frequency parts, i.e. $AD - BC$ is the Hilbert pair of $AC+BD$. To prove shift
@@ -197,11 +201,14 @@ where we have dropped the $z$ terms on $A, B, C, D, P, Q$ for brevity.
   which follows the form of a complex multiply.
 \end{proof}
 
-Now we know can assume that our $\DTCWT$ is well designed and extracts frequency
+Now if we can assume that our $\DTCWT$ is well designed and extracts frequency
 bands at local areas, then our complex filter $G(z)=G_r(z) + jG_i(z)$ allows us
 to modify these passbands (e.g.\ by simply scaling if $G(z) = C$, or by more
-complex functions.
+complex functions). The phase of the complex gain produces a phase shift of the
+underlying oscillation in the impulse response of this subband, and thus allows
+small spatial shifts to be achieved.
+
 \autoref{thm:ch6:complex_multiply} and \eqref{eq:ch6:end2end} give us an intuiton for the real and
 imaginary parts of a complex gain $G$. The real part $G_r$ affects how much of
-the bandpass gain $PQ + P^*Q^*$ propagetes through, and the imaginary part $G_i$
+the bandpass gain $PQ + P^*Q^*$ propagates through, and the imaginary part $G_i$
 affects how much its Hilbert pair $PQ-P^*Q^*$ propagates.

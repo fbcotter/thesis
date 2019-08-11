@@ -22,11 +22,17 @@ def reg_loss(w, type='l2'):
 
 def main():
     xfm = DTCWTForward(J=1)
+    #  xfm.h0o = xfm.h0a
+    #  xfm.h1o = xfm.h1a
     ifm = DTCWTInverse()
+    #  ifm.g0o = ifm.g0a
+    #  ifm.g1o = ifm.g1a
     b1 = (ifm.g0o.data.numpy().ravel()[::-1], ifm.g1o.data.numpy().ravel()[::-1])
     xfm2 = DTCWTForward(J=1, biort=b1)
     b1 = (np.copy(xfm.h0o.data.numpy().ravel()[::-1]), np.copy(xfm.h1o.data.numpy().ravel()[::-1]))
     ifm2 = DTCWTInverse(biort=b1)
+    #  xfm2 = xfm
+    #  ifm2 = ifm
     wd = 1e-2
     N = 8
     pad = (N-1)//2

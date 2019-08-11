@@ -2,7 +2,7 @@
 \def \path {freqlearn/}
 \def \imgpath {freqlearn/images}
 This appendix lists some of the forward and backward equations for the
-complex operations we use in the \emph{gain layer} and \emph{wave layer}.
+complex operations we use in the \emph{gain layer}.
 
 \section{Convolution}\label{sec:appE:complex_conv}
   %% Define the variables we will use in this section
@@ -15,14 +15,17 @@ complex operations we use in the \emph{gain layer} and \emph{wave layer}.
 \newcommand{\kk}{\bmu{k}}
   %% Now the body
   
-Let us represent the complex input with $\SigInB = \SigInB_r + j\SigInB_i$, which is of shape
-$\complexes[C\x n_1\x n_2]$. We call $\SigOutB = \SigOutB_r + j\SigOutB_i$ the result we get from convolving
-$\SigInB$ with $\FilterB= \FilterB_r + j\FilterB_i$, so $\SigOutB \in \complexes[1 \x (n_1 + m - 1) \x (n_2 + m -1)]$. With
-appropriate zero or symmetric padding, we can make $\SigOutB$ have the same
-spatial shape as $\SigInB$. Now, consider the full complex convolution to get
-$\SigOutB$:
+Let us represent the complex input with $\SigInB = \SigInB_r + j\SigInB_i$,
+where $\SigInB_r$ and $\SigInB_i$ are the real and imaginary parts of $\SigIn$,
+and $\SigIn$ is of shape $\complexes[C\x n_1\x n_2]$. Similarly, we call $\SigOutB =
+\SigOutB_r + j\SigOutB_i$ the result we get from convolving $\SigInB$ with
+$\FilterB= \FilterB_r + j\FilterB_i$ where $\FilterB \in \complexes[C\x m\x m]$ and so 
+$\SigOutB \in \complexes[1 \x (n_1 + m - 1) \x (n_2 + m -1)]$. 
+With appropriate zero or symmetric padding, we can make
+$\SigOutB$ have the same spatial shape as $\SigInB$. Now, consider the full
+complex convolution to get $\SigOutB$:
 \begin{equation}
- \SigOut[\nn] = \sum_{c=0}^{C-1} \sum_{\kk} \Filter[c, \kk] \SigIn[c, \nn - \kk]
+ \SigOut[\nn] = \sum_{c=0}^{C-1} \sum_{\kk} \Filter[c, \kk]\ \SigIn[c, \nn - \kk]
 \end{equation}
 We can expand this with real and imaginary terms:
 \begin{align}
@@ -33,7 +36,7 @@ We can expand this with real and imaginary terms:
    &+ j\sum_{c=0}^{C-1} \sum_{\kk} (\SigIn_r[c, \nn-\kk] \Filter_i[c, \kk] + 
           \SigIn_i[c, \nn - \kk] \Filter_r[c, \kk]) \nonumber\\
 \SigOut_r[\nn] + j\SigOut_i[\nn]  =& \sum_{c=0}^{C-1} \left((\SigIn_r \ast \Filter_r) - (\SigIn_i \ast \Filter_i)\right)[c, \nn] + 
-          \left((\SigIn_r \ast \Filter_i) + j(\SigIn_i \ast \Filter_r)\right)[c, \nn] \label{eq:app:complex_conv}
+          j\left((\SigIn_r \ast \Filter_i) + (\SigIn_i \ast \Filter_r)\right)[c, \nn] \label{eq:app:complex_conv}
 \end{align}
 Unsurprisingly, complex convolution is the sum and difference of 4 real convolutions.
 
@@ -47,7 +50,8 @@ of real convolutions to write:
   \dydx{L}{h_r} &= \dydx{L}{y_r}\dydx{y_r}{h_r} + \dydx{L}{y_i}\dydx{y_i}{h_r} \\
                 &= \Delta y_r \star x_r + \Delta y_i \star x_i
 \end{align}
-where $\star$ is the correlation operation (see \autoref{sec:ch2:conv_grad}).
+where $\star$ is the correlation operation (to achieve spatial reversal compared
+with convolution, see \autoref{sec:ch2:conv_grad}).
 Similarly 
 \begin{equation}
   \dydx{L}{h_i} = -\Delta y_r \star x_i + \Delta y_i \star x_r
@@ -68,15 +72,15 @@ magnitude of the weights to be small but allow the phase to change unrestricted.
 To do $\ell_2$ regularization we can apply $\ell_2$ to the real and imaginary parts
 independently:
 \begin{equation}
-  \lnorm{r}{2}^2 = \lnorm{\sqrt{x_r^2+x_i^2}}{2}^2 = \sum_{\nn} x_r[\nn]^2 + x_i[\nn]^2 = 
-  \sum_\nn x_r[\nn]^2 + \sum_\nn x_i[\nn]^2 = \lnorm{x_r}{2}^2 + \lnorm{x_i}{2}^2
+  \lnorm{r}{2}^2 = \lnorm{\sqrt{x_r^2+x_i^2}}{2}^2 = \frac{1}{2}\sum_{\nn} x_r[\nn]^2 + x_i[\nn]^2 = 
+  \frac{1}{2}\sum_\nn x_r[\nn]^2 + \frac{1}{2}\sum_\nn x_i[\nn]^2 = \lnorm{x_r}{2}^2 + \lnorm{x_i}{2}^2
 \end{equation}
 But this does not hold for $\ell_1$ regularization as:
 \begin{equation}
   \lnorm{r}{1} = \lnorm{\sqrt{x_r^2+x_i^2}}{1} = \sum_\nn \sqrt{x_r[\nn]^2 + x_i[\nn]^2} \neq \lnorm{x_r}{1} + \lnorm{x_i}{1}
 \end{equation}
 
-Also, for $\ell_1$ regularization the derivatives have a singularity at the complex
+Also, for $\ell_1$ regularization the derivatives have a discontinuity at the complex
 origin as:
 \begin{equation}
   \dydx{\ell_1}{x_r[\nn]} = \frac{x_r[\nn]}{\sqrt{x_r[\nn]^2 + x_i[\nn]^2}}
@@ -168,26 +172,27 @@ Let us call the action of this nonlinearity $\mathcal{B}$, defined by:
       \frac{\gamma}{\sigma_r}(r-t)e^{j\theta} & r \geq t\\
   \end{array} 
 \right. \\
-&= \indic(r > t)\frac{\gamma (r-t)}{\sigma r} z\\
+&= \frac{\gamma}{\sigma_r} \frac{\max(r-t, 0)}{r} z \\
 &= g'z
 \end{align}
-It is clear from our new definition of $g'$ that the equations
-\eqref{eq:appE:softx} - \eqref{eq:appE:softt} are now 
-scaled by $\frac{\gamma}{\sigma}$. 
+Where $g'$ is now the $g$ from \eqref{eq:appE:soft} scaled by $\frac{\gamma}{\sigma_r}$.
+It is clear from our new definition of $g'$ 
+that the equations \eqref{eq:appE:softx} - \eqref{eq:appE:softt} are also scaled
+by $\frac{\gamma}{\sigma_r}$. 
 This immediately gives us the passthrough gradients. For the update equations,
 we must find some additional information:
 \begin{align}
-  \dydx{t}{\beta} &= -\frac{\sigma}{\gamma} \\
-  \dydx{t}{\gamma} &= \frac{\sigma \beta}{\gamma^2} \\
-  \dydx{g'}{\beta} &= \frac{-\gamma \indic(g' > 0)}{\sigma r} \dydx{t}{\beta} = \frac{\indic(g' > 0)}{r}  \\
-  \dydx{g'}{\gamma} &= \frac{\indic(g' > 0)}{\sigma r}\left(r - t -\dydx{t}{\gamma}\right) = 
-      \frac{\indic(g' > 0)}{\sigma r}\left(r - t - \frac{\sigma \beta}{\gamma^2}
+  \dydx{t}{\beta} &= -\frac{\sigma_r}{\gamma} \\
+  \dydx{t}{\gamma} &= \frac{\sigma_r \beta}{\gamma^2} \\
+  \dydx{g'}{\beta} &= \frac{-\gamma \indic(g' > 0)}{\sigma_r r} \dydx{t}{\beta} = \frac{\indic(g' > 0)}{r}  \\
+  \dydx{g'}{\gamma} &= \frac{\indic(g' > 0)}{\sigma_r r}\left(r - t -\dydx{t}{\gamma}\right) = 
+      \frac{\indic(g' > 0)}{\sigma_r r}\left(r - t - \frac{\sigma_r \beta}{\gamma^2}
       \right)  
 \end{align}
 Therefore, combinining these with \eqref{eq:appE:softt} we get:
 \begin{align}
   \dydx{L}{\beta} &= \frac{\indic(g' > 0)}{r} (x\Delta u + y\Delta v) \\
-  \dydx{L}{\gamma} &= \frac{\indic(g' > 0)}{\sigma r}\left(r - t - \frac{\sigma \beta}{\gamma^2}\right)(x\Delta u + y\Delta v) 
+  \dydx{L}{\gamma} &= \frac{\indic(g' > 0)}{\sigma_r r}\left(r - t - \frac{\sigma_r \beta}{\gamma^2}\right)(x\Delta u + y\Delta v) 
 \end{align}
 
 % \qquad
