@@ -1,85 +1,112 @@
-\section{Wavelet Based Nonlinearities and Multiple Gain Layers}
-So far we have only considered doing the mixing operations in the wavelet
-domain. This is a good starting point, and it is nice to see that we can do
-apply the gain layer that preserve some of the nice properties of the $\DTCWT$.
-Let us call the layer considered so far a \textbf{first order gain layer}.
-Recall this is where a $\DTCWT$ is done, followed by a single linear convolution
-and then straight away returning to the pixel domain with the inverse $\DTCWT$.
-While it is good to see that it is possible to do and even achieves some benefit
-over a convolutional layer, the proposed layer \eqref{eq:ch6:end2end} can be
-implemented in the pixel domain as a single convolution.
+\section{Wavelet-Based Nonlinearities}\label{sec:ch6:nonlinearities}
+Returning to the goals from \autoref{sec:ch6:learning}, the experiments from the
+previous section have shown that while it is possible to use a wavelet gain
+layer ($G$) in place of a convolutional layer ($H$), this may come with a small
+performance penalty. Ignoring this effect for the moment, in this section, we
+continue with our investigations into learning in the wavelet domain. In
+particular, is it possible to replace a pixel domain nonlinearity $\sigma$ with
+a wavelet-based one $\sigma_w$?
 
-It would be particularly interesting if we could find a sensible nonlinearity to
-do in the wavelet domain. This would mean it would be no longer possibile to do the
-gain layer in the pixel domain. Further, we could then do multiple mixing
-stages in the wavelet domain before returning to the pixel domain.
-
-But what sensible nonlinearity to use? Two particular options are good initial
+But what sensible nonlinearity should be used? Two particular options are good initial
 candidates:
 \begin{enumerate}
   \item The ReLU: this is a mainstay of most modern neural networks and has
-    proved invaluable in the pixel domain. Perhaps its sparsifying properties
-    will work well on wavelet coefficients too. 
-  \item Soft thresholding: a technique commonly applied to wavelet
+    proved invaluable in the pixel domain. Its pseudo-nonlinearity
+    ($\F{ReLU}(Ax) = A\F{ReLU}(x)$) makes learning less dependent on signal
+    amplitudes. Perhaps its sparsifying
+    properties will work well on wavelet coefficients too. 
+  \item Thresholding: a technique commonly applied to wavelet
     coefficients for denoising and compression. Many proponents of compressed
     sensing and dictionary learning even like to compare soft thresholding to a
-    two sided ReLU \cite{papyan_theoretical_2018, papyan_convolutional_2016}.
+    two-sided ReLU \cite{papyan_theoretical_2018, papyan_convolutional_2016}.
 \end{enumerate}
 
-In this section we will look at each, see if they add to the first order gain
-layer, and see if they open the possibility of having multiple layers in the
-wavelet domain. 
+In this section, we will look at both and see if they improve the gain
+layer. If they do, it would the be possible to connect multiple layers in the
+wavelet domain, avoiding the necessity to do inverse wavelet transforms after
+learning.
 
 \subsection{ReLUs in the Wavelet Domain}
-A ReLU could be applied to the real lowpass coefficients with ease, but it does
-not generalize so easily to complex coefficients. One option could be to apply
+Applying the ReLU to the real lowpass coefficients is not difficult, but it does
+not generalize so easily to complex coefficients. The simplest option is to apply
 it independently to the real and imaginary coefficients, effectively only
-selecting one quadrant of the complex plane.
+selecting one quadrant of the complex plane:
+\begin{align}
+  u_{lp} &= \F{max}(0,\ v_{lp}) \\
+  u_{j} &= \F{max}(0,\ \real{v_{j}}) + j\F{max}(0,\ \imag{v_j}) \label{eq:ch6:relu_bp}
+\end{align}
 
-One potential problem with this is
-that applying a ReLU independently to the real and imaginary components
+Another option is to apply it to the magnitude of the bandpass coefficients. Of
+course, these are all strictly positive so the ReLU on its own would not do
+anything. However, they can be arbitrarily scaled and shifted by using a batch
+normalization layer. Then the magnitude could shift to (invalid) negative
+values, which can then be rectified by the ReLU.
 
-\subsection{Non-Linearity}
-  %% Define the variables we will use in this section
-\renewcommand{\SigIn}{w}
-\renewcommand{\SigOut}{y}
-
-	\begin{figure}[!h]
-    \centering
-    \input{\imgpath/activation}
-	\end{figure}
-	
-As a first attempt at a non-linearity, we will try a modified L2-norm. In 
-particular, for input $\SigIn$ (coming from the convolutional layer), the
-output $\SigOut$ is:
+Dropping the scale subscript $j$ for clarity (we need it for the square root of 
+negative 1), let a bandpass coefficient at a given scale be
+$v = r_v e^{j\theta_v}$ and define
+$\mu_r = \mathbb{E}[r_v]$ and $\sigma_r^2 = \mathbb{E}[(r_v-\mu_r)^2]$, then
+applying batch-normalization and the ReLU to the magnitude of $v_j$ means we
+get:
+\begin{align}
+  r_u &= \F{ReLU}(BN(r_v)) = \max(0,\ \gamma \frac{r_v-\mu_r}{\sigma_r} + \beta) \label{eq:ch6:magrelu_bp} \\
+  u &= r_u e^{j\theta_v} \label{eq:ch6:magrelu_bp2}
+\end{align}
+This also works equivalently on the lowpass coefficients, although $v_{lp}$ can
+be negative unlike $r_v$:
 \begin{equation}
-	\SigOut = g(\SigIn, b) = \sqrt{\max(0, \SigIn_R^2 + \SigIn_I^2 - b^2)}
+  u_{lp} = \F{ReLU}(BN(v_{lp})) = \max(0, \gamma' \frac{v_{lp} - \mu_{lp}}{\sigma_{lp}} + \beta') \label{eq:ch6:bnrelu_lp}
 \end{equation}
-This is an attempt to modify the ReLU nonlinearity by rotating it
-around the complex plane. Really this is more like the complex generalization
-of the function $y = \max(0, |x| -b)$, as the ReLU rejects half of the real
-line, whereas this function only rejects small magnitude values. I justify
-this like so:
-\begin{itemize}
-  \item If a patch of pixels strongly correlates with
-    a filter\footnote{really this should read `strongly correlates with the
-    mirror image of a filter', but the meaning is the same}, it will
-    produce a large output. 
-  \item A large output will be caught by the ReLU and `passed' through, with
-    a small subtraction penalty, $b$.
-  \item If a patch of pixels does not correlate with a filter, it produces
-    a small output, which gets clipped to 0 by the ReLU.
-  \item If a patch of pixels negatively correlates with a filter, say if we
-    multiply a strongly correlated input with -1, then
-    \textbf{this should be distinguishable from zero correlation}. A way to
-    do this would be use a soft limiting function ($y=\min(0,x+b)
-    + \max(0,x-b)$), or the rectified version of the soft limiter
-    ($y=\max(0,|x| - b)$.
-  \item The only downside to these non-linearities is that they theoretically
-    `fire' on much more of the input, which could mean a dramatic change in
-    network behaviour, but really it shouldn't be so drastically different.
-    We can verify this by measuring the probability distribution at the 
-    input to non-linearities in a real valued CNN. It is easy to show that
-    they are roughly normally distributed.
-\end{itemize}
+%
+\subsection{Thresholding}
+For $t \in \reals$ and $z = re^{j\theta} \in \complexes$ the pointwise hard thresholding is:
+\begin{align}
+  \mathcal{H}(z, t) &= \left\{ \begin{array}{ll}
+    z & r \geq t \\
+    0 & r < t\\
+  \end{array} \right. \\
+  &= \indic(r > t) z
+\end{align}
+and the pointwise soft thresholding is:
+\begin{align}
+  \mathcal{S}(z, t) &= \left\{ \begin{array}{ll}
+    (r-t)e^{j\theta} & r \geq t \\
+    0 & r < t\\
+  \end{array} \right. \\
+  &= \max(0, r - t)e^{j\theta} \label{eq:ch6:relu_st}
+\end{align}
+Note that \eqref{eq:ch6:relu_st} is very similar to \eqref{eq:ch6:magrelu_bp} and \eqref{eq:ch6:magrelu_bp2}.
+We can rewrite \eqref{eq:ch6:magrelu_bp} by taking the strictly positive terms
+$\gamma$, $\sigma$ outside of the $\max$ operator:
+\begin{align}
+  r_u &= \max(0, \gamma \frac{r_v-\mu_r}{\sigma_r} + \beta) \\
+      &= \frac{\gamma}{\sigma_r}\max\left(0, r_v - \left(\mu_r - \frac{\sigma_r\beta}{\gamma}\right)\right) \label{eq:ch6:bnrelu_soft}
+\end{align}
+then if $t' = \mu_v - \frac{\sigma_r\beta}{\gamma} > 0$, \textbf{doing batch
+normalization followed by a ReLU on the magnitude of the complex coefficients is the
+same as soft shrinkage with threshold $t'$, scaled by a factor
+$\frac{\gamma}{\sigma_r}$}.
 
+The same analogy does not apply to the lowpass
+coefficients, as $v_{lp}$ is not strictly positive.
+
+While soft thresholding is similar to batch normalizations and ReLUs, we would also like
+to test how well it performs as a sparsity-inducing wavelet nonlinearity.
+To do this, we can:
+\begin{itemize}
+  \item Learn the threshold $t$
+  \item Adapt $t$ as a function of the distribution of activations to achieve a desired sparsity level.
+\end{itemize}
+In early experiments, we found that trying to set
+desired sparsity levels by tracking the standard deviation of the statistics
+and setting a threshold as a function of it performed very poorly (causing a
+drop in top-1 accuracy of at least 10\%).
+Instead, we choose to learn a threshold $t$. We make this an unconstrained
+optimization problem by changing \eqref{eq:ch6:relu_st} to:
+\begin{equation}
+  \mathcal{S}(v, t) = \max(0, r-|t|)e^{j\theta}  \label{eq:ch6:relu_st2}
+\end{equation}
+
+Learning a threshold is only possible for soft thresholding, as $\dydx{L}{t}$ is
+not defined for hard thresholding. Like batch normalization, we learn
+independent thresholds $t$ for each channel.

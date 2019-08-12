@@ -107,7 +107,7 @@ with small kernels used in \autoref{ch:invariant} and include the results in
 
 In this experiment, we build a three-layer CNN with $5\x 5$ convolutional
 kernels, described in \autoref{tab:ch6:ablation_arch}.  To help differentiate
-with the small kernel network introduced in the ablation study of the previous
+from the small kernel network introduced in the ablation study of the previous
 chapter, we have labelled the convolutions here `conv1', `conv2' and `conv3' (as
 opposed to `convA', `convB', `convC', \ldots).
 
@@ -199,7 +199,14 @@ weights, 1\% of the gain2 and 0.02\% of the gain3 weights are non-zero, yet the
 classification accuracy has only dropped by 0.5\%.
 
 This figure shows that despite the high cost of the bandpass gains --
-$12C_{l}C_{l+1}$ for a $1\x1$ gain, very few of these need to be nonzero.
+$12C_{l}C_{l+1}$ for a $1\x1$ gain, very few of these need to be nonzero. This
+may mean that we can use a low-rank expansion to compress a lot the processing
+on the bandpass, reducing both its computational and memory cost. For example,
+it may be sufficient to use a bottleneck layer like the ones seen in ResNet
+\cite{he_deep_2016}. Instead of having a bandpass gain 
+$g \in \complexes[C_{l+1}\x C_l\x k\x k]$, we would use a compression layer with shape $g_{c} \in \complexes[M\x
+C_l\x k\x k]$ followed by an expansion layer with shape $g_e \in \reals[C_{l+1}\x M\x
+1\x 1]$ with $M \ll C_{l+1}$.
 
 \begin{figure}
   \centering
@@ -247,7 +254,7 @@ performance difference between the reference architecture and the gain1\_2\_3
 architecture, the filters are responding to similar shapes. Note that for both the
 first and second layer responses, the gain layer has a smoother roll-off at the
 edges of the visualization, whereas the convolutional architecture has more
-square regions of support.
+blocky regions of support.
 
 \begin{figure}
   \centering
