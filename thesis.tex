@@ -118,12 +118,20 @@
 \usepackage[backend=biber, 
             style=ieee,
             isbn=false,
-            url=true,
+            url=false,
             doi=false]{biblatex}
 \addbibresource{MyLibrary.bib}
+\DeclareBibliographyAlias{software}{online}
 \AtEveryBibitem{%
+  \ifentrytype{software}{%
+    }{%
+      \clearfield{url}%
+      \clearfield{urldate}%
+      \clearlist{language}%
+    }%
   \clearfield{note}%
 }
+
 \newcommand{\Autoref}[2]{\hyperref[#2]{#1~\ref*{#2}}}
 % ******************************** Front Matter ********************************
 \begin{document}
@@ -132,7 +140,7 @@
 
 \maketitle
 
-%\include{dedication}
+\include{other/dedication}
 \include{other/declaration}
 \include{other/acknowledgement}
 \include{other/abstract}

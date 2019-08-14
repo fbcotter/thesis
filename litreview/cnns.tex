@@ -289,7 +289,7 @@ been shown to be a naturally occurring phenomenon by Hubel and Wiesel
 another spatially based keypoint extractor, SIFT \cite{lowe_distinctive_2004},
 was the mainstay of detection systems until the AlexNet CNN
 \cite{krizhevsky_imagenet_2012} won the 2012 ImageNet challenge
-\cite{russakovsky_imagenet_2014} by a large margin over the next competitors, many of
+\cite{russakovsky_imagenet_2015-1} by a large margin over the next competitors, many of
 who used SIFT. This CNN had 5 convolutional layers followed by 3 fully
 connected layers.
 
@@ -458,14 +458,14 @@ whereas average pooling takes the mean. A visual explanation is shown in
 \autoref{fig:ch2:maxpool}. Note that pooling is typically a spatial operation,
 and only in rare cases is done over the channel/depth dimension.
 
-A review of pooling methods in \cite{mishkin_systematic_2016} found both
+A review of pooling methods in \cite{mishkin_systematic_2017} found both
 max and average pooling to perform similarly well. While max pooling was the most
 popular in earlier state of the art networks \cite{krizhevsky_imagenet_2012,
 simonyan_very_2014}, there has been a recent trend towards using average pooling
 \cite{huang_densely_2017} or even to do away with pooling altogether in favour
 of strided convolutions (this idea was originally proposed in
-\cite{springenberg_striving_2014-3} and used notably in \cite{he_deep_2016,
-xie_aggregated_2017, zagoruyko_wide_2016-1}).
+\cite{springenberg_striving_2015} and used notably in \cite{he_deep_2016,
+xie_aggregated_2017, zagoruyko_wide_2016}).
 
 \begin{figure}
   \centering
@@ -577,7 +577,7 @@ increasing order of difficulty:
     pixels wide and a couple of hundred pixels high. The images can have varying
     amounts of clutter and can be at different scales, making it a particularly
     difficult challenge. Dataset description is in
-    \cite{russakovsky_imagenet_2014} and the most reliable source of the data
+    \cite{russakovsky_imagenet_2015-1} and the most reliable source of the data
     can be found at \cite{stanford_vision_lab_imagenet_2017}.
 \end{enumerate}
 Several other classification datasets do exist but are not commonly used, such
@@ -650,7 +650,7 @@ channels and quartering the spatial size still causes a net reduction in the
 number of activations.
 
 \subsection{The All Convolutional Network}
-The All Convolutional Network \cite{springenberg_striving_2014-3} introduced two
+The All Convolutional Network \cite{springenberg_striving_2015} introduced two
 popular modifications to the VGG networks:
 %
 \begin{itemize}
@@ -682,7 +682,7 @@ the parameters of other networks.
   \end{figure}
   Resiudal Networks or ResNets won the 2015 ILSVRC challenge, introducing the
   residual layer. Most state of the art models today use this residual mapping
-  in some way \cite{zagoruyko_wide_2016-1, xie_aggregated_2017}.
+  in some way \cite{zagoruyko_wide_2016, xie_aggregated_2017}.
 
   The inspiration for the residual layer came from the difficulties
   experienced in training deeper networks. Often, adding an extra layer would

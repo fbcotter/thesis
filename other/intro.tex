@@ -105,7 +105,7 @@ possible classes.
 CNNs have garnered lots of attention since 2012 when the previously mentioned AlexNet
 nearly halved the top-5 classification error rate (from $26\%$ to $16\%$)
 in the ImageNet Large Scale Visual Recognition Competition (ILSVRC)
-\cite{russakovsky_imagenet_2014}\footnote{The previous state of
+\cite{russakovsky_imagenet_2015}\footnote{The previous state of
 the art classifiers had been built by combining keypoint extractors like
 SIFT\cite{lowe_distinctive_2004} and HOG\cite{dalal_histograms_2005} with
 classifiers such as Support Vector Machines\cite{cortes_support-vector_1995} and
@@ -184,7 +184,7 @@ directly. In a commonly used contrived example, it is not hard to imagine a deep
 network that could be used to assess whether giving a bank loan to an applicant
 is a safe investment. Trusting a black box solution is deeply unsatisfactory in
 this situation. Not only from the customer's perspective, who, if declined, has
-the right to know why \cite{goodman_european_2016}, but
+the right to know why \cite{goodman_european_2017-1}, but
 also from the bank's --- before lending large sums of money, most banks
 would like to know why the network has given the all clear. `It has worked well
 before' is a poor rule to live by.
@@ -314,7 +314,7 @@ Scattering Transform.
 The Scattering Transform, or the \emph{ScatterNet}, was introduced in \cite{mallat_group_2012,
 bruna_invariant_2013} at the same time as AlexNet. It is a non-black-box
 network that can be thought of as a restricted complex-valued CNN
-\cite{bruna_mathematical_2015}. Unlike a CNN, it has predefined
+\cite{tygert_mathematical_2016}. Unlike a CNN, it has predefined
 convolutional kernels, set to complex wavelet (and scaling) functions and uses
 the complex magnitude as its nonlinearity. Due to
 its well-defined structure, it can be analyzed and bounds on its stability to
@@ -456,7 +456,7 @@ front end for CNNs. He then expands on this work by testing other backends in
 In \cite{oyallon_analyzing_2017}
 \citeauthor{oyallon_analyzing_2017} looks at ScatterNets as front ends to
 deeper learning systems, such as CNNs. Some relevant papers that makeup Oyallon's thesis are
-\cite{oyallon_deep_2015, oyallon_scaling_2017, oyallon_hybrid_2017}. \cite{oyallon_scaling_2017, oyallon_hybrid_2017}
-are particularly relevant as he uses a ScatterNet as a feature extractor for a
+\cite{oyallon_deep_2015, oyallon_scaling_2017}. \cite{oyallon_scaling_2017}
+is particularly relevant as he uses a ScatterNet as a feature extractor for a
 CNN. We do similar research in \autoref{ch:invariant}, but allow for
 learned weights in the ScatterNet in our design.

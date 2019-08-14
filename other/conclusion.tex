@@ -71,8 +71,8 @@ in a ScatterNet-like system, where the number of output channels grows
 exponentially with the number of layers, or in a CNN-like system, where the
 number of output channels remains mostly constant across layers. We experimented
 with both possibilities, showing that the extra learnability definitely helps
-the ScatterNet style system (\autoref{tab:hybrid_scat}) and can help a CNN
-(\autoref{tab:ch5:conv_results}). The demodulation of energy from the complex
+the ScatterNet style system (\autoref{tab:ch5:hybrid_scat}) and CNN style
+networks (\autoref{fig:ch5:inv_results}). The demodulation of energy from the complex
 modulus means that the proposed locally invariant layer can only be used a few
 times. In particular, we saw that the layer performed best when used where a CNN
 would naturally downsample (or pool) the input.
@@ -262,8 +262,8 @@ large scope for making CNNs more robust to many attacks.
 
 \subsection{Convolutional Sparse Coding}
 Recent work on convolutional sparse coding and convolutional
-dictionary learning \cite{liu_online_2017, liu_first_2017,
-papyan_convolutional_2016, papyan_convolutional_2017, papyan_theoretical_2018}
+dictionary learning \cite{liu_online_2017, liu_first_2018,
+papyan_convolutional_2017-1, papyan_convolutional_2017, papyan_theoretical_2018}
 has started to draw many parallels between the
 structure of modern CNN architectures and the problem of sparse
 representations. We believe this is a valuable insight and can give a fresh new
@@ -296,7 +296,27 @@ wavelet based layers, and it would be an interesting extension.
 % perspective on deep learning, and it would be an interesting task to try to
 % structure any wavelet based layers as well conditioned
 \section{Final Remarks}
-\textbf{
- Need to write something: perhaps emphasising the rich vein of ideas that your work has opened up and the
- need for substantial improvements in learning efficiency of deep nets that will
- be required if they are to be widely used in the future.}
+
+It is our intuition that complex wavelets in a ScatterNet style system perform well in
+CNNs at locations where we want to reduce the sample rate, as they can nicely
+demodulate regions of the frequency space to lower frequencies. We also believe
+that using complex wavelets without taking the complex modulus is beneficial at
+locations where we want filters with large spatial support, something that
+is particularly useful in the early layers of CNNs. However, the current trend
+in CNNs is shifting away from these uses. Modern architectures typically build
+many layers with very small spatial support filters (usually $3\x 3$ and often
+$1\x 1$) and lots of mixing and combining of the channels. For example, the
+recent Wide ResNet \cite{zagoruyko_wide_2016} (one of the best modern methods),
+has close to 1000 channels in the later layers.
+
+We believe that the work in this thesis has opened up a rich vein of ideas and a
+new perspective on modern CNN methods. We have found there to be some
+performance advantages to redesigning CNNs with complex wavelets as well as
+other, less measurable advantages, such as the ability to determine that certain
+orientations and frequency regions are less important than others (see
+\autoref{sec:ch4:occlusion_results} and \autoref{sec:ch6:analysis}) or the
+ability to have smooth roll-of in the support of filters. There is still much
+more work to be done; the learning efficiency of CNNs must be improved, as well
+as a greater understanding of their operation and outputs if they are to be
+widely used in the future.
+

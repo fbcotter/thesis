@@ -272,13 +272,14 @@ we did not have in the MNIST experiments.
 \input{\path/tables/scat_arch_table}
 
 In the previous section, we examined how the locally invariant layer performs when
-directly swapped for a convolutional layer in an CNN based architecture.
+directly swapped for a convolutional layer in a CNN-based architecture.
 In this section, we look at how it performs in a hybrid ScatterNet-like network
-\cite{oyallon_hybrid_2017,oyallon_scaling_2017}. Recall that a ScatterNet
+\cite{oyallon_scaling_2017}. Recall that a ScatterNet
 naturally increases the channel dimension while downsampling the spatial
-dimensions. A single scattering order for our ScatterNet increases the channel dimension 
-seven-fold, and reduces the spatial area by four. After two layers of a
-ScatterNet, the output has $49$ times more channels than the input.
+dimensions. A single scattering order for our $\DTCWT$ ScatterNet increases the channel dimension 
+seven-fold and reduces the spatial area by four. After two layers of a
+ScatterNet, the output has $49$ times more channels than the input and
+one-sixteenth the spatial size.
 
 We allow for this natural channel growth, using a ScatterNet front-end before
 four convolutional layers similar to `convC' to `convF' from
@@ -286,58 +287,66 @@ four convolutional layers similar to `convC' to `convF' from
 $8\x 8$ so we do not need the pooling layer between `convD' and `convE'. The
 final classification layer is the same global $8\x 8$ max pooling followed by a
 fully connected layer. In addition, we use dropout in these later convolutional
-layers with drop probability $p=0.3$.
+layers with drop probability $p=0.3$. See \autoref{tab:ch5:net_ref} for the
+backend layout. 
 
 We compare a ScatterNet with no learning in between scattering orders (ScatNet A
 in \autoref{tab:ch5:net_scatA}) to one with our proposal for a learned mixing
-matrix (ScatNet B in \autoref{tab:ch5:net_scatB}). For completeness, we
-compare these architectures for a similarly shaped convolutional frontend
-(Reference 1 in \autoref{tab:ch5:net_ref}).
+matrix (ScatNet B in \autoref{tab:ch5:net_scatB}). 
+% For completeness, we
+% compare these architectures for a similarly shaped convolutional frontend
+% (Reference 1 in \autoref{tab:ch5:net_ref}).
 
-We also test the hypothesis seen from \autoref{sec:ch5:conv_exp} that scattering layers may 
+We also test the hypothesis from \autoref{sec:ch5:conv_exp} that scattering layers may 
 work better after the first layer of a network. To do this, we put a small
-convolutional layer before the learnable ScatterNet front-end that takes the
+learned convolutional layer before the learnable ScatterNet front-end that takes the
 three colour inputs and outputs 16 new channels. Increasing the ScatterNet input
 to 16 channels means the default output size would be $16\x 49=784$ channels.
 This is quite large, so we also use a system that uses a non-square $A$ matrix
 for the two learnable invariant layers, keeping the output to 147 channels. We call this
 option ScatNet C (see \autoref{tab:ch5:net_scatC}), and the full option with 
-$784$ output channels ScatNet D (see \autoref{tab:ch5:net_scatD}). To compare
-the added benefit of this extra layer, we include a second reference
-architecture with the same small convolutional layer before it (see Reference 2 in 
-\autoref{tab:ch5:net_ref2}).
+$784$ output channels ScatNet D (see \autoref{tab:ch5:net_scatD}). 
 
-The results of our experiments on our three datasets are shown in
-\autoref{tab:ch5:hybrid_scat}. The reference architecture does not perform as
-well as the reference architecture from \autoref{sec:ch5:conv_exp} in these
-experiments, but recall that the network is different in these experiments. After
-two layers, the activation spatial size is already $8\x 8$.
+See
+\autoref{tab:ch5:hybrid_scat} for the performance on CIFAR and
+\autoref{tab:ch5:hybrid_scat_ti} for the performance on Tiny ImageNet.
+For comparison, we have also listed the performance of other architectures on
+CIFAR as reported by their authors in order of increasing complexity in
+\autoref{tab:ch5:hybrid_scat}. 
 
-ScatNet A underperforms the 
-fully convolutional reference architecture with the same shape, suggesting that
-using a fixed ScatterNet as a front-end may be no better than simply learning the front-end.
-However, the proposed learnable ScatterNet outperforms both ScatNet A and the reference
-architecture on all datasets, suggesting that it is important to mix across the
-Scattering channels.
-
+The learnable invariant layer significantly improves the hybrid ScatterNets on
+all three datasets (see the improvements from ScatNet A to ScatNet B).
 As we anticipated, adding a learned layer before the learnable ScatterNet
-improves things further, with ScatNet C and ScatNet D both having big improvements on
-ScatNets A and B, as well as outperforming the second reference convolutional
-architecture. 
+improves things further, with ScatNet C and ScatNet D both having improvements on
+ScatNets A and B.
 
-For comparison, we have also listed the performance of other architectures as
-reported by their authors in order of increasing complexity. Our proposed ScatNet D achieves
+Our proposed ScatNet C and ScatNet D achieve
 comparable performance with the the All Conv, VGG16 and FitNet architectures.
-The Deep\cite{he_identity_2016} and Wide\cite{zagoruyko_wide_2016}
-ResNets perform best, but with very many more
-multiplies, parameters and layers.
+The Deep\cite{he_deep_2016} and Wide\cite{zagoruyko_wide_2016} ResNets perform
+best, but with very many more multiplies, parameters and layers.
 
-A final note we would like to make is that the proposed hybrid ScatterNet networks 
-architectures (particularly ScatNets C and ScatNets D) achieve near
-state-of-the-art performance even though they reduce the spatial size by a
-factor of 16 after only two layers. This meant that these networks took much
-less time to train than those in the previous section (20 minutes for ScatNets A
-and B compared to 2 to 4 hours for the networks in \autoref{sec:ch5:conv_exp}).
+ScatNets C and D perform marginally worse than the `invC' architecture from
+\autoref{sec:ch5:conv_exp} but recall that the network is
+quite different in these experiments - its front end is wider and has smaller
+spatial support. The earlier reduction in spatial size in ScatNet C and D
+meant that these networks took much less time to train
+than those in the previous section (roughly 30 minutes for ScatNets A and B
+compared to 2 to 4 hours for the networks in \autoref{sec:ch5:conv_exp} using
+the hardware described in \autoref{app:arch}).
+
+% ScatNet A underperforms the 
+% fully convolutional reference architecture with the same shape, suggesting that
+% using a fixed ScatterNet as a front-end may be no better than simply learning the front-end.
+% However, the proposed learnable ScatterNet outperforms both ScatNet A and the reference
+% architecture on all datasets, suggesting that it is important to mix across the
+% Scattering channels.
+
+% For comparison, we have also listed the performance of other architectures as
+% reported by their authors in order of increasing complexity. 
+% A final note we would like to make is that the proposed hybrid ScatterNet networks 
+% architectures (particularly ScatNets C and ScatNets D) achieve near
+% state-of-the-art performance even though they reduce the spatial size by a
+% factor of 16 after only two layers. 
 %and
 %being quick to train --- dropping the spatial size to $8\x 8$ on CIFAR after
 %only two layers is unique to the ScatterNet design. 

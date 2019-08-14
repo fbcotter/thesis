@@ -6,21 +6,26 @@ The invariant layer takes a single scale complex wavelet decomposition of the
 input. The bandpass coefficients are demodulated by using the complex modulus
 nonlinearity. The resulting magnitude coefficients are then mixed with the
 lowpass coefficients with a learnt mixing matrix (or $1\x 1$ convolution). 
-We did see some issues with using the invariant layer on its own when we tested
-it on MNIST, as the $1\x 1$ convolution may not have been large enough to
-make complex shapes by separating the centres of the wavelets. When we used
-larger kernels, either in the mixing matrix $A$ (see \autoref{sec:ch5:mnist_newlayer}) or in a convolutional layer
-after the invariant layer (see \autoref{sec:ch5:conv_exp}) the performance improved.
+
+We tested the invariant layer initially on MNIST and proved that it could
+achieve comparable performacne to a convolutional layer.
+We did see some issues with using the invariant layer on its own, as the $1\x 1$
+convolution may not have been large enough to separate the centres of the
+wavelets to make the complex shapes necessary. When we used larger kernels,
+either in the mixing matrix $A$ (see \autoref{sec:ch5:mnist_newlayer}) or in
+convolutional layers after the invariant layer (see \autoref{sec:ch5:conv_exp})
+the performance improved.
 
 Our ablation studies on a VGG-like CNN showed that the invariant layer can
 easily be shaped to allow it to drop in the place of a convolutional layer,
 theoretically saving on parameters and computation (see \autoref{sec:ch5:conv_exp}).
 However, care must be taken when doing this, as our ablation study showed that
-the layer only improves upon regular convolution at certain depths.  Typically,
-it seems wise to use the invariant layer early in the network, but after the
-first layer. The invariant layer naturally downsamples the input, so it works
-well when replacing a convolutional layer followed by pooling, or a pooling
-layer followed by a convolution. 
+the layer only improves upon regular convolution at certain depths. Typically,
+it seems wise to use the invariant layer early in the network, but \emph{after} the
+first layer. This is an interesting discovery, as typically other ScatterNet
+approaches use them as a front end \cite{oyallon_scaling_2017, singh_scatternet_2017}. The invariant layer naturally
+downsamples the input, so it works well when replacing a convolutional layer
+followed by pooling, or a pooling layer followed by a convolution. 
 
 We also tested the invariant layer on a hybrid ScatterNet architecture (see
 \autoref{sec:ch5:scat_exp}). We saw that two invariant layers worked well as the
