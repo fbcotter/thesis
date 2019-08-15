@@ -29,7 +29,7 @@ signals $a, b$ the convolution $a \conv b$ is defined as $(a_r \conv b_r - a_i
 \conv b_i) + j(a_r \conv b_i + a_i \conv b_r)$ (see
 \autoref{sec:appE:complex_conv}).
 
-The action of the gain layer with only a single-scale wavelet transform, $J=1$, is is shown in
+The action of the gain layer with only a single-scale wavelet transform, $J=1$, is shown in
 \autoref{fig:ch6:block_diagrams}.
 
 \begin{figure}[t!]
@@ -37,10 +37,10 @@ The action of the gain layer with only a single-scale wavelet transform, $J=1$, 
   % \resizebox{\textwidth}{!}{\input{\imgpath/block_diagram_dtcwt}}
   \includegraphics[width=\textwidth]{\imgpath/block_diagram_dtcwt}
   \label{fig:ch6:dtcwt_blk_diagram}
-  \mycaption{Diagram of proposed method to learn in the wavelet domain}{
+  \mycaption{Diagram of the proposed method to learn in the wavelet domain}{%
   Activations are shaded blue and learned parameters red. Deeper shades of blue
-  and red indicate complex valued activations/weights, and lighter values
-  indicate real valued activations/weights. The input $x^{(l)}\in
+  and red indicate complex-valued activations/weights, and lighter values
+  indicate real-valued activations/weights. The input $x^{(l)}\in
   \mathbb{R}^{C_l\x H\x W}$ is taken into the wavelet domain (here $J=1$) and each 
   subband is mixed independently with $C_{l+1}$ sets of convolutional filters.
   After mixing, a possible wavelet nonlinearity $\sigma_w$ is applied to the
@@ -66,14 +66,14 @@ The action of the gain layer with only a single-scale wavelet transform, $J=1$, 
 % \end{figure}
 \begin{figure}[t]
   \centering
-  \makebox[\linewidth][c]{
+  \makebox[\linewidth][c]{%
   \subfloat[]{%
     % \includegraphics[width=\textwidth]{\imgpath/dtcwt_gain}
     \input{\imgpath/dtcwt_gain}
     \label{fig:ch6:fwd_pass}
     }}
    \newline
-  \makebox[\linewidth][c]{
+  \makebox[\linewidth][c]{%
   \subfloat[]{%
     \input{\imgpath/gain_layer}
     % \includegraphics[width=\textwidth]{\imgpath/gain_layer}
@@ -94,11 +94,11 @@ The action of the gain layer with only a single-scale wavelet transform, $J=1$, 
   time reverse of the filter (represented by $z^{-1}$ terms).}
   \label{fig:ch6:fwd_bwd}
 \end{figure}
-Due to the shift invariant properties of the $\DTCWT$, each wavelet subband has
+Due to the shift-invariant properties of the $\DTCWT$, each wavelet subband has
 a unique transfer function which is almost free of aliasing (see
 \autoref{thm:ch6:shiftinv}). If we do complex convolution of the wavelet
 coefficients $u$ with gains $g$ as described in \eqref{eq:ch6:gain1} -
-\eqref{eq:ch6:gain2}, then we preserve the shift invariant properties (see
+\eqref{eq:ch6:gain2}, then we preserve the shift-invariant properties (see
 \autoref{thm:ch6:shiftinvgain} and \autoref{thm:ch6:complex_multiply}) and the
 inverse $\DTCWT$ of the outputs $v$ are free from aliasing.
 
@@ -138,7 +138,7 @@ linear, the full output $y$ is simply the sum of all the $y$'s from individual
 subbands. The complex gains $g$ adjust the gain and phase of each subband
 independently. The magnitude of each element controls the amplitude of the
 frequency response in the region of that subband, while its phase controls the
-phase of the response and thus modifies the detailed wave-shape (e.g. the
+phase of the response and thus modifies the detailed wave-shape (e.g.\ the
 locations of its zero crossings).
 
 \begin{figure}[t]
@@ -246,7 +246,7 @@ still representative power despite the redundancy of the transform.
   \includegraphics[width=\textwidth]{\imgpath/dwt_examples.png}
     \label{fig:ch6:dwt_examples}
   }
-  \mycaption{Example outputs from an impulse input for the proposed gain layers}{
+  \mycaption{Example outputs from an impulse input for the proposed gain layers}{%
   Example outputs $y = \mathcal{W}^{-1}G\mathcal{W}x$ for an impulse
   $x$ for the $\DTCWT$ gain layer and for a similarly designed DWT gain layer.
   \subref{fig:ch6:dtcwt_examples} shows the output $y$ for a $\DTCWT$ based

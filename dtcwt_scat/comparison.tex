@@ -5,7 +5,7 @@ KyMatIO \cite{andreux_kymatio:_2018}? \autoref{tab:ch3:scat_props} lists the dif
 options of the competing packages.
 
 \subsection{Speed}
-{
+{%
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
 We test the speed of the various packages on our reference architecture (see \autoref{app:arch})
 with a moderately large input with $128 \x 3\x 256\x 256$ pixels. The CPU experiments
@@ -31,7 +31,7 @@ backpropagation.
 \begin{table}[t]
   \centering
   \mycaption{Comparison of properties of different ScatterNet packages}{In
-  particular the wavelet backend used, the number of orientations available,
+  particular, the wavelet backend used, the number of orientations available,
   the available boundary extension methods, whether it has GPU support and
   whether it supports backpropagation.}
   {\renewcommand{\arraystretch}{1.2}
@@ -49,7 +49,7 @@ backpropagation.
   \renewcommand{\arraystretch}{1.2}
   \centering
   \mycaption{Comparison of execution time for the forward and backward
-  passes of the competing ScatterNet Implementations}{Tests were run on the reference
+  passes of the competing ScatterNet implementations}{Tests were run on the reference
   architecture described in \autoref{app:arch}. The input for these experiments
   is a batch of images of size $128\x 3\x 256\x 256$ in 4 byte floating
   precision. We list two different types of options for our ScatterNet. Type A
@@ -74,7 +74,7 @@ backpropagation.
   \renewcommand{\arraystretch}{1.4}
   \centering
   \mycaption{Hybrid architectures for performance comparison}{Comparison of
-  Morlet based ScatterNets (Morlet6 and Morlet8) to the $\DTCWT$ based
+  Morlet-based ScatterNets (Morlet6 and Morlet8) to the $\DTCWT$-based
   ScatterNet on CIFAR\@. The output after scattering has $3(K+1)^2$ channels (243 for 8
   orientations or 147 for 6 orientations) of spatial size $8\x 8$. This is
   passed to 4 convolutional layers of width $C=192$ before being average pooled
@@ -100,8 +100,8 @@ backpropagation.
   \newline\newline
   \renewcommand{\arraystretch}{1}
   \centering
-  \mycaption{Performance comparison for a $\DTCWT$ based ScatterNet vs
-  Morlet based ScatterNet}{We report top-1 classification accuracy for the 3
+  \mycaption{Performance comparison for a $\DTCWT$-based vs.\
+  a Morlet-based ScatterNet}{We report top-1 classification accuracy for the 3
   listed datasets as well as training time for each model in hours.}
   \label{tab:ch3:comparison}
   \begin{tabular}{lcrrcrrcrr}
@@ -122,7 +122,7 @@ backpropagation.
 To confirm that changing the ScatterNet core has not impeded the
 performance of the ScatterNet as a feature extractor, we build a simple Hybrid
 ScatterNet, similar to \cite{oyallon_scaling_2017}. Our net 
-has a second order scattering transform before four convolutional layers. See \autoref{tab:ch3:scat_arch}
+has a second-order scattering transform before four convolutional layers. See \autoref{tab:ch3:scat_arch}
 for the network layout.
 We use the optimal hyperparameter choices from the previous section, and compare
 these to Morlet based ScatterNet with 6 and 8 orientations.

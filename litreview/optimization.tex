@@ -159,12 +159,12 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   optimization using exact line search.
   This space has condition number 10, and shows the slow convergence of GD in
   spaces with largely different eigenvalues.
-  Image taken from \cite{boyd_convex_2004} Figure 9.2.}
+  Image is taken from \cite{boyd_convex_2004} Figure 9.2.}
   \label{fig:ch2:gd_bounce}
 \end{figure}
 
 \subsection{Stochastic Gradient Descent}
-Aside from the problems associated the curvature of the function $J(\theta)$,
+Aside from the problems associated with the curvature of the function $J(\theta)$,
 another common issue faced with the gradient descent of \eqref{eq:ch2:gd} is the
 cost of computing $\dydx{J}{\theta}$. In particular, the first term:
 \begin{align}\label{eq:ch2:ldata}

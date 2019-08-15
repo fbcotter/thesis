@@ -92,7 +92,7 @@ to handle this by setting the gradient at the origin to be 0. It is unlikely our
 weights will ever be zero with this method, but if they are, we cover the case of dividing 
 by zero. 
 
-\section{ReLU applied to the real and imaginary parts independently}\label{sec:appE:complex_relu}
+\section{ReLU Applied to the Real and Imaginary Parts Independently}\label{sec:appE:complex_relu}
 If we define a nonlinearity to be $y = \sigma(x)$ where:
 \begin{equation}
   y = y_r + jy_i = \max(0, x_r) + j\max(0, x_i)
@@ -158,7 +158,7 @@ Putting it all together, our update and passthrough gradients are:
 These equations are for point-wise application of soft-thresholding. When
 applied to an entire image, then we sum $\dydx{L}{t}$ over all locations.
 
-\section{Batch Normalization and ReLU applied to the Complex Magnitude}\label{sec:appE:bnrelu}
+\section{Batch Normalization and ReLU Applied to the Complex Magnitude}\label{sec:appE:bnrelu}
 Again let $z= x+jy = re^{j\theta}$ and $w=u + jv = \F{ReLU}(\F{BN}(r))e^{j\theta}$. 
 In \eqref{eq:ch6:bnrelu_soft} we showed that this nonlinearity is equivalent to
 soft-thresholding with threshold $t= \mu_r - \frac{\sigma_r\beta}{\gamma}$ and
@@ -189,7 +189,7 @@ we must find some additional information:
       \frac{\indic(g' > 0)}{\sigma_r r}\left(r - t - \frac{\sigma_r \beta}{\gamma^2}
       \right)  
 \end{align}
-Therefore, combinining these with \eqref{eq:appE:softt} we get:
+Therefore, combining these with \eqref{eq:appE:softt} we get:
 \begin{align}
   \dydx{L}{\beta} &= \frac{\indic(g' > 0)}{r} (x\Delta u + y\Delta v) \\
   \dydx{L}{\gamma} &= \frac{\indic(g' > 0)}{\sigma_r r}\left(r - t - \frac{\sigma_r \beta}{\gamma^2}\right)(x\Delta u + y\Delta v) 

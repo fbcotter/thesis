@@ -97,7 +97,7 @@ spatial input size.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth, trim={3cm 7cm 4cm 6cm},clip]{\imgpath/descat.pdf}
-  \mycaption{The Descattering Network}{Comprises a DeScattering layer (left)
+  \mycaption{The inverse scattering network}{Comprises a DeScattering layer (left)
   attached to a Scattering layer (right). We are using the same convention as
   \cite{zeiler_visualizing_2014} Figure 1 - i.e., the input signal starts in the
   bottom right-hand corner, passes forwards through the ScatterNet (up the right
@@ -118,7 +118,7 @@ scattering coefficients to the image space; it is inspired by the
 DeconvNet used by Zeiler and Fergus in
 \cite{zeiler_visualizing_2014} to look into the deeper layers of CNNs. Like
 the DeConvNet, the inverse scattering network is similar to backpropagating a
-single strong activation (rather than usual gradient terms).
+single strong activation (rather than the usual gradient terms).
 
 We emphasize that instead of thinking about perfectly reconstructing $x$ from
 $S\in \reals[C\x H'\x W']$, we want to see what signal/pattern in the input image caused
@@ -193,7 +193,7 @@ as finding the \emph{gradient} from the corresponding channels in $Z$.
 \begin{figure}[tp]
   \centering
   \includegraphics[width=0.9\textwidth]{\imgpath/deconv_images.png}
-  \mycaption{Comparison of Scattering to Convolutional features}{Visualization
+  \mycaption{Comparison of scattering to convolutional features}{Visualization
   of a random subset of features from $S_0$ (all 3), $S_1$ (6 from the 12) and
   $S_2$ (16 from the 36) scattering outputs. We record the top 9 activations for
   the chosen features and project them back to the pixel space. We show them
@@ -250,7 +250,7 @@ For comparison, we include reconstructions from the second layer of the
 well-known VGG CNN\@ (labelled with `VGG conv2\_2', in
 \autoref{fig:ch4:reconstructions}). These were made with a DeconvNet, following the
 same method as \cite{zeiler_visualizing_2014}. Note that while some of
-the features are edge-like, we also see higher order shapes like corners,
+the features are edge-like, we also see higher-order shapes like corners,
 crosses and curves.
 
 These reconstructions show that the features extracted from ScatterNets vary

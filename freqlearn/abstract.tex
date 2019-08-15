@@ -7,7 +7,7 @@ then be mixed before scattering again (as we saw in the learnable ScatterNet),
 but successive use of such layers compounds the demodulation of signal energy
 towards zero frequency. We saw in the previous chapter that as a result, the
 modulus-based invariant layer worked best at the location of sample rate changes
-in a CNN. Most modern CNNs
+in a CNN\@. Most modern CNNs
 operate at only a handful of spatial resolutions, restricting the number of
 locations it may be useful in.
 
@@ -16,7 +16,7 @@ which starts in a similar fashion to the ScatterNet -- by taking the $\DTCWT$ of
 a multi-channel input. Next, instead of taking a complex modulus, we learn a
 complex gain for each subband in each input channel. A single value here can
 amplify or attenuate all the energy in one part of the frequency plane. Then,
-while still in the wavelet domain, we mix the different input channels \emph{by subband} (e.g.
+while still in the wavelet domain, we mix the different input channels \emph{by subband} (e.g.\
 all the $15\degs$ wavelet coefficients at a given scale are mixed together, but
 the $75\degs$ and $45\degs$ coefficients are not). We can then return to the
 pixel domain with the inverse wavelet transform. The shift-invariant properties

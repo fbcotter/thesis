@@ -35,11 +35,11 @@ There has been much research into the best way to do the DWT on a GPU, in
 particular comparing the speed of Lifting \cite{sweldens_lifting_1998}, or
 second-generation wavelets, to the direct convolutional methods.
 \cite{tenllado_parallel_2008, galiano_improving_2011} are two notable such
-publications, both of which find that the convolution-based implemetations are
+publications, both of which find that the convolution-based implementations are
 better suited for the massively parallel architecture found in modern GPUs. For
 this reason, we implement a convolutional-based DWT.
 
-As the DWT and IDWT uses fixed filters, we do not need to calculate
+As the DWT and IDWT use fixed filters, we do not need to calculate
 $\dydx{L}{h}$ on the backwards pass. This means on the forward pass we
 can save on memory by not storing $\dydx{Y}{h} = X$ (see
 \autoref{sec:ch2:conv_grad}). We found it easiest to explicitly rewrite forward
@@ -76,14 +76,14 @@ and what is not needed for backpropagation.
 \begin{figure}
   \centering
   \includegraphics[width=0.8\textwidth]{\imgpath/dwt2d.pdf}
-  \mycaption{2-D DWT Filter Bank Layout}{The components of a filter bank DWT in
+  \mycaption{2-D DWT filter bank layout}{The components of a filter bank DWT in
   two dimensions. $Y^l, Y^h, Y^v, Y^d$ represent the lowpass, horizontal,
   vertical, and diagonal components.}
   \label{fig:ch3:dwt}
 \end{figure}
 
 We start with the commonly known property that for a convolutional block, the
-passthrough gradient is the gradient with respect to the output
+passthrough gradient is the gradient w.r.t.\ the output
 convolved with the time reverse of the filter. More formally, if
 $Y(z) = H(z) X(z)$, then:
 %
@@ -94,7 +94,7 @@ $Y(z) = H(z) X(z)$, then:
 where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
 $\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
 to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
-the loss with respect to the input. This was proved in \autoref{sec:ch2:conv_grad}, we
+the loss w.r.t.\ the input. This was proved in \autoref{sec:ch2:conv_grad}, we
 have just rewritten it in terms of $Z$-transforms here.
 
 Additionally, for a decimation block, the passthrough gradient is
@@ -102,7 +102,7 @@ interpolation (see \autoref{sec:appB:samplegrads}
 for a proof of this).
 
 \autoref{fig:ch3:dwt} shows the block diagram for performing the forward pass of
-a DWT. We can draw a similar figure for the backwards pass by replacing all the
+a DWT\@. We can draw a similar figure for the backwards pass by replacing all the
 forward operations with their passthrough gradients. Using the above two
 properties, we see that the backwards pass of a DWT has the same form as
 the inverse wavelet transform, with the time reverse of the analysis filters
@@ -113,7 +113,7 @@ done by doing the inverse wavelet transform with $\Delta Y^l(z), \Delta Y^h(z),
 See \autoref{sec:appB:analysis_gradient} for more information on this
 and the equivalent figure for the backwards pass.
 
-{
+{%
 \renewcommand{\_}{\textscale{.8}{\textunderscore}}
 Like Matlab, most deep learning frameworks have an
 efficient function for doing convolution followed by downsampling. Similarly,
@@ -232,7 +232,7 @@ saved, giving this implementation almost no memory overhead.
   \includegraphics[trim=3cm 11.8cm 4cm 2.5cm, clip, width=\textwidth]{\imgpath/dtcwt_fb2}
   \mycaption{2-D $\DTCWT$ filter bank layout}{Two levels of the complex wavelet tree
   for a real 2-D input image $x$. The four DWTs involved in the $\DTCWT$ are
-  labelled with $r$, $j_1$, $j_2$ and $j_1j_2$. Image taken from \cite{kingsbury_image_1999}.}
+  labelled with $r$, $j_1$, $j_2$ and $j_1j_2$. Image is taken from \cite{kingsbury_image_1999}.}
   \label{fig:ch3:dtcwt_fb}
 \end{figure}
 We have built upon previous implementations of the $\DTCWT$
@@ -259,7 +259,7 @@ this operation \cite{kingsbury_image_1999}.
 
 The four lowpass coefficients from each scale are used for the next scale DWTs. At the
 final scale, they are interleaved to get four times the expected lowpass output
-area expected from a single decimated DWT.
+area expected from a single decimated DWT\@.
 See \autoref{alg:ch3:dtcwt} for the code on how to do the full $\DTCWT$.
 
 A requirement of the $\DTCWT$ is the need to use different filters for the first
@@ -376,7 +376,7 @@ magnitude operator:
 \end{equation}
 
 This keeps the magnitude near zero for small $x,y$ but does slightly shrink larger
-values, however our gradient is smoother and we no
+values, however, our gradient is smoother and we no
 longer have to worry about dividing by zero issues when calculating gradients.
 % \textbf{Plot this}
 We can choose the size of $b$ as a hyperparameter in optimization, which we
@@ -422,15 +422,15 @@ For ease in handling the different sample rates of the lowpass and the
 bandpass, we have averaged the lowpass over a $2\x 2$ window and downsampled it
 by 2 in each direction. This slightly
 affects the higher-order scattering coefficients, as the true $\DTCWT$ needs the doubly
-sampled lowpass for the second scale, however we noticed little difference in
+sampled lowpass for the second scale, however, we noticed little difference in
 performance from doing the true $\DTCWT$ and this slightly modified one
 
 \subsection{$\DTCWT$ ScatterNet Hyperparameter Choice}\label{sec:ch3:dtcwt_hypes}
-{
+{%
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
 \begin{table}[bt]
   \centering
-  \mycaption{Hyperparameter settings for the $\DTCWT$ scatternet}{}
+  \mycaption{Hyperparameter settings for the $\DTCWT$ ScatterNet}{}
   \label{tab:ch3:hyper_options}
   \begin{tabular}{l l l}
     \toprule
@@ -449,7 +449,7 @@ performance from doing the true $\DTCWT$ and this slightly modified one
   \end{tabular}
 \end{table}
 Before comparing to the Morlet-based ScatterNet, we test
-test different padding schemes, wavelet lengths and magnitude smoothing parameters (see
+different padding schemes, wavelet lengths and magnitude smoothing parameters (see
 \eqref{eq:ch3:magbias}) for the $\DTCWT$ ScatterNet. We test these over a grid of values described in
 \autoref{tab:ch3:hyper_options}. 
 
@@ -469,8 +469,8 @@ pass as well as aiding the backwards pass, so long as it is less than 0.1.
 
 However, it is difficult to tell just how much `better' the different filter lengths and
 padding schemes are, as there are many other factors to take into
-consideration when training a CNN. The standard deviation on the results from
-\autoref{fig:ch3:hypes} were in the range from 0.1 to 0.4\% for the two CIFAR
+consideration when training a CNN\@. The standard deviations for the results from
+\autoref{fig:ch3:hypes} were all in the range from 0.1 to 0.4\% for the two CIFAR
 datasets, which is smaller
 than the 2\% range seen from the best option to the worst. However, for
 the larger Tiny ImageNet dataset the standard deviations were in the range from 0.2 to 0.6\%,
@@ -482,33 +482,33 @@ and note that more experimentation needs to be done in analysing and comparing t
 choice of options.
 
 \begin{figure}[h!]
-  \subfloat[CIFAR-10]{
+  \subfloat[CIFAR-10]{%
     \hspace{-1.2cm}
     \includegraphics[width=\textwidth,height=5cm]{\imgpath/cifar10_scat_options.pdf}
     \label{fig:ch3:hypes_cifar10}
     }
     \vspace{-0.3cm}
     \\
-  \subfloat[CIFAR-100]{
+  \subfloat[CIFAR-100]{%
     \hspace{-1.2cm}
     \includegraphics[width=\textwidth,height=5cm]{\imgpath/cifar100_scat_options.pdf}
     \label{fig:ch3:hypes_cifar100}
     }
     \vspace{-0.3cm}
     \\
-  \subfloat[Tiny ImageNet]{
+  \subfloat[Tiny ImageNet]{%
     \hspace{-1.2cm}
     \includegraphics[width=\textwidth,height=5cm]{\imgpath/ti_scat_options.pdf}
     \label{fig:ch3:hypes_ti}
     }
     \vspace{-0.2cm}
     % \mycaption{}{}
- \mycaption{Hyperparameter results for the $\DTCWT$ scatternet on various
+ \mycaption{Hyperparameter results for the $\DTCWT$ ScatterNet on various
   datasets}{Image showing relative top-1 accuracies (in \%) on the given datasets using
   architecture described in \autoref{tab:ch3:hyper_options}. Each subfigure is a new
   dataset and therefore has a new colour range (shown on the right). Results are
   averaged over 3 runs from different starting positions.
-  The choice of options can have a very large impact on the
+  The choice of options can have a very large impact on
   classification accuracy. Symmetric padding is marginally better than zero padding.
   Surprisingly, the shorter filter (near\_sym\_a) fares better than its longer counterparts,
   and bringing in the diagonal subbands (near\_sym\_b\_bp) does not help.

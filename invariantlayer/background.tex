@@ -28,7 +28,7 @@ that of a regular CNN layer.
 \cite{qiu_dcfnet:_2018}. This paper decomposes convolutional filters as linear
 combinations of Fourier Bessel and random bases.  The first stage projects the
 inputs onto the chosen basis, and the second stage learns how to mix these
-projections with a $1\x 1$ convolution. Unlike \cite{juefei-xu_local_2016} this
+projections with a $1\x 1$ convolution. Unlike \cite{juefei-xu_local_2016}, this
 layer is purely linear. The supposed advantage being that the
 basis can be truncated to save parameters and make the input less susceptible to
 high frequency variations. The work found that this layer had marginal benefits
@@ -43,7 +43,7 @@ inputs.
 
 Let the output of a CNN at layer $l$ be 
 $ \cnnlact{x}{l}{c}{\xy}, \quad c\in \{0, \ldots C_l-1\}, \xy \in \reals[2]$
-where $c$ indexes the channel dimension, and $\xy$ is a vector of coordinates
+where $c$ indexes the channel dimension and $\xy$ is a vector of coordinates
 for the spatial position. Of course, $\xy$ is typically sampled on a grid, but
 we keep it continuous to more easily differentiate between the spatial and
 channel dimensions. Recall from \eqref{eq:ch2:conv4} and \eqref{eq:ch2:conv4a} that

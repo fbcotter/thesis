@@ -1,7 +1,7 @@
 \section{Conclusion}
-In this chapter we have presented the novel idea of learning filters by taking
+In this chapter, we have presented the novel idea of learning filters by taking
 activations into the wavelet domain. There, we can apply
-the proposed \emph{wavelet gain layer} $G$ instead of a pixel-wise convolution. We can
+the proposed wavelet \emph{gain layer} $G$ instead of a pixel-wise convolution. We can
 return to the pixel domain to apply a ReLU, or stay in the wavelet domain
 and apply wavelet-based nonlinearities $\sigma_{lp}, \sigma_{bp}$. We have
 considered the possible challenges this proposes and described how a multi-rate
@@ -25,7 +25,7 @@ using a ReLU on the lowpass coefficients, and
 Batch Normalization and a ReLU on the magnitudes of the bandpass coefficients
 improved the performance of the gain layer considerably. This is an exciting
 development and indicates that we may not need to return to the pixel domain at
-all, possibily eliminating the need for the inverse wavelet
+all, possibly eliminating the need for the inverse wavelet
 transforms used in our experiments (see steps 6 and 7 in
 \autoref{alg:ch6:wavelayer}). However, one needs to be careful, as taking the inverse transform
 followed by taking the forward transform does not necessarily give the same
@@ -40,4 +40,4 @@ improvements in performance over a fully convolutional architecture
 (\autoref{fig:ch6:nonlinear_ablation}). The proposed layer
 worked best at the beginning of the CNN, which matches the intuition for doing
 this work described in the introduction to the chapter. More research still
-needs to be done with the wave layer as part of a deeper system.
+needs to be done with the gain layer as part of a deeper system.

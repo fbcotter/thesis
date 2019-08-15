@@ -3,7 +3,7 @@
 \def \imgpath {freqlearn/images}
 
 This appendix proves that the $\DTCWT$ \emph{gain layer} proposed in
-\autoref{ch:freqlearn} maintains the shift invariant properties of the
+\autoref{ch:freqlearn} maintains the shift-invariant properties of the
 $\DTCWT$.
 
 Recall that with multirate systems, upsampling by $M$ takes $X(z)$ to
@@ -12,20 +12,20 @@ z^{1/M})$ where $W_M^k = e^{\frac{j2\pi k}{M}}$. We will drop the $M$ subscript
 below unless it is unclear of the sample rate change, simply using $W^k$.
 
 
-\section{Revisiting the Shift Invariance of the $\DTCWT$}
+\section{Revisiting the Shift-Invariance of the $\DTCWT$}
 % \section{Shift Invariance}
 
 \begin{figure}[t]
   \centering
   \includegraphics{\imgpath/dtcwt.pdf}
   % \input{\imgpath/dtcwt}
-  \mycaption{Block Diagram of 1-D $\DTCWT$}{Note the top and bottom paths are
+  \mycaption{Filter bank diagram of 1-D $\DTCWT$}{Note the top and bottom paths are
   through the wavelet or scaling functions from just level m ($M=2^m$). Figure
   based on Figure~4 in \cite{kingsbury_complex_2001}.}
   \label{fig:ch6:dtcwt_two_tree}
 \end{figure}
-It is easiest to prove the shift invariance of the gain layer by expanding on
-the shift invariance of the $\DTCWT$ proofs done in
+It is easiest to prove the shift-invariance of the gain layer by expanding on
+the shift-invariance of the $\DTCWT$ proofs done in
 \cite{kingsbury_complex_2001}.
 
 Let us consider one subband of the $\DTCWT$. This includes the coefficients from
@@ -60,8 +60,8 @@ $C(z)$. This leads us to our first theorem:
 \begin{proof}
   See \cite[section 4]{kingsbury_complex_2001} for the full proof of
   this. The full cancellation of aliasing terms for all $k \neq 0$ makes the $\DTCWT$ 
-  nearly shift invariant (also see \cite[section 7]{kingsbury_complex_2001} for the
-  bounds on what `nearly' shift invariant means).  
+  nearly shift-invariant (also see \cite[section 7]{kingsbury_complex_2001} for the
+  bounds on what `nearly' shift-invariant means).  
 \end{proof}
 
 Now, consider the complex filters defined as:
@@ -89,16 +89,16 @@ $PQ^*$ terms cancel out when $BD$ is added to $AC$, which are the terms that
 would cause significant aliasing.
 
 Using \eqref{eq:appD:p_eq} and \eqref{eq:appD:q_eq} Kingsbury showed that if $B$ is the Hilbert pair
-of $A$ then $P$ has support only on the right hand side of the frequency plane.
-Similarly if $D$ is the Hilbert pair of $C$ then $Q$ also has support only on
-the right hand side of the frequency plane. If $P$ and $Q$ are single side band,
-then so are $P^*$ and $Q^*$, but they now have support only on the left hand
+of $A$ then $P$ has support only on the right-hand side of the frequency plane.
+Similarly, if $D$ is the Hilbert pair of $C$ then $Q$ also has support only on
+the right-hand side of the frequency plane. If $P$ and $Q$ are single-sideband,
+then so are $P^*$ and $Q^*$, but they now have support only on the left-hand
 side of the frequency plane. 
 
 Given these properties, \cite[figure 5]{kingsbury_complex_2001} shows that the
 shifted versions of $P(W^k z)$ have negligible overlap with $Q(z)$ except for
 $k=0$ (the wanted term) and $k=\pm 1$ where the transition bands overlap.
-Similarly $P^*(W^k z)$ only overlaps with $Q^*(z)$ when $k=0$ and a small amount
+Similarly, $P^*(W^k z)$ only overlaps with $Q^*(z)$ when $k=0$ and a small amount
 for $k = \pm 1$. \cite{kingsbury_complex_2001} quantifies the amount of transition
 band overlap and shows that it is negligible.
 
@@ -114,7 +114,7 @@ This means $A(W^k z)C(z) + B(W^k z)D(z) = 0$ when $k\neq 0$ and
   \centering
   % \input{\imgpath/dtcwt2}
   \includegraphics{\imgpath/dtcwt2.pdf}
-  \mycaption{Block Diagram of 1-D $\DTCWT$ with subband gains}{}
+  \mycaption{Filter bank diagram of 1-D $\DTCWT$ with subband gains}{}
   \label{fig:ch6:dtcwt_two_tree_gain}
 \end{figure}
 
@@ -147,7 +147,7 @@ and the output is their sum:
 
 \begin{theorem}\label{thm:ch6:shiftinvgain}
   If we let $G_{aa}(z) = G_{bb}(z) = G_r(z)$ and $G_{ab}(z) = -G_{ba}(z) = G_i(z)$
-  then the end to end transfer function is shift invariant. 
+  then the end to end transfer function is shift-invariant. 
 \end{theorem}
 \begin{proof}
   Using the above substitutions, the terms in the square brackets of
@@ -155,8 +155,8 @@ and the output is their sum:
   \begin{equation}\label{eq:ch6:realimag}
     G_r(z^M)\left[A(W^kz)C(z) + B(W^kz)D(z)\right] + G_i(z^M)\left[A(W^kz)D(z) - B(W^kz)C(z)\right]
   \end{equation}
-  \autoref{thm:ch6:shiftinv} already showed that the $G_r$ terms are shift
-  invariant and reduce to $A(z)C(z) + B(z)D(z)$. To prove the same for the $G_i$
+  \autoref{thm:ch6:shiftinv} already showed that the $G_r$ terms are shift-invariant 
+  and reduce to $A(z)C(z) + B(z)D(z)$. To prove the same for the $G_i$
   terms, we follow the same procedure. Using our definitions of $A, B, C, D$
   from \autoref{thm:ch6:shiftinv} we note that:
   %
@@ -211,7 +211,7 @@ complex functions). The phase of the complex gain produces a phase shift of the
 underlying oscillation in the impulse response of this subband, and thus allows
 small spatial shifts to be achieved.
 
-\autoref{thm:ch6:complex_multiply} and \eqref{eq:ch6:end2end} give us an intuiton for the real and
+\autoref{thm:ch6:complex_multiply} and \eqref{eq:ch6:end2end} give us an intuition for the real and
 imaginary parts of a complex gain $G$. The real part $G_r$ affects how much of
 the bandpass gain $PQ + P^*Q^*$ propagates through, and the imaginary part $G_i$
 affects how much its Hilbert pair $PQ-P^*Q^*$ propagates.

@@ -34,7 +34,7 @@ $\tilde{\Phi}$ is the dual of $\Phi$, $\Phi \tilde{\Phi}^* = I_n$.
 
 \section{Proof}
 Consider a single filter parameterized in the pixel and frame space. In one
-system, the original filter parameters are updated. In a second system the
+system, the original filter parameters are updated. In a second system, the
 frame representation of them are updated. We want to track the evolution of the
 two filters and compare them when the same data are present to them, they have
 the same $\ell_2$ regularization rate $\lambda$ and the same learning rate $\eta$.
@@ -76,7 +76,7 @@ related at time $t$.
 
 This proves the simpler case for SGD, but the same result holds when
 momentum terms are added due to the linearity of the update equations. This does
-not however hold for the Adam \cite{kingma_adam:_2014} or Adagrad
+not hold for the Adam \cite{kingma_adam:_2014} or Adagrad
 \cite{duchi_adaptive_2011} optimizers, which automatically rescale the learning
 rates for each parameter based on estimates of the parameter's variance.
 

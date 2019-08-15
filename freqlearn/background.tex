@@ -45,8 +45,8 @@ the filter will likely be larger than $K\x K$, which would require resampling
 the coefficients.}. 
 
 Note that an important point should be emphasized about reparameterizing filters
-in either the wavelet or Fourier domains: many invertible linear
-transform of the parameter space will not change parameter updates if a linear
+in either the wavelet or Fourier domains: many linear
+transforms of the parameter space will not change parameter updates if a linear
 optimization scheme is used (for example standard GD, or SGD with momentum). 
 \citeauthor{rippel_spectral_2015}
 mention in their work that this holds for \emph{all} invertible
@@ -133,13 +133,13 @@ set of $\DTCWT$ coefficients.
 
 \begin{figure}[t]
   \centering
-  \subfloat[A regular convolutional layer]{
+  \subfloat[A regular convolutional layer]{%
   \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chaina.pdf}
   }\\
-  \subfloat[Gain applied in the wavelet domain]{
+  \subfloat[Gain applied in the wavelet domain]{%
   \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chainb.pdf}
   }\\
-  \subfloat[Gain and nonlinearity applied in the wavelet domain]{
+  \subfloat[Gain and nonlinearity applied in the wavelet domain]{%
   \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chainc.pdf}
   }
   % \includegraphics[width=0.8\textwidth]{\imgpath/fwd_chain.jpg}

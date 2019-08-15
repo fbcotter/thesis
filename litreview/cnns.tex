@@ -1,5 +1,5 @@
 \section{Neural Networks}\label{sec:ch2:nns}
-\subsection{The Neuron and Single Layer Neural Networks}
+\subsection{The Neuron and Single-Layer Neural Networks}
 
 \begin{figure}
   \centering
@@ -12,7 +12,7 @@
 \end{figure}
 
 The neuron, shown in \autoref{fig:ch2:singlelayer} is the core building block of
-Neural Networks. It takes the dot product between an input vector $\vec{x} \in
+neural networks. It takes the dot product between an input vector $\vec{x} \in
 \reals[D]$ and a weight vector $\vec{w}$, before applying a chosen nonlinearity.
 Historically, the sigmoid nonlinearity was the most popular but today other
 functions have become more popular. Still, the convention has remained to name this
@@ -43,7 +43,7 @@ $\F{H}(x) = \mathbb{I}(x > 0)$. % The sigmoid nonlinearity
 
 Note that if $\langle\vec{w}, \vec{w}\rangle = 1$ then $\langle\vec{x},
 \vec{w}\rangle$ is the distance from the point $\vec{x}$ to the hyperplane with
-normal $\vec{w}$ (with non unit-norm $\vec{w}$, this can be thought of as a scaled
+normal $\vec{w}$ (with non-unit-norm $\vec{w}$, this can be thought of as a scaled
 distance). Thus, the weight vector $\vec{w}$ defines a hyperplane in $\reals[D]$
 which splits the space into two. The choice of nonlinearity then affects how
 points on each side of the plane are treated. For a sigmoid, points far below
@@ -63,7 +63,7 @@ success \cite{glorot_deep_2011, nair_rectified_2010}. In particular:
   be slow for quite some time until the neurons came out of saturation, and then
   their accuracy would increase rapidly before levelling out again at
   a minimum~\cite{glorot_understanding_2010}. The ReLU, on the other hand, has
-  constant gradient.
+  a constant gradient when it is activated.
 \item It promotes sparsity in outputs, by setting them to a hard 0. Studies
   on brain energy expenditure suggest that neurons encode information in
   a sparse manner. \cite{lennie_cost_2003} estimates the percentage of
@@ -80,11 +80,11 @@ success \cite{glorot_deep_2011, nair_rectified_2010}. In particular:
     % \input{\imgpath/nonlinearities_grad}
     \includegraphics{\imgpath/nonlinearities_grad.pdf}
   \centering
-  \mycaption{Common Neural Network nonlinearities and their gradients}{The sigmoid, tanh and ReLU
+  \mycaption{Common neural network nonlinearities and their gradients}{The sigmoid, tanh and ReLU
   nonlinearities are commonly used activation functions for neurons. The tanh
   and sigmoid have the nice property of being smooth but can have saturation
   when the input is either largely positive or largely negative, causing little
-  gradient to flow back through it. The ReLU does not suffer from this problem,
+  gradient to flow back through it. The ReLU does not suffer from this problem
   and has the additional nice property of setting values to exactly 0, making a
   sparser output activation.}
   \label{fig:ch2:nonlinearities}
@@ -120,7 +120,7 @@ could rewrite the action of each layer in a recursive fashion:
   y^{(l+1)} &= W^{(l+1)}x^{(l)}  \label{eq:ch2:fc1}\\
   x^{(l+1)} &= \sigma\left(y^{(l+1)}\right) \label{eq:ch2:fc2}
 \end{align}
-where $W$ is now a weight matrix, acting on the vector of previous layer's
+where $W$ is now a weight matrix, acting on the vector of the previous layer's
 outputs $x^{(l)}$. As we are now considering every layer to be an input to the next
 stage, we have removed the $h$ notation and added the superscript $(l)$ to
 define the depth. $x^{(0)}$ is the network input and $y^{(N_l)}$ is the network
@@ -250,7 +250,7 @@ This passthrough gradient then can be used to update the next layer's weights by
 repeating \autoref{sec:ch2:weight} and \autoref{sec:ch2:passthrough}.
 
 \subsubsection{General Layer Update}
-The easiest way to handle this flow of gradients, and the basis for most
+The easiest way to handle this flow of gradients and the basis for most
 automatic differentiation packages is the block definition shown in
 \autoref{fig:ch2:block_form}. For all neural network components (even if they do
 not have weights), the operation must not only be able to calculate the forward
@@ -283,14 +283,14 @@ nodes from the previous layer in a given neighbourhood, rather than from every n
 First popularized in 1998 by LeCun et.\ al.\ in \cite{lecun_gradient-based_1998},
 the convolutional layer was introduced to build invariance with respect to
 translations, as well as reduce the parameter size of early neural networks for
-pattern recognition. The idea of having a locally receptive field had already
+pattern recognition. The idea of having a locally-receptive field had already
 been shown to be a naturally occurring phenomenon by Hubel and Wiesel
 \cite{hubel_receptive_1962}. They did not become popular immediately, and
 another spatially based keypoint extractor, SIFT \cite{lowe_distinctive_2004},
 was the mainstay of detection systems until the AlexNet CNN
 \cite{krizhevsky_imagenet_2012} won the 2012 ImageNet challenge
 \cite{russakovsky_imagenet_2015-1} by a large margin over the next competitors, many of
-who used SIFT. This CNN had 5 convolutional layers followed by 3 fully
+whom used SIFT\@. This CNN had 5 convolutional layers followed by 3 fully
 connected layers.
 
 We now briefly describe the convolutional layer, as well as many other layers
@@ -326,7 +326,7 @@ we use -- PyTorch \cite{paszke_automatic_2017}. For this reason, we stack
 channels along the first dimension of our tensors.}, we have a
 3-dimensional input $x \in \reals[C\x H\x W]$ with $C=3$.
 This third dimension is often called the \emph{depth} dimension, to distinguish
-it from the two spatial dimensions. In a CNN layer each filter $h$ is 3
+it from the two spatial dimensions. In a CNN layer, each filter $h$ is three
 dimensional with depth exactly equal to $C$. The convolution is
 done only over the two spatial dimensions
 and the $C$ outputs are summed at each pixel location. This makes
@@ -341,7 +341,7 @@ have a bank of them, each one sensitive to a different shape. For example, if
 one filter is sensitive to horizontal edges, we may also want to detect vertical, and
 diagonal edges. Let us rename the number of channels in the input layer as
 $C_{l}$ and specify that we would like to have $C_{l+1}$ different matched
-filters. We then stack each of the single channel outputs from
+filters. We then stack each of the single-channel outputs from
 \eqref{eq:ch2:conv2} to give the output $y \in \reals[C_{l+1} \x H\x W]$:
 %
 \begin{equation}
@@ -351,7 +351,7 @@ filters. We then stack each of the single channel outputs from
 
 After a convolutional layer, we can then apply a pointwise nonlinearity to
 each output location in $y$. Like multilayer perceptrons, this was typically the
-sigmoid function $\sigma$, but is now more commonly the ReLU. Revisiting
+sigmoid function $\sigma$, but is now more commonly the ReLU\@. Revisiting
 \eqref{eq:ch2:fc1} and
 \eqref{eq:ch2:fc2}, we can rewrite this for a convolutional layer at depth $l$
 with $C_l$ input and $C_{l+1}$ output channels:
@@ -429,7 +429,7 @@ convolutional layer:
   \dydx{L}{x_{c,k_1,k_2}} &= \sum_f \sum_{n_1} \sum_{n_2} \Delta y[f, n_1, n_2] \tilde{h}[c, f, k_1-n_1, k_2-n_2 ] \\
                           &= \sum_f \Delta y[f, \kk] \conv \tilde{h}[c, f, \kk] \label{eq:ch2:cnn_passthrough}
 \end{align}
-which is the same as \eqref{eq:ch2:conv4}. I.e. we can backpropagate the
+which is the same as \eqref{eq:ch2:conv4}. I.e.\ we can backpropagate the
 gradients through a convolutional layer by mirror-imaging the filters spatially,
 transposing them in the channel and filter dimensions, and doing a forward
 convolutional layer with $\tilde{h}$ applied to $\Delta y$. Similarly, we
@@ -490,7 +490,7 @@ several runs \cite{gal_dropout_2016}.
 \subsection{Batch Normalization}
 \emph{Batch normalization} proposed in \cite{ioffe_batch_2015} is a conceptually
 simple technique which rescales activations of a neural network. Despite its
-simplicity it has become very popular and has been found to be very useful to
+simplicity, it has become very popular and has been found to be very useful to
 train deeper CNNs.
 
 First let us define $\mu_c^{(l)}$ and $\sigma_c^{(l)}$ as the mean and standard deviations
@@ -542,7 +542,7 @@ the problems of vanishing and exploding gradients:
 \end{align}
 
 \section{Relevant Architectures and Datasets}
-In this section we briefly review some relevant CNN architectures that will be
+In this section, we briefly review some relevant CNN architectures that will be
 helpful to refer back to in this thesis.
 
 \subsection{Datasets}
@@ -583,7 +583,7 @@ increasing order of difficulty:
 Several other classification datasets do exist but are not commonly used, such
 as PASCAL VOC \cite{Everingham15} and Caltech-101 and Caltech-256
 \cite{li_fei-fei_learning_2004}\footnote{Tiny ImageNet is also not commonly
-used as it is quite new. We have included it the main list as we have found it
+used as it is quite new. We have included it in the main list as we have found it
 to be quite a useful step up from CIFAR without requiring the weeks to train
 experimental configurations on ImageNet.}.
 
@@ -603,7 +603,7 @@ of tanh functions and MSE loss.
   handwriting recognition. LeNet has 2 convolutional and 3 fully connected
   layers making 5 parameterized layers. After the second convolutional layer,
   the $16\x 5\x 5$ pixel output is unravelled to a $400$ long vector. Image
-  taken from \cite{lecun_gradient-based_1998}.}
+  is taken from \cite{lecun_gradient-based_1998}.}
   \label{fig:ch2:lenet}
 \end{figure}
 
@@ -637,7 +637,7 @@ network was much deeper than AlexNet, with 19 convolutional layers on top of
 each other before 3 fully connected layers. These convolutional layers all used
 the smaller $3\x 3$ seen only at the back of AlexNet.
 
-This network is particularly attractive due its simplicity, compared to the
+This network is particularly attractive due to its simplicity, compared to the
 more complex Inception Network \cite{szegedy_going_2015} which won the 2014
 ILSVRC challenge. VGG-16, the 16 layer variant of VGG stacks two or three
 convolutional layers (and ReLUs) on top of each other before reducing spatial
@@ -680,7 +680,7 @@ the parameters of other networks.
             Taken from \cite{he_deep_2016}.}
       \label{fig:ch2:residual_unit}
   \end{figure}
-  Resiudal Networks or ResNets won the 2015 ILSVRC challenge, introducing the
+  Residual Networks or ResNets won the 2015 ILSVRC challenge, introducing the
   residual layer. Most state of the art models today use this residual mapping
   in some way \cite{zagoruyko_wide_2016, xie_aggregated_2017}.
 
@@ -696,7 +696,7 @@ the parameters of other networks.
   $\mathcal{F}(x) = \mathcal{H}(x) - x$. Doing this promotes a strong diagonal
   in the Jacobian matrix which improves conditioning for gradient descent.
 
-  Recent analysis of a ResNet without nonlinearities
+  Recent analyses of a ResNet without nonlinearities
   \cite{bartlett_representing_2018, bartlett_gradient_2018} proves that SGD
   fails to converge for deep networks when the network mapping is far away from
   the identity, suggesting that a residual mapping is a good thing to do.

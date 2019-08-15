@@ -1,6 +1,6 @@
-The drive of this thesis is in exploring if wavelet theory, in
-particular the $\DTCWT$, has any place in deep learning and if it does,
-quantifying how beneficial it can be. The introduction of more powerful GPUs and
+The drive of this thesis is in exploring if complex wavelets (in
+particular the $\DTCWT$) have any place in deep learning and if they do,
+quantifying how beneficial they can be. The introduction of more powerful GPUs and
 fast and popular deep learning frameworks such as PyTorch, Tensorflow and Caffe
 in the past few years has helped the field of deep learning grow very rapidly.
 Never before has it been so possible and so accessible to test new designs and
@@ -25,7 +25,7 @@ achieve perfect reconstruction.
 
 \section{Chapter Layout}
 This chapter describes how we have built a fast ScatterNet implementation in
-PyTorch with the $\DTCWT$ as its wavelet transform. First we describe how to do an
+PyTorch with the $\DTCWT$ as its wavelet transform. First, we describe how to do an
 efficient DWT in PyTorch in \autoref{sec:ch3:dwt} before showing how to expand this
 to an efficient $\DTCWT$ in \autoref{sec:ch3:dtcwt}.
 We then use the $\DTCWT$ to define our own ScatterNet in \autoref{sec:ch3:scat} (in

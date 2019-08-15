@@ -67,7 +67,7 @@ and then exposed for a few hours a day to only horizontal or vertical lines.
 After five months, they were taken into natural environments and their reactions
 were monitored. The two groups of cats would only play with objects when
 presented in an orientation that matched the orientation of their original
-environment. This suggest that these early layers of perception are
+environment. This suggests that these early layers of perception are
 \emph{learned}.
 % A figure of the the frequency response of the photoreceptor cells in our eyes
 % to different wavelengths of light.
@@ -89,7 +89,7 @@ They are seemingly inspired by the visual cortex in the way that they are
 hierarchically connected, progressively compressing the information into a
 richer representation.
 
-\autoref{fig:ch1:cnn_arch} shows an example CNN
+\autoref{fig:ch1:cnn_arch} shows an example of a CNN
 architecture, the famous AlexNet \cite{krizhevsky_imagenet_2012}. Inputs are resized to a
 manageable size, in this case, $224\x 224$ pixels. Multiple convolutional
 filters of size $11\x 11$ are convolved over this input to give $96$ output
@@ -110,7 +110,7 @@ the art classifiers had been built by combining keypoint extractors like
 SIFT\cite{lowe_distinctive_2004} and HOG\cite{dalal_histograms_2005} with
 classifiers such as Support Vector Machines\cite{cortes_support-vector_1995} and
 Fisher Vectors\cite{sanchez_image_2013}, for example \cite{sanchez_high-dimensional_2011}.}.
-In the years since, the complexity of CNNs has grown significantly. AlexNet had
+In the years since the complexity of CNNs has grown significantly. AlexNet had
 only 5 convolutional layers, whereas the 2015 ILSVRC winner ResNet \cite{he_deep_2016}
 achieved 3.57\% top-5 error with 151 convolutional layers (and had some
 experiments with 1000 layer networks).
@@ -119,13 +119,13 @@ experiments with 1000 layer networks).
   \centering
     % \includegraphics[width=\textwidth]{\imgpath/dtcwt_gain}
     \includegraphics[width=\textwidth]{\imgpath/alexnet.png}
-    \mycaption{Convolutional Architecture example}{The previous layer's activations are
+    \mycaption{Convolutional architecture example}{The previous layer's activations are
     combined with a learned convolutional filter.
     Note that while the activation maps are 3-D arrays, the convolution is only
     a 2-D operation. This means the filters have the same number of channels as
     the input and produce only one output channel. Multiple channels are made by
     convolving with multiple filters. Not shown here are the nonlinearities that
-    happen in between convolution operations. Image taken from \cite{krizhevsky_imagenet_2012}.}
+    happen in between convolution operations. Image is taken from \cite{krizhevsky_imagenet_2012}.}
     \label{fig:ch1:cnn_arch}
   \end{figure}
 
@@ -151,12 +151,12 @@ experiments with 1000 layer networks).
   \mycaption{Example first layer filters and the first three
   layer's outputs}{\subref{fig:ch1:alex_filt} The $11\x 11$ filters for the
   first stage of AlexNet. Of the 96 filters, 48 were learned on one GPU and
-  another 48 on another GPU. Interestingly, one GPU has learned mostly
+  another 48 on another GPU\@. Interestingly, one GPU has learned mostly
   lowpass/colour filters and the other has learned oriented bandpass
   filters. \subref{fig:ch1:alex_conv1} - \subref{fig:ch1:alex_conv3} Randomly
   chosen activations from the output of the first, second and third convolutional
   layers of AlexNet (see \autoref{fig:ch1:cnn_arch}) with negative values set to 0.
-  Filters and activation images taken from supplementary material of
+  Filters and activation images are taken from the supplementary material of
     \cite{krizhevsky_imagenet_2012}.}
   \label{fig:ch1:alexnet_filters}
 \end{figure}
@@ -186,7 +186,7 @@ is a safe investment. Trusting a black box solution is deeply unsatisfactory in
 this situation. Not only from the customer's perspective, who, if declined, has
 the right to know why \cite{goodman_european_2017-1}, but
 also from the bank's --- before lending large sums of money, most banks
-would like to know why the network has given the all clear. `It has worked well
+would like to know why the network has given the `all clear'. `It has worked well
 before' is a poor rule to live by.
 
 Aside from their lack of interpretability, it often takes a long time and a lot of
@@ -293,7 +293,7 @@ Hubel and Wiesel suggests that the early layers of the visual system act like a
 Gabor transform.
 
 These experimental observations imply that complex wavelets would do well in
-replacing the first layer of a CNN, but we would aslo like to find out if they can be used
+replacing the first layer of a CNN, but we would also like to find out if they can be used
 at deeper layers. Their well-understood and well-defined behaviour would help us
 to answer the above \emph{how} and \emph{why} questions. Additionally, they
 allow us to enforce a certain amount of smoothness and near orthogonality;
@@ -444,7 +444,7 @@ In \cite{singh_scatternet_2018}
 front end and combining it with well-known machine learning methods such as
 SVMs, Autoencoders and Restricted Boltzmann Machines. By combining frameworks in
 a defined way he creates unsupervised feature extractors which can then be used
-with simple classifiers. Some relevant papers that makeup this thesis are \cite{singh_multi-resolution_2016,
+with simple classifiers. Some relevant papers that make up this thesis are \cite{singh_multi-resolution_2016,
 singh_scatternet_2017, singh_generative_2018}. In
 \cite{singh_multi-resolution_2016} Singh shows
 that the $\DTCWT$-ScatterNet outperforms a Morlet-ScatterNet when used as a front end for
@@ -455,8 +455,8 @@ front end for CNNs. He then expands on this work by testing other backends in
 
 In \cite{oyallon_analyzing_2017}
 \citeauthor{oyallon_analyzing_2017} looks at ScatterNets as front ends to
-deeper learning systems, such as CNNs. Some relevant papers that makeup Oyallon's thesis are
+deeper learning systems, such as CNNs. Some relevant papers that make up Oyallon's thesis are
 \cite{oyallon_deep_2015, oyallon_scaling_2017}. \cite{oyallon_scaling_2017}
 is particularly relevant as he uses a ScatterNet as a feature extractor for a
-CNN. We do similar research in \autoref{ch:invariant}, but allow for
+CNN\@. We do similar research in \autoref{ch:invariant} but allow for
 learned weights in the ScatterNet in our design.

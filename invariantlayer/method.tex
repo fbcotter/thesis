@@ -99,7 +99,7 @@ convolutions of \eqref{eq:ch5:conv} have been replaced by a matrix multiply
 \subsection{Properties}
 \subsubsection{Recovering the original ScatterNet Design}
 The first thing to note is that with careful choice of $A$ and $\sigma$, we can
-recover the original translation invariant ScatterNet
+recover the original translation-invariant ScatterNet
 \cite{bruna_invariant_2013, oyallon_scaling_2017}. If $C_{l+1} = (JK+1)C_l$ 
 and $A$ is the identity matrix $I_{C_{l+1}}$, there is no mixing and $y^{(l+1)} = \widetilde{\mathcal{W}}x$.
 
@@ -120,7 +120,7 @@ giving $S_1$ and $U_2$ (invariant to shifts of $2^2$). If we want to build
 higher invariance, we can continue or simply average these outputs with an average pooling
 layer.
 
-\subsubsection{Flexibilty of the Layer}
+\subsubsection{Flexibility of the Layer}
 Unlike a regular ScatterNet, we are free to choose the size of $C_{l+1}$. This
 means we can set $C_{l+1} = C_{l}$ as is commonly the case in a CNN, and make a
 convolutional layer from mixing the locally invariant terms. This avoids the

@@ -9,7 +9,7 @@ spatial domain, as in a conventional CNN layer. This is the first objective in
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{\imgpath/AlexNet_layer1_regression.pdf}
-  \mycaption{Normalized mean squared error for conv layer and wavelet gain layer
+  \mycaption{Normalized MSE for conv layer and wavelet gain layer
   regression}{We minimize
   \eqref{eq:ch6:conv_regression} and
   \eqref{eq:ch6:gain_regression} on the ImageNet validation set, where the
@@ -51,14 +51,16 @@ subband.
 
 \eqref{eq:ch6:conv_regression} and \eqref{eq:ch6:gain_regression} are both
 regression problems convex in the parameters of $H$ and $G$, with many possible
-ways to solve. We are not worried with the optimization procedure chosen here,
-but of the final distances $\norm{y-Hx}$ and $\norm{y-\mathcal{W}^{-1}G\mathcal{W}x}$ (or
-equivalently, their squares). We choose to find $H$ and $G$ by gradient descent,
+ways to solve. We are particularly interested in using the gain layer as part of
+a CNN, so we choose SGD to minimize these distances,
+% We are not worried with the optimization procedure chosen here,
+% but of the final distances $\norm{y-Hx}$ and $\norm{y-\mathcal{W}^{-1}G\mathcal{W}x}$ (or
+% equivalently, their squares). We choose to find $H$ and $G$ by gradient descent,
 using the validation set for ImageNet as the data input-output pair $(x, y)$.
-After 3--5 epochs, both $H$ and $G$ typically settle into their global minimum.
+% After 3--5 epochs, both $H$ and $G$ typically settle into their global minimum.
 Because of the large size of the input filters, we allow for both a $J=1$ and
 $J=2$ scale gain layer but only learn weights at the lowest frequency bandpass
-(i.e. for a 2 scale gain layer, we discard the first scale highpass outputs and
+(i.e.\ for a 2 scale gain layer, we discard the first scale highpass outputs and
 only learn $g_2$).
 
 After training, we report the final normalized mean squared errors between the
@@ -66,7 +68,7 @@ target values $y$ and the estimated outputs $\hat{y}$, defined as:
 \begin{equation}
   NMSE = \frac{1}{N} \sum_{n=1}^N \frac{\mathbb{E}\left[(y-\hat{y})^2\right]}{\mathbb{E}\left[y^2\right]}
 \end{equation}
-The resulting NMSEs are shown in \autoref{fig:ch6:gainlayer_regression} . A label
+The resulting NMSEs are shown in \autoref{fig:ch6:gainlayer_regression}. A label
 `gl$ab$' indicates a single scale gain layer with $a\x a$ support in the lowpass
 and $b\x b$ support in the highpass; a label `gl$abc$' indicates a two-scale
 gain layer with $a\x a$ support in the lowpass, $b\x b$ support in the scale 1
@@ -114,8 +116,8 @@ opposed to `convA', `convB', `convC', \ldots).
 We test the difference in accuracy achieved by replacing each of the three
 convolution layers with gl31.
 Although the gain layers with no gain in the first scale and gain in the second
-scale (e.g. gl301, gl501) performed better than those with only gain in the first scale (e.g. gl31, gl51)
-in \autoref{sec:ch6:regression}, we saw them perform consistently worse in the
+scale (e.g.\ gl301, gl501) performed better than those with only gain in the first scale 
+(e.g.\ gl31, gl51) in \autoref{sec:ch6:regression}, we saw them perform consistently worse in the
 following ablation studies. This is not surprising, as a $5\x 5$ convolutional
 kernel is too small compared to the width of the central lobe of scale 2
 wavelets. For ease of presentation, we only show the results from the single
@@ -155,7 +157,7 @@ swapped out the more this degradation compounds.
     \includegraphics[width=\textwidth]{\imgpath/ti_gainlayer_large.pdf}
     \label{fig:ch6:ti_gl}
   }
-  \mycaption{Large kernel ablation results CIFAR and Tiny ImageNet}{Results
+  \mycaption{Large kernel ablation results for CIFAR and Tiny ImageNet}{Results
   showing the percentage classification accuracies obtained by swapping
   combinations of the three conv layers in the reference architecture from
   \autoref{tab:ch6:ablation_arch} with gain layers. Results shown are averages
@@ -185,7 +187,7 @@ subbands reduced classification performance by less than when occluding
 horizontal/vertical subbands.
 
 Although the diagonal subbands are particularly small, the horizontal and
-veritcal bands have many coefficients with magnitude very close to zero.
+vertical bands have many coefficients with magnitude very close to zero.
 This raises an interesting question -- how many of these coefficients are
 important for classification? What if we were to apply a hard thresholding
 scheme to the weights, would setting some of these values to zero impact the
@@ -211,16 +213,16 @@ C_l\x k\x k]$ followed by an expansion layer with shape $g_e \in \reals[C_{l+1}\
 \begin{figure}
   \centering
   \vspace{-0.5cm}
-  \subfloat[Bandpass Magnitude Distributions]{
+  \subfloat[Bandpass magnitude distributions]{%
     \includegraphics[width=.9\textwidth]{\imgpath/complex_mag_dists.pdf}
     \label{fig:ch6:bp_dists}
     }\\\vspace{-0.3cm}
-  \subfloat[Accuracy Dropoff from Thresholding]{
+  \subfloat[Accuracy dropoff from thresholding]{%
     \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_threshs.pdf}
     \label{fig:ch6:threshs}
     }
     % \mycaption{}{}
-    \mycaption{Bandpass Gain Properties for all gain layer network}{\subref{fig:ch6:bp_dists} shows the
+    \mycaption{Bandpass gain properties for network with only gain layers}{\subref{fig:ch6:bp_dists} shows the
     distribution of the magnitudes for bandpass coefficients for the second
     layer (gain2). Each orientation has $128\x 64=8192$ complex weights, most of
     which are close to 0 ($\ell_1$ regularization was used in training); Y axis
@@ -258,10 +260,10 @@ blocky regions of support.
 
 \begin{figure}
   \centering
-  \subfloat[First layer]{
+  \subfloat[First layer]{%
   \includegraphics{\imgpath/largekernel_conv1.pdf}
   } \\
-  \subfloat[Second layer]{
+  \subfloat[Second layer]{%
   \includegraphics{\imgpath/largekernel_conv2.pdf}
   }
   \mycaption{Deconvolution reconstructions for the reference architecture and

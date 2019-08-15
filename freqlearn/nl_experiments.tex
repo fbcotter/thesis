@@ -4,7 +4,7 @@
 \begin{algorithmic}[1]
   \Procedure{WaveGainLayer}{$x$}
   \State $u_{lp},\ u_{1} \gets \DTCWT(x, \mbox{nlevels}=1) $ 
-  \State $v_{lp},\ v_{1} \gets G(u_{lp},\ u_{1}) $ \Comment{the normal wave gain layer}
+  \State $v_{lp},\ v_{1} \gets G(u_{lp},\ u_{1}) $ \Comment{the normal gain layer}
   \State $u_{lp} \gets \sigma_{lp}(v_{lp})$ \Comment{lowpass nonlinearity}
   \State $u_{1} \gets \sigma_{bp}(v_{1})$ \Comment{bandpass nonlinearity}
   \State $y \gets \DTCWT^{-1}(u_{lp},\ u_{1})$
@@ -43,7 +43,7 @@ where:
   \item `BN+ReLU' is batch normalization and ReLU (applicable only to real-valued
     activations) e.g. \eqref{eq:ch6:bnrelu_lp}.
   \item `BN+MagReLU' applies batch normalization to the magnitude of complex
-    coefficients and then makes them strictly positive with a ReLU. This action
+    coefficients and then makes them strictly positive with a ReLU\@. This action
     is defined in \eqref{eq:ch6:magrelu_bp}. See \autoref{sec:appE:bnrelu} for
     information on the passthrough and update equations for this nonlinearity.
   \item $\mathcal{S}$ is the soft thresholding of \eqref{eq:ch6:relu_st2}
@@ -61,7 +61,7 @@ where:
 
 As the pixel nonlinearity has only two options, the results are best displayed as
 a pair of tables, firstly for no nonlinearity and secondly for the
-standard batch normalization and ReLU. See
+standard batch normalization and ReLU\@. See
 \autoref{tab:ch6:nonlinearities} for these two tables. 
 
 Digesting this information gives us some useful insights: 
@@ -95,12 +95,12 @@ in \autoref{alg:ch6:wavelayer} (i.e., $\sigma_{pixel} = \F{None},\ \sigma_{lp} =
 See \autoref{fig:ch6:nonlinear_ablation} for the results from these experiments.
 When we use the wavelet-based nonlinearities, the results change considerably. 
 We see an improvement by $1\%$ when the first layer in the CNN is
-changed for a wave layer, but any other changes degrade performance from this.
+changed for a gain layer with a nonlinearity, but any other changes degrade performance from this.
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=\textwidth]{\imgpath/nonlinear_ablation.pdf}
-  \mycaption{CIFAR-100 Ablation results with the \emph{wave layer}}{We use the
+  \mycaption{CIFAR-100 Ablation results with the gain layer}{We use the
   same naming scheme from \autoref{sec:ch6:ablation} but to differentiate
   between the results from \autoref{fig:ch6:cifar100_gl} we call the options
   `waveX'. Results show the mean of 3 runs with $\pm 1$ standard deviation lines
