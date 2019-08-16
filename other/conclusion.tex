@@ -4,9 +4,9 @@
 
 In this thesis, we have examined the effectiveness of using complex wavelets as
 basis functions for deep learning models. We summarize the key results we have
-found before describing possible future extensions of our work, some natural
-extensions that we were not able to explore due to time constraints, and some
-propositions for tying together interesting pieces of work that were developed
+found before describing possible future extensions of our work. Some of these
+are natural expansions which we were not able to explore due to time constraints, and some
+are propositions for tying together interesting pieces of work that were developed
 towards the end of the project.
 
 % We first looked at ScatterNets, a type
@@ -22,11 +22,12 @@ towards the end of the project.
 \textbf{\Autoref{Chapter}{ch:dtcwt_scat}} shows how using the separable spatial implementation of
 the $\DTCWT$ as the chosen wavelets for the original ScatterNet design greatly
 speeds up computation compared with Fourier domain implementations of complex
-wavelets (see \autoref{tab:ch3:scat_speeds}). We were also able to
-derive the backpropagation equations for wavelet and scattering layers, aiding
-the use of ScatterNets as part of deep networks. As part of this, we tested out
-the performance of the $\DTCWT$ based ScatterNet as a front end to a simple CNN for
-some small classification tasks and compared its performance to the Morlet based system. We
+wavelets (see \autoref{tab:ch3:scat_speeds}). We
+derived the backpropagation equations for wavelet and scattering layers, aiding
+the use of ScatterNets as part of deep networks (this was crucial for our work
+of \autoref{ch:invariant}). As part of this, we tested
+the performance of the $\DTCWT$-based ScatterNet as a front end to a simple CNN for
+some small classification tasks, comparing its performance to a Morlet based system. We
 found that as well as being faster, the performance was often better when using
 the $\DTCWT$ wavelets \autoref{tab:ch3:comparison}. When doing these tests, we
 found that of the wavelet choices available for the $\DTCWT$, those with the
@@ -49,7 +50,7 @@ performed some occlusion tests on a hybrid network with a ScatterNet front end
 and CNN backend and saw that the CNN was able to operate with little degradation when the 
 second-order scattering coefficients were zeroed out (there was only a small drop in
 classification accuracy), but it suffered greatly when the zeroth or first-order
-coefficients were zeroed out. We also found the surprising result that on the
+coefficients were removed. We also found the surprising result that on the
 datasets we tested, the filters with diagonal edges were less important than their vertical or
 horizontal counterparts (\autoref{fig:ch4:occlusion1}). If the input images were
 rotated by $\pm 30\degs$ then the diagonal channels became the most important.
@@ -84,7 +85,7 @@ different subbands, mixes the subbands across the different channels and offers
 the ability to return to the pixel domain with the inverse wavelet transform.
 Our experiments have been promising but are still only preliminary. We
 show that the \emph{gain layer} can learn in an end-to-end system, achieving nearly
-the same accuracies on CIFAR-10, CIFAR-100 and Tiny ImageNet to the reference system with
+the same accuracies on CIFAR-10, CIFAR-100 and Tiny ImageNet to a reference system with
 only convolutional layers (\autoref{fig:ch6:gl_results}).
 Despite the slight reduction in performance, we saw some
 nice properties of the gain layer. The bandpass gains were very sparse,
@@ -96,9 +97,9 @@ Batch Normalization and a ReLU on the magnitudes of the bandpass coefficients
 improved the performance of the gain layer considerably (\autoref{tab:ch6:nonlinearities}).
 Using this, we
 saw that we were able to achieve some improvements in performance over a fully
-convolutional architecture (\autoref{fig:ch6:nonlinear_ablation}). The wave
-layer seems to work best at the beginning of the CNN but more research still
-needs to be done with deeper systems.
+convolutional architecture (\autoref{fig:ch6:nonlinear_ablation}). The gain 
+layer with nonlinearity seems to work best at the beginning of the CNN but more research still
+needs to be done with deeper networks.
 
 \section{Future Work}
 This thesis has started to examine ways of using wavelets as basis functions for
