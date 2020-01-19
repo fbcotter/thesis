@@ -382,8 +382,8 @@ longer have to worry about dividing by zero issues when calculating gradients.
 We can choose the size of $b$ as a hyperparameter in optimization, which we
 revisit in \autoref{sec:ch3:dtcwt_hypes}. The partial derivatives now become:
 \begin{eqnarray}
-  \dydx{r_s}{x} & = & \frac{x}{\sqrt{x^2 + y^2+b^2}} = \frac{x}{r_s}\\
-  \dydx{r_s}{y} & = & \frac{y}{\sqrt{x^2 + y^2+b^2}} = \frac{y}{r_s}
+  \dydx{r_s}{x} & = & \frac{x}{\sqrt{x^2 + y^2+b^2}} = \frac{x}{r_s+b}\\
+  \dydx{r_s}{y} & = & \frac{y}{\sqrt{x^2 + y^2+b^2}} = \frac{y}{r_s+b}
 \end{eqnarray}
 There is a memory cost associated with this, as we will now need to save both
 $\dydx{r_s}{x}$ and $\dydx{r_s}{y}$ as opposed to saving only the phase.
@@ -423,7 +423,7 @@ bandpass, we have averaged the lowpass over a $2\x 2$ window and downsampled it
 by 2 in each direction. This slightly
 affects the higher-order scattering coefficients, as the true $\DTCWT$ needs the doubly
 sampled lowpass for the second scale, however, we noticed little difference in
-performance from doing the true $\DTCWT$ and this slightly modified one
+performance from doing the true $\DTCWT$ and this slightly modified one.
 
 \subsection{$\DTCWT$ ScatterNet Hyperparameter Choice}\label{sec:ch3:dtcwt_hypes}
 {%
