@@ -32,12 +32,12 @@ It might surprise some to learn that visual information is significantly
 degraded as it passes from the eye to the visual cortex. Thus, of the unlimited
 information available from the environment, only about $10^{10}$ bits/sec are
 deposited in the retina \ldots\ only $\sim 6\times 10^6$
-bits/sec leave the retina and only $10^4$ make it to layer IV of V1
+bits/sec leave the retina and only $11^4$ bits/sec make it to layer IV of V1
 \cite{anderson_directed_2005,tor_norretranders_user_1998}. These data
 clearly leave the impression that visual cortex receives an impoverished
 representation of the world \ldots\ it should be noted that estimates of the
 bandwidth of conscious awareness itself (i.e.,\ what we `see') are in the range
-of 100 bits/sec or less\cite{anderson_directed_2005,
+of 100 bits/sec or less \cite{anderson_directed_2005,
 tor_norretranders_user_1998}.
 \end{quotation}
 
@@ -52,7 +52,7 @@ If we are to build effective vision systems, it makes sense to emulate this
 compression of information between the optic nerve and the later stages of the visual
 cortex.
 % The question now stands before us --- what information is kept on entry to the V1 cortex?
-Hubel and Wiesel revolutionized our understanding of the V1 cortex in their Nobel prize-winning work
+Hubel and Wiesel revolutionized our understanding of the (primary visual) V1 cortex in their Nobel prize-winning work
 (awarded in 1981 in Physiology/Medicine) by
 studying cats \cite{hubel_receptive_1959, hubel_receptive_1962}, macaques and spider
 monkeys \cite{hubel_receptive_1968}. They found that neurons in the V1 cortex fired
@@ -90,7 +90,7 @@ hierarchically connected, progressively compressing the information into a
 richer representation.
 
 \autoref{fig:ch1:cnn_arch} shows an example of a CNN
-architecture, the famous AlexNet \cite{krizhevsky_imagenet_2012}. Inputs are resized to a
+architecture, AlexNet \cite{krizhevsky_imagenet_2012}. Inputs are resized to a
 manageable size, in this case, $224\x 224$ pixels. Multiple convolutional
 filters of size $11\x 11$ are convolved over this input to give $96$ output
 \emph{channels} (or \emph{activation maps}). In the figure, these are split onto two
@@ -102,7 +102,7 @@ times until the $13\x 13$ output with $256$ channels is unravelled and passed
 through a fully connected neural network to classify the image as one of $1000$
 possible classes.
 
-CNNs have garnered lots of attention since 2012 when the previously mentioned AlexNet
+CNNs have garnered lots of attention since 2012 when AlexNet
 nearly halved the top-5 classification error rate (from $26\%$ to $16\%$)
 in the ImageNet Large Scale Visual Recognition Competition (ILSVRC)
 \cite{russakovsky_imagenet_2015}\footnote{The previous state of
@@ -171,10 +171,10 @@ purposes, we have also shown some example activations from the first three
 convolutional layers for AlexNet in
 \autoref{fig:ch1:alexnet_filters}\subref{fig:ch1:alex_conv1}-\subref{fig:ch1:alex_conv3}\footnote{These activations are
 taken after a specific nonlinearity that sets negative values to 0, hence the
-large black regions.}. For the conv1 activations in
-\autoref{fig:ch1:alex_conv1}, we can accurately guess that some of the first layer
-channels are responding to edges or colour information, but as we go deeper to
-conv2 and conv3, it becomes less and less clear what each activation is
+large black regions.}. For the output from the first convolutional layer (conv1) in
+\autoref{fig:ch1:alex_conv1}, we can accurately guess that some of the filters are responding to
+edges or colour information, but as we go deeper to
+the second (conv2) and third (conv3), it becomes less and less clear what each activation is
 responding to.
 
 This has started to become a problem, and while we are happy to trust modern
@@ -194,12 +194,12 @@ effort to train state-of-the-art CNNs. Typical networks that have won ILSVRC
 since 2012 have had roughly 100 million parameters and take up to a week to train. This
 is optimistic and assumes that you already know the necessary optimization or
 architecture hyperparameters, which you often have to find out by trial and error.
-In a conversation the author had with Yann LeCun, the attributed father of
+In a conversation we had with Yann LeCun, the attributed father of
 CNNs, at a Computer Vision Summer School (ICVSS 2016), LeCun highlighted this problem
 himself:
 \begin{quote}
-  There are certain recipes (for building CNNs) that work and certain recipes
-  that don't, and we don't know why.
+  ``There are certain recipes (for building CNNs) that work and certain recipes
+  that don't, and we don't know why.''
 \end{quote}
 
 Considering the recent success of CNNs, it is becoming more and more
@@ -217,8 +217,8 @@ mean-squared error or cross-entropy loss.
 This leads us to ask a motivating question:
 %
 \begin{quote}
-  Is it possible to learn convolutional filters as combinations of basis
-  functions rather than individual filter taps?
+    \emph{Is it possible to learn convolutional filters as combinations of basis
+    functions rather than individual filter taps?}
 \end{quote}
 
 In achieving this, it is important to find ways to have an adequate
@@ -227,11 +227,9 @@ filters. We want to contract the space of learning to a subspace or manifold tha
 is more useful. In much the same way, the convolutional layer in a CNN is a restricted
 version of a fully connected layer in a multi-layer perceptron, yet adding this
 restriction allowed us to train more powerful networks.
-
-\begin{quote}
+\\\\
 The intuition that we explore in this thesis is that \emph{complex wavelets} are
 good basis functions for filtering in CNNs.
-\end{quote}
 
 \subsection{Why Complex Wavelets?}
 Most modern approaches to CNNs are framed entirely in the spatial domain; our
@@ -325,7 +323,7 @@ shifts, noise and deformations are found in \cite{mallat_group_2012}.
 % learning, although the \emph{what} is still somewhat unclear.
 
 For a simple task like identifying small handwritten digits,
-the variabilities in the data are simple and small and the ScatterNet can easily
+the variabilities in the data are simple and small and the ScatterNet can 
 reduce the problem into a space which a Gaussian Support Vector Machine (or SVM
 \cite{cortes_support-vector_1995}) can easily solve
 \cite{bruna_invariant_2013}. For a more complex task like identifying real-world
@@ -344,11 +342,13 @@ visualization work of \citeauthor{zeiler_visualizing_2014}
 leverages the perfect reconstruction properties of the $\DTCWT$ and allows us to
 investigate what in the input image the ScatterNet is responding to.
 
-The DeScatterNet shows that the ScatterNet may be limiting itself by not
+Interpretring the visualizations from the DeScatterNet leads us to the conclusion
+that the ScatterNet may be limiting itself by not
 combining the filtering of different wavelet orientations (it does not mix the
 channels as a CNN does). Inspired by the work of \cite{qiu_dcfnet:_2018}, we
-propose the learnable ScatterNet, which includes this mixing while keeping the
-desirable properties of the ScatterNet.
+propose the learnable ScatterNet, which includes this mixing, while keeping the
+desirable properties of the ScatterNet (invariance to translation, additive noise, 
+and deformations; see \autoref{sec:ch2:scat_props} for a description of these properties).
 
 The learnable ScatterNet can be thought of as using the scattering outputs as
 the \emph{basis functions}\footnote{Although they are not true basis functions
