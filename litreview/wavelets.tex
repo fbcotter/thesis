@@ -1,6 +1,6 @@
 \section{The Fourier and Wavelet Transforms}\label{sec:ch2:fourier}
 
-  Computer vision is an extremely difficult task. Pixel intensities in an image are
+  Many tasks in computer vision tasks are often very difficult. Pixel intensities in an image are
   typically not very informative in understanding what is in that image.
   These values are sensitive to lighting conditions and camera configurations.
   It would be easy to take two photos of the same scene and get two vectors
@@ -165,9 +165,9 @@ $A=1$ when $|\varphi_i|=1$ so there is no redundancy. For the 2-D $\DTCWT$ which
 will see shortly, the redundancy is 4.
 
 \subsubsection{Inversion and Tightness}
-\eqref{eq:ch2:frame_bounds} specify the constraints that make a frame
+Equation \eqref{eq:ch2:frame_bounds} specify the constraints that make a frame
 representation invertible.
-The tighter the frame bounds, the more easily it is to invert the signal.
+The tighter the frame bounds, the more easy it is to invert the signal.
 This gives us a guide to choosing the sampling grid for the CWT.
 
 One particular inverse operator is the \emph{canonical dual frame}.
@@ -294,8 +294,7 @@ If a frame is tight, then so is its dual.
   \begin{equation}
     e^{j\omega t} = \cos(\omega t) + j\sin(\omega t)
   \end{equation}
-  whereas the DWT's basis functions are based on only the real
-  sinusoid, $\cos(\omega t)$. As $t$ moves along the real line, the phase of the
+  whereas the DWT's basis functions are purely real. As $t$ moves along the real line, the phase of the
   Fourier coefficients change linearly, while their magnitude remains constant. In
   contrast, as $t$ moves along the real line, the sign of the real coefficient
   flips between -1 and 1, and its magnitude is a rectified sinusoid.
@@ -324,7 +323,7 @@ If a frame is tight, then so is its dual.
   \cite{bruna_classification_2011, bruna_invariant_2013, bruna_scattering_2013,
   oyallon_generic_2013, oyallon_deep_2015, sifre_rotation_2013,
   sifre_rigid-motion_2014, sifre_rigid-motion_2014-1, sifre_scatnet_2013}.
-  We believe the $\DTCWT$
+  We believe the $\DTCWT$ has
   several advantages over the Morlet based implementation, and has been the
   basis for most of our work.
 
@@ -361,7 +360,8 @@ Morlet transform.
   \citeauthor{bruna_invariant_2013} \cite{bruna_invariant_2013} add a further
   additional degree of freedom in their original design by allowing for a
   non-circular Gaussian window over the complex sinusoid, which gives control
-  over the angular resolution of the final wavelet. This makes \eqref{eq:ch2:morlet}:
+  over the angular resolution of the final wavelet. This means that \eqref{eq:ch2:morlet}
+  can be expressed as:
   \begin{equation}
     \psitd(\bmu{u}) = \frac{\gamma}{2\pi\sigma^2}{(e^{i\bmu{u}^t\bm{\xi}} - \beta)}
                   e^{-\bmu{u^t}\Sigma^{-1}  \bmu{u}}
@@ -545,8 +545,8 @@ Common choices for sampling grids for 2-D wavelets are \cite[Section
   Compared to Gabor (or Morlet) image analysis, the authors of
   \cite{selesnick_dual-tree_2005} sum up the dangers as:
   \begin{quote}
-    A typical Gabor image analysis is either expensive to compute, is
-    noninvertible, or both.
+    ``A typical Gabor image analysis is either expensive to compute, is
+    noninvertible, or both.''
   \end{quote}
   This nicely summarises the difference between this method and the Fourier
   based method outlined in \autoref{sec:ch2:morlet_fourier}. The $\DTCWT$ is

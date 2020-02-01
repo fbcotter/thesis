@@ -42,8 +42,8 @@ this reason, we implement a convolutional-based DWT.
 As the DWT and IDWT use fixed filters, we do not need to calculate
 $\dydx{L}{h}$ on the backwards pass. This means on the forward pass we
 can save on memory by not storing $\dydx{Y}{h} = X$ (see
-\autoref{sec:ch2:conv_grad}). We found it easiest to explicitly rewrite forward
-and backward passes for the DWT, as the autograd mechanics would often
+\autoref{sec:ch2:conv_grad}). To be explicit, we derive forward rewrite forward
+and backward passes for the DWT, as the autograd mechanics may often
 unnecessarily save intermediate activations.
 
 For example, consider an input $X \in \reals[128\x 256\x 64\x 64]$. This is not
@@ -82,20 +82,21 @@ and what is not needed for backpropagation.
   \label{fig:ch3:dwt}
 \end{figure}
 
-We start with the commonly known property that for a convolutional block, the
+We start with the commonly known property that for a 2-D convolution (with
+1 input channel and 1 output channel), the
 passthrough gradient is the gradient w.r.t.\ the output
 convolved with the time reverse of the filter. More formally, if
-$Y(z) = H(z) X(z)$, then:
+$Y(\zz) = Y(z_1, z_2) = H(\zz) X(\zz)$, then:
 %
 \begin{equation}\label{eq:ch3:backprop}
-  \Delta X(z) = H(z^{-1}) \Delta Y(z)
+  \Delta X(\zz) = H(\zz^{-1}) \Delta Y(\zz)
 \end{equation}
 %
-where $H(z^{-1})$ is the $Z$-transform of the time/space reverse of $H(z)$,
-$\Delta Y(z) \triangleq \dydx{L}{Y}(z)$ is the gradient of the loss with respect
-to the output, and $\Delta X(z) \triangleq \dydx{L}{X}(z)$ is the gradient of
+where $H(\zz^{-1})$ is the $Z$-transform of the time/space reverse of $H(\zz)$,
+$\Delta Y(\zz) \triangleq \dydx{L}{Y}(\zz)$ is the gradient of the loss with respect
+to the output, and $\Delta X(\zz) \triangleq \dydx{L}{X}(\zz)$ is the gradient of
 the loss w.r.t.\ the input. This was proved in \autoref{sec:ch2:conv_grad}, we
-have just rewritten it in terms of $Z$-transforms here.
+have just rewritten it in terms of $Z$-transforms.
 
 Additionally, for a decimation block, the passthrough gradient is
 interpolation (see \autoref{sec:appB:samplegrads}
@@ -103,7 +104,8 @@ for a proof of this).
 
 \autoref{fig:ch3:dwt} shows the block diagram for performing the forward pass of
 a DWT\@. We can draw a similar figure for the backwards pass by replacing all the
-forward operations with their passthrough gradients. Using the above two
+forward operations with their passthrough gradients, reversing the flow of
+arrows, and turning branch splits into sums. Using the above two
 properties, we see that the backwards pass of a DWT has the same form as
 the inverse wavelet transform, with the time reverse of the analysis filters
 used as the synthesis filters. For orthogonal wavelet transforms, the synthesis
@@ -141,7 +143,8 @@ output with the same shape as the input - $N\x C\x H\x W$.
 
 \subsection{1-D Filter Banks}
 Let us assume that the analysis ($h_0,\ h_1$) and synthesis ($g_0,\ g_1$)
-filters are already in the form needed to do \emph{column} filtering. The necessary
+filters are already in the form needed to do \emph{column} filtering; to do
+\emph{row} filtering, we must transpose the filters. The necessary
 steps to do the 1-D analysis and synthesis filtering are described in
 \autoref{alg:ch3:fb1d}. We do not need to define backpropagation functions for the
 \texttt{afb1d} (analysis filter bank 1-d) and \texttt{sfb1d} (synthesis filter
@@ -186,19 +189,22 @@ bank 1-D) functions as they are each other's backwards pass.
 Having built the 1-D filter banks, we can easily generalize them to 2-D.
 Furthermore, we can define the backwards steps of both the forward 2-D DWT
 and the inverse 2-D DWT using these filter banks. We show how to do do this in
-\autoref{alg:ch3:dwt}. The inverse transform logic is moved to the appendix - in
+\autoref{alg:ch3:dwt}. We first save the filters for the backward pass and then
+do three calls to \texttt{afb1d}; one for rows and two for columns. 
+The inverse transform logic is moved to the appendix - in
 \autoref{alg:appB:idwt}.
 
 Note that we have allowed for different row and column
-filters in \autoref{alg:ch3:dwt}. Most commonly used wavelets will use the same
+filters in \autoref{alg:ch3:dwt}, denoted by their $r$ and $c$ superscripts. 
+Most commonly used wavelets will use the same
 filter for both directions (e.g.\ the orthogonal Daubechies family), but later
 when we use the $\DTCWT$, we will want to have different horizontal and vertical
 filters.
 
 Further, note that the only things that
 need to be saved are the filters, as seen in
-Algorithm~\algref{alg:ch3:dwt}{line:ch3:dwt_save}. These are typically only a
-few floats, giving us a large saving over relying on autograd.
+Algorithm~\algref{alg:ch3:dwt}{line:ch3:dwt_save}; these are typically only a
+few floats.
 
 A multiscale DWT can easily be made by calling \autoref{alg:ch3:dwt}
 multiple times on the lowpass output. Again, no intermediate activations need to be

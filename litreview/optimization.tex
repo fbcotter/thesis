@@ -139,7 +139,7 @@ which we recognize as the cross-entropy between $y$ and $\hat{y}$.
   \autoref{fig:ch2:gd_bounce}. In this figure, the step size is chosen with
   exact line search, i.e.
   \begin{equation}\label{eq:ch2:search}
-    \eta = \argmin_s f(x + s \dydx{f}{x})
+    \eta = \argmin_s f\left(x + s \dydx{f}{x}\right)
   \end{equation}
 
   To truly overcome this problem, we must know the curvature
@@ -175,7 +175,7 @@ involves evaluating the entire dataset at the current values of $\theta$. As the
 training set size grows into the thousands or millions of examples, this
 approach becomes prohibitively slow.
 
-\eqref{eq:ch2:ldata} writes the data loss as an expectation, hinting at the fact that
+Equation \eqref{eq:ch2:ldata} writes the data loss as an expectation, hinting at the fact that
 we can remedy this problem by using fewer samples $N_b < N$ to evaluate $L_{data}$.
 This variation is called Stochastic Gradient Descent (SGD).
 
@@ -183,7 +183,7 @@ Choosing the batch size is a hyperparameter choice that we must think carefully
 about. Setting the value very low, e.g. $N_b = 1$ can be advantageous as the
 noisy estimates for the gradient have a regularizing effect on the network
 \cite{wilson_general_2003}. Increasing the batch size to larger values allows
-you to easily parallelize computation as well as increasing your accuracy for
+you to easily parallelize computation as well as increasing accuracy for
 the gradient, allowing you to take larger step sizes \cite{smith_dont_2017}.
 A good initial starting point is to set the batch size to 128 samples and
 increase/decrease from there \cite{goodfellow_deep_2016}.

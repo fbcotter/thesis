@@ -172,9 +172,9 @@ where we have used the fact that for the regression case, $y^{(n)},\ \hat{y}^{(n
 For the classification case \eqref{eq:ch2:mle_class}, let us keep the output of
 the network as $y^{(N_l)} \in \reals[C]$ and define $\hat{y}$ as the
 softmax applied to this vector $\hat{y}^{(n)}_c = \sigma_c\left(y^{(N_l, n)}\right)$.
-As we now have two superscripts,
-one for the sample number and one for the layer number, we combine them into a
-tuple of superscripts.
+% As we now have two superscripts,
+% one for the sample number and one for the layer number, we combine them into a
+% tuple of superscripts.
 
 Note that the softmax is a vector-valued function going from $\reals[C] \rightarrow
 \reals[C]$ so has a Jacobian matrix $S$ with values:
@@ -196,7 +196,7 @@ objective function to this output value $\hat{y}$:
 Note that unlike \eqref{eq:ch2:reg_b1}, this derivative is vector-valued. To
 find $\dydx{L}{y^{(N_l)}}$ we use the chain rule. It is easier to find the
 partial derivative with respect to one node in the output first, and then expand
-from here. I.e.:
+from here, i.e.:
 
 \begin{align}
   \dydx{L}{y^{(N_l)}_j} &= \sum_{i=1}^C \dydx{L}{\hat{y}_i}\dydx{\hat{y}_i}{y^{(N_l)}_j} \\
@@ -211,13 +211,14 @@ multiply the transpose of the Jacobian matrix with the error term from
 \end{equation}
 
 \subsubsection{Final Layer Weight Gradient} \label{sec:ch2:weight}
-Let us continue by assuming $\dydx{L}{y^{(N_l)}}$ is vector-valued as was the case
-with classification. For regression, it is easy to set $C=1$ in the following to
-get the necessary results. For clarity we drop the layer
-superscript in the intermediate calculations.
+% Let us continue by assuming $\dydx{L}{y^{(N_l)}}$ is vector-valued as was the case
+% with classification. For regression, it is easy to set $C=1$ in the following to
+% get the necessary results. For clarity we drop the layer
+% superscript in the intermediate calculations.
 
-We call the gradient for the final layer weights the \emph{update} gradient.
-It can be computed by the chain rule again:
+Let the final weight layer be called $W \in \reals[C\x C_{N_l - 1}]$ (where $C_{N_l -1}$ is the number of outputs at the 
+penultimate layer). We call the gradient for the final layer weights the \emph{update} gradient.
+It can be computed by the chain rule again. For an individual entry in this matrix $W_{ij}$, the update gradient is:
 \begin{align}
   \dydx{J}{W_{ij}} &= \dydx{L_{data}}{y_i} \dydx{y_i}{W_{ij}} + \lambda W_{ij} \\
                    &= \dydx{L_{data}}{y_i} x_j + \lambda W_{ij}
@@ -312,10 +313,9 @@ where the sum is done over the support of $h$. For an input $x\in \reals[H\x W]$
 and filter $h\in \reals[K_H\x K_W]$ the output has spatial support $y\in
 \reals[H+K_H-1 \x W+K_W-1]$.
 
-The filter $h$ can also be thought of as a \emph{matched filter}
-that gives its largest output when the input contains the mirror of $h$, $\tilde{h}$. If the input has
-shapes similar to $\tilde{h}$ in many locations, each of these locations in $y$ will
-also have large outputs.
+The filter $h$ can also be thought of as a \emph{matched filter} that gives the largest normalized output when the input
+contains the mirror of $h$, $\tilde{h}$. If the input has shapes similar to $\tilde{h}$ in many locations, each of these
+locations in $y$ will also have large outputs.
 
 If we stack red, green and blue input channels on top of each other\footnote{In deep
 learning literature, there is not a consensus about whether to stack the outputs
@@ -442,7 +442,8 @@ find the update gradients to be:
 where $\star$ is the cross-correlation operation.
 
 \subsection{Pooling}
-\emph{Pooling} layers are common in CNNs where we want to reduce the spatial size. As
+\emph{Pooling} layers are common in CNNs where we want to build spatial invariance (and consequently
+reduce spatial size). As
 we go deeper into a CNN, it is common for the spatial size of the activation to
 decrease, and the channel dimension to increase. The $C_l$ values at a given
 spatial location can then be thought of as a feature vector describing the
@@ -524,14 +525,11 @@ The passthrough and update gradients are:
 Batch normalization layers are typically placed \emph{between} convolutional layers
 and nonlinearities.
 
-Consider a linear operation such as convolution with weights $W$ acting on the
-previous layer's output $X$, defined by $Y = WX$.
-Batch normalization
-removes the sensitivity of our network to
-initial scaling of the weights, as
-$BN(aWX) = BN(WX)$.
-It is also particularly useful for backpropagation as an increase in weight
-scale does not change the passthrough gradients and leads to \emph{smaller}
+Consider a linear operation such as convolution with weights $W$ acting on the previous layer's
+output $X$, defined by $Y = WX$.  Batch normalization removes the sensitivity of our network to
+initial scaling of the weights, as $BN(aWX) = BN(WX)$.
+It is also particularly useful for backpropagation as scaling the weights by a constant $a$ 
+does not change the passthrough gradients and leads to \emph{smaller}
 update gradients \cite{ioffe_batch_2015}, making the network more resilient to
 the problems of vanishing and exploding gradients:
 \begin{align}
@@ -549,7 +547,7 @@ helpful to refer back to in this thesis.
 When doing image analysis tasks it is important to know comparatively how well
 different networks perform on the same challenge. To achieve this, the
 community has developed several datasets that are commonly used to report
-metrics. For image classification there are five such datasets, listed here in
+metrics. For image classification we have chosen five such datasets, listed here in
 increasing order of difficulty:
 \begin{enumerate}
   \item \textbf{MNIST}: 10 classes, 6000 images per class, $28\x 28$ pixels per image.
@@ -609,12 +607,12 @@ of tanh functions and MSE loss.
 
 \subsection{AlexNet}
 We have already seen AlexNet \cite{krizhevsky_imagenet_2012} in \autoref{ch:intro}.
-It is arguably one of the most important architectures in the development in CNNs as it
-was able to experimentally prove that CNNs can be used for complex tasks. This
-required a few innovations: they used multiple GPUs to do fast
-processing on large images, they used the ReLU to avoid saturation, and also added dropout
-to aid generalization. Training of AlexNet on 2 GPUs available in 2012 takes
-roughly a week.
+It is arguably one of the most important architectures in the development in CNNs, as it
+experimentally showed that CNNs can be used for complex tasks. This
+required a few innovations: multiple GPUs to do fast
+processing on large images, the ReLU to avoid saturation, and also dropout
+to aid generalization. It took the original authors a week to train AlexNet on 2
+GPUs.
 
 The first layer uses convolutions with spatial support of $11\x11$, followed
 by $5\x 5$ and $3\x 3$ for the final three layers.
@@ -631,11 +629,10 @@ by $5\x 5$ and $3\x 3$ for the final three layers.
 
 \subsection{VGGnet}
 The Visual Geometry Group (VGG) at Oxford came second in the ILSVRC challenge in
-2014 with their VGG-nets \cite{simonyan_very_2014}, but remains an important
-network for some of the design choices it inspired. Their optimal
-network was much deeper than AlexNet, with 19 convolutional layers on top of
-each other before 3 fully connected layers. These convolutional layers all used
-the smaller $3\x 3$ seen only at the back of AlexNet.
+2014 with their VGG-nets \cite{simonyan_very_2014}. Despite this, the VGG-net remains an important
+network for some of the design choices it inspired. The optimal VGG-net was much deeper than
+AlexNet, with 19 convolutional layers on top of each other before 3 fully connected layers.
+These convolutional layers all used the smaller $3\x 3$ seen only at the back of AlexNet.
 
 This network is particularly attractive due to its simplicity, compared to the
 more complex Inception Network \cite{szegedy_going_2015} which won the 2014
