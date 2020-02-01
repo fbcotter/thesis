@@ -256,7 +256,7 @@ positions (i.e. `convBD' and `convCE') performed slightly worse than using only 
 
 We recall that the magnitude operation in the ScatterNet effectively
 demodulates the energy from higher spatial frequencies to lower ones. This
-perhaps may explain why the best place for learnable scattering layers
+may explain why the best place for learnable scattering layers
 are at positions where you want to downsample in a network.
 
 We also tested the variations from \autoref{sec:ch5:mnist_newlayer} that added
@@ -307,6 +307,8 @@ for the two learnable invariant layers, keeping the output to 147 channels. We c
 option ScatNet C (see \autoref{tab:ch5:net_scatC}), and the full option with 
 $784$ output channels ScatNet D (see \autoref{tab:ch5:net_scatD}). 
 
+\input{\path/tables/cifar_scatnet_results}
+
 See
 \autoref{tab:ch5:hybrid_scat} for the performance on CIFAR and
 \autoref{tab:ch5:hybrid_scat_ti} for the performance on Tiny ImageNet.
@@ -327,7 +329,7 @@ best, but with very many more multiplies, parameters and layers.
 
 ScatNets C and D perform marginally worse than the `invC' architecture from
 \autoref{sec:ch5:conv_exp} but recall that the network is
-quite different in these experiments - its front end is wider and has smaller
+quite different in these experiments - their front end is wider and has smaller
 spatial support. The earlier reduction in spatial size in ScatNet C and D
 meant that these networks took much less time to train
 than those in the previous section (roughly 30 minutes for ScatNets A and B
@@ -356,4 +358,3 @@ the hardware described in \autoref{app:arch}).
 % these have more parameters and multiplies from the extra layers we exclude them
 % from \autoref{tab:hybrid_scat}.
 
-\input{\path/tables/cifar_scatnet_results}

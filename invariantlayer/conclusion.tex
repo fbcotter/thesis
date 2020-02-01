@@ -23,7 +23,8 @@ However, care must be taken when doing this, as our ablation study showed that
 the layer only improves upon regular convolution at certain depths. Typically,
 it seems wise to use the invariant layer early in the network, but \emph{after} the
 first layer. This is an interesting discovery, as typically other ScatterNet
-approaches use them as a front end \cite{oyallon_scaling_2017, singh_scatternet_2017}. The invariant layer naturally
+approaches use them as a front end \cite{oyallon_scaling_2017, singh_scatternet_2017}. 
+The invariant layer naturally
 downsamples the input, so it works well when replacing a convolutional layer
 followed by pooling, or a pooling layer followed by a convolution. 
 

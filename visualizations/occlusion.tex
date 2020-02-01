@@ -6,7 +6,7 @@ the effect on inference scores observed when zeroing out Scattering channels.
 over patches of the input image. 
 
 We must be careful to occlude with a sensible mask, the $S_0x$, $S_1x$ and $S_2x$
-all have very different probability densities. \cite{zeiler_visualizing_2014}
+all have very different probability densities. The authors in \cite{zeiler_visualizing_2014}
 occlude with a patch of grey values whereas \cite{zhou_object_2014} use random
 values. Assuming $x \sim \mathcal{N}(0, \sigma^2I)$ (already a fairly weak
 assumption), the pdf of $S_0x$ will also be a zero-mean gaussian. However, the
@@ -79,17 +79,18 @@ When we drop channels in $S_2$ with $\theta_1 \neq \theta_2$, the network perfor
 very much. Recall that $\theta_1 \neq \theta_2$ corresponds to the ripple-like patterns in
 \autoref{fig:ch4:reconstructions}.
 
+We include the same occlusion results for the two CIFAR datasets in
+\autoref{fig:ch4:cifar_occlusion} for completeness, although the insight gained
+here is the same - the $S_2$ coefficients are the least important. One notable difference to
+\autoref{fig:ch4:occlusion1} is in the $S_1^2$ coefficients which have reduced importance 
+in CIFAR\@. As CIFAR has a smaller input spatial size than Tiny ImageNet this comes as no surprise.
+
 \autoref{fig:ch4:weights} shows the size of $A^{rms}_{c,f}$. The columns of the matrix all have
 unit-norm, so each entry represents how much relative energy comes from each
 scattering channel (brighter values indicating more energy). Looking across the rows we see how often a scattering output
 is used for the CNN next layer. Most of the filters are heavily dependent on 
 $S_0$, many are dependent on $S_1$ and only a few take information from $S_2$.
 
-We include the same occlusion results for the two CIFAR datasets in
-\autoref{fig:ch4:cifar_occlusion} for completeness, although the insight gained
-here is the same - the $S_2$ coefficients are the least important. One notable difference to
-\autoref{fig:ch4:occlusion1} is in the $S_1^2$ coefficients which have reduced importance 
-in CIFAR\@. As CIFAR has a smaller input spatial size than Tiny ImageNet this comes as no surprise.
 
 \begin{figure}
   \vspace{0cm}
@@ -109,7 +110,7 @@ in CIFAR\@. As CIFAR has a smaller input spatial size than Tiny ImageNet this co
   differences for the $S_1$ coefficients. \subref{fig:ch4:ti_occlusion} When 
   any of the lowpass channels $S_0$ are removed, the classification accuracy
   drops sharply, note that the middle channel, corresponding to green, is
-  unsurprisingly the most important of the three colours. The first scale,
+  the most important of the three colours. The first scale,
   first-order scattering coefficients $S_1^1$ are slightly more important 
   than the second scale coefficients. The 36 $S_2$ coefficients
   have little individual effect on the validation score when removed.
@@ -122,17 +123,6 @@ in CIFAR\@. As CIFAR has a smaller input spatial size than Tiny ImageNet this co
   information. When rotated this trend changes and the diagonal
   wavelets at both scales become more important.}
   \label{fig:ch4:occlusion1}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \hspace{-1cm}\includegraphics[width=15cm,height=8cm]{\imgpath/ti_conv1_weights.pdf}
-  \mycaption{Channel weights for first learned layer in a hybrid ScatterNet-CNN}{A visualization of the
-  matrix $A^{rms}$ from \eqref{eq:ch4:arms} for a network trained on Tiny
-  ImageNet. The columns of the matrix all have
-  unit norm and represent how much relative energy comes from each scattering
-  output channel. Most of the filters are heavily dependent on $S_0$, many are 
-  dependent on $S_1$ and only a few take information from $S_2$.}\label{fig:ch4:weights}
 \end{figure}
 
 \begin{figure}
@@ -156,4 +146,15 @@ in CIFAR\@. As CIFAR has a smaller input spatial size than Tiny ImageNet this co
   \label{fig:ch4:cifar_occlusion}
 \end{figure}
 
+\begin{figure}
+  \centering
+  \hspace{-1cm}\includegraphics[width=15cm,height=8cm]{\imgpath/ti_conv1_weights.pdf}
+  \mycaption{Channel weights for first learned layer in a hybrid ScatterNet-CNN}{A visualization of the
+  matrix $A^{rms}$ from \eqref{eq:ch4:arms} for a network trained on Tiny
+  ImageNet. The columns of the matrix all have
+  unit norm and represent how much relative energy comes from each scattering
+  output channel. Most of the filters are heavily dependent on $S_0$, many are 
+  dependent on $S_1$ and only a few take information from $S_2$.}\label{fig:ch4:weights}
+\end{figure}
 
+\pagebreak

@@ -158,10 +158,10 @@ We lend inspiration from the switches introduced in the DeconvNet; the
 switches in a DeconvNet save the location of maximal activations so that
 on the backwards pass activation layers could be unpooled trivially. We do an
 equivalent operation by saving the \emph{phase} of the complex activations.
-On the backwards pass we reinsert the phase to give our recovered
-$W$\footnote{We note that this is equivalent to finding the gradient through the
-magnitude operation, just as the `switches' from \cite{zeiler_visualizing_2014}
-are equivalent to taking the gradient of the max pooling layer.}
+On the backwards pass we reinsert the phase\footnote{We note that this is equivalent 
+to finding the gradient through the magnitude operation, just as the `switches' 
+from \cite{zeiler_visualizing_2014} are equivalent to taking the gradient of 
+the max pooling layer.} to give our recovered $W$:
 \begin{equation}
   \label{eq:ch4:w_hat}
   \hat{W}_{m}x = \left(\hat{U}_{m} x\right) e^{j\theta_{m}}
@@ -190,22 +190,6 @@ as finding the \emph{gradient} from the corresponding channels in $Z$.
 {
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
 \label{sec:ch4:visualization}
-\begin{figure}[tp]
-  \centering
-  \includegraphics[width=0.9\textwidth]{\imgpath/deconv_images.png}
-  \mycaption{Comparison of scattering to convolutional features}{Visualization
-  of a random subset of features from $S_0$ (all 3), $S_1$ (6 from the 12) and
-  $S_2$ (16 from the 36) scattering outputs. We record the top 9 activations for
-  the chosen features and project them back to the pixel space. We show them
-  alongside the input image patches which caused the large activations. We also
-  include reconstructions from layer conv2\_2 of VGG Net
-  \cite{simonyan_very_2014}(a popular CNN, often used for feature extraction)
-  for reference --- here we display 16 of the 128 channels. The VGG
-  reconstructions were made with a CNN DeconvNet based on
-  \cite{zeiler_visualizing_2014}. Image best viewed digitally.}
-  \label{fig:ch4:reconstructions}
-\end{figure}
-
 
 We scatter all of the images from ImageNet's validation set and record the top 9
 images which most highly activate each of the $C$ channels in the ScatterNet.
@@ -215,7 +199,7 @@ performed).
 Then, in the \emph{reconstruction} phase, we load in the $9\x C$ images and
 scatter them one by one. We take the resulting 52 channel output vector and mask
 all but the largest value in the channel we are currently
-examining and all values in the other channels.
+examining and mask all values in the other channels.
 This 1-sparse tensor is then presented to the inverse scattering network from
 \autoref{fig:ch4:descat} and projected back to the image space.
 
@@ -223,7 +207,7 @@ Some results of this are shown in \autoref{fig:ch4:reconstructions} for the
 first and second-order coefficients. For a given output channel, we show the top
 9 activations projected independently to pixel space. We also show the patch
 of pixels in the input image which cause this large output. As there are 12
-$S_1$ coefficients, we randomly choose 3 orientations from $S_1^1$ and 3 $S_1^2$.
+$S_1$ coefficients, we randomly choose 3 orientations from $S_1^1$ and 3 from $S_1^2$.
 Similarly, there are 36 $S_2$ coefficients, so we randomly choose 16 of these.
 
 The order 0 and order 1 scattering (labelled with `Order 1' in
@@ -253,8 +237,24 @@ same method as \cite{zeiler_visualizing_2014}. Note that while some of
 the features are edge-like, we also see higher-order shapes like corners,
 crosses and curves.
 
-These reconstructions show that the features extracted from ScatterNets vary
-significantly from those learned in CNNs after the first-order. In many
+These reconstructions show that higher-order features from ScatterNets vary
+significantly from those learned in CNNs. In many
 respects, the features extracted from a CNN like VGGNet look preferable for use
 as part of a classification system.
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{\imgpath/deconv_images.png}
+  \mycaption{Comparison of scattering to convolutional features}{Visualization
+  of a random subset of features from $S_0$ (all 3), $S_1$ (6 from the 12) and
+  $S_2$ (16 from the 36) scattering outputs. We record the top 9 activations for
+  the chosen features and project them back to the pixel space. We show them
+  alongside the input image patches which caused the large activations. We also
+  include reconstructions from layer conv2\_2 of VGG Net
+  \cite{simonyan_very_2014}(a popular CNN, often used for feature extraction)
+  for reference --- here we display 16 of the 128 channels. The VGG
+  reconstructions were made with a CNN DeconvNet based on
+  \cite{zeiler_visualizing_2014}. Image best viewed digitally.}
+  \label{fig:ch4:reconstructions}
+\end{figure}
+
 }

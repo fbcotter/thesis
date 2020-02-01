@@ -14,10 +14,10 @@ between scattering orders, as well as adding learned layers before the
 ScatterNet.
 
 %
-We do this by adding a second stage after a scattering order, which mixes output
+We do this by adding a second stage after each scattering order, which mixes output
 activations together in a learnable way. The flexibility of the mixing we introduce allows
 us to build a layer that acts as a Scattering Layer with no learning, or
-as one that acts more as a convolutional layer with a controlled number of input
+as one that acts more closely to a convolutional layer with a controlled number of input
 and output channels, or more interestingly, as a hybrid between the two.
 
 Our experiments show that these locally invariant layers can improve

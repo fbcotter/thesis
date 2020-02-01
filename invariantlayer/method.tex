@@ -12,8 +12,9 @@ For example, consider the wavelet modulus propagator from
 output is then:
 %
 \begin{align} \label{eq:ch5:comb1}
-  y^{(l+1)}(f, \xy)  &=  \sum_{\lambda\in \Lambda} \sum_{c=0}^{C-1} a_{f, \lambda}(c) \left|x^{(l)}(c, \xy)\conv \psi_\lambda(\xy)\right|
-                     +  \sum_{c=0}^{C-1} b_f(c)\left(x^{(l)}(c, \xy) \conv \phi_J(\xy)\right) \\
+  y^{(l+1)}(f, \xy)  &= \sum_{c=0}^{C-1} b_f(c)\left(x^{(l)}(c, \xy) \conv \phi_J(\xy)\right) + 
+                        \sum_{\lambda\in \Lambda} \sum_{c=0}^{C-1} a_{f, \lambda}(c) 
+                        \left|x^{(l)}(c, \xy)\conv \psi_\lambda(\xy)\right| \\
                      &=\sum_{c=0}^{C-1} \left( b_f(c)\left(x^{(l)}(c, \xy) \conv \phi_J(\xy)\right) + 
                      \sum_{\lambda\in \Lambda} a_{f, \lambda}(c) \left|x^{(l)}(c, \xy)\conv \psi_\lambda(\xy)\right|\right) \label{eq:ch5:layer}
 \end{align}
@@ -89,7 +90,8 @@ convolutions of \eqref{eq:ch5:conv} have been replaced by a matrix multiply
   example of what this looks like in 1D is shown above the magnitude operator) -
   taking the envelope of the components oscillating in quadrature. These are 
   concatenated with the lowpass activations to give $z^{(l+1)}$. The
-  resulting activations $z$ are mixed across the channel dimension and then passed through a nonlinearity
+  resulting activations $z$ are mixed across the channel dimension (shown by the convolution
+  with the red filters) and then passed through a nonlinearity
   $\sigma$ to give $x^{(l+1)}$. If the desired output spatial size is $H\x W$,
   $x^{(l+1)}$ can be bilinearly upsampled paying only a few multiplies per
   pixel.}
