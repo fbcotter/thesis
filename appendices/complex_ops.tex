@@ -156,7 +156,7 @@ Putting it all together, our update and passthrough gradients are:
   \dydx{L}{t} &= \frac{-\indic(g > 0)}{r} (x\Delta u + y\Delta v) \label{eq:appE:softt}
 \end{align}
 These equations are for point-wise application of soft-thresholding. When
-applied to an entire image, then we sum $\dydx{L}{t}$ over all locations.
+the same threshold is applied to an entire image, then we sum $\dydx{L}{t}$ over all locations.
 
 \section{Batch Normalization and ReLU Applied to the Complex Magnitude}\label{sec:appE:bnrelu}
 Again let $z= x+jy = re^{j\theta}$ and $w=u + jv = \F{ReLU}(\F{BN}(r))e^{j\theta}$. 

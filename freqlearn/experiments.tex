@@ -80,7 +80,8 @@ gl301, and gl501, 3 instances that only vary in the size of the support of their
 lowpass filter $g_{lp}$. Additionally, the second scale coefficients appear more
 useful than the first scale -- see the difference between gl31 and gl301, two
 instances that have the same number of parameters, but gl31 has $g_1$ with
-non-zero support and gl301 has $g_2$ with non-zero support.
+non-zero support and gl301 has $g_2$ with non-zero support. Compared to the regular convolutional
+layers, the gain layer is able to achieve the same NMSE with many fewer learned parameters.
 
 This experiment shows that a gain layer is a good representation for a set of
 filters like the AlexNet first layer. The next section looks at how well it
@@ -106,6 +107,30 @@ with small kernels used in \autoref{ch:invariant} and include the results in
 \renewcommand{\_}{\textscale{.6}{\textunderscore}}
 \subsubsection{Large Kernel Ablation}
 \input{\path/tables/ablation_arch2}
+
+\begin{figure}
+  \centering
+  \subfloat[CIFAR-10]{%
+    \includegraphics[width=\textwidth]{\imgpath/cifar10_gainlayer_large.pdf}
+    \label{fig:ch6:cifar10_gl}
+    }\\
+  \subfloat[CIFAR-100]{%
+    \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_large.pdf}
+    \label{fig:ch6:cifar100_gl}
+  }\\
+  \subfloat[Tiny ImageNet]{%
+    \includegraphics[width=\textwidth]{\imgpath/ti_gainlayer_large.pdf}
+    \label{fig:ch6:ti_gl}
+  }
+  \mycaption{Large kernel ablation results for CIFAR and Tiny ImageNet}{Results
+  showing the percentage classification accuracies obtained by swapping
+  combinations of the three conv layers in the reference architecture from
+  \autoref{tab:ch6:ablation_arch} with gain layers. Results shown are averages
+  of 3 runs with the $\pm1$ standard deviations shown as dark blue lines. These results
+  show that changing a convolutional layer for a gain layer is possible, but
+  comes with a small accuracy cost which compounds as more layers are swapped.}
+  \label{fig:ch6:gl_results}
+\end{figure}
 
 In this experiment, we build a three-layer CNN with $5\x 5$ convolutional
 kernels, described in \autoref{tab:ch6:ablation_arch}.  To help differentiate
@@ -143,73 +168,15 @@ convolutional layer for a gain layer of similar number of parameters
 results in a small decrease in accuracy at all depths, and the more layers
 swapped out the more this degradation compounds.
 
-\begin{figure}
-  \centering
-  \subfloat[CIFAR-10]{%
-    \includegraphics[width=\textwidth]{\imgpath/cifar10_gainlayer_large.pdf}
-    \label{fig:ch6:cifar10_gl}
-    }\\
-  \subfloat[CIFAR-100]{%
-    \includegraphics[width=\textwidth]{\imgpath/cifar100_gainlayer_large.pdf}
-    \label{fig:ch6:cifar100_gl}
-  }\\
-  \subfloat[Tiny ImageNet]{%
-    \includegraphics[width=\textwidth]{\imgpath/ti_gainlayer_large.pdf}
-    \label{fig:ch6:ti_gl}
-  }
-  \mycaption{Large kernel ablation results for CIFAR and Tiny ImageNet}{Results
-  showing the percentage classification accuracies obtained by swapping
-  combinations of the three conv layers in the reference architecture from
-  \autoref{tab:ch6:ablation_arch} with gain layers. Results shown are averages
-  of 3 runs with the $\pm1$ standard deviations shown as dark blue lines. These results
-  show that changing a convolutional layer for a gain layer is possible, but
-  comes with a small accuracy cost which compounds as more layers are swapped.}
-  \label{fig:ch6:gl_results}
-\end{figure}
-
 \subsection{Network Analysis}\label{sec:ch6:analysis}
 It is nonetheless interesting to see that a network with only gain layers
 (`gain1\_2\_3') can achieve accuracies within a couple of percentage points of a
 purely convolutional architecture.
 
-In this section, we look at some of the properties of the `gain1\_2\_3' for
+In this section, we look at some of the properties of the `gain1\_2\_3' layer for
 CIFAR-100 and compare them to the reference architecture.
 
 \subsubsection{Bandpass Coefficients}
-When analyzing the `gain1\_2\_3' architecture, the most noticeable thing is the
-distribution of the bandpass gain magnitudes. \autoref{fig:ch6:bp_dists} shows
-these for the second gain layer, gain2. Of the $64\x 128=8192$ complex
-coefficients most have very small magnitude, in particular, the diagonal wavelet
-gains. The disparity between the diagonal and horizontal/vertical wavelet gain
-distributions echoes the observation made in
-\autoref{sec:ch4:occlusion_results}, where we saw that occluding diagonal
-subbands reduced classification performance by less than when occluding
-horizontal/vertical subbands.
-
-Although the diagonal subbands are particularly small, the horizontal and
-vertical bands have many coefficients with magnitude very close to zero.
-This raises an interesting question -- how many of these coefficients are
-important for classification? What if we were to apply a hard thresholding
-scheme to the weights, would setting some of these values to zero impact the
-network performance?
-
-We measure the dropoff in accuracy when a hard threshold $t$ is applied to the
-bandpass gains $g_1$ for the three gain layers of `gain1\_2\_3'. The resulting sparsity
-of each layer and the network performance is shown in \autoref{fig:ch6:threshs}.
-For example, if we set a hard threshold value $t=0.4$, only 20\% of the gain1
-weights, 1\% of the gain2 and 0.02\% of the gain3 weights are non-zero, yet the
-classification accuracy has only dropped by 0.5\%.
-
-This figure shows that despite the high cost of the bandpass gains --
-$12C_{l}C_{l+1}$ for a $1\x1$ gain, very few of these need to be nonzero. This
-may mean that we can use a low-rank expansion to compress a lot the processing
-on the bandpass, reducing both its computational and memory cost. For example,
-it may be sufficient to use a bottleneck layer like the ones seen in ResNet
-\cite{he_deep_2016}. Instead of having a bandpass gain 
-$g \in \complexes[C_{l+1}\x C_l\x k\x k]$, we would use a compression layer with shape $g_{c} \in \complexes[M\x
-C_l\x k\x k]$ followed by an expansion layer with shape $g_e \in \reals[C_{l+1}\x M\x
-1\x 1]$ with $M \ll C_{l+1}$.
-
 \begin{figure}
   \centering
   \vspace{-0.5cm}
@@ -235,6 +202,41 @@ C_l\x k\x k]$ followed by an expansion layer with shape $g_e \in \reals[C_{l+1}\
     0, yet classification accuracy is only 0.5\% lower than the non-thresholded
     accuracy.} \label{fig:ch6:bp_info}
 \end{figure}
+
+When analyzing the `gain1\_2\_3' architecture, the most noticeable thing is the
+distribution of the bandpass gain magnitudes. \autoref{fig:ch6:bp_dists} shows
+these for the second gain layer, gain2. Of the $64\x 128=8192$ complex
+coefficients most have very small magnitude, in particular, the diagonal wavelet
+gains. The disparity between the diagonal and horizontal/vertical wavelet gain
+distributions echoes the observation made in
+\autoref{sec:ch4:occlusion_results}, where we saw that occluding diagonal
+subbands reduced classification performance by less than when occluding
+horizontal/vertical subbands.
+
+Although the diagonal subbands are particularly small, the horizontal and
+vertical bands have many coefficients with magnitude very close to zero.
+This raises an interesting question -- how many of these coefficients are
+important for classification? What if we were to apply a hard thresholding
+scheme to the weights, would setting some of these values to zero impact the
+network performance?
+
+We measure the dropoff in accuracy when a hard threshold $t$ is applied to the
+bandpass gains $g_1$ for the three gain layers of `gain1\_2\_3'. The resulting sparsity
+of each layer and the network performance is shown in \autoref{fig:ch6:threshs}.
+For example, if we set a hard threshold value $t=0.4$, only 20\% of the gain1
+weights, 1\% of the gain2 and 0.02\% of the gain3 weights remain non-zero, yet the
+classification accuracy has only dropped by 0.5\%.
+
+This figure shows that despite the high cost of the bandpass gains --
+$12C_{l}C_{l+1}$ for a $1\x1$ gain, very few of these need to be nonzero. This
+may mean that we can use a low-rank expansion to compress a lot the processing
+on the bandpass, reducing both its computational and memory cost. For example,
+it may be sufficient to use a bottleneck layer like the ones seen in ResNet
+\cite{he_deep_2016}. Instead of having a bandpass gain 
+$g \in \complexes[C_{l+1}\x C_l\x k\x k]$, we would use a compression layer with shape $g_{c} \in \complexes[M\x
+C_l\x k\x k]$ followed by an expansion layer with shape $g_e \in \reals[C_{l+1}\x M\x
+1\x 1]$ with $M \ll C_{l+1}$.
+
 
 \subsubsection{DeConvolution and Filter Sensitivity}
 To visualize what the gain layer is responsive to, we build a deconvolutional

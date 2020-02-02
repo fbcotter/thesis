@@ -3,7 +3,7 @@
 \def \imgpath {\path/images}
 
 The experiments for this thesis were run on a single server with 8 GPUs and 14
-CPUs. The GPUs were each NVIDIA GeForce GTX 1080 cards released in May 2016.
+core CPUs. The GPUs were each NVIDIA GeForce GTX 1080 cards released in May 2016.
 They each have 8GiB of RAM, 2560 CUDA cores and 320 GB/s memory bandwidth.
 The CPUs were Intel(R) Xeon(R) E5-2660 models. 
 
@@ -41,11 +41,11 @@ are:
 \pagebreak
 \begin{itemize}
   \item \textbf{$10\x10$ Convolution}: 100 multiplies per input pixel
-  \item \textbf{$\DTCWT$ with $J=1$}: 36 multiplies per input pixel
-  \item \textbf{$\DTCWT^{-1}$ with $J=1$}: 36 multiplies per input pixel
-  \item \textbf{$\DTCWT$ ScatterNet with $J=1$}: 39 multiplies per input pixel
-  \item \textbf{Invariant Layer with square $A$ matrix:}: $\frac{7}{4}C + 36$ multiplies per input pixel
-  \item \textbf{$\DTCWT$ Gain Layer with $J=1$}: $7C + 72$ multiplies per input pixel
+  \item \textbf{$\DTCWT$ with $J=1$}: 36 multiplies per input pixel (see \autoref{alg:ch3:dtcwt})
+  \item \textbf{$\DTCWT^{-1}$ with $J=1$}: 36 multiplies per input pixel (see \autoref{alg:appB:idtcwt}) 
+  \item \textbf{$\DTCWT$ ScatterNet with $J=1$}: 39 multiplies per input pixel (see \autoref{alg:ch3:dtcwt_scat})
+  \item \textbf{Invariant Layer with square $A$ matrix:}: $\frac{7}{4}C + 36$ multiplies per input pixel (see \autoref{alg:ch5:inv})
+  \item \textbf{$\DTCWT$ Gain Layer with $J=1$}: $7C + 72$ multiplies per input pixel  (see \autoref{alg:ch6:wavelayer})
   % \item \textbf{$\DTCWT$ Gain Layer with $J=2$}:
 \end{itemize}
 

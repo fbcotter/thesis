@@ -49,13 +49,13 @@ $\mu_r = \mathbb{E}[r_v]$ and $\sigma_r^2 = \mathbb{E}[(r_v-\mu_r)^2]$, then
 applying batch-normalization and the ReLU to the magnitude of $v_j$ means we
 get:
 \begin{align}
-  r_u &= \F{ReLU}(BN(r_v)) = \max(0,\ \gamma \frac{r_v-\mu_r}{\sigma_r} + \beta) \label{eq:ch6:magrelu_bp} \\
+  r_u &= \F{ReLU}(BN(r_v)) = \max\left(0,\ \gamma \frac{r_v-\mu_r}{\sigma_r} + \beta\right) \label{eq:ch6:magrelu_bp} \\
   u &= r_u e^{j\theta_v} \label{eq:ch6:magrelu_bp2}
 \end{align}
 This also works equivalently on the lowpass coefficients, although $v_{lp}$ can
 be negative unlike $r_v$:
 \begin{equation}
-  u_{lp} = \F{ReLU}(BN(v_{lp})) = \max(0, \gamma' \frac{v_{lp} - \mu_{lp}}{\sigma_{lp}} + \beta') \label{eq:ch6:bnrelu_lp}
+  u_{lp} = \F{ReLU}(BN(v_{lp})) = \max\left(0, \gamma' \frac{v_{lp} - \mu_{lp}}{\sigma_{lp}} + \beta'\right) \label{eq:ch6:bnrelu_lp}
 \end{equation}
 %
 \subsection{Thresholding}

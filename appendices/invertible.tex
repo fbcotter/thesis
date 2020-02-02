@@ -32,15 +32,18 @@ columns. The analysis and synthesis operations respectively are:
 Where $\tilde{\Phi}^*$ is the Hermitian transpose of $\tilde{\Phi}$. As
 $\tilde{\Phi}$ is the dual of $\Phi$, $\Phi \tilde{\Phi}^* = I_n$.
 
+We prove that tight frame represnetations do not affect learning for linear optimizers by
+induction.
+
 \section{Proof}
 Consider a single filter parameterized in the pixel and frame space. In one
 system, the original filter parameters are updated. In a second system, the
 frame representation of them are updated. We want to track the evolution of the
-two filters and compare them when the same data are present to them, they have
-the same $\ell_2$ regularization rate $\lambda$ and the same learning rate $\eta$.
+two filters and compare them when the same data are presented to them. We set them to have the same
+$\ell_2$ regularization rate $\lambda$ and the same learning rate $\eta$.
 
-Let us assume that the weights at time $t$ are $\vec{w}_t$ and the frame-parameterized
-filter is:
+Let us call the weights at time $t$ are $\vec{w}_t$, the frame-parameterized
+$\hat{\vec{w}}_t$ and we assume that:
 \begin{equation}
   \hat{\vec{w}}_t = \tilde{\Phi}^* \vec{w}_t \label{eq:appC:initial_condition}
  \end{equation}

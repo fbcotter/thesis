@@ -43,7 +43,7 @@ The action of the gain layer with only a single-scale wavelet transform, $J=1$, 
   indicate real-valued activations/weights. The input $x^{(l)}\in
   \mathbb{R}^{C_l\x H\x W}$ is taken into the wavelet domain (here $J=1$) and each 
   subband is mixed independently with $C_{l+1}$ sets of convolutional filters.
-  After mixing, a possible wavelet nonlinearity $\sigma_w$ is applied to the
+  After mixing, a possible wavelet nonlinearity $\sigma_w = (\sigma_{lp}, \sigma_{bp})$ is applied to the
   subbands, before returning to the pixel domain with an inverse wavelet
   transform. Note the similarity to the regular convolutional layer in
   \autoref{fig:ch2:conv_layer}.}

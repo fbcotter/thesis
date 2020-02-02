@@ -175,25 +175,6 @@ whether this projection process is needed, and hence whether significant
 $\DTCWT$ computation could be saved.
 
 \subsection{ResNets and Lifting}
-\begin{figure}
-  \centering
-  \subfloat[Residual]{
-  \centering
-  \includegraphics[width=0.13\textwidth]{\imgpath/resnet.png}
-  }\qquad
-  \subfloat[Lifting]{
-  \centering
-  \includegraphics[width=0.48\textwidth]{\imgpath/lifting.png}
-  }
-  \mycaption{Residual vs lifting layers}{In a residual layer, an input is
-  transformed by a learned function $\mathcal{F}$ and added to itself. Typically
-  $\norm{\mathcal{F}x} \ll \norm{x}$ meaning the vector $y$ is a small
-  perturbation of the vector $x$. In a lifting layer, each path is a learned
-  function of the other added to itself. In the original second generation
-  wavelets, $\mathcal{F}$ and $\mathcal{G}$ are FIR filters, but there is no
-  requirement on them to be. Diagrams are taken from \cite{gomez_reversible_2017}.}
-  \label{fig:ch7:lifting_resnet}
-\end{figure}
 
 We briefly mentioned ResNets in \autoref{sec:ch2:resnets} but did not study them
 in depth in this thesis. Interestingly, there are many similarities between
@@ -217,6 +198,25 @@ backwards pass).
 interpolation in the activation space, reconstructing from the new latent
 values. We believe that there are potentially many more benefits to using the
 lifting design as an extension of our work into learning from basis functions.
+\begin{figure}
+  \centering
+  \subfloat[Residual]{
+  \centering
+  \includegraphics[width=0.13\textwidth]{\imgpath/resnet.png}
+  }\qquad
+  \subfloat[Lifting]{
+  \centering
+  \includegraphics[width=0.48\textwidth]{\imgpath/lifting.png}
+  }
+  \mycaption{Residual vs lifting layers}{In a residual layer, an input is
+  transformed by a learned function $\mathcal{F}$ and added to itself. Typically
+  $\norm{\mathcal{F}x} \ll \norm{x}$ meaning the vector $y$ is a small
+  perturbation of the vector $x$. In a lifting layer, each path is a learned
+  function of the other added to itself. In the original second generation
+  wavelets, $\mathcal{F}$ and $\mathcal{G}$ are FIR filters, but there is no
+  requirement on them to be. Diagrams are taken from \cite{gomez_reversible_2017}.}
+  \label{fig:ch7:lifting_resnet}
+\end{figure}
 
 \subsection{Protecting against Attacks}
 \begin{figure}
