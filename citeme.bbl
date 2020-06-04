@@ -1,0 +1,9 @@
+@PHDTHESIS{Cotter2019thesis,
+  AUTHOR = {Cotter, Fergal},
+  TITLE = {Uses of Complex Wavelets in Deep Convolutional Neural Networks},
+  SCHOOL = {Department of Engineering, University of Cambridge},
+  YEAR = {2019},
+  MONTH = aug,
+  TYPE = {phdthesis},
+  ADDRESS = {Trumpington Street, Cambridge CB2 1PZ, United Kingdom}
+}
