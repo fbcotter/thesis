@@ -19,4 +19,4 @@ Copyright/License
 -----------------
 I maintain copyright over the content of this document, but please feel free to copy the structure of my latex
 project/tikz figures. If you wish to publish large parts of this work, please contact me. Additionally, I'd appreciate
-citations of the original publication if you do use any content: [](citeme.bbl).
+citations of the original publication if you do use any content: [citeme.bbl](citeme.bbl).
